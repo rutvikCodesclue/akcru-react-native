@@ -25,6 +25,7 @@ import {
 } from '../../../../../assets/constants';
 import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
+import onboardStyles from '../../../loginScreens/Onboard/styles';
 import Header from '../../../../components/header';
 import BackButton from '../../../../components/General/backbutton';
 import {updateUser} from '../../../../lib/api/user.lib';
@@ -226,14 +227,22 @@ const FlickFlirtArchetypeResult = () => {
             />
             <ImageBackground
                 source={showLoader ? imageindex.BgImageSM : image ? {uri: image} : imageindex.FLickFlirt}
-                resizeMode="contain"
-                imageStyle={{
-                    width: SIZES.ScreenWidth,
-                    height: SIZES.ScreenHeight,
-                    alignSelf: 'center',
-                    top: -(SIZES.ScreenHeight * 0.15),
-                }}
-                style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
+                resizeMode={showLoader ? 'cover' : 'contain'}
+                imageStyle={
+                    showLoader
+                        ? undefined
+                        : {
+                              width: SIZES.ScreenWidth,
+                              height: SIZES.ScreenHeight,
+                              alignSelf: 'center',
+                              top: -(SIZES.ScreenHeight * 0.15),
+                          }
+                }
+                style={
+                    showLoader
+                        ? [onboardStyles.bgimage, onboardStyles.standaloneBgFill]
+                        : {width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}
+                }>
                 <SafeAreaView style={{flex: 1}}>
 
                     {showRevealFx && (

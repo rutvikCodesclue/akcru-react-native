@@ -21,6 +21,7 @@ import {AUTH_BUTTON_THEME, AUTH_TEXT_THEME} from '../../../../assets/constants/a
 import Svg, {G, Path, Polygon} from 'react-native-svg';
 import MaskedView from '@react-native-masked-view/masked-view';
 import imageindex from '../../../../assets/images/imageindex';
+import onboardStyles from '../../loginScreens/Onboard/styles';
 import {navigate} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 
@@ -255,7 +256,6 @@ function ModeCard({
     const idlePulseScale = React.useRef(new Animated.Value(1)).current;
     const pressScale = React.useRef(new Animated.Value(1)).current;
     const glowBoost = React.useRef(new Animated.Value(0)).current;
-    const revertTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
     const navigationFiredRef = React.useRef(false);
     const phaseMs = pulsePhaseMs ?? EMPHASIZED_PULSE_PHASE_MS;
 
@@ -263,14 +263,6 @@ function ModeCard({
         () => Animated.multiply(idlePulseScale, pressScale),
         [idlePulseScale, pressScale],
     );
-
-    React.useEffect(() => {
-        return () => {
-            if (revertTimerRef.current !== null) {
-                clearTimeout(revertTimerRef.current);
-            }
-        };
-    }, []);
 
     React.useEffect(() => {
         if (!emphasized) {
@@ -296,57 +288,11 @@ function ModeCard({
         return () => loop.stop();
     }, [emphasized, idlePulseScale, phaseMs]);
 
-    const clearRevertTimer = () => {
-        if (revertTimerRef.current !== null) {
-            clearTimeout(revertTimerRef.current);
-            revertTimerRef.current = null;
-        }
-    };
-
-    const handlePressIn = () => {
-        clearRevertTimer();
-        Animated.parallel([
-            Animated.spring(pressScale, {
-                toValue: 1.04,
-                friction: 5,
-                tension: 300,
-                useNativeDriver: true,
-            }),
-            Animated.timing(glowBoost, {
-                toValue: 0.72,
-                duration: 110,
-                easing: Easing.out(Easing.cubic),
-                useNativeDriver: true,
-            }),
-        ]).start();
-    };
-
-    const handlePressOut = () => {
-        revertTimerRef.current = setTimeout(() => {
-            revertTimerRef.current = null;
-            Animated.parallel([
-                Animated.spring(pressScale, {
-                    toValue: 1,
-                    friction: 5,
-                    tension: 280,
-                    useNativeDriver: true,
-                }),
-                Animated.timing(glowBoost, {
-                    toValue: 0,
-                    duration: 200,
-                    easing: Easing.out(Easing.cubic),
-                    useNativeDriver: true,
-                }),
-            ]).start();
-        }, 50);
-    };
-
     const handlePress = () => {
         if (navigationFiredRef.current) {
             return;
         }
         navigationFiredRef.current = true;
-        clearRevertTimer();
         Animated.sequence([
             Animated.parallel([
                 Animated.spring(pressScale, {
@@ -383,13 +329,12 @@ function ModeCard({
         <Pressable
             accessibilityRole="button"
             accessibilityLabel={`${title}. ${subtitle}`}
-            android_ripple={{color: 'rgba(160, 90, 220, 0.45)', borderless: false}}
-            onPressIn={handlePressIn}
-            onPressOut={handlePressOut}
+            android_ripple={null}
+            delayLongPress={600000}
             onPress={handlePress}
             style={[styles.cardWrap, emphasized && styles.cardWrapEmphasized, {width: FIXED_CARD_WIDTH}]}>
             <Animated.View style={{transform: [{scale: combinedScale}]}}>
-                <View style={styles.cardContainer} pointerEvents="box-none">
+                <View style={styles.cardContainer}>
                     <View style={styles.hexInteractiveWrap}>
                         <Animated.View
                             pointerEvents="none"
@@ -398,7 +343,7 @@ function ModeCard({
                         <HexCluster centerImage={centerImage} clusterWidth={clusterWidth} />
                     </View>
 
-                    <View style={styles.modeCardButtonShell} pointerEvents="none">
+                    <View style={styles.modeCardButtonShell}>
                         <LinearGradient
                             colors={AUTH_BUTTON_THEME.colors}
                             start={AUTH_BUTTON_THEME.start}
@@ -410,10 +355,17 @@ function ModeCard({
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }}>
-                            <Text style={AUTH_TEXT_THEME.buttonLabel}>{title}</Text>
+                            <Text
+                                selectable={false}
+                                suppressHighlighting
+                                style={AUTH_TEXT_THEME.buttonLabel}>
+                                {title}
+                            </Text>
                         </LinearGradient>
                     </View>
-                    <Text style={styles.subtitle}>{subtitle}</Text>
+                    <Text selectable={false} suppressHighlighting style={styles.subtitle}>
+                        {subtitle}
+                    </Text>
                 </View>
             </Animated.View>
         </Pressable>
@@ -465,9 +417,13 @@ export default function UserMatchModesScreen({navigation}: Props) {
         <View style={styles.root}>
             <ImageBackground
                 source={imageindex.BgImageSM}
-                resizeMode="contain"
-                imageStyle={styles.bgImage}
-                style={styles.backgroundLayer}>
+                resizeMode={showArchetypeLoader ? 'cover' : 'contain'}
+                imageStyle={showArchetypeLoader ? undefined : styles.bgImage}
+                style={
+                    showArchetypeLoader
+                        ? [onboardStyles.bgimage, onboardStyles.standaloneBgFill]
+                        : styles.backgroundLayer
+                }>
                 <SafeAreaView style={styles.safe}>
                     {!showArchetypeLoader && (
                         <LinearGradient colors={['#04103D', '#1C1666', '#0B2A7A', '#1B0E4E']} style={styles.container}>

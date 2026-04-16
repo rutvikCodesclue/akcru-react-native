@@ -174,9 +174,13 @@ const OnboardArchetypeStandalone = () => {
     }, []);
 
     return (
-        <View>
-            <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
+        <View style={styles.container}>
+            <ImageBackground
+                style={[styles.bgimage, styles.standaloneBgFill]}
+                source={imageindex.BgImageSM}
+                resizeMode="cover">
                 <LinearGradient
+                    pointerEvents="none"
                     colors={['rgba(5,7,35,0.95)', 'rgba(8,8,52,0.45)', 'rgba(5,7,35,0.95)']}
                     style={StyleSheet.absoluteFill}
                 />

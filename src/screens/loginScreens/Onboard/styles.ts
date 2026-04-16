@@ -48,6 +48,11 @@ export default StyleSheet.create({
         height: SIZES.ScreenHeight,
         backgroundColor: COLORS.AKCRUBACKGROUND,
     },
+    /** Full width + flex so OnboardArchetypeStandalone fills the stack when opened from profile */
+    standaloneBgFill: {
+        width: '100%',
+        flex: 1,
+    },
     container: {
         flex: 1,
     },
