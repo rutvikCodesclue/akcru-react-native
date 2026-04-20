@@ -2,6 +2,13 @@ import {StyleSheet} from 'react-native';
 import {COLORS, SIZES} from '../../../../assets/constants';
 
 export default StyleSheet.create({
+    screenContainer: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollContent: {
+        backgroundColor: COLORS.BLACK,
+    },
     activitycontainer: {
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,

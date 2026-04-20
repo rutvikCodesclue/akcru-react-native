@@ -5,10 +5,9 @@ import styles from './styles';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../assets/images/imageindex';
 import LinearGradient from 'react-native-linear-gradient';
-import AkcruButtons from '../akcruButtons';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {ClientStackParams} from '../../navigation/ClientStack';
+import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {formatMovieDuration} from '../../util/util';
 import {capitalizeFirstLetterOfString} from '../../util/util';
 import ConfirmationModal from '../ConfirmationModal';
@@ -48,6 +47,8 @@ type MovieDetailCardProps = {
     handleCancelAddToWatchList: () => void;
     handleConfirmAddToWatchList: () => void;
     watchlistButton: () => void;
+    isInWatchlist: boolean;
+    watchlistConfirmationText: string;
     PlayTrailer: () => void;
     reactions: any;
     contentButtonName: string;
@@ -72,6 +73,8 @@ const MovieDetailCard = ({
     onPress,
     playContent,
     watchlistButton,
+    isInWatchlist,
+    watchlistConfirmationText,
     showAddToWatchListConfirmationModal,
     handleCancelAddToWatchList,
     handleConfirmAddToWatchList,
@@ -79,7 +82,7 @@ const MovieDetailCard = ({
     reactions,
     contentButtonName,
 }: MovieDetailCardProps) => {
-    const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const [isNavigating, setIsNavigating] = useState(false);
     const [selectedReaction, setSelectedReaction] = useState<string | null>(null);
     const [reactionStats, setReactionStats] = useState<ReactionStat[]>([]);
@@ -135,19 +138,32 @@ const MovieDetailCard = ({
         }
     };
 
+    const renderMetaChip = (label: string) => (
+        <LinearGradient
+            colors={['#7DD3FC', COLORS.AKCRUBLUE, COLORS.PINK, '#C026D3']}
+            locations={[0, 0.32, 0.68, 1]}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={styles.metaChipGradientBorder}>
+            <View style={styles.metaChipInner}>
+                <Text style={styles.drawfonttag}>{label}</Text>
+            </View>
+        </LinearGradient>
+    );
+
     const handleBackPress = () => {
         if (isNavigating) return;
         setIsNavigating(true);
 
         const { routes } = navigation.getState();
-        
+
         if (routes.length > 1) {
             Orientation.lockToPortrait();
             navigation.pop();
             return true;
         } else {
             console.log('No more screens to pop');
-            BackHandler.exitApp(); 
+            BackHandler.exitApp();
         }
 
         setTimeout(() => {
@@ -155,15 +171,12 @@ const MovieDetailCard = ({
         }, 300);
     };
 
-    const handleVisionaryRoomPress = () => {
-        console.log('Navigate to the visionary room scheduler')
-        navigation.navigate('VisionaryRoomSchedule', {
-            id: movieId,
-            title: title,
-            portraitURL: portraitURL,
-            year: year,
+    const handleFlickFlirtPress = () => {
+        navigation.replace('ClientTabNavigator', {
+            screen: 'FlickFlirtScreen',
+            params: {disableSystemBack: true},
         });
-}
+    };
 
     const getIconForReaction = (reactionType: string | null) => {
         let color = COLORS.LIGHTGREY;
@@ -198,14 +211,27 @@ const MovieDetailCard = ({
     return (
         <View>
             <View>
-                <View>
-                    <Image
-                        source={{uri: portraitURL}}
-                        style={{
-                            height: SIZES.ScreenHeight / 1.6,
-                        }}
-                        resizeMode="cover"
-                    />
+                <View style={styles.heroSection}>
+                    <View style={styles.heroFrameWrap}>
+                        <LinearGradient
+                            colors={['#7DD3FC', COLORS.AKCRUBLUE, COLORS.PINK, '#C026D3']}
+                            locations={[0, 0.32, 0.68, 1]}
+                            start={{x: 0, y: 0}}
+                            end={{x: 1, y: 1}}
+                            style={styles.heroFrameGradient}>
+                            <Image
+                                source={{uri: landscapeURL || portraitURL}}
+                                style={styles.heroImage}
+                                resizeMode="cover"
+                            />
+                        </LinearGradient>
+                    </View>
+                    <TouchableOpacity onPress={handleBackPress} style={styles.heroBackButtonWrap}>
+                        <View style={styles.heroBackButtonInner}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.WHITE} />
+                            <Text style={styles.heroBackButtonText}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
                 <View
@@ -218,35 +244,10 @@ const MovieDetailCard = ({
                         bottom: 0,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.BLACK, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: SIZES.ScreenHeight / 1.5,
-                        }}
+                        colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
+                        style={styles.heroBottomOverlay}
                     />
-                    <TouchableOpacity
-                        onPress={handleBackPress}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-
-                            top: SIZES.ScreenHeight * -0.32,
-                            marginHorizontal: 15,
-                        }}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
-                    <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
+                    <View style={{marginBottom: 36, alignItems: 'flex-end', marginRight: 20}}>
                         <View
                             style={{
                                 justifyContent: 'center',
@@ -258,14 +259,15 @@ const MovieDetailCard = ({
                                     ...FONTS.Title3,
                                     textAlign: 'center',
                                     marginRight: 10,
+                                    color: COLORS.WHITE,
                                 }}>
-                                Add to Favorites
+                                {isInWatchlist ? 'Remove from Favorites' : 'Add to Favorites'}
                             </Text>
                             <TouchableOpacity onPress={watchlistButton}>
                                 <Icon
-                                    name="add-circle-outline"
+                                    name={isInWatchlist ? 'heart' : 'heart-outline'}
                                     type="ionicon"
-                                    color={COLORS.MIDORANGE}
+                                    color={isInWatchlist ? COLORS.CATREDLGT : COLORS.CATREDDRK}
                                     size={MULTISIZES.Xlarge40}
                                 />
                             </TouchableOpacity>
@@ -276,173 +278,119 @@ const MovieDetailCard = ({
                         <ConfirmationModal
                             onPressYes={handleConfirmAddToWatchList}
                             onPressNo={handleCancelAddToWatchList}
-                            confirmationText={`Are you sure you want to add "${title}" to your watchlist?`}
+                            variant="continueWatching"
+                            yesLabel="Yes"
+                            noLabel="No"
+                            confirmationText={watchlistConfirmationText}
                         />
                     </Modal>
 
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginHorizontal: 10,
-                        }}>
-                        <AkcruButtons.MedButton
-                            btnname={contentButtonName}
-                            onPress={playContent}
-                            color={COLORS.AKCRUBLUE}
-                            disabled={false}
-                        />
-
-                        <AkcruButtons.MedButton
-                            btnname={'Watch Trailer'}
-                            onPress={() => {
-                                console.log({
-                                    id: movieId,
-                                    trailerURL: trailerURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                                navigation.navigate('TrailerPlayer', {
-                                    id: movieId,
-                                    trailerURL: trailerURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                            }}
-                            color={COLORS.CATPURPDRK}
-                            disabled={false}
-                        />
-                    </View>
                 </View>
             </View>
 
-            <View style={{marginTop: 20, marginBottom: 15}}>
-                <View
-                    style={{
-                        marginHorizontal: 15,
-                        justifyContent: 'space-between',
-                        marginBottom: 10,
-                    }}>
-                    <View style={{width: '100%'}}>
-                        <Text style={{...FONTS.ContentTitle}}>{title}</Text>
+            <View style={[styles.ctaRow, styles.heroActionRow]}>
+                <TouchableOpacity style={{flex: 1}} onPress={playContent}>
+                    <View style={styles.VisionaryButton}>
+                        <Text style={styles.buttonText}>{contentButtonName}</Text>
                     </View>
-                </View>
-                <View
-                    style={{
-                        marginHorizontal: 15,
-                        flexDirection: 'row',
+                </TouchableOpacity>
 
-                        marginVertical: 5,
+                <TouchableOpacity
+                    style={{flex: 1}}
+                    onPress={() => {
+                        console.log({
+                            id: movieId,
+                            trailerURL: trailerURL,
+                            landscapeURL: landscapeURL,
+                        });
+                        navigation.navigate('TrailerPlayer', {
+                            id: movieId,
+                            trailerURL: trailerURL,
+                            landscapeURL: landscapeURL,
+                        });
                     }}>
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            alignSelf: 'center',
-                            marginRight: 10,
-                        }}>
-                        <Text
-                            style={{
-                                ...FONTS.paragraph1,
-                                color: COLORS.LIGHTGREY,
-                                marginRight: 10,
-                            }}>
-                            {year}
-                        </Text>
-                        <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
-                            {formatMovieDuration(duration)}
-                        </Text>
+                    <View style={styles.MITbutton}>
+                        <Text style={styles.buttonText}>Watch Trailer</Text>
                     </View>
-                    <View
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            flexWrap: 'wrap',
-                        }}>
-                        <Text style={styles.drawfonttag}>{rated}</Text>
-                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
-                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
-                        <Text style={styles.drawfonttag}>{rating}/10</Text>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.detailsContainer}>
+                <View style={styles.titleWrap}>
+                    <Text style={styles.titleText}>{title}</Text>
+                </View>
+                <View style={styles.metaRow}>
+                    <Icon name="star" type="ionicon" size={16} color={COLORS.STARGOLD} />
+                    <Text style={styles.descriptionText}>{rating ? ` ${rating.toFixed(1)} / 10 ` : '  '}</Text>
+                     <Icon name="star" type="ionicon" size={16} color={COLORS.STARGOLD} />
+                </View>
+                <View style={styles.tagsWrap}>
+                    {renderMetaChip(capitalizeFirstLetterOfString(genre1))}
+                    {renderMetaChip(String(year))}
+                    {renderMetaChip(formatMovieDuration(duration))}
+                    {renderMetaChip(rated)}
+                </View>
+                <View style={styles.descriptionWrap}>
+                    <Text style={styles.descriptionText}>
+                        {description}
+                    </Text>
+                    {!!actors?.trim() && (
+                        <View style={{flexDirection: 'row', marginBottom: 5}}>
+                            <Text style={styles.castText}>
+                                <Text style={styles.castLabel}>Cast:</Text> {actors}
+                            </Text>
+                        </View>
+                    )}
+                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                        <Text style={styles.castText}>
+                            <Text style={styles.castLabel}>Directors:</Text> {directors}
+                        </Text>
                     </View>
                 </View>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        width: '100%',
-                        alignContent: 'center',
-                        marginVertical: 10,
-                    }}>
+                <View style={styles.reactionsRow}>
                     {combinedReactions.map(reaction => (
                         <TouchableOpacity
                             onPress={() => handleReactionClick(reaction.type)}
                             key={reaction.type}
                             style={{alignItems: 'center'}}>
                             {getIconForReaction(reaction.type)}
-                            <Text style={{...FONTS.paragraph1}}>
+                            <Text style={styles.reactionText}>
                                 {capitalizeFirstLetterOfString(reaction.type)} {reaction.percentage}%
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
-
-                <View style={{marginHorizontal: 15, marginVertical: 10}}>
-                    <TouchableOpacity onPress={onPress}>
+                <View style={styles.ctaRow}>
+                    {/*
+                    {visionaryStatus && (
+                        <TouchableOpacity style={{flex: 1}} disabled activeOpacity={1}>
+                            <View style={[styles.VisionaryButton, {opacity: 0.45}]}>
+                                <Text style={styles.buttonText}>Find Your Match</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                    */}
+                    {visionaryStatus && (
+                        <TouchableOpacity style={{flex: 1}} onPress={handleFlickFlirtPress}>
+                            <View style={styles.VisionaryButton}>
+                                <Text style={styles.buttonText}>Find Your Match</Text>
+                            </View>
+                        </TouchableOpacity>
+                    )}
+                    <TouchableOpacity style={{flex: 1}} onPress={onPress}>
                         <View style={styles.MITbutton}>
-                            <Image source={imageindex.MITticket} style={{marginRight: 10}} />
-                            <Text style={styles.buttonText}>Send Movie Invite Ticket</Text>
+                            <Image source={imageindex.MITticket} style={{marginRight: 8}} />
+                            <Text style={styles.buttonText}>Send an Invite</Text>
                         </View>
                     </TouchableOpacity>
                 </View>
-                {visionaryStatus && (
-                    <View style={{marginHorizontal: 15, marginVertical: 10}}>
-                        <TouchableOpacity onPress={handleVisionaryRoomPress}>
-                            <View style={styles.VisionaryButton}>
-                                <Text style={styles.buttonText}>Create A Visionary Room</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                )}
-                <View
-                    style={{
-                        height: 40,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'row',
-                    }}>
+                <View style={styles.earnRow}>
                     <Image
                         source={imageindex.AkcruHexLogo}
                         style={{width: 26, height: 26, marginRight: 10}}
                         resizeMode="contain"
                     />
                     <Text style={{...FONTS.Title2Orange}}>Earn AKCRU dollars</Text>
-                </View>
-
-                <View style={{marginHorizontal: 15, marginTop: 15}}>
-                    <Text
-                        style={{
-                            ...FONTS.Title2Orange,
-                            color: COLORS.LIGHTGREY,
-                            lineHeight: 18,
-                            marginBottom: 10,
-                        }}>
-                        {description}
-                    </Text>
-                    <View style={{flexDirection: 'row', marginBottom: 5}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
-                            }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {actors}
-                        </Text>
-                    </View>
-                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
-                            }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Directors:</Text> {directors}
-                        </Text>
-                    </View>
                 </View>
             </View>
         </View>

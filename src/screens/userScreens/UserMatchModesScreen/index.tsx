@@ -427,7 +427,7 @@ export default function UserMatchModesScreen({navigation}: Props) {
                                         subtitle="Connect Through Film"
                                         centerImage={imageindex.FindMyMatch}
                                         clusterWidth={findMyMatchClusterWidth}
-                                        onPress={openFindMyMatch}
+                                         onPress={openFindMyMatch}
                                     />
                                 </View>
                                 <View style={[styles.sectionBlock, styles.secondarySection]}>

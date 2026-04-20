@@ -1,11 +1,13 @@
-import {View, Text, Pressable} from 'react-native';
+import {View, Text, TouchableOpacity, Pressable} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
 
+type ResultType = 'success' | 'failed' | 'alreadyInList' | 'removed' | 'removeFailed';
+
 type ResultModalProps = {
     closeModal: () => void;
-    type: any;
+    type: ResultType;
 };
 
 const ResultModal = ({closeModal, type}: ResultModalProps) => {
@@ -29,6 +31,18 @@ const ResultModal = ({closeModal, type}: ResultModalProps) => {
                     message: 'You already have this movie in your list',
                     color: COLORS.MIDORANGE,
                 };
+            case 'removed':
+                return {
+                    title: 'Removed',
+                    message: 'Movie removed from watchlist successfully',
+                    color: COLORS.GREEN,
+                };
+            case 'removeFailed':
+                return {
+                    title: 'Failed',
+                    message: 'Failed to remove movie from watchlist',
+                    color: COLORS.CATREDLGT,
+                };
             default:
                 return {title: '', message: '', color: COLORS.BLACK};
         }
@@ -47,7 +61,7 @@ const ResultModal = ({closeModal, type}: ResultModalProps) => {
             }}>
             <View
                 style={{
-                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    backgroundColor: COLORS.WHITE,
                     padding: 20,
                     borderRadius: 10,
                     alignItems: 'center',
@@ -76,10 +90,22 @@ const ResultModal = ({closeModal, type}: ResultModalProps) => {
                     style={{
                         ...FONTS.Title3,
                         marginBottom: 10,
+                        color: COLORS.AKCRUBACKGROUND,
                         textAlign: 'center',
                     }}>
                     {message}
                 </Text>
+                <TouchableOpacity onPress={closeModal}>
+                    <Text
+                        style={{
+                            ...FONTS.Title2,
+                            marginBottom: 10,
+                            textAlign: 'center',
+                            color: COLORS.MIDORANGE,
+                        }}>
+                        {type === 'success' ? 'Close' : 'Close'}
+                    </Text>
+                </TouchableOpacity>
             </View>
         </Pressable>
     );

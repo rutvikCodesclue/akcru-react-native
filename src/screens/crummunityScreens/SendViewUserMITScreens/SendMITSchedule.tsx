@@ -8,6 +8,7 @@ import {
     Image,
     ActivityIndicator,
     Platform,
+    Modal,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import AkcruLevels from '../../../components/akcruBadges';
@@ -39,6 +40,7 @@ import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import BackButton from '../../../components/General/backbutton';
+import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 
@@ -69,7 +71,7 @@ export default function SendMITSchedule({route}: Props) {
             android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
             ios: 'ca-app-pub-8264001768347242/1708251538', // <-- your real iOS id (make a separate unit in AdMob)
         });
-    
+
         const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
 
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
@@ -228,7 +230,7 @@ export default function SendMITSchedule({route}: Props) {
                         timezone: selectedTimeZone,
                     });
 
-                    if (response) {
+                    if (response.success) {
                         // Show the success ticket immediately
                         setIsDateTimeSelected(true);
                         setShowSendMIT(true);
@@ -248,12 +250,17 @@ export default function SendMITSchedule({route}: Props) {
                             interstitialRef.current?.load?.();
                         }
                     } else {
+                        const msg = response.message?.trim();
+                        setInviteFailedMessage(msg ? msg : 'Failed to send Movie Invite Ticket. Please try again.');
+                        setShowInviteFailedModal(true);
                         setIsSelectionDisabled(false);
                     }
                 }
             }
         } catch (error) {
             console.error('Error setting date and time:', error);
+            setInviteFailedMessage('Failed to send Movie Invite Ticket. Please try again.');
+            setShowInviteFailedModal(true);
             setIsSelectionDisabled(false);
         } finally {
             setLoading(false);
@@ -272,6 +279,13 @@ export default function SendMITSchedule({route}: Props) {
     ];
 
     const [showSendMIT, setShowSendMIT] = useState(false);
+    const [showInviteFailedModal, setShowInviteFailedModal] = useState(false);
+    const [inviteFailedMessage, setInviteFailedMessage] = useState('');
+
+    const handleCloseInviteFailedModal = () => {
+        setShowInviteFailedModal(false);
+        setInviteFailedMessage('');
+    };
 
     return (
         <TabContainer>
@@ -782,6 +796,13 @@ export default function SendMITSchedule({route}: Props) {
                     )}
                     {!loading && <Text style={{...FONTS.Title1, textAlign: 'center'}}>Loading...</Text>}
                 </ScrollView>
+                <Modal transparent visible={showInviteFailedModal} animationType="fade">
+                    <OTPResultModal
+                        closeModal={handleCloseInviteFailedModal}
+                        type="failed"
+                        message={inviteFailedMessage}
+                    />
+                </Modal>
             </SafeAreaView>
         </TabContainer>
     );

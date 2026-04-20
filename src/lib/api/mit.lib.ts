@@ -79,7 +79,7 @@ export const createAMITInvite = async (params: {
     username: string;
     startDate: string;
     timezone: string;
-}): Promise<IMITInvite | undefined> => {
+}): Promise<{success: boolean; invite?: IMITInvite; message?: string; code?: string}> => {
     try {
         const {movieId, username, startDate, timezone} = params;
 
@@ -93,16 +93,35 @@ export const createAMITInvite = async (params: {
         const formattedStartDate = dateObject.toISOString();
 
         // Make the API call
-        const {data} = await API.post('/v1/mit/invite/create', {
-            movieId,
-            username,
-            startDate: formattedStartDate,
-            timezone,
-        });
+        const {data} = await API.post(
+            '/v1/mit/invite/create',
+            {
+                movieId,
+                username,
+                startDate: formattedStartDate,
+                timezone,
+            },
+            {validateStatus: () => true},
+        );
 
-        return data.invite;
+        if (data?.success === true && data?.invite) {
+            return {success: true, invite: data.invite};
+        }
+
+        return {
+            success: false,
+            message:
+                typeof data?.message === 'string' && data.message.trim() !== ''
+                    ? data.message.trim()
+                    : 'Could not send Movie Invite Ticket. Please try again.',
+            code: typeof data?.code === 'string' ? data.code : undefined,
+        };
     } catch (error: any) {
         console.error(error);
+        return {
+            success: false,
+            message: 'Network error. Please try again.',
+        };
     }
 };
 

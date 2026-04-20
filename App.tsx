@@ -16,6 +16,7 @@ import {useNetInfo} from '@react-native-community/netinfo';
 import useWatchTimeStore from './src/stores/watchTime.store';
 import mobileAds from 'react-native-google-mobile-ads';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {handleDelayedAppTrackingFlow, TrackingStatus} from './lib/appTrackingTransparency';
 import {isTablet} from './assets/constants/theme';
 import Purchases from 'react-native-purchases';
@@ -221,21 +222,26 @@ function App(): JSX.Element {
     }
 
     return (
-        <SafeAreaProvider>
-            <SafeAreaView style={styles.container}>
-                <NoInternetAlert />
-                <StatusBar
-                    barStyle={'light-content'}
-                    backgroundColor={COLORS.AKCRUBACKGROUND}
-                    translucent={false} // Keep this false to maintain your current design
-                />
-                <RootNavigator />
-            </SafeAreaView>
-        </SafeAreaProvider>
+        <GestureHandlerRootView style={styles.gestureRoot}>
+            <SafeAreaProvider>
+                <SafeAreaView style={styles.container}>
+                    <NoInternetAlert />
+                    <StatusBar
+                        barStyle={'light-content'}
+                        backgroundColor={COLORS.AKCRUBACKGROUND}
+                        translucent={false} // Keep this false to maintain your current design
+                    />
+                    <RootNavigator />
+                </SafeAreaView>
+            </SafeAreaProvider>
+        </GestureHandlerRootView>
     );
 }
 
 const styles = StyleSheet.create({
+    gestureRoot: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         backgroundColor: COLORS.AKCRUBACKGROUND,

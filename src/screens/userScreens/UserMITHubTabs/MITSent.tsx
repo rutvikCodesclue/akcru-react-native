@@ -27,29 +27,29 @@ const MITSent = () => {
 
     useFocusEffect(
         React.useCallback(() => {
-            setIsLoaded(true); 
+            setIsLoaded(true);
 
-            
+
             const fetchPendingMITs = async () => {
                 try {
                     const res = await getMyMITs();
                     if (res) {
-                        
+
                         const pendingMITs = res.filter(mit => mit.status === 'PENDING');
                         setCurrentMITS(pendingMITs);
                     }
                 } catch (error) {
                     console.error('Error fetching MITs:', error);
                 } finally {
-                    setIsLoaded(false); 
+                    setIsLoaded(false);
                 }
             };
 
-            
+
             fetchPendingMITs();
 
             return () => {
-                
+
             };
         }, []),
     );
@@ -57,7 +57,7 @@ const MITSent = () => {
     const fetchMITs = async () => {
         setIsLoaded(true);
         try {
-            const fetchedMITS = await getMyMITs(); 
+            const fetchedMITS = await getMyMITs();
             if (fetchedMITS) {
                 setCurrentMITS(fetchedMITS);
             }
@@ -74,10 +74,10 @@ const MITSent = () => {
             const response = await cancelSentMIT(mitInviteId);
             if (response.success) {
                 hydrateUser({...user, MITCount: (user?.MITCount || 0) + 1});
-                
+
                 setCurrentMITS(currentMITS.filter(mit => mit.id !== mitInviteId));
-                
-                
+
+
             } else {
                 console.error('Failed to cancel MIT:', response.message, response.code);
                 const msg = response.message?.trim();
@@ -90,6 +90,16 @@ const MITSent = () => {
             setShowCancelFailedModal(true);
         } finally {
             setIsLoaded(false);
+        }
+    };
+
+    const handleCloseCancelFailedModal = () => {
+        const shouldRefreshHubScreen = cancelFailedMessage.toLowerCase().includes('already declined');
+        setShowCancelFailedModal(false);
+        setCancelFailedMessage('');
+
+        if (shouldRefreshHubScreen) {
+            navigation.replace('UserMITHubScreen', {index: 1});
         }
     };
 
@@ -116,10 +126,10 @@ const MITSent = () => {
                             renderItem={({ item }) => {
                                 const { username, profilePicture, badge, influencerStatus, companyStatus, ownerStatus, blackCloakStatus } = item.invitee;
                                 const startDate = item.startDate ?? '';
-                                
+
                                 // Safely access movie title only if item.movie exists and is not null
                                 const movieTitle = item.movie ? item.movie.title ?? 'N/A' : 'N/A';
-                                
+
                                 return (
                                   <View style={{ marginVertical: 5, marginHorizontal: 15 }}>
                                     <MITHubCard
@@ -147,10 +157,7 @@ const MITSent = () => {
             </View>
             <Modal transparent visible={showCancelFailedModal} animationType="fade">
                 <OTPResultModal
-                    closeModal={() => {
-                        setShowCancelFailedModal(false);
-                        setCancelFailedMessage('');
-                    }}
+                    closeModal={handleCloseCancelFailedModal}
                     type="failed"
                     message={cancelFailedMessage}
                 />

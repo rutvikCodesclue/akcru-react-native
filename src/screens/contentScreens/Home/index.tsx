@@ -4,7 +4,7 @@ import {useIsFocused} from '@react-navigation/native';
 import BasicListCategories from '../../../components/BasicListCategories';
 import LargeListCategories from '../../../components/LargeListCategories';
 import Header from '../../../components/header';
-import CategoriesBtn from '../../../components/CategoriesBtn';
+import PreferenceChip from '../../../components/PreferenceChip';
 import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, SIZES} from '../../../../assets/constants/index';
 import styles from './styles';
@@ -30,7 +30,21 @@ import { isTablet } from '../../../../assets/constants/theme';
 import RotatingAd from '../../../components/Ads/RotatingAd';
 import { getAds, trackAdClick, trackAdEvent, trackAdImpression } from '../../../lib/api/ads.lib';
 
+const HOME_SECTION_ICON_URLS: Record<string, string> = {
+    'New on Akcru': 'https://img.icons8.com/fluency/96/new.png',
+    'Top Rated on Akcru': 'https://img.icons8.com/fluency/96/star.png',
+    'Oldies but Goodies': 'https://img.icons8.com/fluency/96/retro-tv.png',
+    'Continue Watching': 'https://img.icons8.com/fluency/96/time-machine.png',
+    'Black in the Days': 'https://img.icons8.com/fluency/96/clapperboard.png',
+    'Recommended by Akcru': 'https://img.icons8.com/fluency/96/artificial-intelligence.png',
+    'Original Series': 'https://img.icons8.com/fluency/96/tv-show.png',
+    'Coming Soon Orginals': 'https://img.icons8.com/fluency/96/alarm.png',
+};
+
 const HomeScreen = () => {
+    const SHOW_HOME_HERO = false; // temporary: hide top trailer/details section
+
+    const [selectedGenreId, setSelectedGenreId] = useState<string | null>(null);
     const [newOnAkcru, setNewOnAkcru] = useState<IMovie[]>([]);
     const [topRatedMovies, setTopRatedMovies] = useState<IMovie[]>([]);
     const [olderYearMovies, setOlderYearMovies] = useState<IMovie[]>([]);
@@ -83,6 +97,15 @@ const HomeScreen = () => {
         if (!isFocused) return;
 
         const backAction = () => {
+            if (navigation.canGoBack()) {
+                navigation.goBack();
+                return true;
+            }
+            const parentNavigation = navigation.getParent();
+            if (parentNavigation?.canGoBack()) {
+                parentNavigation.goBack();
+                return true;
+            }
             if (backPressCount === 1) {
                 BackHandler.exitApp();
             } else {
@@ -258,6 +281,7 @@ const HomeScreen = () => {
                 setIsMovieDataLoaded(true);
             } catch (error) {
                 console.error('Error fetching topbox movies:', error);
+                setIsMovieDataLoaded(true);
             }
         };
 
@@ -317,11 +341,23 @@ const HomeScreen = () => {
         });
     };
 
+    const handleSearchNavigation = () => {
+        navigation.navigate('SearchMovieScreen');
+    };
+
+
     const [isMuted, setIsMuted] = useState(true);
 
     const toggleMute = () => {
         setIsMuted(!isMuted);
     };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // Reset selected chip when returning to Home
+            setSelectedGenreId(null);
+        }, []),
+    );
 
     useFocusEffect(
         React.useCallback(() => {
@@ -354,214 +390,280 @@ const HomeScreen = () => {
 
     return (
         <TabContainer>
-            {isMovieDataLoaded ? (
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View>
-                        <Header />
-                    </View>
-                    <View>
-                        <View
+            <LinearGradient
+               colors={['#0D2E6D', '#071325', '#000000']}
+//                 colors={['#000000', '#060606', '#000000']}
+                start={{x: 0, y: 0}}
+                end={{x: 1, y: 1}}
+                style={{flex: 1}}>
+                {isMovieDataLoaded ? (
+                    <View style={{flex: 1, paddingTop: isTablet() ? 14 : 10}}>
+                        <TouchableOpacity
+                            onPress={handleSearchNavigation}
                             style={{
-                                width: '100%',
-                                zIndex: 3,
-                                position: 'absolute',
-                                top: '5%',
-                                paddingHorizontal: 15,
-                                alignItems: 'flex-end',
+                                width: '92%',
+                                alignSelf: 'center',
+                                height: isTablet() ? 48 : 40,
+                                borderRadius: 20,
+                                paddingLeft: 14,
+                                paddingRight: 14,
+                                marginBottom: isTablet() ? 18 : 14,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                backgroundColor: 'rgba(10, 28, 64, 0.9)',
+                                borderWidth: 1,
+                                borderColor: 'rgba(149, 189, 255, 0.35)',
                             }}>
-                            <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
-                                <Icon
-                                    name={isMuted ? 'volume-mute' : 'volume-high'}
-                                    type="ionicon"
-                                    size={isTablet() ? 30 : 20}
-                                    color={COLORS.LIGHTGREY}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <View
-                            style={{
-                                width: '100%',
-                                zIndex: 2,
-                                position: 'absolute',
-                                top: '55%',
-                                flexDirection: 'row-reverse',
-                                justifyContent: 'space-between',
-                                paddingHorizontal: 15,
-                            }}>
-                            <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
-                                <Icon
-                                    name="chevron-forward"
-                                    type="ionicon"
-                                    size={isTablet() ? 30 : 20}
-                                    color={COLORS.LIGHTGREY}
-                                />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
-                                <Icon
-                                    name="chevron-back"
-                                    type="ionicon"
-                                    size={isTablet() ? 30 : 20}
-                                    color={COLORS.LIGHTGREY}
-                                />
-                            </TouchableOpacity>
-                        </View>
-                        <Pressable style={styles.videocontainer} onPress={handlePress}>
-                            <View style={{height: SIZES.ScreenHeight / 1.63}}>
-                                {!isVideoLoaded && (
-                                    <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
-                                )}
-                                <Video
-                                    key={current?.id}
-                                    style={{width: '100%', height: '100%'}}
-                                    source={canPlay ? {uri: trailerUrl} : undefined}
-                                    resizeMode="cover"
-                                    onEnd={handleVideoEnd}
-                                    repeat={false}
-                                    onError={handleVideoError}
-                                    posterResizeMode="cover"
-                                    poster={topBox[topBoxIndex]?.portraitURL}
-                                    onLoad={handleVideoLoad}
-                                    paused={!topBoxShouldAutoplay}
-                                    muted={isMuted}
-                
-                                />
-                            </View>
-                            <View>
-                                <LinearGradient
-                                    colors={['transparent', COLORS.AKCRUBACKGROUND]}
-                                    style={{
-                                        position: 'absolute',
-                                        left: 0,
-                                        right: 0,
-                                        bottom: 0,
-                                        height: 200,
-                                    }}
-                                />
-                                <View
-                                    style={{
-                                        marginHorizontal: '2%',
-                                        marginBottom: 20,
-                                        position: 'absolute',
-                                        bottom: 0,
-                                        right: 0,
-                                        left: 0,
-                                    }}>
-                                    <View>
-                                        <Text style={styles.bigTitle}>{topBox[topBoxIndex]?.title}</Text>
-                                        <View style={{flexDirection: 'row', marginVertical: 10}}>
-                                            <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rated}</Text>
-                                            <Text style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[0])}
-                                            </Text>
-                                            <Text style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[1])}
-                                            </Text>
-
-                                            <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rating}/10</Text>
-                                        </View>
-                                        <Text style={styles.desc}>{topBox[topBoxIndex]?.description}</Text>
-                                    </View>
-                                </View>
-                            </View>
-                        </Pressable>
-                    </View>
-                    <View style={{marginTop: isTablet() ? '15%' : 75, marginBottom: isTablet() ? '15%' : 75}}>
-                        <View>
+                            <Icon
+                                name="search-outline"
+                                type="ionicon"
+                                size={isTablet() ? 22 : 18}
+                                color={COLORS.LIGHTGREY}
+                            />
+                            <Text
+                                style={{
+                                    marginLeft: 8,
+                                    color: 'rgba(255,255,255,0.8)',
+                                    fontSize: isTablet() ? 16 : 13,
+                                    fontWeight: '500',
+                                }}>
+                                Search movies
+                            </Text>
+                        </TouchableOpacity>
+                        <View style={{paddingBottom: isTablet() ? 16 : 12}}>
                             <FlatList
                                 data={MOVIE_GENRES}
                                 horizontal={true}
                                 showsHorizontalScrollIndicator={false}
                                 keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
-                                    <CategoriesBtn
-                                        category={item.genre}
-                                        color={item.color}
-                                        onPress={() => handleGenrePress(item.genre)}
+                                contentContainerStyle={{
+                                    paddingHorizontal: '4%',
+                                    gap: 10,
+                                    alignItems: 'center',
+                                }}
+                                renderItem={({item}) => (
+                                    <PreferenceChip
+                                        selected={selectedGenreId === item.id}
+                                        label={item.genre}
+                                        onPress={() => {
+                                            setSelectedGenreId(item.id);
+                                            handleGenrePress(item.genre);
+                                        }}
                                     />
                                 )}
                             />
                         </View>
-                        <BasicListCategories
-                            Akcru_Content={{id: 'newOnAkcru', title: 'New on Akcru', movies: newOnAkcru}}
-                        />
-                        <BasicListCategories
-                            Akcru_Content={{
-                                id: 'topRatedMovies',
-                                title: 'Top Rated on Akcru',
-                                movies: topRatedMovies,
-                            }}
-                        />
+                        <ScrollView contentContainerStyle={{paddingBottom: isTablet() ? 80 : 75}}>
+                            {SHOW_HOME_HERO && <View>
+                                <Header />
+                            </View>}
+                            {SHOW_HOME_HERO && <View>
+                                <View
+                                    style={{
+                                        width: '100%',
+                                        zIndex: 3,
+                                        position: 'absolute',
+                                        top: '5%',
+                                        paddingHorizontal: 15,
+                                        alignItems: 'flex-end',
+                                    }}>
+                                    <TouchableOpacity onPress={toggleMute} style={styles.muteButton}>
+                                        <Icon
+                                            name={isMuted ? 'volume-mute' : 'volume-high'}
+                                            type="ionicon"
+                                            size={isTablet() ? 30 : 20}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <View
+                                    style={{
+                                        width: '100%',
+                                        zIndex: 2,
+                                        position: 'absolute',
+                                        top: '55%',
+                                        flexDirection: 'row-reverse',
+                                        justifyContent: 'space-between',
+                                        paddingHorizontal: 15,
+                                    }}>
+                                    <TouchableOpacity onPressIn={nextVideo} style={styles.heroButtons}>
+                                        <Icon
+                                            name="chevron-forward"
+                                            type="ionicon"
+                                            size={isTablet() ? 30 : 20}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPressIn={previousVideo} style={styles.heroButtons}>
+                                        <Icon
+                                            name="chevron-back"
+                                            type="ionicon"
+                                            size={isTablet() ? 30 : 20}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                <Pressable style={styles.videocontainer} onPress={handlePress}>
+                                    <View style={{height: SIZES.ScreenHeight / 1.63}}>
+                                        {!isVideoLoaded && (
+                                            <View style={{position: 'absolute', zIndex: 10, bottom: '50%', left: '50%'}} />
+                                        )}
+                                        <Video
+                                            key={current?.id}
+                                            style={{width: '100%', height: '100%'}}
+                                            source={canPlay ? {uri: trailerUrl} : undefined}
+                                            resizeMode="cover"
+                                            onEnd={handleVideoEnd}
+                                            repeat={false}
+                                            onError={handleVideoError}
+                                            posterResizeMode="cover"
+                                            poster={topBox[topBoxIndex]?.portraitURL}
+                                            onLoad={handleVideoLoad}
+                                            paused={!topBoxShouldAutoplay}
+                                            muted={isMuted}
+                                        />
+                                    </View>
+                                    <View>
+                                        <LinearGradient
+                                            colors={['transparent', COLORS.AKCRUBACKGROUND]}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                bottom: 0,
+                                                height: 200,
+                                            }}
+                                        />
+                                        <View
+                                            style={{
+                                                marginHorizontal: '2%',
+                                                marginBottom: 20,
+                                                position: 'absolute',
+                                                bottom: 0,
+                                                right: 0,
+                                                left: 0,
+                                            }}>
+                                            <View>
+                                                <Text style={styles.bigTitle}>{topBox[topBoxIndex]?.title}</Text>
+                                                <View style={{flexDirection: 'row', marginVertical: 10}}>
+                                                    <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rated}</Text>
+                                                    <Text style={styles.drawfonttag}>
+                                                        {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[0])}
+                                                    </Text>
+                                                    <Text style={styles.drawfonttag}>
+                                                        {capitalizeFirstLetterOfString(topBox[topBoxIndex]?.genres[1])}
+                                                    </Text>
+                                                    <Text style={styles.drawfonttag}>{topBox[topBoxIndex]?.rating}/10</Text>
+                                                </View>
+                                                <Text style={styles.desc}>{topBox[topBoxIndex]?.description}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </Pressable>
+                            </View>}
+                            <BasicListCategories
+                                variant="featured"
+                                showTitleIcon
+                                titleIconUri={HOME_SECTION_ICON_URLS['New on Akcru']}
+                                Akcru_Content={{id: 'newOnAkcru', title: 'New on Akcru', movies: newOnAkcru}}
+                            />
+                            <BasicListCategories
+                                variant="highlight"
+                                showTitleIcon
+                                titleIconUri={HOME_SECTION_ICON_URLS['Top Rated on Akcru']}
+                                Akcru_Content={{
+                                    id: 'topRatedMovies',
+                                    title: 'Top Rated on Akcru',
+                                    movies: topRatedMovies,
+                                }}
+                            />
 
-                        {!!homeAds.length && (
-                            <View style={{marginTop: isTablet() ? 24 : 16, paddingHorizontal: '2%'}}>
-                                <RotatingAd
-                                    ads={homeAds}
-                                    height={AD_HEIGHT}
-                                    pause={!isFocused}
-                                    onImpression={id => trackAdEvent(id, 'IMPRESSION')}
-                                    onClick={id => trackAdEvent(id, 'CLICK')}
+                            {!!homeAds.length && (
+                                <View style={{marginTop: isTablet() ? 24 : 16, paddingHorizontal: '2%'}}>
+                                    <RotatingAd
+                                        ads={homeAds}
+                                        height={AD_HEIGHT}
+                                        pause={!isFocused}
+                                        onImpression={id => trackAdEvent(id, 'IMPRESSION')}
+                                        onClick={id => trackAdEvent(id, 'CLICK')}
+                                    />
+                                </View>
+                            )}
+
+                            <BasicListCategories
+                                variant="featured"
+                                featuredCardPreset="wideLandscape"
+                                showTitleIcon
+                                titleIconUri={HOME_SECTION_ICON_URLS['Oldies but Goodies']}
+                                Akcru_Content={{
+                                    id: 'oldiesButGoodies',
+                                    title: 'Oldies but Goodies',
+                                    movies: olderYearMovies,
+                                }}
+                            />
+                            {unfinishedContent.length > 0 && (
+                                <ContinueWatchingList
+                                    showTitleIcon
+                                    titleIconUri={HOME_SECTION_ICON_URLS['Continue Watching']}
+                                    Akcru_Content={{
+                                        id: 'unfinshedContent',
+                                        title: 'Continue Watching',
+                                        content: unfinishedContent,
+                                    }}
+                                    updateUnfinishedContent={updateUnfinishedContent}
                                 />
-                            </View>
-                        )}
-
-                        <LargeListCategories
-                            Akcru_Content={{
-                                id: 'oldiesButGoodies',
-                                title: 'Oldies but Goodies',
-                                movies: olderYearMovies,
-                            }}
-                        />
-                        {unfinishedContent.length > 0 && (
-                            <ContinueWatchingList
+                            )}
+                            {blackInTheDaysMovies.length > 0 && (
+                                <LargeListCategories
+                                    showTitleIcon
+                                    titleIconUri={HOME_SECTION_ICON_URLS['Black in the Days']}
+                                    Akcru_Content={{
+                                        id: 'blackinthedays',
+                                        title: 'Black in the Days',
+                                        movies: blackInTheDaysMovies,
+                                    }}
+                                />
+                            )}
+                            <BasicListCategories
+                                variant="highlight"
+                                showTitleIcon
+                                titleIconUri={HOME_SECTION_ICON_URLS['Recommended by Akcru']}
                                 Akcru_Content={{
-                                    id: 'unfinshedContent',
-                                    title: 'Continue Watching',
-                                    content: unfinishedContent,
-                                }}
-                                updateUnfinishedContent={updateUnfinishedContent}
-                            />
-                        )}
-                        {blackInTheDaysMovies.length > 0 && (
-                            <LargeListCategories
-                                Akcru_Content={{
-                                    id: 'blackinthedays',
-                                    title: 'Black in the Days',
-                                    movies: blackInTheDaysMovies,
+                                    id: 'recommendedForYou',
+                                    title: 'Recommended by Akcru',
+                                    movies: randomMovies,
                                 }}
                             />
-                        )}
-                        <BasicListCategories
-                            Akcru_Content={{
-                                id: 'recommendedForYou',
-                                title: 'Recommended by Akcru',
-                                movies: randomMovies,
-                            }}
-                        />
-                        {originalSeries.length > 0 && (
-                            <BasicSeriesCarousel
-                                Akcru_Content={{
-                                    id: 'OrginalSeries',
-                                    title: 'Original Series',
-                                    series: originalSeries,
-                                }}
-                            />
-                        )}
-                        {sizzles.length > 0 && (
-                            <BasicSizzleCarousel
-                                Akcru_Content={{
-                                    id: 'ComingSoonTrailers',
-                                    title: 'Coming Soon Orginals',
-                                    sizzle: sizzles,
-                                }}
-                            />
-                        )}
+                            {originalSeries.length > 0 && (
+                                <BasicSeriesCarousel
+                                    showTitleIcon
+                                    titleIconUri={HOME_SECTION_ICON_URLS['Original Series']}
+                                    Akcru_Content={{
+                                        id: 'OrginalSeries',
+                                        title: 'Original Series',
+                                        series: originalSeries,
+                                    }}
+                                />
+                            )}
+                            {sizzles.length > 0 && (
+                                <BasicSizzleCarousel
+                                    showTitleIcon
+                                    titleIconUri={HOME_SECTION_ICON_URLS['Coming Soon Orginals']}
+                                    Akcru_Content={{
+                                        id: 'ComingSoonTrailers',
+                                        title: 'Coming Soon Orginals',
+                                        sizzle: sizzles,
+                                    }}
+                                />
+                            )}
+                        </ScrollView>
                     </View>
-                </ScrollView>
-            ) : (
-                <View style={styles.activitycontainer}>
-                    <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
-                </View>
-            )}
+                ) : (
+                    <View style={styles.activitycontainer}>
+                        <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                    </View>
+                )}
+            </LinearGradient>
         </TabContainer>
     );
 };

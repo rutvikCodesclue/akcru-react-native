@@ -96,8 +96,9 @@ export default function RootNavigator(params: any) {
             // check https://posthog.com/docs/session-replay/installation?tab=React+Native
             // for more config and to learn about how we capture sessions on mobile
             // and what to expect
-            // In dev, session replay can install layers that steal touches; disable to verify tab bar taps.
-            enableSessionReplay: !__DEV__,
+            // Session replay installs native overlay layers that intermittently block taps after reload.
+            // Re-enable only when actively debugging replay (see PostHog RN session replay docs).
+            enableSessionReplay: false,
             sessionReplayConfig: {
                 // Whether text inputs are masked. Default is true.
                 // Password inputs are always masked regardless

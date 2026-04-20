@@ -52,7 +52,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
             ios: 'ca-app-pub-8264001768347242/1708251538', // <-- your real iOS id (make a separate unit in AdMob)
         });
-    
+
         const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
 
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
@@ -281,7 +281,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                 timezone: selectedTimeZone,
             });
 
-            if (response) {
+            if (response.success) {
                 setIsDateTimeSelected(true);
                 setShowSendMIT(true);
 

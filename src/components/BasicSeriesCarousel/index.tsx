@@ -1,11 +1,14 @@
-import {View, Text, Image, FlatList, TouchableOpacity} from 'react-native';
-import styles from './styles';
-import {FONTS} from '../../../assets/constants';
+import {View, Text, FlatList, Image} from 'react-native';
+import categoryRowStyles from '../BasicListCategories/styles';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import React from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {ISeries} from '../../../types';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
+import HighlightMediaCard from '../HighlightMediaCard';
+import imageindex from '../../../assets/images/imageindex';
+
+const HIGHLIGHT_NAV_DELAY_MS = 130;
 
 interface BasicSeriesCarouselProps {
     Akcru_Content: {
@@ -13,38 +16,71 @@ interface BasicSeriesCarouselProps {
         title: string;
         series: ISeries[];
     };
+    showTitleIcon?: boolean;
+    titleIconUri?: string;
 }
 
 const BasicSeriesCarousel = (props: BasicSeriesCarouselProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
-    const {Akcru_Content} = props;
+    const {Akcru_Content, showTitleIcon = false, titleIconUri} = props;
+    const [pressedSeriesId, setPressedSeriesId] = useState<string | null>(null);
+    const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (navTimerRef.current) {
+                clearTimeout(navTimerRef.current);
+            }
+        };
+    }, []);
+
+    const handleItemPress = (series: ISeries) => {
+        if (navTimerRef.current) {
+            clearTimeout(navTimerRef.current);
+        }
+        setPressedSeriesId(series.id);
+        navTimerRef.current = setTimeout(() => {
+            navTimerRef.current = null;
+            setPressedSeriesId(null);
+            navigation.navigate('SeriesDetailScreen', {
+                id: series.id,
+                series: series.title,
+                episodes: series.episodes,
+            });
+        }, HIGHLIGHT_NAV_DELAY_MS);
+    };
 
     return (
-        <>
-            <Text style={{...FONTS.Title2, marginTop: 10, marginLeft: '2%'}}>{Akcru_Content.title}</Text>
+        <View style={categoryRowStyles.featuredSectionContainer}>
+            {showTitleIcon ? (
+                <View style={categoryRowStyles.homeSectionTitleRow}>
+                    <Image source={titleIconUri ? {uri: titleIconUri} : imageindex.AkcruHexLogo} style={categoryRowStyles.homeSectionTitleIcon} resizeMode="contain" />
+                    <Text style={categoryRowStyles.homeSectionTitle}>{Akcru_Content.title}</Text>
+                </View>
+            ) : (
+                <Text style={categoryRowStyles.homeSectionTitle}>{Akcru_Content.title}</Text>
+            )}
             <FlatList
                 data={Akcru_Content.series}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
+                keyExtractor={(item, index) => `${item.id}-${index}`}
+                contentContainerStyle={{
+                    ...categoryRowStyles.featuredListContainer,
+                    paddingHorizontal: '2%',
+                }}
                 renderItem={({item}) => (
-                    <View>
-                        <TouchableOpacity
-                            onPress={() => {
-                                console.log('id:', item.id);
-                                console.log('series:', item);
-                                console.log('Series Episodes:', item.episodes);
-                                navigation.navigate('SeriesDetailScreen', {
-                                    id: item.id,
-                                    series: item.title,
-                                    episodes: item.episodes,
-                                });
-                            }}>
-                            <Image source={{uri: item.portraitURL}} style={styles.poster} />
-                        </TouchableOpacity>
+                    <View style={categoryRowStyles.highlightCardWrap}>
+                        <HighlightMediaCard
+                            active={pressedSeriesId === item.id}
+                            uri={item.portraitURL}
+                            imageStyle={categoryRowStyles.featuredPoster}
+                            onPress={() => handleItemPress(item)}
+                        />
                     </View>
                 )}
             />
-        </>
+        </View>
     );
 };
 

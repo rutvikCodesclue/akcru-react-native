@@ -9,4 +9,10 @@ export default StyleSheet.create({
         margin: 5,
         resizeMode: 'cover',
     },
+    largeHighlightPoster: {
+        width: SIZES.ScreenWidth / 1.3,
+        height: SIZES.ScreenWidth / 2.4,
+        borderRadius: 12,
+        resizeMode: 'cover',
+    },
 });

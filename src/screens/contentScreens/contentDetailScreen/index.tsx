@@ -18,6 +18,7 @@ import {
     getUserReactions,
     getWatchlist,
     IContentPurchaseStatus,
+    removeFromWatchlist,
     rentMovie,
 } from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
@@ -38,6 +39,8 @@ type Props = {
     navigation: ContentDetailScreenNavigationProp;
     route: ContentDetailScreenRouteProp;
 };
+
+type ResultModalType = 'success' | 'failed' | 'alreadyInList' | 'removed' | 'removeFailed';
 
 export default function ContentDetailScreen({navigation}: Props) {
     const [movie, setMovie] = useState<IMovie[]>([]);
@@ -210,12 +213,14 @@ export default function ContentDetailScreen({navigation}: Props) {
     };
 
     const [showAddToWatchListConfirmationModal, setShowAddToWatchListConfirmationModal] = useState(false);
+    const [watchlistAction, setWatchlistAction] = useState<'add' | 'remove'>('add');
 
     const handleCancelAddToWatchList = () => {
         setShowAddToWatchListConfirmationModal(false);
     };
 
     const [watchlist, setWatchlist] = useState<IMovie[]>([]);
+    const isCurrentMovieInWatchlist = !!id && watchlist.some(movie => movie.id === id);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -235,36 +240,64 @@ export default function ContentDetailScreen({navigation}: Props) {
         }, [user?.id]),
     );
 
-    const handleConfirmAddToWatchList = async () => {
-        setShowAddToWatchListConfirmationModal(false);
+    const [result, setResult] = useState(false);
+    const [typeResultModal, setTypeResultModal] = useState<ResultModalType>('success');
+    const [showResultModal, setShowResultModal] = useState(false);
+    const watchlistConfirmationText =
+        watchlistAction === 'remove'
+            ? `Are you sure you want to remove "${title}" from your watchlist?`
+            : `Are you sure you want to add "${title}" to your watchlist?`;
 
-        if (id) {
-            const isMovieInWatchlist = watchlist.some(movie => movie.id === id);
-
-            if (isMovieInWatchlist) {
-                handleShowResultModal('alreadyInList');
-            } else {
-                setResult(true);
-
-                const success = await addToWatchlist(id);
-                if (success) {
-                    setResult(false);
-                    handleShowResultModal('success');
-                } else {
-                    setResult(false);
-                    handleShowResultModal('failed');
-                }
-            }
-        }
+    const handleShowResultModal = (nextType: ResultModalType) => {
+        setTypeResultModal(nextType);
+        setShowResultModal(true);
     };
 
-    const [result, setResult] = useState(false);
-    const [typeResultModal, setTypeResultModal] = useState('');
-    const [showResultModal, setShowResultModal] = useState(false);
+    const handleWatchlistIconPress = () => {
+        setWatchlistAction(isCurrentMovieInWatchlist ? 'remove' : 'add');
+        setShowAddToWatchListConfirmationModal(true);
+    };
 
-    const handleShowResultModal = (typeResultModal: React.SetStateAction<string>) => {
-        setTypeResultModal(typeResultModal);
-        setShowResultModal(true);
+    const handleConfirmAddToWatchList = async () => {
+        setShowAddToWatchListConfirmationModal(false);
+        if (!id) {
+            return;
+        }
+
+        setResult(true);
+
+        if (watchlistAction === 'remove') {
+            const success = await removeFromWatchlist(id);
+            setResult(false);
+            if (success) {
+                setWatchlist(prev => prev.filter(movie => movie.id !== id));
+                handleShowResultModal('removed');
+            } else {
+                handleShowResultModal('removeFailed');
+            }
+            return;
+        }
+
+        const isMovieInWatchlist = watchlist.some(movie => movie.id === id);
+        if (isMovieInWatchlist) {
+            setResult(false);
+            handleShowResultModal('alreadyInList');
+            return;
+        }
+
+        const success = await addToWatchlist(id);
+        setResult(false);
+        if (success) {
+            setWatchlist(prev => {
+                if (prev.some(movie => movie.id === id) || !movie[0]) {
+                    return prev;
+                }
+                return [...prev, movie[0]];
+            });
+            handleShowResultModal('success');
+        } else {
+            handleShowResultModal('failed');
+        }
     };
 
     const handleCloseResultModal = () => {
@@ -288,8 +321,12 @@ export default function ContentDetailScreen({navigation}: Props) {
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
+            <SafeAreaView style={styles.screenContainer}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    showsVerticalScrollIndicator={false}
+                    style={styles.scrollContent}
+                    contentContainerStyle={styles.scrollContent}>
                     <View>
                         <Header />
                     </View>
@@ -333,8 +370,10 @@ export default function ContentDetailScreen({navigation}: Props) {
                                         });
                                     }}
                                     watchlistButton={() => {
-                                        setShowAddToWatchListConfirmationModal(true);
+                                        handleWatchlistIconPress();
                                     }}
+                                    isInWatchlist={isCurrentMovieInWatchlist}
+                                    watchlistConfirmationText={watchlistConfirmationText}
                                     showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
                                     handleCancelAddToWatchList={handleCancelAddToWatchList}
                                     handleConfirmAddToWatchList={handleConfirmAddToWatchList}
@@ -344,6 +383,7 @@ export default function ContentDetailScreen({navigation}: Props) {
 
                             <View style={{marginHorizontal: 15}}>
                                 <BasicListCategories
+                                    variant="highlight"
                                     Akcru_Content={{
                                         id: 'recommendedForYou',
                                         title: 'Recommended by Akcru',

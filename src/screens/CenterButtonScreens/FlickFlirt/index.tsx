@@ -10,8 +10,9 @@ import {
     TouchableOpacity,
     Alert,
     DeviceEventEmitter,
+    BackHandler,
 } from 'react-native';
-import {useFocusEffect, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import FlickFlirtBlurredBackground from '../../../components/FlickFlirtBlurredBackground';
@@ -30,6 +31,8 @@ import {navigate} from '../../../util/RootNavigation';
 const FlickFlirtScreen = () => {
     const {user, hydrateUser} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const route = useRoute<RouteProp<NoBottomTabStackParams, 'FlickFlirtScreen'>>();
+    const disableSystemBack = route.params?.disableSystemBack === true;
     const [hasMatches, setHasMatches] = useState(false);
     const [resetModalVisible, setResetModalVisible] = useState(false);
     const [skipped, setSkipped] = useState(false);
@@ -56,6 +59,26 @@ const FlickFlirtScreen = () => {
             hydrateUser();
             fetchMatches();
         }, [fetchMatches, hydrateUser]),
+    );
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!disableSystemBack) {
+                return;
+            }
+
+            navigation.setOptions({gestureEnabled: false});
+            const hardwareBackSub = BackHandler.addEventListener('hardwareBackPress', () => true);
+            const beforeRemoveSub = navigation.addListener('beforeRemove', e => {
+                e.preventDefault();
+            });
+
+            return () => {
+                hardwareBackSub.remove();
+                beforeRemoveSub();
+                navigation.setOptions({gestureEnabled: true});
+            };
+        }, [disableSystemBack, navigation]),
     );
 
     // 3) perform the reset when confirmed

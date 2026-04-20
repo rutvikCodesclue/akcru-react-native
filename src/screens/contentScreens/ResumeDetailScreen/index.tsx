@@ -101,6 +101,8 @@ export default function ResumeDetailScreen({navigation}: Props) {
     };
 
     const [watchlist, setWatchlist] = useState<IMovie[]>([]);
+    const isCurrentMovieInWatchlist = !!id && watchlist.some(movie => movie.id === id);
+    const watchlistConfirmationText = `Are you sure you want to add "${title}" to your watchlist?`;
 
     useFocusEffect(
         React.useCallback(() => {
@@ -225,6 +227,8 @@ export default function ResumeDetailScreen({navigation}: Props) {
                                     watchlistButton={() => {
                                         setShowAddToWatchListConfirmationModal(true);
                                     }}
+                                    isInWatchlist={isCurrentMovieInWatchlist}
+                                    watchlistConfirmationText={watchlistConfirmationText}
                                     showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
                                     handleCancelAddToWatchList={handleCancelAddToWatchList}
                                     handleConfirmAddToWatchList={handleConfirmAddToWatchList}
