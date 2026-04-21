@@ -53,7 +53,7 @@ const ComfirmationModal = ({
                             start={AUTH_BUTTON_THEME.start}
                             end={AUTH_BUTTON_THEME.end}
                             style={styles.noButtonGradient}>
-                            <Text style={[styles.buttonText, styles.noButtonText]}>No</Text>
+                            <Text style={[styles.buttonText, styles.noButtonText]}>{noLabel}</Text>
                         </LinearGradient>
                     </TouchableOpacity>
                 ) : (

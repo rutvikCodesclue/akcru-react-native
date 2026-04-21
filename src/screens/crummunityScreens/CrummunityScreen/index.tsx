@@ -21,10 +21,11 @@ import {Icon} from '@rneui/base';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import {deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
+import {commentOnPost, deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
 import {deletePoll, getPollById, getPolls, likePoll, unlikePoll, voteOnPoll} from '../../../lib/api/poll.lib';
 import {IPost, IUserProfile, IPoll} from '../../../../types';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -43,7 +44,7 @@ import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
 import {isTablet} from '../../../../assets/constants/theme';
-import {navigateToNewComment, navigateToNewPost, navigateToPostScreen} from '../../../util/RootNavigation';
+import {navigateToNewPost, navigateToPostScreen} from '../../../util/RootNavigation';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
@@ -68,6 +69,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const insets = useSafeAreaInsets();
+    const tabBarHeight = useBottomTabBarHeight();
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
@@ -82,9 +84,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
-    const postLikedStatusTimer = useRef<Record<number, NodeJS.Timeout>>({});
+    const postLikeInFlightRef = useRef<Record<number, boolean>>({});
 
     const [blockedUsers, setBlockedUsers] = useState([]);
+    const [commentDrafts, setCommentDrafts] = useState<Record<number, string>>({});
+    const [commentSubmitting, setCommentSubmitting] = useState<Record<number, boolean>>({});
 
     const [refreshing, setRefreshing] = useState(false);
     const [skipped, setSkipped] = useState(false);
@@ -221,49 +225,66 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     };
 
     const onLikeOrUnlike = async (postId: number) => {
-        if (postId in postLikedStatusTimer.current) {
-            clearTimeout(postLikedStatusTimer.current[postId]);
-        }
-        const postIndex = posts.findIndex(post => +post.id === postId);
-        if (postIndex === -1) {
+        if (postLikeInFlightRef.current[postId]) {
             return;
         }
 
-        const post = posts[postIndex];
-        const isLiked = post.isLikedByCurrentUser;
+        let previousLikedStatus = false;
+        let canUpdate = false;
 
-        const updatedPosts = [...posts];
-        updatedPosts[postIndex] = {
-            ...post,
-            isLikedByCurrentUser: !isLiked,
-            _count: {
-                ...post._count,
-                likes: post._count.likes + (isLiked ? -1 : 1),
-            },
-        };
-        setPosts(updatedPosts);
-
-        postLikedStatusTimer.current[postId] = setTimeout(async () => {
-            try {
-                if (isLiked) {
-                    await unlikePost(postId);
-                } else {
-                    await likePost(postId);
-                }
-            } catch (exception: unknown) {
-                console.error('Error changing like status:', exception);
-
-                updatedPosts[postIndex] = {
-                    ...post,
-                    isLikedByCurrentUser: isLiked,
-                    _count: {
-                        ...post._count,
-                        likes: post._count.likes + (isLiked ? 1 : -1),
-                    },
-                };
-                setPosts(updatedPosts);
+        setPosts(prevPosts => {
+            const postIndex = prevPosts.findIndex(post => +post.id === postId);
+            if (postIndex === -1) {
+                return prevPosts;
             }
-        }, 200);
+
+            const targetPost = prevPosts[postIndex];
+            previousLikedStatus = !!targetPost.isLikedByCurrentUser;
+            canUpdate = true;
+
+            const updatedPosts = [...prevPosts];
+            updatedPosts[postIndex] = {
+                ...targetPost,
+                isLikedByCurrentUser: !previousLikedStatus,
+                _count: {
+                    ...targetPost._count,
+                    likes: (targetPost._count?.likes ?? 0) + (previousLikedStatus ? -1 : 1),
+                },
+            };
+            return updatedPosts;
+        });
+
+        if (!canUpdate) {
+            return;
+        }
+
+        postLikeInFlightRef.current[postId] = true;
+
+        try {
+            if (previousLikedStatus) {
+                await unlikePost(postId);
+            } else {
+                await likePost(postId);
+            }
+        } catch (exception: unknown) {
+            console.error('Error changing like status:', exception);
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    +post.id === postId
+                        ? {
+                              ...post,
+                              isLikedByCurrentUser: previousLikedStatus,
+                              _count: {
+                                  ...post._count,
+                                  likes: (post._count?.likes ?? 0) + (previousLikedStatus ? 1 : -1),
+                              },
+                          }
+                        : post,
+                ),
+            );
+        } finally {
+            postLikeInFlightRef.current[postId] = false;
+        }
     };
 
     const onLikeOrUnlikePoll = async (pollId: string) => {
@@ -330,6 +351,55 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             setPosts(prevPosts => prevPosts.filter(post => post.id !== pollId));
         } catch (error) {
             console.error('Error in deleting poll:', error);
+        }
+    };
+
+    const handleCommentInputChange = (postId: number, value: string) => {
+        setCommentDrafts(prev => ({
+            ...prev,
+            [postId]: value,
+        }));
+    };
+
+    const handleInlineCommentSend = async (postId: number) => {
+        const commentText = (commentDrafts[postId] ?? '').trim();
+        if (!commentText || commentSubmitting[postId]) {
+            return;
+        }
+
+        setCommentSubmitting(prev => ({
+            ...prev,
+            [postId]: true,
+        }));
+
+        try {
+            await commentOnPost(postId, 'TEXT', [commentText]);
+
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    +post.id === postId
+                        ? {
+                              ...post,
+                              _count: {
+                                  ...post._count,
+                                  comments: (post._count?.comments ?? 0) + 1,
+                              },
+                          }
+                        : post,
+                ),
+            );
+
+            setCommentDrafts(prev => ({
+                ...prev,
+                [postId]: '',
+            }));
+        } catch (error) {
+            console.error('Error creating inline comment:', error);
+        } finally {
+            setCommentSubmitting(prev => ({
+                ...prev,
+                [postId]: false,
+            }));
         }
     };
 
@@ -589,9 +659,13 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                         akcruBadge={item.author?.badge}
                                                         isPostLiked={item.isLikedByCurrentUser}
                                                         onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
-                                                        CommentOnPostButton={() =>
-                                                            navigateToNewComment(item.id)
+                                                        onCommentIconPress={() => handlePostPress(+item.id)}
+                                                        commentInputValue={commentDrafts[+item.id] ?? ''}
+                                                        onCommentInputChange={value =>
+                                                            handleCommentInputChange(+item.id, value)
                                                         }
+                                                        onCommentSend={() => handleInlineCommentSend(+item.id)}
+                                                        isCommentSending={commentSubmitting[+item.id] ?? false}
                                                         isFollowing={item.author.isFollowed}
                                                         onFollow={() =>
                                                             handleFollow(item.author.id, item.author.isFollowed)
@@ -624,7 +698,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             pointerEvents="box-none"
                             style={[
                                 styles.floatingbutton,
-                                {paddingBottom: Math.max(10, insets.bottom + 6)},
+                                {paddingBottom: Math.max(12, tabBarHeight + insets.bottom - 6)},
                             ]}>
                             {pollCreator && (
                                 <Pressable onPress={() => navigation2.navigate('NewPoll')}>

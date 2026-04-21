@@ -16,6 +16,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import ResultModal from '../../../components/ResultModal/ResultModal';
 import useAuthStore from '../../../stores/auth.store';
+import {navigateToMITDateSchedule} from '../../../util/RootNavigation';
 
 type ResumeDetailScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ResumeDetailScreen'>;
 
@@ -217,12 +218,15 @@ export default function ResumeDetailScreen({navigation}: Props) {
                                         });
                                     }}
                                     onPress={() => {
-                                        navigation.navigate('MITDateSchedule', {
-                                            id: id,
-                                            title: title,
-                                            portraitURL: portraitURL,
-                                            year: year,
-                                        });
+                                        navigateToMITDateSchedule(
+                                            {
+                                                id: id,
+                                                title: title,
+                                                portraitURL: portraitURL,
+                                                year: year,
+                                            },
+                                            navigation,
+                                        );
                                     }}
                                     watchlistButton={() => {
                                         setShowAddToWatchListConfirmationModal(true);

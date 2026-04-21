@@ -1,23 +1,21 @@
-import {Image, Pressable, StyleSheet, View} from 'react-native';
+import {Pressable, StyleSheet, View} from 'react-native';
 import React from 'react';
-import imageindex from '../../../assets/images/imageindex';
-import {COLORS, isTablet, MULTISIZES} from '../../../assets/constants/theme';
+import {COLORS, isTablet} from '../../../assets/constants/theme';
 import CustomIcon from '../CustomIcon/CustomIcon';
+import SatelliteAuthHex from '../AkcruCenterButton/SatelliteAuthHex';
 
 type PostButtonProps = {
     onPress: () => void;
 };
 
 const PostButton = ({onPress}: PostButtonProps) => {
+    const hexSize = isTablet() ? 80 : 64;
+
     return (
-        <Pressable onPress={onPress}>
-            <Image
-                source={imageindex.AkcruHexBlank}
-                resizeMode="contain"
-                style={{width: MULTISIZES.Xlarge75, height: MULTISIZES.Xlarge75}}
-            />
+        <Pressable onPress={onPress} style={styles.container}>
+            <SatelliteAuthHex width={hexSize} height={hexSize} />
             <View style={styles.iconContainer}>
-                <CustomIcon name="add" type="ionicon" baseSize={isTablet() ? 62 : 35} color={COLORS.LIGHTGREY} />
+                <CustomIcon name="add" type="ionicon" baseSize={isTablet() ? 52 : 29} color={COLORS.LIGHTGREY} />
             </View>
         </Pressable>
     );
@@ -26,9 +24,17 @@ const PostButton = ({onPress}: PostButtonProps) => {
 export default PostButton;
 
 const styles = StyleSheet.create({
+    container: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
     iconContainer: {
         position: 'absolute',
-        top: '11%',
-        right: isTablet() ? '16%' : '17%',
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
     },
 });

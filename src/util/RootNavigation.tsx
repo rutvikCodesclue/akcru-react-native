@@ -21,6 +21,58 @@ export type UserMITHubNavigateParams = {index?: number};
 /**
  * Opens UserMITHubScreen on NoBottomStack (same stack as UserNotification).
  */
+export type NavigateToMITDateScheduleParams = {
+    id: string;
+    title?: string;
+    portraitURL?: string;
+    year?: number;
+    userId?: string;
+};
+
+/**
+ * `MITDateSchedule` is registered on `NoBottomStack`, not on `ClientStack` / `UserProfileStack`.
+ * Navigating by name from `ContentDetailScreen` in a nested tab stack fails; route through root.
+ */
+export function navigateToMITDateSchedule(
+    params: NavigateToMITDateScheduleParams,
+    navigation?: NavigationProp<ParamListBase>,
+) {
+    const action = CommonActions.navigate({
+        name: 'NoBottomStack',
+        merge: true,
+        params: {
+            screen: 'MITDateSchedule',
+            params,
+        },
+    });
+
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(action);
+        return;
+    }
+
+    if (navigation) {
+        let nav: NavigationProp<ParamListBase> | undefined = navigation;
+        for (let i = 0; i < 12 && nav; i++) {
+            const state = nav.getState?.();
+            const routeNames = state?.routeNames as string[] | undefined;
+            if (routeNames?.includes('NoBottomStack')) {
+                (nav as {navigate: (name: string, params?: object) => void}).navigate('NoBottomStack', {
+                    screen: 'MITDateSchedule',
+                    params,
+                });
+                return;
+            }
+            nav = nav.getParent?.();
+        }
+    }
+
+    navigate('NoBottomStack', {
+        screen: 'MITDateSchedule',
+        params,
+    });
+}
+
 export function navigateToUserMITHubScreen(
     navigation?: NavigationProp<ParamListBase>,
     hubParams?: UserMITHubNavigateParams,

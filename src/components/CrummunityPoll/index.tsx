@@ -1,5 +1,15 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Text, TouchableOpacity, Image, FlatList, Pressable, Modal, TouchableWithoutFeedback} from 'react-native';
+import {
+    View,
+    Text,
+    TouchableOpacity,
+    Image,
+    FlatList,
+    Pressable,
+    Modal,
+    TouchableWithoutFeedback,
+    GestureResponderEvent,
+} from 'react-native';
 import styles from './styles';
 import {IUserProfile, IChoice, IPollType} from '../../../types';
 import LinearGradient from 'react-native-linear-gradient';
@@ -23,9 +33,14 @@ type FooterIconsProps = {
 };
 
 const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
+    const handlePress = (event: GestureResponderEvent) => {
+        event.stopPropagation();
+        onPress();
+    };
+
     return (
         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <TouchableOpacity onPress={onPress}>
+            <TouchableOpacity onPress={handlePress}>
                 <Icon name={iconname} type="ionicon" color={color} size={isTablet() ? 28 : 18} />
             </TouchableOpacity>
         </View>

@@ -9,6 +9,7 @@ import {
     Platform,
     Alert,
     StatusBar,
+    Modal,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -24,14 +25,14 @@ import {IUserProfile} from '../../../../types';
 import imageindex from '../../../../assets/images/imageindex';
 import AdCoinIcon from '../../../components/AdCoinIcon/AdCoinIcon';
 import BackButton from '../../../components/General/backbutton';
-import {navigateToUserMITHub} from '../../../util/RootNavigation';
+import ConfirmationModal from '../../../components/ConfirmationModal';
 
 /** Design ref: deep black-violet canvas */
 const BG = '#0b090f';
 const GRADIENT_A = '#4facfe';
 const GRADIENT_B = '#f093fb';
 const NEON_PURPLE = '#c084fc';
-const MIT_COST = 125;
+const MIT_COST = 1000;
 
 const neonGlow = (color: string, r: number) =>
     Platform.select({
@@ -211,6 +212,7 @@ export default function CrummunitySendMITScreen() {
 
     const {user, hydrateUser, walletBalance} = useAuthStore();
     const [recipient, setRecipient] = useState<IUserProfile | null>(null);
+    const [showInsufficientAdModal, setShowInsufficientAdModal] = useState(false);
 
     const recipientId = p?.recipientId ?? '';
 
@@ -244,6 +246,14 @@ export default function CrummunitySendMITScreen() {
         }
         return '1,250';
     }, [walletBalance, user?.adAmount]);
+    const adBalance = useMemo(() => {
+        const walletNum = Number(walletBalance?.replace(/,/g, ''));
+        if (Number.isFinite(walletNum)) {
+            return walletNum;
+        }
+        const fallback = Number(user?.adAmount);
+        return Number.isFinite(fallback) ? fallback : 0;
+    }, [walletBalance, user?.adAmount]);
 
     const mitTickets = user?.MITCount ?? 0;
 
@@ -255,14 +265,8 @@ export default function CrummunitySendMITScreen() {
             Alert.alert('MIT', 'You cannot send a MIT to yourself.');
             return;
         }
-        if (mitTickets < 1) {
-            Alert.alert('No MIT tickets', 'You need at least one Movie Invite Ticket to continue.', [
-                {text: 'Cancel', style: 'cancel'},
-                {
-                    text: 'Get MITs',
-                    onPress: () => navigateToUserMITHub(0),
-                },
-            ]);
+        if (mitTickets < 1 && adBalance < MIT_COST) {
+            setShowInsufficientAdModal(true);
             return;
         }
         navigation.navigate('SendMITViewUser', {userID: recipientId});
@@ -290,10 +294,10 @@ export default function CrummunitySendMITScreen() {
                         navigation={navigation}
                         containerStyle={[
                             styles.backButtonOverlay,
-                            {top: insets.top + 2},
+                            {top: 0},
                         ]}
                     />
-                    <View style={[styles.flex, {paddingTop: insets.top + 48}]}>
+                    <View style={[styles.flex, {paddingTop: 28}]}>
                         <Text style={styles.errorText}>Missing recipient.</Text>
                     </View>
                 </ImageBackground>
@@ -329,7 +333,7 @@ export default function CrummunitySendMITScreen() {
                     navigation={navigation}
                     containerStyle={[
                         styles.backButtonOverlay,
-                        {top: insets.top + 2},
+                        {top: 0},
                     ]}
                 />
 
@@ -343,7 +347,7 @@ export default function CrummunitySendMITScreen() {
                         contentContainerStyle={[
                             styles.scrollContent,
                             {
-                                paddingTop: insets.top + 52,
+                                paddingTop: 28,
                                 paddingBottom: insets.bottom + 28,
                                 flexGrow: 1,
                             },
@@ -438,7 +442,10 @@ export default function CrummunitySendMITScreen() {
                                             colors={AUTH_BUTTON_THEME.colors}
                                             start={AUTH_BUTTON_THEME.start}
                                             end={AUTH_BUTTON_THEME.end}
-                                            style={styles.sendBtn}>
+                                            style={[
+                                                styles.sendBtn,
+                                                mitTickets > 0 ? styles.sendBtnCentered : null,
+                                            ]}>
                                             <View style={styles.sendLeft}>
                                                 <Icon
                                                     name="paper-plane"
@@ -449,36 +456,70 @@ export default function CrummunitySendMITScreen() {
                                                 <Text style={styles.sendText}>Send MIT</Text>
                                             </View>
                                             <View style={styles.sendRight}>
-                                                <AdCoinIcon />
-                                                <Text style={styles.sendCost}>{formatNumber(MIT_COST)}</Text>
+                                                {mitTickets < 1 ? (
+                                                    <>
+                                                        <AdCoinIcon />
+                                                        <Text style={styles.sendCost}>{formatNumber(MIT_COST)}</Text>
+                                                    </>
+                                                ) : null}
                                             </View>
                                         </LinearGradient>
                                     </Pressable>
 
-                                    <View style={styles.disclaimerRow}>
-                                        <Icon
-                                            name="lock-closed"
-                                            type="ionicon"
-                                            color="rgba(255,255,255,0.4)"
-                                            size={13}
-                                        />
-                                        <Text style={styles.disclaimer}>
-                                            MITs are a premium feature. Your balance will be used.
-                                        </Text>
-                                    </View>
+                                    {mitTickets < 1 ? (
+                                        <View style={styles.disclaimerRow}>
+                                            <Icon
+                                                name="lock-closed"
+                                                type="ionicon"
+                                                color="rgba(255,255,255,0.4)"
+                                                size={13}
+                                            />
+                                            <Text style={styles.disclaimer}>
+                                                MITs are a premium feature. Your balance will be used.
+                                            </Text>
+                                        </View>
+                                    ) : null}
 
-                                    <View style={styles.balanceSection}>
-                                        <Text style={styles.balanceLabelInline}>Your Balance</Text>
-                                        <AdCoinIcon />
-                                        <Text style={styles.balanceNum} numberOfLines={1}>
-                                            {balanceDisplay}
+                                    {mitTickets < 1 ? (
+                                        <View style={styles.balanceSection}>
+                                            <Text style={styles.balanceLabelInline}>Your Balance</Text>
+                                            <AdCoinIcon />
+                                            <Text style={styles.balanceNum} numberOfLines={1}>
+                                                {balanceDisplay}
+                                            </Text>
+                                        </View>
+                                    ) : null}
+                                    {mitTickets > 0 ? (
+                                        <Text style={styles.mitTicketNotice}>
+                                            You have {mitTickets} MIT {mitTickets === 1 ? 'ticket' : 'tickets'}.
                                         </Text>
-                                    </View>
+                                    ) : null}
                                 </View>
                                 </LinearGradient>
                         </View>
                 </ScrollView>
             </View>
+            <Modal
+                visible={showInsufficientAdModal}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setShowInsufficientAdModal(false)}>
+                <ConfirmationModal
+                    onPressYes={() => {
+                        setShowInsufficientAdModal(false);
+                        navigation.navigate('PurchaseAdScreen', {
+                            passCostAd: MIT_COST,
+                        });
+                    }}
+                    onPressNo={() => setShowInsufficientAdModal(false)}
+                    variant="continueWatching"
+                    yesLabel="Buy AD"
+                    noLabel="Cancel"
+                    confirmationText={`You need ${formatNumber(
+                        MIT_COST,
+                    )} AD to send a MIT when no ticket is available.`}
+                />
+            </Modal>
             </ImageBackground>
         </View>
     );
@@ -509,8 +550,8 @@ const styles = StyleSheet.create({
     },
     heroImage: {
         width: '100%',
-        maxWidth: 400,
-        height: 260,
+        maxWidth: 340,
+        height: 220,
         alignSelf: 'center',
     },
     flex: {flex: 1, width: '100%', alignSelf: 'stretch'},
@@ -569,22 +610,22 @@ const styles = StyleSheet.create({
         marginBottom: 0,
     },
     avatarColumn: {
-        width: 92,
+        width: 80,
         alignItems: 'center',
         justifyContent: 'center',
     },
     avatarRing: {
-        width: 88,
-        height: 88,
-        borderRadius: 44,
+        width: 74,
+        height: 74,
+        borderRadius: 37,
         padding: 3,
         alignItems: 'center',
         justifyContent: 'center',
     },
     avatarInner: {
-        width: 82,
-        height: 82,
-        borderRadius: 41,
+        width: 68,
+        height: 68,
+        borderRadius: 34,
         overflow: 'hidden',
         backgroundColor: '#1a1530',
     },
@@ -700,6 +741,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 18,
         borderRadius: 18,
     },
+    sendBtnCentered: {
+        justifyContent: 'center',
+    },
     sendLeft: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -769,6 +813,13 @@ const styles = StyleSheet.create({
         ...Platform.select({
             android: {includeFontPadding: false, textAlignVertical: 'center' as const},
         }),
+    },
+    mitTicketNotice: {
+        marginTop: 10,
+        textAlign: 'center',
+        color: 'rgba(192,132,252,0.95)',
+        fontSize: 12,
+        fontFamily: 'Montserrat-SemiBold',
     },
     errorText: {
         color: '#fff',

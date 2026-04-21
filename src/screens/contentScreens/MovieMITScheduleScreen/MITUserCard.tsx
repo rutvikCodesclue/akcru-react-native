@@ -1,5 +1,5 @@
-import {Text, View, TouchableOpacity, Image} from 'react-native';
-import React from 'react';
+import {Text, View, TouchableOpacity, Image, Pressable} from 'react-native';
+import React, {useState} from 'react';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
@@ -36,6 +36,8 @@ const MITUserSearchCard = ({
     onPressOut,
     firstName,
 }: MITUserSearchCardProps) => {
+    const [pressed, setPressed] = useState(false);
+
     return (
         <View
             style={{
@@ -43,6 +45,9 @@ const MITUserSearchCard = ({
                 backgroundColor: COLORS.TAGCOLOR,
                 width: SIZES.ScreenWidth,
                 height: SIZES.ScreenHeight / 9.3,
+                borderWidth: pressed ? 2.5 : 0,
+                borderColor: pressed ? COLORS.AKCRUBLUE : 'transparent',
+                transform: [{scale: pressed ? 1.03 : 1}],
             }}>
             <LinearGradient
                 colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
@@ -63,16 +68,24 @@ const MITUserSearchCard = ({
                         justifyContent: 'space-between',
                         marginRight: 30,
                     }}>
-                    <View style={{flexDirection: 'row'}}>
+                        <View style={{flexDirection: 'row'}}>
                         <View style={{marginRight: 8}}>
-                            <TouchableOpacity onPress={onPress}>
+                            <TouchableOpacity
+                                onPressIn={() => setPressed(true)}
+                                onPressOut={() => setPressed(false)}
+                                onPress={onPress}>
                                 <HexAvatar
                                     source={userPicture ? {uri: userPicture} : imageindex.Akcruplaceholder}
-                                    size={MULTISIZES.Xlarge60}
+                                    size={pressed ? MULTISIZES.Xlarge75 : MULTISIZES.Xlarge60}
+                                    borderThickness={pressed ? 10 : 5}
                                     bordercolor={selectAvatarBorderColor(akcruBadge)}
                                 />
                             </TouchableOpacity>
                         </View>
+                        <Pressable
+                            style={{flex: 1}}
+                            onPressIn={() => setPressed(true)}
+                            onPressOut={() => setPressed(false)}>
                         <View>
                             <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                 <Text style={{...FONTS.Title2, marginRight: 5}}>{userName}</Text>
@@ -116,9 +129,14 @@ const MITUserSearchCard = ({
                             <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
                             <DisplayBadge akcruBadge={akcruBadge} />
                         </View>
+                        </Pressable>
                     </View>
                     <View>
-                        <TouchableOpacity style={{alignItems: 'center'}} onPress={onPressOut}>
+                        <TouchableOpacity
+                            style={{alignItems: 'center'}}
+                            onPressIn={() => setPressed(true)}
+                            onPressOut={() => setPressed(false)}
+                            onPress={onPressOut}>
                             <Image source={imageindex.MITticket} />
                             <View>
                                 <Text style={{...FONTS.Title3, fontSize: 12}}>Send MIT</Text>

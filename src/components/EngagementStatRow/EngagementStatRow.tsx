@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Pressable, Image, Platform, StyleSheet} from 'react-native';
+import {View, Text, Pressable, Image, Platform, StyleSheet, GestureResponderEvent} from 'react-native';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../assets/images/imageindex';
 
@@ -59,9 +59,18 @@ const EngagementStatRow = ({
     onComment,
     onMit,
 }: EngagementStatRowProps) => {
+    const stopTapBubble = (event: GestureResponderEvent, callback: () => void) => {
+        event.stopPropagation();
+        callback();
+    };
+
     return (
         <View style={styles.row}>
-            <Pressable onPress={onLike} style={styles.cell} accessibilityRole="button" accessibilityLabel="Like">
+            <Pressable
+                onPress={event => stopTapBubble(event, onLike)}
+                style={styles.cell}
+                accessibilityRole="button"
+                accessibilityLabel="Like">
                 <View style={styles.actionSlot}>
                     <View style={styles.likeHaloOuter} />
                     <View style={styles.likeHaloInner} />
@@ -80,7 +89,7 @@ const EngagementStatRow = ({
             </Pressable>
 
             <Pressable
-                onPress={onComment}
+                onPress={event => stopTapBubble(event, onComment)}
                 style={styles.cell}
                 accessibilityRole="button"
                 accessibilityLabel="Comment">
@@ -96,7 +105,11 @@ const EngagementStatRow = ({
                 <Text style={styles.count}>{formatEngagementCount(comments)}</Text>
             </Pressable>
 
-            <Pressable onPress={onMit} style={styles.cell} accessibilityRole="button" accessibilityLabel="Send MIT">
+            <Pressable
+                onPress={event => stopTapBubble(event, onMit)}
+                style={styles.cell}
+                accessibilityRole="button"
+                accessibilityLabel="Send MIT">
                 <View style={styles.actionSlot}>
                     <View style={styles.mitHaloOuter} />
                     <View style={styles.mitHaloInner} />

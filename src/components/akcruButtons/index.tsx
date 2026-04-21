@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, ActivityIndicator} from 'react-native';
+import {View, Text, TouchableOpacity, ActivityIndicator, Image, ImageSourcePropType} from 'react-native';
 import React from 'react';
 import {FONTS, COLORS, SIZES} from '../../../assets/constants';
 import {AUTH_BUTTON_THEME, AUTH_TEXT_THEME} from '../../../assets/constants/authTheme';
@@ -25,6 +25,10 @@ interface BtnProps {
     loading?: boolean;
     /** Auth variant only: override default width (e.g. footer row next to balance) */
     authButtonWidth?: number;
+    /** Auth variant only: optional image beside the label (e.g. movie ticket icon) */
+    authLeftImage?: ImageSourcePropType;
+    /** Auth variant only: side for `authLeftImage` (default left) */
+    authImagePosition?: 'left' | 'right';
 }
 
 interface IconBtnProps {
@@ -49,9 +53,24 @@ const SmallButton: React.FC<BtnProps> = ({
     variant = 'default',
     loading = false,
     authButtonWidth,
+    authLeftImage,
+    authImagePosition = 'left',
 }) => {
     if (variant === 'auth') {
         const authW = authButtonWidth ?? SIZES.ScreenWidth / 2.2;
+        const imageEl =
+            authLeftImage != null ? (
+                <Image
+                    source={authLeftImage}
+                    style={{
+                        width: 22,
+                        height: 22,
+                        marginRight: authImagePosition === 'left' ? 8 : 0,
+                        marginLeft: authImagePosition === 'right' ? 8 : 0,
+                    }}
+                    resizeMode="contain"
+                />
+            ) : null;
         return (
             <View style={{marginVertical: authButtonWidth !== undefined ? 0 : 10}}>
                 <TouchableOpacity
@@ -70,14 +89,20 @@ const SmallButton: React.FC<BtnProps> = ({
                         end={AUTH_BUTTON_THEME.end}
                         style={{
                             flex: 1,
+                            flexDirection: 'row',
                             justifyContent: 'center',
                             alignItems: 'center',
                             borderRadius: AUTH_BUTTON_THEME.borderRadius,
+                            paddingHorizontal: authLeftImage ? 14 : 0,
                         }}>
                         {loading ? (
                             <ActivityIndicator color={COLORS.WHITE} />
                         ) : (
-                            <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                            <>
+                                {authImagePosition === 'left' ? imageEl : null}
+                                <Text style={AUTH_TEXT_THEME.buttonLabel}>{btnname}</Text>
+                                {authImagePosition === 'right' ? imageEl : null}
+                            </>
                         )}
                     </LinearGradient>
                 </TouchableOpacity>

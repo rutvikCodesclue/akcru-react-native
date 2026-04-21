@@ -30,6 +30,7 @@ import useAuthStore from '../../../stores/auth.store';
 import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
 import {getUserWallet} from '../../../lib/api/wallet.lib';
 import ComfirmationModal from '../../../components/ConfirmationModal';
+import {navigateToMITDateSchedule} from '../../../util/RootNavigation';
 
 type ContentDetailScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentDetailScreen'>;
 
@@ -362,12 +363,15 @@ export default function ContentDetailScreen({navigation}: Props) {
                                         });
                                     }}
                                     onPress={() => {
-                                        navigation.navigate('MITDateSchedule', {
-                                            id: id,
-                                            title: title,
-                                            portraitURL: portraitURL,
-                                            year: year,
-                                        });
+                                        navigateToMITDateSchedule(
+                                            {
+                                                id: id,
+                                                title: title,
+                                                portraitURL: portraitURL,
+                                                year: year,
+                                            },
+                                            navigation,
+                                        );
                                     }}
                                     watchlistButton={() => {
                                         handleWatchlistIconPress();

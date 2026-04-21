@@ -17,7 +17,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../../assets/constants';
 import BackButton from '../../../components/General/backbutton';
-import AkcruButtons from '../../../components/akcruButtons';
 import {getAdPacks, purchaseAD, purchaseADInApp, AdPackInfo} from '../../../lib/api/adPurchase.lib';
 import {GoldenCoinCoins} from '../../../../assets/svg';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
@@ -26,6 +25,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {UnlockOption} from '../../../lib/api/flickflirt.lib';
 import {navigationRef} from '../../../util/RootNavigation';
 import AdCoinIcon from '../../../components/AdCoinIcon/AdCoinIcon';
+import ConfirmationModal from '../../../components/ConfirmationModal';
 
 const ACCENT_PURPLE = '#BF5AF2';
 const ACCENT_BLUE = '#0A84FF';
@@ -368,27 +368,16 @@ export default function PurchaseAdScreen() {
                 )}
 
                 <Modal transparent visible={confirmVisible} animationType="fade">
-                    <View style={styles.modalBackdrop}>
-                        <View style={styles.modalCard}>
-                            <Text style={styles.modalTitle}>
-                                Confirm purchase of {selectedTier?.adGiven.toLocaleString()} AD for $
-                                {selectedTier?.priceUSD.toFixed(2)}? (All sales are final — no refunds)
-                            </Text>
-                            <View style={styles.modalActions}>
-                                <AkcruButtons.SmallButton
-                                    btnname="Cancel"
-                                    onPress={() => setConfirmVis(false)}
-                                    color={COLORS.AKCRUBLUE}
-                                />
-                                <AkcruButtons.SmallButton
-                                    btnname="Confirm"
-                                    onPress={confirmPurchase}
-                                    color={COLORS.CATPURPLGT}
-                                    disabled={purchaseInProgress}
-                                />
-                            </View>
-                        </View>
-                    </View>
+                    <ConfirmationModal
+                        onPressYes={confirmPurchase}
+                        onPressNo={() => setConfirmVis(false)}
+                        variant="continueWatching"
+                        yesLabel="Confirm"
+                        noLabel="Cancel"
+                        confirmationText={`Confirm purchase of ${selectedTier?.adGiven.toLocaleString()} AD for $${selectedTier?.priceUSD.toFixed(
+                            2,
+                        )}? (All sales are final - no refunds)`}
+                    />
                 </Modal>
             </SafeAreaView>
         </TabContainer>
@@ -680,27 +669,5 @@ const styles = StyleSheet.create({
     secureFootText: {
         fontSize: 12,
         color: 'rgba(255,255,255,0.4)',
-    },
-    modalBackdrop: {
-        flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.55)',
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    modalCard: {
-        backgroundColor: COLORS.AKCRUBACKGROUND,
-        padding: 20,
-        borderRadius: 12,
-        width: '85%',
-    },
-    modalTitle: {
-        textAlign: 'center',
-        ...FONTS.Title2,
-        color: COLORS.WHITE,
-    },
-    modalActions: {
-        flexDirection: 'row',
-        marginTop: 16,
-        justifyContent: 'space-between',
     },
 });

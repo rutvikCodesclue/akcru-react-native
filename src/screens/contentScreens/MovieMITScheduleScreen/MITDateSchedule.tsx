@@ -1,4 +1,18 @@
-import {View, Text, ScrollView, TouchableOpacity, Image, FlatList, TextInput, ImageBackground, Platform} from 'react-native';
+import {
+    View,
+    Text,
+    ScrollView,
+    TouchableOpacity,
+    Pressable,
+    Image,
+    FlatList,
+    TextInput,
+    ImageBackground,
+    Platform,
+    Alert,
+    Animated,
+    Modal,
+} from 'react-native';
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
@@ -26,8 +40,31 @@ import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
+import useAuthStore from '../../../stores/auth.store';
+import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
+
+/** Movie ticket graphic for Send Movie Invite (Icons8 Fluency PNG — same CDN family as Home section icons). */
+const MIT_SEND_INVITE_TICKET_ICON_URL = 'https://img.icons8.com/fluency/96/movie.png';
+
+type MitDiscoverySectionTitleKey = 'Your Matches' | 'Your Archetype';
+
+/** Vector icons (bundled) so section icons always show — remote PNGs can fail to load. */
+const DISCOVERY_SECTION_ICON: Record<MitDiscoverySectionTitleKey, {name: string; color: string}> = {
+    'Your Matches': {name: 'heart', color: '#F472B6'},
+    'Your Archetype': {name: 'sparkles', color: '#C4B5FD'},
+};
+
+const DiscoverySectionTitle = ({title}: {title: MitDiscoverySectionTitleKey}) => {
+    const icon = DISCOVERY_SECTION_ICON[title];
+    return (
+        <View style={styles.discoverySectionTitleRow}>
+            <Icon name={icon.name} type="ionicon" color={icon.color} size={22} style={styles.discoverySectionTitleIcon} />
+            <Text style={[styles.defaultSectionTitle, {marginBottom: 4}]}>{title}</Text>
+        </View>
+    );
+};
 
 type MITDateScheduleNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'MITDateSchedule'>;
 
@@ -39,6 +76,7 @@ type Props = {
 };
 
 const MITDateSchedule = ({route, navigation}: Props) => {
+    const loggedInUser = useAuthStore(state => state.user);
     const id: string | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
@@ -57,6 +95,23 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
     const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const lightTravelAnim = useRef(new Animated.Value(0)).current;
+
+    useEffect(() => {
+        const loop = Animated.loop(
+            Animated.timing(lightTravelAnim, {
+                toValue: 1,
+                duration: 1700,
+                useNativeDriver: true,
+            }),
+        );
+        loop.start();
+        return () => {
+            loop.stop();
+            lightTravelAnim.stopAnimation();
+            lightTravelAnim.setValue(0);
+        };
+    }, [lightTravelAnim]);
 
     useEffect(() => {
         if (!interstitialUnitId) return; // guard if iOS id not set yet
@@ -137,14 +192,82 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 
     const [textInputFocused, setTextInputFocused] = useState(false);
     const textInputRef = useRef(null);
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const showcaseProfiles = [
+        {
+            id: 'jasmine',
+            name: 'Jasmine',
+            match: '82% Match',
+            desc: 'Loves thrillers & late night vibes',
+            badge: 'SUPERHERO',
+            profilePicture: 'https://i.pravatar.cc/200?img=47',
+        },
+        {
+            id: 'alex',
+            name: 'Alex',
+            match: '78% Match',
+            desc: 'Horror movie fan',
+            badge: 'HERO',
+            profilePicture: 'https://i.pravatar.cc/200?img=12',
+        },
+        {
+            id: 'mia',
+            name: 'Mia',
+            match: '78% Match',
+            desc: 'Night owl & chill seeker',
+            badge: 'GUARDIAN',
+            profilePicture: 'https://i.pravatar.cc/200?img=32',
+        },
+    ] as const;
+
+    const archetypeProfiles = [
+        {
+            id: 'mystic',
+            name: 'Mystic',
+            match: 'Archetype Match',
+            desc: 'Loves cozy mysteries',
+            badge: 'HERO',
+            profilePicture: 'https://i.pravatar.cc/200?img=15',
+        },
+        {
+            id: 'rebel',
+            name: 'Rebel',
+            match: 'Archetype Match',
+            desc: 'Adventurous and spontaneous',
+            badge: 'GUARDIAN',
+            profilePicture: 'https://i.pravatar.cc/200?img=26',
+        },
+        {
+            id: 'nightowl',
+            name: 'Night Owl',
+            match: 'Archetype Match',
+            desc: 'Likes late-night thrillers',
+            badge: 'SUPERHERO',
+            profilePicture: 'https://i.pravatar.cc/200?img=31',
+        },
+    ] as const;
+
+    type DiscoveryCardSelection =
+        | {kind: 'showcase'; id: string}
+        | {kind: 'archetype'; id: string};
+
+    const [discoverySelection, setDiscoverySelection] = useState<DiscoveryCardSelection | null>(null);
+
+    const shouldShowSearchResults = searchQuery.trim().length > 1;
 
     const handleSearch = (text: any) => {
+        setSearchQuery(text);
         if (text.length > 1) {
             searchForUsers(text).then(res => {
                 if (res.length > 0) {
                     setData(res);
+                } else {
+                    setData([]);
                 }
             });
+        } else {
+            setData([]);
         }
     };
 
@@ -160,7 +283,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [selectedUser, setSelectedUser] = useState(false);
     const [selectedBorderColor, setSelectedBorderColor] = useState('');
 
-    const handlePress = (username, badge, profilePicture) => {
+    const handlePress = (username: string, badge: string, profilePicture: string) => {
         //console.log('Item with username', username, badge, 'pressed!');
         //console.log('Item with movie title', movie?.title, movie?.year, 'pressed!');
         const borderColor = selectAvatarBorderColor(badge);
@@ -177,6 +300,43 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedBorderColor(borderColor);
     };
 
+    const handleSendDiscoveryInvite = () => {
+        if (!discoverySelection) {
+            Alert.alert(
+                'No user selected',
+                'Please tap a profile above to choose who you want to invite, then try again.',
+                [{text: 'OK'}],
+            );
+            return;
+        }
+        if (discoverySelection.kind === 'showcase') {
+            const profile = showcaseProfiles.find(p => p.id === discoverySelection.id);
+            if (profile) {
+                handlePress(profile.name, profile.badge, profile.profilePicture);
+            }
+            return;
+        }
+        if (discoverySelection.kind === 'archetype') {
+            const profile = archetypeProfiles.find(p => p.id === discoverySelection.id);
+            if (profile) {
+                handlePress(profile.name, profile.badge, profile.profilePicture);
+            }
+        }
+    };
+
+    const getDiscoveryInviteUserName = (): string | null => {
+        if (!discoverySelection) {
+            return null;
+        }
+        if (discoverySelection.kind === 'showcase') {
+            return showcaseProfiles.find(p => p.id === discoverySelection.id)?.name ?? null;
+        }
+        if (discoverySelection.kind === 'archetype') {
+            return archetypeProfiles.find(p => p.id === discoverySelection.id)?.name ?? null;
+        }
+        return null;
+    };
+
     const preFilledInviteeFromRoute = useRef(false);
     useEffect(() => {
         preFilledInviteeFromRoute.current = false;
@@ -189,13 +349,21 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             return;
         }
         preFilledInviteeFromRoute.current = true;
-        handlePress(user.username, user.badge, user.profilePicture);
+        handlePress(user.username, user.badge ?? '', user.profilePicture ?? '');
     }, [user, userID]);
 
-    //Scheduling date states
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    // Scheduling starts from tomorrow; today and past dates are not available.
+    const getMinSelectableDate = (): Date => {
+        const minDate = new Date();
+        minDate.setHours(0, 0, 0, 0);
+        minDate.setDate(minDate.getDate() + 1);
+        return minDate;
+    };
+    const minSelectableDate = getMinSelectableDate();
+    const [selectedDate, setSelectedDate] = useState<Date>(() => getMinSelectableDate());
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [selectedTimeZone, setSelectedTimeZone] = useState('');
+    const [kickoffMessage, setKickoffMessage] = useState("Hey! Ready for our movie night? 🍿");
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
     const months = [
@@ -216,8 +384,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const currentMonth = selectedDate.getMonth();
     const currentYear = selectedDate.getFullYear();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const isAtMinSelectableMonth =
+        currentMonth === minSelectableDate.getMonth() &&
+        currentYear === minSelectableDate.getFullYear();
 
     const handlePreviousMonth = () => {
+        if (isAtMinSelectableMonth) {
+            return;
+        }
         const previousMonth = new Date(currentYear, currentMonth - 1);
         setSelectedDate(previousMonth);
     };
@@ -227,19 +401,19 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedDate(nextMonth);
     };
 
-    const handleDateChange = day => {
+    const handleDateChange = (day: number) => {
         const updatedDate = new Date(currentYear, currentMonth, day);
         setSelectedDate(updatedDate);
     };
 
-    const handleTimeChange = (hours, minutes) => {
+    const handleTimeChange = (hours: number, minutes: number) => {
         const updatedTime = new Date(selectedTime);
         updatedTime.setHours(hours);
         updatedTime.setMinutes(minutes);
         setSelectedTime(updatedTime);
     };
 
-    const handleTimeZoneChange = timeZone => {
+    const handleTimeZoneChange = (timeZone: string) => {
         setSelectedTimeZone(timeZone);
     };
 
@@ -255,6 +429,34 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     ];
 
     const [showSendMIT, setShowSendMIT] = useState(false);
+    const [showInviteResultModal, setShowInviteResultModal] = useState(false);
+    const [inviteResultMessage, setInviteResultMessage] = useState('');
+    const [leftHexCenterX, setLeftHexCenterX] = useState<number>(SIZES.ScreenWidth * 0.2);
+    const [rightHexCenterX, setRightHexCenterX] = useState<number>(SIZES.ScreenWidth * 0.8);
+    const [leftHexCenterY, setLeftHexCenterY] = useState<number>(46);
+    const [rightHexCenterY, setRightHexCenterY] = useState<number>(46);
+    const lightTranslateX = lightTravelAnim.interpolate({
+        inputRange: [0, 1],
+        // -50 offsets half travel icon size (100) so icon center aligns with hex center.
+        outputRange: [leftHexCenterX - 50, rightHexCenterX - 50],
+    });
+    const lightTranslateY = lightTravelAnim.interpolate({
+        inputRange: [0, 1],
+        // -50 offsets half travel icon size (100) so icon center aligns with hex center.
+        outputRange: [leftHexCenterY - 35, rightHexCenterY - 35],
+    });
+    const lightOpacity = lightTravelAnim.interpolate({
+        inputRange: [0, 0.08, 0.88, 1],
+        outputRange: [0.15, 1, 1, 0.15],
+    });
+    const sparkScale = lightTravelAnim.interpolate({
+        inputRange: [0, 0.5, 1],
+        outputRange: [0.85, 1.25, 0.85],
+    });
+    const sparkRotate = lightTravelAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: ['0deg', '360deg'],
+    });
 
     const handleSetDateTime = async () => {
         if (
@@ -299,20 +501,28 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                 }
             } else {
                 setIsSelectionDisabled(false);
+                const failedMessage =
+                    (response as {message?: string; data?: {message?: string}})?.message ??
+                    (response as {message?: string; data?: {message?: string}})?.data?.message ??
+                    'Unable to send invite right now. Please try again.';
+                setInviteResultMessage(failedMessage);
+                setShowInviteResultModal(true);
             }
         } catch {
             setIsSelectionDisabled(false);
+            setInviteResultMessage('Unable to send invite right now. Please try again.');
+            setShowInviteResultModal(true);
         }
     };
 
     return (
-        <View>
+        <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
             {showSendMIT ? (
                 <View
                     style={{
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: COLORS.AKCRUBACKGROUND,
+                        backgroundColor: COLORS.BLACK,
                         marginTop: '10%',
                     }}>
                     <Text
@@ -383,9 +593,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                     </View>
                 </View>
             ) : (
-                <View>
+                <View style={{flex: 1}}>
                     {!scheduleIsShown ? (
-                        <ScrollView stickyHeaderIndices={[0]}>
+                        <View style={styles.discoveryScreenWrap}>
                             <View style={styles.backbutton}>
                                 <Header />
                             </View>
@@ -425,251 +635,402 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                 </View>
                             </View>
 
+                            <ScrollView style={{flex: 1}} contentContainerStyle={styles.discoveryScrollContent}>
                             <View style={{marginHorizontal: 15, marginBottom: 70}}>
-                                <FlatList
-                                    data={data}
-                                    horizontal={false}
-                                    showsHorizontalScrollIndicator={false}
-                                    scrollEnabled={false}
-                                    keyExtractor={item => item.id}
-                                    renderItem={({item, index}) => (
-                                        <View style={{marginVertical: 5}}>
-                                            <MITUserSearchCard
-                                                userPicture={item.profilePicture}
-                                                userName={item.username}
-                                                onPress={() => {
-                                                    navigation.navigate('ViewUserScreen', {
-                                                        userID: item.id,
-                                                    });
-                                                    setTextInputFocused(true);
-                                                }}
-                                                userID={item.id}
-                                                akcruBadge={item.badge}
-                                                userDesc={item.description}
-                                                onPressOut={() =>
-                                                    handlePress(item.username, item.badge, item.profilePicture)
-                                                }
-                                                influencerStatus={item.influencerStatus}
-                                                companyStatus={item.companyStatus}
-                                                ownerStatus={item.ownerStatus}
-                                                blackCloakStatus={item.blackCloakStatus}
-                                                firstName={item.firstName}
-                                            />
-                                        </View>
-                                    )}
-                                />
-                            </View>
-                        </ScrollView>
-                    ) : (
-                        <ScrollView stickyHeaderIndices={[0]}>
-                            <View
-                                style={{
-                                    backgroundColor: COLORS.AKCRUBACKGROUND,
-                                    paddingBottom: 20,
-                                }}>
-                                <Header />
-                                <View style={styles.topcontainer}>
-                                    <BackButton navigation={navigation} />
-                                </View>
-                            </View>
-
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                }}>
-                                <Text style={styles.choosedate}>Schedule Movie Invite Ticket</Text>
-                                <Image source={imageindex.MITticket} />
-                            </View>
-
-                            <View style={{paddingHorizontal: 15, marginTop: 10}}>
-                                <View style={{flexDirection: 'row'}}>
-                                    <Image
-                                        source={{uri: movie?.portraitURL}}
-                                        style={{
-                                            width: SIZES.ScreenWidth / 2.5,
-                                            height: SIZES.ScreenWidth / 1.7,
-                                            borderRadius: 5,
-                                        }}
-                                    />
-                                    <View style={{width: SIZES.ScreenWidth / 2, marginLeft: 10}}>
-                                        <Text style={{...FONTS.paragraph1}}>{movie?.description}</Text>
-                                        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.Title2,
-                                                    color: COLORS.AKCRUBLUE,
-                                                    fontSize: 12,
-                                                    marginVertical: 10,
-                                                }}>
-                                                <Text style={{color: COLORS.DARKGREY}}>Cast:</Text>{' '}
-                                                {movie?.actors && movie?.actors.map(actor => actor.name).join(', ')}
-                                            </Text>
-                                        </View>
-                                        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.Title2,
-                                                    color: COLORS.AKCRUBLUE,
-                                                    fontSize: 12,
-                                                }}>
-                                                <Text style={{color: COLORS.DARKGREY}}>Directors:</Text>{' '}
-                                                {movie?.director &&
-                                                    movie?.director.map(director => director.name).join(', ')}
-                                            </Text>
-                                        </View>
-                                    </View>
-                                </View>
-                                <View style={{marginTop: 10}}>
-                                    <Text style={{...FONTS.Title3}}>{movie?.title}</Text>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            marginVertical: 5,
-                                        }}>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                alignSelf: 'center',
-                                                marginRight: 20,
-                                            }}>
-                                            <Text
-                                                style={{
-                                                    ...FONTS.paragraph2,
-                                                    color: COLORS.LIGHTGREY,
-                                                    marginRight: 10,
-                                                }}>
-                                                {movie?.year}
-                                            </Text>
-                                            <Text style={{...FONTS.paragraph2, color: COLORS.LIGHTGREY}}>
-                                                {formatMovieDuration(movie?.duration)}
-                                            </Text>
-                                        </View>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                            }}>
-                                            <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                            <Text style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(movie?.genres[0])}
-                                            </Text>
-                                            <Text style={styles.drawfonttag}>
-                                                {capitalizeFirstLetterOfString(movie?.genres[1])}
-                                            </Text>
-                                            <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </View>
-
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    marginTop: 35,
-                                }}>
-                                <View
-                                    style={{
-                                        borderRadius: 5,
-                                        backgroundColor: COLORS.TAGCOLOR,
-                                        width: SIZES.ScreenWidth / 1.8,
-
-                                        padding: 10,
-                                    }}>
-                                    <LinearGradient
-                                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                        style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            right: 0,
-                                            top: 0,
-                                            bottom: 0,
-                                            width: SIZES.ScreenWidth / 1.8,
-                                            borderRadius: 5,
-                                        }}
-                                    />
-                                    <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                                        <View>
-                                            <HexAvatar
-                                                source={
-                                                    selectedUserPicture
-                                                        ? {uri: selectedUserPicture}
-                                                        : imageindex.Akcruplaceholder
-                                                }
-                                                size={MULTISIZES.Xlarge43}
-                                                bordercolor={selectedBorderColor}
-                                            />
-                                        </View>
-                                        <View style={{marginLeft: 10}}>
-                                            <Text style={{...FONTS.Title2}}>{selectedUserName}</Text>
-                                            {selectedAkcruBadgeAkcruit === 'AKCRUIT' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                                </View>
-                                            )}
-                                            {selectedAkcruBadgeGuardian === 'GUARDIAN' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeGuardian />
-                                                </View>
-                                            )}
-                                            {selectedAkcruBadgeHero === 'HERO' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeHero />
-                                                </View>
-                                            )}
-                                            {selectedAkcruBadgeSuperHero === 'SUPERHERO' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                                </View>
-                                            )}
-                                        </View>
-                                        <View>
-                                            {selectedInfluencer && (
-                                                <Icon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.AKCRUBLUE}
-                                                    size={20}
-                                                    style={{marginLeft: 5}}
+                                {shouldShowSearchResults ? (
+                                    <FlatList
+                                        data={data}
+                                        horizontal={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        scrollEnabled={false}
+                                        keyExtractor={item => item.id}
+                                        renderItem={({item}) => (
+                                            <View style={{marginVertical: 5}}>
+                                                <MITUserSearchCard
+                                                    userPicture={item.profilePicture}
+                                                    userName={item.username}
+                                                    onPress={() => {
+                                                        navigation.navigate('ViewUserScreen', {
+                                                            userID: item.id,
+                                                            imageURL: item.profilePicture ?? '',
+                                                        });
+                                                        setTextInputFocused(true);
+                                                    }}
+                                                    userID={item.id}
+                                                    akcruBadge={item.badge}
+                                                    userDesc={item.description}
+                                                    onPressOut={() =>
+                                                        handlePress(
+                                                            item.username,
+                                                            item.badge ?? '',
+                                                            item.profilePicture ?? '',
+                                                        )
+                                                    }
+                                                    influencerStatus={item.influencerStatus}
+                                                    companyStatus={item.companyStatus}
+                                                    ownerStatus={item.ownerStatus}
+                                                    blackCloakStatus={item.blackCloakStatus}
+                                                    firstName={item.firstName}
                                                 />
+                                            </View>
+                                        )}
+                                    />
+                                ) : (
+                                    <View style={styles.defaultDiscoveryWrap}>
+                                        <DiscoverySectionTitle title="Your Matches" />
+                                        {showcaseProfiles.map(profile => {
+                                            const isSelected =
+                                                discoverySelection?.kind === 'showcase' &&
+                                                discoverySelection.id === profile.id;
+                                            return (
+                                                <Pressable
+                                                    key={profile.id}
+                                                    onPress={() =>
+                                                        setDiscoverySelection({kind: 'showcase', id: profile.id})
+                                                    }
+                                                    style={[
+                                                        styles.defaultProfileGradient,
+                                                        isSelected && styles.defaultProfileGradientPressed,
+                                                    ]}>
+                                                    {isSelected ? (
+                                                        <View style={styles.profileCardSelectedScale}>
+                                                            <LinearGradient
+                                                                colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
+                                                                start={{x: 0, y: 0}}
+                                                                end={{x: 1, y: 1}}
+                                                                style={styles.profileCardGradientBorderOuter}>
+                                                                <View style={styles.profileCardGradientBorderInner}>
+                                                                    <View style={styles.defaultProfileInner}>
+                                                                        <HexAvatar
+                                                                            source={{uri: profile.profilePicture}}
+                                                                            size={MULTISIZES.Xlarge60 + 6}
+                                                                            borderThickness={3}
+                                                                            imageZoom={1.12}
+                                                                            bordercolor={selectAvatarBorderColor(
+                                                                                profile.badge,
+                                                                            )}
+                                                                        />
+                                                                        <View style={styles.defaultProfileInfo}>
+                                                                            <Text style={styles.defaultProfileName}>
+                                                                                {profile.name}
+                                                                            </Text>
+                                                                            <Text style={styles.defaultProfileMatch}>
+                                                                                {profile.match}
+                                                                            </Text>
+                                                                            <Text style={styles.defaultProfileDesc}>
+                                                                                {profile.desc}
+                                                                            </Text>
+                                                                        </View>
+                                                                    </View>
+                                                                </View>
+                                                            </LinearGradient>
+                                                        </View>
+                                                    ) : (
+                                                        <LinearGradient
+                                                            colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
+                                                            start={{x: 0, y: 0}}
+                                                            end={{x: 1, y: 1}}
+                                                            style={{borderRadius: 13}}>
+                                                            <View style={styles.defaultProfileInner}>
+                                                                <HexAvatar
+                                                                    source={{uri: profile.profilePicture}}
+                                                                    size={MULTISIZES.Xlarge60}
+                                                                    borderThickness={5}
+                                                                    bordercolor={selectAvatarBorderColor(
+                                                                        profile.badge,
+                                                                    )}
+                                                                />
+                                                                <View style={styles.defaultProfileInfo}>
+                                                                    <Text style={styles.defaultProfileName}>
+                                                                        {profile.name}
+                                                                    </Text>
+                                                                    <Text style={styles.defaultProfileMatch}>
+                                                                        {profile.match}
+                                                                    </Text>
+                                                                    <Text style={styles.defaultProfileDesc}>
+                                                                        {profile.desc}
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                        </LinearGradient>
+                                                    )}
+                                                </Pressable>
+                                            );
+                                        })}
+
+                                        <DiscoverySectionTitle title="Your Archetype" />
+                                        {archetypeProfiles.map(profile => {
+                                            const isSelected =
+                                                discoverySelection?.kind === 'archetype' &&
+                                                discoverySelection.id === profile.id;
+                                            return (
+                                                <Pressable
+                                                    key={profile.id}
+                                                    onPress={() =>
+                                                        setDiscoverySelection({kind: 'archetype', id: profile.id})
+                                                    }
+                                                    style={[
+                                                        styles.defaultProfileGradient,
+                                                        isSelected && styles.defaultProfileGradientPressed,
+                                                    ]}>
+                                                    {isSelected ? (
+                                                        <View style={styles.profileCardSelectedScale}>
+                                                            <LinearGradient
+                                                                colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
+                                                                start={{x: 0, y: 0}}
+                                                                end={{x: 1, y: 1}}
+                                                                style={styles.profileCardGradientBorderOuter}>
+                                                                <View style={styles.profileCardGradientBorderInner}>
+                                                                    <View style={styles.defaultProfileInner}>
+                                                                        <HexAvatar
+                                                                            source={{uri: profile.profilePicture}}
+                                                                            size={MULTISIZES.Xlarge60 + 6}
+                                                                            borderThickness={3}
+                                                                            imageZoom={1.12}
+                                                                            bordercolor={selectAvatarBorderColor(
+                                                                                profile.badge,
+                                                                            )}
+                                                                        />
+                                                                        <View style={styles.defaultProfileInfo}>
+                                                                            <Text style={styles.defaultProfileName}>
+                                                                                {profile.name}
+                                                                            </Text>
+                                                                            <Text style={styles.defaultProfileMatch}>
+                                                                                {profile.match}
+                                                                            </Text>
+                                                                            <Text style={styles.defaultProfileDesc}>
+                                                                                {profile.desc}
+                                                                            </Text>
+                                                                        </View>
+                                                                    </View>
+                                                                </View>
+                                                            </LinearGradient>
+                                                        </View>
+                                                    ) : (
+                                                        <LinearGradient
+                                                            colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
+                                                            start={{x: 0, y: 0}}
+                                                            end={{x: 1, y: 1}}
+                                                            style={{borderRadius: 13}}>
+                                                            <View style={styles.defaultProfileInner}>
+                                                                <HexAvatar
+                                                                    source={{uri: profile.profilePicture}}
+                                                                    size={MULTISIZES.Xlarge60}
+                                                                    borderThickness={5}
+                                                                    bordercolor={selectAvatarBorderColor(
+                                                                        profile.badge,
+                                                                    )}
+                                                                />
+                                                                <View style={styles.defaultProfileInfo}>
+                                                                    <Text style={styles.defaultProfileName}>
+                                                                        {profile.name}
+                                                                    </Text>
+                                                                    <Text style={styles.defaultProfileMatch}>
+                                                                        {profile.match}
+                                                                    </Text>
+                                                                    <Text style={styles.defaultProfileDesc}>
+                                                                        {profile.desc}
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                        </LinearGradient>
+                                                    )}
+                                                </Pressable>
+                                            );
+                                        })}
+                                    </View>
+                                )}
+                            </View>
+                            </ScrollView>
+                            {!shouldShowSearchResults && (
+                                <View style={styles.discoveryBottomDock}>
+                                    <LinearGradient
+                                        colors={['#4CC9FF', '#5B44FF', '#C86DFF']}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 1}}
+                                        style={styles.defaultInviteBar}>
+                                        <View style={styles.defaultInviteInner}>
+                                            {!discoverySelection ? (
+                                                <Text style={styles.defaultInviteText}>
+                                                    Select a profile, then tap Send Movie Invite
+                                                </Text>
+                                            ) : (
+                                                <View style={styles.defaultInviteHintRow}>
+                                                    <Text style={styles.defaultInviteHintPrefix}>Invite :</Text>
+                                                    <Icon
+                                                        name="heart"
+                                                        type="ionicon"
+                                                        size={18}
+                                                        color="#F472B6"
+                                                        style={{marginRight: 6}}
+                                                    />
+                                                    <Text
+                                                        style={[styles.defaultInviteHintUser, {marginRight: 10}]}
+                                                        numberOfLines={1}>
+                                                        @{getDiscoveryInviteUserName() ?? '—'}
+                                                    </Text>
+                                                    <Icon
+                                                        name="film-outline"
+                                                        type="ionicon"
+                                                        size={18}
+                                                        color="#7DD3FC"
+                                                        style={{marginRight: 6}}
+                                                    />
+                                                    <Text style={styles.defaultInviteHintMovie} numberOfLines={2}>
+                                                        {movie?.title ?? '—'}
+                                                    </Text>
+                                                </View>
                                             )}
                                         </View>
+                                    </LinearGradient>
+                                    <View style={{alignItems: 'center'}}>
+                                        <AkcruButtons.SmallButton
+                                            variant="auth"
+                                            btnname={'Send Movie Invite'}
+                                            color={COLORS.AKCRUBLUE}
+                                            onPress={handleSendDiscoveryInvite}
+                                            authButtonWidth={SIZES.ScreenWidth - 30}
+                                            authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
+                                            authImagePosition="right"
+                                        />
                                     </View>
                                 </View>
-                                <View style={{marginLeft: 10}}>
-                                    <Image source={imageindex.MITticket} />
-                                </View>
-                            </View>
+                            )}
+                        </View>
+                    ) : (
+                        <ImageBackground source={imageindex.FLickFlirtBG} style={styles.scheduleBg} resizeMode="cover">
+                            <LinearGradient
+                                colors={['rgba(5,3,20,0.88)', 'rgba(14,8,34,0.78)', 'rgba(5,3,20,0.92)']}
+                                style={styles.scheduleOverlay}>
+                                <ScrollView contentContainerStyle={styles.scheduleContent}>
 
-                            <View style={{marginTop: 20, marginBottom: 90}}>
-                                <Text style={styles.choosedate}>Choose date</Text>
-                                <View style={styles.container}>
-                                    <View style={styles.monthContainer}>
-                                        <TouchableOpacity onPress={handlePreviousMonth} style={styles.arrowButton}>
-                                            <Text style={styles.arrowbuttonstyle}>{'<'}</Text>
+                                    <Text style={styles.scheduleTitle}>Schedule Invite...</Text>
+                                    <LinearGradient
+                                        colors={['#6DE5FF', '#965CFF', '#FF75E4']}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 1}}
+                                        style={styles.schedulePairOuter}>
+                                        <LinearGradient
+                                            colors={['transparent', '#5EDBFF', '#D883FF', 'transparent']}
+                                            start={{x: 0, y: 0.5}}
+                                            end={{x: 1, y: 0.5}}
+                                            style={styles.schedulePairBeam}
+                                        />
+                                        <Animated.View
+                                            pointerEvents="none"
+                                            style={[
+                                                styles.scheduleTravelGlow,
+                                                {
+                                                    opacity: lightOpacity,
+                                                    transform: [
+                                                        {translateX: lightTranslateX},
+                                                        {translateY: lightTranslateY},
+                                                        {scale: sparkScale},
+                                                        {rotate: sparkRotate},
+                                                    ],
+                                                },
+                                            ]}>
+                                            <Image source={imageindex.mitTicketImage} style={styles.scheduleTravelIcon} />
+                                        </Animated.View>
+                                        <View style={styles.schedulePairInner}>
+                                            <View
+                                                style={styles.schedulePairUser}
+                                                onLayout={event => {
+                                                    const {x, width} = event.nativeEvent.layout;
+                                                    setLeftHexCenterX(x + width / 2);
+                                                }}>
+                                                <View
+                                                    onLayout={event => {
+                                                        const {y, height} = event.nativeEvent.layout;
+                                                        setLeftHexCenterY(y + height / 2);
+                                                    }}>
+                                                    <HexAvatar
+                                                        source={
+                                                            loggedInUser?.profilePicture
+                                                                ? {uri: loggedInUser.profilePicture}
+                                                                : imageindex.Akcruplaceholder
+                                                        }
+                                                        size={MULTISIZES.Xlarge60 + 6}
+                                                        borderThickness={3}
+                                                        imageZoom={1.1}
+                                                        bordercolor={
+                                                            loggedInUser?.badge
+                                                                ? selectAvatarBorderColor(loggedInUser.badge)
+                                                                : COLORS.AKCRUBLUE
+                                                        }
+                                                    />
+                                                </View>
+                                                <Text style={styles.scheduleUserName}>
+                                                    {loggedInUser?.username || 'You'}
+                                                </Text>
+                                                {loggedInUser?.badge === 'AKCRUIT' && <AkcruLevels.AkcruBadgeAkcruit />}
+                                                {loggedInUser?.badge === 'GUARDIAN' && <AkcruLevels.AkcruBadgeGuardian />}
+                                                {loggedInUser?.badge === 'HERO' && <AkcruLevels.AkcruBadgeHero />}
+                                                {loggedInUser?.badge === 'SUPERHERO' && <AkcruLevels.AkcruBadgeSuperHero />}
+                                            </View>
+                                            <View
+                                                style={styles.schedulePairUser}
+                                                onLayout={event => {
+                                                    const {x, width} = event.nativeEvent.layout;
+                                                    setRightHexCenterX(x + width / 2);
+                                                }}>
+                                                <View
+                                                    onLayout={event => {
+                                                        const {y, height} = event.nativeEvent.layout;
+                                                        setRightHexCenterY(y + height / 2);
+                                                    }}>
+                                                    <HexAvatar
+                                                        source={
+                                                            selectedUserPicture
+                                                                ? {uri: selectedUserPicture}
+                                                                : imageindex.Akcruplaceholder
+                                                        }
+                                                        size={MULTISIZES.Xlarge60 + 6}
+                                                        borderThickness={3}
+                                                        bordercolor={selectedBorderColor || '#C4B5FD'}
+                                                    />
+                                                </View>
+                                                <Text style={styles.scheduleUserName} numberOfLines={1}>
+                                                    {selectedUserName || 'Invitee'}
+                                                </Text>
+                                                {selectedAkcruBadgeAkcruit === 'AKCRUIT' && <AkcruLevels.AkcruBadgeAkcruit />}
+                                                {selectedAkcruBadgeGuardian === 'GUARDIAN' && (
+                                                    <AkcruLevels.AkcruBadgeGuardian />
+                                                )}
+                                                {selectedAkcruBadgeHero === 'HERO' && <AkcruLevels.AkcruBadgeHero />}
+                                                {selectedAkcruBadgeSuperHero === 'SUPERHERO' && (
+                                                    <AkcruLevels.AkcruBadgeSuperHero />
+                                                )}
+                                            </View>
+                                        </View>
+                                    </LinearGradient>
+
+                                    <Text style={styles.scheduleFieldLabel}>Select Date...</Text>
+                                    <View style={styles.schedulePickerRow}>
+                                        <TouchableOpacity
+                                            onPress={handlePreviousMonth}
+                                            style={styles.scheduleArrowButton}
+                                            disabled={isAtMinSelectableMonth}>
+                                            <Icon name="chevron-back" type="ionicon" color="#D7CBFF" size={18} />
                                         </TouchableOpacity>
-                                        <Text style={styles.monthText}>
+                                        <Text style={styles.scheduleMonthText}>
                                             {months[currentMonth]} {currentYear}
                                         </Text>
-                                        <TouchableOpacity onPress={handleNextMonth} style={styles.arrowButton}>
-                                            <Text style={styles.arrowbuttonstyle}>{'>'}</Text>
+                                        <TouchableOpacity onPress={handleNextMonth} style={styles.scheduleArrowButton}>
+                                            <Icon name="chevron-forward" type="ionicon" color="#D7CBFF" size={18} />
                                         </TouchableOpacity>
                                     </View>
-
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.datePickerContainer}>
                                             {[...Array(daysInMonth)].map((_, index) => {
                                                 const day = index + 1;
                                                 const isSelected = selectedDate.getDate() === day;
-                                                const currentDate = new Date();
-                                                currentDate.setHours(0, 0, 0, 0); // normalize to start of today
                                                 const currentDay = new Date(currentYear, currentMonth, day);
                                                 const currentDayOfWeek = currentDay.getDay();
-
-                                                const isSelectable = currentDay >= currentDate;
-
+                                                const isSelectable = currentDay >= minSelectableDate;
+                                                if (!isSelectable) {
+                                                    return null;
+                                                }
                                                 return (
                                                     <TouchableOpacity
                                                         key={day}
@@ -677,18 +1038,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         style={[
                                                             styles.dayButton,
                                                             isSelected && styles.dayButtonSelected,
-                                                            (isSelectionDisabled || !isSelectable) &&
-                                                                styles.disabledButton,
+                                                            (isSelectionDisabled || !isSelectable) && styles.disabledButton,
                                                         ]}
                                                         disabled={isSelectionDisabled || !isSelectable}>
-                                                        <Text style={styles.dayOfWeekText}>
-                                                            {daysOfWeek[currentDayOfWeek]}
-                                                        </Text>
-                                                        <Text
-                                                            style={[
-                                                                styles.dayText,
-                                                                isSelected && styles.dayTextSelected,
-                                                            ]}>
+                                                        <Text style={styles.dayOfWeekText}>{daysOfWeek[currentDayOfWeek]}</Text>
+                                                        <Text style={[styles.dayText, isSelected && styles.dayTextSelected]}>
                                                             {day}
                                                         </Text>
                                                     </TouchableOpacity>
@@ -697,14 +1051,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         </View>
                                     </ScrollView>
 
-                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                        <Text style={{...FONTS.Title2}}>Choose Date: </Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                            {' '}
-                                            {selectedDate.toLocaleDateString()}
-                                        </Text>
-                                    </View>
-
+                                    <Text style={styles.scheduleFieldLabel}>Choose a Time & Zone...</Text>
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.timePickerContainer}>
                                             {[...Array(24 * 4)].map((_, index) => {
@@ -713,7 +1060,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 const isSelected =
                                                     selectedTime.getHours() === hours &&
                                                     selectedTime.getMinutes() === minutes;
-
                                                 const currentTime = new Date();
                                                 const selectedDateTime = new Date(
                                                     selectedDate.getFullYear(),
@@ -722,9 +1068,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                     hours,
                                                     minutes,
                                                 );
-
                                                 const isPastTime = selectedDateTime < currentTime;
-
                                                 const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
                                                 const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
                                                 return (
@@ -734,15 +1078,10 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         style={[
                                                             styles.timeButton,
                                                             isSelected && styles.timeButtonSelected,
-                                                            (isSelectionDisabled || isPastTime) &&
-                                                                styles.disabledButton,
+                                                            (isSelectionDisabled || isPastTime) && styles.disabledButton,
                                                         ]}
                                                         disabled={isSelectionDisabled || isPastTime}>
-                                                        <Text
-                                                            style={[
-                                                                styles.timeText,
-                                                                isSelected && styles.timeTextSelected,
-                                                            ]}>
+                                                        <Text style={[styles.timeText, isSelected && styles.timeTextSelected]}>
                                                             {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
                                                             {minutes === 0 ? '00' : minutes} {ampmSuffix}
                                                         </Text>
@@ -751,16 +1090,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             })}
                                         </View>
                                     </ScrollView>
-                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                        <Text style={{...FONTS.Title2}}>Choose Time: </Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                            {' '}
-                                            {selectedTime.toLocaleTimeString([], {
-                                                hour: '2-digit',
-                                                minute: '2-digit',
-                                            })}
-                                        </Text>
-                                    </View>
                                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                                         <View style={styles.timeZonePickerContainer}>
                                             {timeZones.map(timeZone => {
@@ -787,111 +1116,57 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             })}
                                         </View>
                                     </ScrollView>
-                                    <View style={{flexDirection: 'row', marginBottom: 30}}>
-                                        <Text style={{...FONTS.Title2}}>Choose Time Zone:{'  '}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                            {selectedTimeZone}
-                                        </Text>
-                                    </View>
-                                    <View>
-                                        <View>
-                                            {!isDateTimeSelected ? (
-                                                <View style={{alignItems: 'center'}}>
-                                                    <AkcruButtons.SmallButton
-                                                        btnname={'Send MIT'}
-                                                        color={COLORS.AKCRUBLUE}
-                                                        onPress={handleSetDateTime}
-                                                        disabled={
-                                                            !selectedDate ||
-                                                            !selectedTime ||
-                                                            !selectedTimeZone?.trim() ||
-                                                            !movie?.id ||
-                                                            !selectedUserName?.trim() ||
-                                                            isSelectionDisabled
-                                                        }
-                                                    />
-                                                </View>
-                                            ) : (
-                                                <View>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.Title2,
-                                                            color: COLORS.AKCRUBLUE,
-                                                            textAlign: 'center',
-                                                        }}>
-                                                        You've just sent a Movie Invite Ticket
-                                                    </Text>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.Title2,
-                                                            color: COLORS.AKCRUBLUE,
-                                                            textAlign: 'center',
-                                                        }}>
-                                                        to {selectedUserName} to watch:
-                                                    </Text>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.Title2,
-                                                            color: COLORS.AKCRUBLUE,
-                                                            textAlign: 'center',
-                                                        }}>
-                                                        "{movie?.title}"
-                                                    </Text>
-                                                    <View>
-                                                        <View
-                                                            style={{
-                                                                flexDirection: 'row',
-                                                                justifyContent: 'center',
-                                                            }}>
-                                                            <View style={{margin: 10}}>
-                                                                <Image
-                                                                    source={{uri: movie?.portraitURL}}
-                                                                    style={{
-                                                                        width: 65,
-                                                                        height: 100,
-                                                                        borderRadius: 5,
-                                                                    }}
-                                                                />
-                                                            </View>
-                                                            <View style={styles.selectedDateTimeContainer}>
-                                                                <Text style={styles.selectedDateTimeText}>
-                                                                    {selectedDate.toLocaleDateString()}
-                                                                </Text>
-                                                                <Text style={styles.selectedDateTimeText}>
-                                                                    {' '}
-                                                                    {selectedTime.toLocaleTimeString([], {
-                                                                        hour: '2-digit',
-                                                                        minute: '2-digit',
-                                                                    })}
-                                                                </Text>
-                                                                <Text style={styles.selectedDateTimeText}>
-                                                                    {selectedTimeZone}
-                                                                </Text>
-                                                            </View>
-                                                        </View>
 
-                                                        <View style={{alignItems: 'center', marginBottom: 20}}>
-                                                            <Text
-                                                                style={{
-                                                                    ...FONTS.Title2,
-                                                                    textAlign: 'center',
-                                                                    color: COLORS.AKCRUBLUE,
-                                                                }}>
-                                                                You will be notified if your MIT has been ACCEPTED or
-                                                                DECLINED
-                                                            </Text>
-                                                        </View>
-                                                    </View>
-                                                </View>
-                                            )}
+                                    <Text style={styles.scheduleFieldLabel}>Say something to kick things off...</Text>
+                                    <LinearGradient
+                                        colors={['#6DE5FF', '#8A56FF', '#FF75E4']}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 1}}
+                                        style={styles.kickoffOuter}>
+                                        <View style={styles.kickoffInner}>
+                                            <TextInput
+                                                value={kickoffMessage}
+                                                onChangeText={setKickoffMessage}
+                                                style={styles.kickoffInput}
+                                                placeholder="Hey! Ready for our movie night?"
+                                                placeholderTextColor="#AFA1DD"
+                                                multiline
+                                            />
                                         </View>
+                                    </LinearGradient>
+
+                                    <View style={styles.scheduleSendWrap}>
+                                        <AkcruButtons.SmallButton
+                                            variant="auth"
+                                            btnname={'Send Invite'}
+                                            color={COLORS.AKCRUBLUE}
+                                            onPress={handleSetDateTime}
+                                            authButtonWidth={SIZES.ScreenWidth - 80}
+                                            authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
+                                            authImagePosition="right"
+                                            disabled={
+                                                !selectedDate ||
+                                                !selectedTime ||
+                                                !selectedTimeZone?.trim() ||
+                                                !movie?.id ||
+                                                !selectedUserName?.trim() ||
+                                                isSelectionDisabled
+                                            }
+                                        />
                                     </View>
-                                </View>
-                            </View>
-                        </ScrollView>
+                                </ScrollView>
+                            </LinearGradient>
+                        </ImageBackground>
                     )}
                 </View>
             )}
+            <Modal animationType="fade" transparent={true} visible={showInviteResultModal}>
+                <OTPResultModal
+                    closeModal={() => setShowInviteResultModal(false)}
+                    type="failed"
+                    message={inviteResultMessage}
+                />
+            </Modal>
         </View>
     );
 };

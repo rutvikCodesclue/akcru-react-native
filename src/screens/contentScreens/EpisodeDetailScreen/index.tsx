@@ -12,6 +12,7 @@ import useAuthStore from '../../../stores/auth.store';
 import {findEpisodeById} from '../../../lib/api/series.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import EpisodeDetailCard from '../../../components/EpisodeDetailCard';
+import {navigateToMITDateSchedule} from '../../../util/RootNavigation';
 
 type EpisodeDetailScreenRouteProp = RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>;
 
@@ -105,12 +106,17 @@ export default function EpisodeDetailScreen({route}: Props) {
                                         });
                                     }}
                                     onPress={() => {
-                                        navigation.navigate('MITDateSchedule', {
-                                            id: id,
-                                            title: title,
-                                            portraitURL: portraitURL,
-                                            year: year,
-                                        });
+                                        if (!episode) {
+                                            return;
+                                        }
+                                        navigateToMITDateSchedule(
+                                            {
+                                                id: episode.id,
+                                                title: episode.title,
+                                                portraitURL: episode.portraitURL,
+                                            },
+                                            navigation,
+                                        );
                                     }}
                                 />
                             </View>

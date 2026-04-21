@@ -2,6 +2,142 @@ import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 
 export default StyleSheet.create({
+    scheduleBg: {
+        flex: 1,
+    },
+    scheduleOverlay: {
+        flex: 1,
+    },
+    scheduleContent: {
+        paddingHorizontal: 16,
+        paddingBottom: 40,
+    },
+    scheduleTitle: {
+        ...FONTS.Title1,
+        color: '#F3D9FF',
+        textAlign: 'center',
+        marginTop: 14,marginBottom: 14,
+    },
+    scheduleSubtitle: {
+        ...FONTS.paragraph2,
+        color: '#D4C8F8',
+        textAlign: 'center',
+        marginTop: 4,
+        marginBottom: 14,
+    },
+    schedulePairOuter: {
+        borderRadius: 18,
+        padding: 1.2,
+        overflow: 'hidden',
+        shadowColor: '#C15DFF',
+        shadowOpacity: 0.55,
+        shadowRadius: 12,
+        shadowOffset: {width: 0, height: 0},
+        elevation: 8,
+    },
+    schedulePairBeam: {
+        position: 'absolute',
+        left: 14,
+        right: 14,
+        top: 46,
+        height: 3,
+        borderRadius: 3,
+    },
+    scheduleTravelGlow: {
+        position: 'absolute',
+        top: 0,
+        width: 100,
+        height: 100,
+        zIndex: 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    scheduleTravelIcon: {
+        width: 100,
+        height: 100,
+        resizeMode: 'contain',
+    },
+    schedulePairInner: {
+        borderRadius: 17,
+        backgroundColor: 'rgba(10, 6, 33, 0.9)',
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'space-between',
+    },
+    schedulePairUser: {
+        width: '36%',
+        alignItems: 'center',
+    },
+    scheduleTicketSlot: {
+        height: 66,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    scheduleTicketIcon: {
+        width: 48,
+        height: 26,
+        resizeMode: 'contain',
+    },
+    scheduleUserName: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        marginTop: 8,
+        textAlign: 'center',
+    },
+    scheduleMetaText: {
+        ...FONTS.paragraph2,
+        color: '#C4B5FD',
+        marginTop: 4,
+        textAlign: 'center',
+    },
+    scheduleFieldLabel: {
+        ...FONTS.Title2,
+        color: '#E8C5FF',
+        marginTop: 14,
+        marginBottom: 8,
+    },
+    schedulePickerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+    },
+    scheduleArrowButton: {
+        width: 30,
+        height: 30,
+        borderRadius: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(127, 97, 255, 0.3)',
+    },
+    scheduleMonthText: {
+        ...FONTS.Title2,
+        color: '#E9E1FF',
+    },
+    kickoffOuter: {
+        borderRadius: 14,
+        padding: 1.2,
+        marginTop: 4,
+    },
+    kickoffInner: {
+        borderRadius: 13,
+        backgroundColor: 'rgba(15, 10, 38, 0.95)',
+        minHeight: 92,
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+    },
+    kickoffInput: {
+        ...FONTS.paragraph2,
+        color: COLORS.WHITE,
+        minHeight: 72,
+        textAlignVertical: 'top',
+    },
+    scheduleSendWrap: {
+        marginTop: 20,
+        alignItems: 'center',
+    },
     input: {
         flexDirection: 'row',
         borderWidth: 0.8,
@@ -26,7 +162,7 @@ export default StyleSheet.create({
     },
     topcontainer: {
         marginHorizontal: 15,
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+
     },
     screenTitle: {
         ...FONTS.Title3,
@@ -85,14 +221,17 @@ export default StyleSheet.create({
     dayButton: {
         width: 60,
         height: 60,
-        borderRadius: 5,
-        backgroundColor: COLORS.TAGCOLOR,
+        borderRadius: 12,
+        backgroundColor: 'rgba(21, 14, 52, 0.92)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 5,
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(170, 139, 255, 0.45)',
     },
     dayButtonSelected: {
-        backgroundColor: COLORS.AKCRUBLUE,
+        backgroundColor: '#7D4DFF',
+        borderColor: '#CA9DFF',
     },
     dayText: {
         ...FONTS.Title2,
@@ -111,14 +250,17 @@ export default StyleSheet.create({
     timeButton: {
         paddingHorizontal: 10,
         paddingVertical: 10,
-        borderRadius: 5,
-        backgroundColor: COLORS.TAGCOLOR,
+        borderRadius: 12,
+        backgroundColor: 'rgba(21, 14, 52, 0.92)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 5,
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(170, 139, 255, 0.45)',
     },
     timeButtonSelected: {
-        backgroundColor: COLORS.AKCRUBLUE,
+        backgroundColor: '#7D4DFF',
+        borderColor: '#CA9DFF',
     },
     timeText: {
         ...FONTS.Title2,
@@ -132,15 +274,18 @@ export default StyleSheet.create({
     },
     timeZoneButton: {
         paddingVertical: 10,
-        borderRadius: 5,
-        backgroundColor: COLORS.TAGCOLOR,
+        borderRadius: 12,
+        backgroundColor: 'rgba(21, 14, 52, 0.92)',
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 10,
-        marginRight: 5,
+        marginRight: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(170, 139, 255, 0.45)',
     },
     timeZoneButtonSelected: {
-        backgroundColor: COLORS.AKCRUBLUE,
+        backgroundColor: '#7D4DFF',
+        borderColor: '#CA9DFF',
     },
     timeZoneText: {
         ...FONTS.Title2,
@@ -190,7 +335,7 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
     },
     backbutton: {
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: COLORS.BLACK,
         marginTop: Platform.OS === 'ios' ? '10%' : 0,
     },
     ticketContainer: {
@@ -230,6 +375,148 @@ export default StyleSheet.create({
         height: 80,
         width: 80,
         borderRadius: 80,
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: COLORS.BLACK,
+    },
+    defaultDiscoveryWrap: {
+        borderRadius: 12,
+        padding: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(116,133,255,0.38)',
+        backgroundColor: COLORS.BLACK,
+    },
+    discoverySectionTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginTop: 14,
+        marginBottom: 2,
+    },
+    discoverySectionTitleIcon: {
+        marginRight: 10,
+    },
+    defaultSectionTitle: {
+        ...FONTS.Title3,
+        color: '#F4B6FF',
+        marginBottom: 6,
+    },
+    defaultSuggestionText: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        marginBottom: 4,
+    },
+    defaultProfileGradient: {
+        borderRadius: 14,
+        padding: 1.2,
+        marginTop: 12,
+        shadowColor: '#9D63FF',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.35,
+        shadowRadius: 8,
+        elevation: 3,
+    },
+    defaultProfileGradientPressed: {
+        padding: 0,
+        borderRadius: 15,
+        shadowOpacity: 0.65,
+        shadowRadius: 18,
+        shadowOffset: {width: 0, height: 4},
+        elevation: 10,
+    },
+    /** Keep selected card width equal to unselected card width. */
+    profileCardSelectedScale: {
+        transform: [{scale: 1}],
+    },
+    /** Selected card: outer gradient ring (padding = border thickness). */
+    profileCardGradientBorderOuter: {
+        borderRadius: 15,
+        padding: 1,
+        overflow: 'hidden',
+    },
+    profileCardGradientBorderInner: {
+        borderRadius: 13,
+        backgroundColor: COLORS.BLACK,
+        overflow: 'hidden',
+    },
+    defaultProfileInner: {
+        borderRadius: 13,
+        backgroundColor: COLORS.BLACK,
+        paddingVertical: 11,
+        paddingHorizontal: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    defaultProfileInfo: {
+        flex: 1,
+        marginHorizontal: 10,
+    },
+    defaultProfileName: {
+        ...FONTS.Title3,
+        color: COLORS.WHITE,
+    },
+    defaultProfileMatch: {
+        ...FONTS.Title2,
+        color: '#8AD6FF',
+        marginTop: 2,
+    },
+    defaultProfileDesc: {
+        ...FONTS.paragraph2,
+        color: '#D8D7FF',
+        marginTop: 2,
+    },
+    defaultInviteBar: {
+        borderRadius: 18,
+        padding: 1.3,
+        marginBottom: 14,
+    },
+    defaultInviteInner: {
+        borderRadius: 17,
+        backgroundColor: COLORS.BLACK,
+        paddingVertical: 9,
+        paddingHorizontal: 12,
+    },
+    defaultInviteText: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        textAlign: 'center',
+    },
+    defaultInviteHintRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    defaultInviteHintPrefix: {
+        ...FONTS.Title2,
+        color: '#F4B6FF',
+        marginRight: 8,
+    },
+    defaultInviteHintUser: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        maxWidth: '42%',
+    },
+    defaultInviteHintMovie: {
+        ...FONTS.Title2,
+        color: '#B8E8FF',
+        flexShrink: 1,
+        maxWidth: '48%',
+        textAlign: 'left',
+    },
+    discoveryScreenWrap: {
+        flex: 1,
+    },
+    discoveryScrollContent: {
+        paddingBottom: 145,
+    },
+    discoveryBottomDock: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        paddingHorizontal: 15,
+        paddingTop: 8,
+        paddingBottom: Platform.OS === 'ios' ? 26 : 14,
+        backgroundColor: COLORS.BLACK,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(95, 123, 255, 0.25)',
     },
 });

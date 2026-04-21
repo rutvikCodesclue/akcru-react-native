@@ -9,6 +9,8 @@ import {
     TouchableWithoutFeedback,
     ActivityIndicator,
     Platform,
+    GestureResponderEvent,
+    TextInput,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
@@ -120,7 +122,11 @@ type PostProps = {
     currentUserID?: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
-    CommentOnPostButton: any;
+    onCommentIconPress?: () => void;
+    commentInputValue?: string;
+    onCommentInputChange?: (value: string) => void;
+    onCommentSend?: () => void;
+    isCommentSending?: boolean;
     handleDeletePost: (postId: number) => void;
     isLikedByCurrentUser?: boolean; // Assuming this property exists
     isSuggestedUser: boolean;
@@ -144,7 +150,11 @@ const SkinnyPostCard = ({
     currentUserID,
     akcruBadge,
     onLikeOrUnlike,
-    CommentOnPostButton,
+    onCommentIconPress,
+    commentInputValue = '',
+    onCommentInputChange,
+    onCommentSend,
+    isCommentSending = false,
     isSuggestedUser,
     isPromo,
     isOwner,
@@ -154,6 +164,7 @@ const SkinnyPostCard = ({
     isLikedByCurrentUser,
     visionaryStatus,
 }: PostProps) => {
+    const commentInputRef = useRef<TextInput>(null);
     const [isImageModalVisible, setImageModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState('');
 
@@ -441,6 +452,22 @@ const SkinnyPostCard = ({
         });
     };
 
+    const handleCommentSendPress = (event: GestureResponderEvent) => {
+        event.stopPropagation();
+        if (isCommentSending) {
+            return;
+        }
+        onCommentSend?.();
+    };
+
+    const handleCommentFocus = () => {
+        if (onCommentIconPress) {
+            onCommentIconPress();
+            return;
+        }
+        commentInputRef.current?.focus();
+    };
+
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
@@ -653,14 +680,29 @@ const SkinnyPostCard = ({
                         mitCount={currentUserMITTickets}
                         isLiked={!!post.isLikedByCurrentUser}
                         onLike={() => onLikeOrUnlike(+post.id)}
-                        onComment={CommentOnPostButton}
+                        onComment={handleCommentFocus}
                         onMit={openCrummunityMIT}
                     />
 
-                    <Pressable onPress={CommentOnPostButton} style={styles.commentBar}>
-                        <Text style={styles.commentPlaceholder}>Add a comment...</Text>
-                        <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
-                    </Pressable>
+                    <View style={styles.commentBar}>
+                        <TextInput
+                            ref={commentInputRef}
+                            value={commentInputValue}
+                            onChangeText={text => onCommentInputChange?.(text)}
+                            placeholder="Add a comment..."
+                            placeholderTextColor="rgba(255,255,255,0.4)"
+                            style={styles.commentPlaceholder}
+                            multiline={false}
+                            onPressIn={event => event.stopPropagation()}
+                        />
+                        <Pressable onPress={handleCommentSendPress}>
+                            {isCommentSending ? (
+                                <ActivityIndicator size="small" color="#9b59b6" />
+                            ) : (
+                                <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
+                            )}
+                        </Pressable>
+                    </View>
 
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 8}}>
                         {post.isSuggestedUser ? (

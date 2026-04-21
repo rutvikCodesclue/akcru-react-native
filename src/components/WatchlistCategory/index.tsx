@@ -81,6 +81,7 @@ const WatchListCategory = ({Akcru_Content, updateWatchlist}: WatchListCategoryPr
                                 navigation.navigate('ContentDetailScreen', {
                                     id: item.id,
                                     movie: item.title,
+                                    hideTabBar: true,
                                 });
                             }}
                             onLongPress={() => handleShowConfirmationModal(item)}>

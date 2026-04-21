@@ -138,6 +138,22 @@ function CenterHexTabBarButton({
     );
 }
 
+/** Deepest focused route in a tab (for reading params on nested stacks). */
+function getFocusedLeafRoute(route: {state?: {index?: number; routes?: unknown[]}; name?: string; params?: object} | null): {
+    name?: string;
+    params?: Record<string, unknown>;
+} | null {
+    if (!route) {
+        return null;
+    }
+    if (!route.state || !Array.isArray(route.state.routes)) {
+        return {name: route.name, params: route.params as Record<string, unknown> | undefined};
+    }
+    const idx = route.state.index ?? 0;
+    const child = route.state.routes[idx] as (typeof route);
+    return getFocusedLeafRoute(child);
+}
+
 /** `setOptions({ tabBarStyle })` from nested screens is unreliable; hide bar from real navigation state. */
 function ClientTabBar(props: TabBarProps) {
     const {state} = props;
@@ -149,6 +165,15 @@ function ClientTabBar(props: TabBarProps) {
                 reason: 'UserProfileStack + ViewChat',
             });
             return null;
+        }
+        if (nestedFocused === 'ContentDetailScreen') {
+            const leaf = getFocusedLeafRoute(active as Parameters<typeof getFocusedLeafRoute>[0]);
+            if (leaf?.params?.hideTabBar === true) {
+                logTabBarTouch('ClientTabBar render null', {
+                    reason: 'UserProfileStack + ContentDetailScreen (hideTabBar)',
+                });
+                return null;
+            }
         }
     }
     if (active?.name === 'ClientStack' || active?.name === 'AkcruButtonStack') {

@@ -13,10 +13,10 @@ const addRequestTokenHeader = async () => {
 const determineBaseURL = (): string => {
     switch (process.env.NODE_ENV) {
         case 'production':
-            return "http://52.55.157.223:3000";
+            return "http://52.71.148.243:3000";
 // return AUTH_API_URL;
         default:
-            return "http://52.55.157.223:3000";
+            return "http://52.71.148.243:3000";
 //return AUTH_API_URL ?? 'http://10.0.2.2:3000';
     }
 };
