@@ -604,4 +604,12 @@ export default StyleSheet.create({
         textAlign: 'center',
         marginTop: 3,
     },
+    sendMITVideoOverlay: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    sendMITVideo: {
+        width: '100%',
+        height: '100%',
+    },
 });

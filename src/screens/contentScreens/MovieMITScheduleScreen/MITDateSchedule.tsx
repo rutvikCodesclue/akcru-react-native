@@ -12,6 +12,7 @@ import {
     Animated,
     Modal,
     Easing,
+    BackHandler,
 } from 'react-native';
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
@@ -32,6 +33,7 @@ import {
     selectAvatarBorderColor,
 } from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
+import Video from 'react-native-video';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
 import {createAMITInvite} from '../../../lib/api/mit.lib';
@@ -436,6 +438,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [showSendMIT, setShowSendMIT] = useState(false);
     const [showInviteResultModal, setShowInviteResultModal] = useState(false);
     const [inviteResultMessage, setInviteResultMessage] = useState('');
+    const [showSendMITVideoOverlay, setShowSendMITVideoOverlay] = useState(false);
+    const pendingInviteSuccessFlowRef = useRef<(() => void) | null>(null);
     const [showCinematicAnimationModal, setShowCinematicAnimationModal] = useState(false);
     const [animationStage, setAnimationStage] = useState(0);
     const animationTimersRef = useRef<NodeJS.Timeout[]>([]);
@@ -628,6 +632,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     };
 
     const handleInviteSuccessFlow = () => {
+        setIsSendingInvite(false);
         setIsDateTimeSelected(true);
         setShowSendMIT(true);
 
@@ -645,11 +650,37 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }
     };
 
+    const completeSendMITVideoAndContinue = () => {
+        setShowSendMITVideoOverlay(false);
+        const onComplete = pendingInviteSuccessFlowRef.current;
+        pendingInviteSuccessFlowRef.current = null;
+        if (onComplete) {
+            onComplete();
+        }
+    };
+
+    const playSendMITVideoThen = (onComplete: () => void) => {
+        pendingInviteSuccessFlowRef.current = onComplete;
+        setShowSendMITVideoOverlay(true);
+    };
+
     useEffect(() => {
         return () => {
             clearAnimationTimers();
         };
     }, []);
+
+    useEffect(() => {
+        navigation.setOptions({gestureEnabled: !showSendMITVideoOverlay});
+        if (!showSendMITVideoOverlay) {
+            return;
+        }
+        const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+        return () => {
+            backHandlerSubscription.remove();
+            navigation.setOptions({gestureEnabled: true});
+        };
+    }, [navigation, showSendMITVideoOverlay]);
 
     const handleSetDateTime = async () => {
         if (
@@ -678,7 +709,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             });
 
             if (response.success) {
-                runCinematicAnimationPreview(handleInviteSuccessFlow);
+//                runCinematicAnimationPreview(handleInviteSuccessFlow);
+                playSendMITVideoThen(handleInviteSuccessFlow);
             } else {
                 setIsSelectionDisabled(false);
                 setIsSendingInvite(false);
@@ -1430,6 +1462,24 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                     )}
                 </View>
             )}
+            <Modal
+                animationType="fade"
+                transparent={false}
+                visible={showSendMITVideoOverlay}
+                onRequestClose={() => {}}>
+                <View style={styles.sendMITVideoOverlay}>
+                    <Video
+                        source={require('../../../../assets/video/send_mit_animation.mp4')}
+                        style={styles.sendMITVideo}
+                        resizeMode="cover"
+                        repeat={false}
+                        controls={false}
+                        paused={!showSendMITVideoOverlay}
+                        onEnd={completeSendMITVideoAndContinue}
+                        onError={completeSendMITVideoAndContinue}
+                    />
+                </View>
+            </Modal>
             <Modal animationType="fade" transparent={true} visible={showCinematicAnimationModal}>
                 <View style={styles.cinematicModalBackdrop}>
                     <LinearGradient
