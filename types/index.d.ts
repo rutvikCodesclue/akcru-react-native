@@ -246,7 +246,11 @@ export type INotification = {
         | 'VisionaryRoomRequested'
         | 'VisionaryRoomRequestDeclined'
         | 'VisionaryRoomRequestAccepted'
-        | 'VisionaryRoomInvite';
+        | 'VisionaryRoomInvite'
+        | 'MITExpiringSoon'
+        | 'MITExpired'
+        | 'MITMovieChanged'
+        | 'MITCanceled';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;
@@ -471,7 +475,11 @@ export type INotification = {
         | 'UserTaggedOnPoll'
         | 'UserTaggedOnPollComment'
         | 'UserLikedPollComment'
-        | 'UserLikedPoll';
+        | 'UserLikedPoll'
+        | 'MITExpiringSoon'
+        | 'MITExpired'
+        | 'MITMovieChanged'
+        | 'MITCanceled';
     userId: string;
     user?: IUserProfile;
     isRead: boolean;

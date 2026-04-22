@@ -8,7 +8,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
-import {INotification} from '../../../../types';
+import type {INotification} from '../../../../types';
+import {NotificationType} from '../../../types/NotificationType';
 import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import AkcruButtons from '../../../components/akcruButtons';
@@ -46,6 +47,23 @@ const UserNotifications = () => {
     const navigateToContent = async (notification: INotification) => {
         try {
             switch (notification.type) {
+                case 'MITReceived':
+                    navigation.navigate('UserMITHubScreen', {index: 0});
+                    break;
+                case 'MITAccepted':
+                    navigation.navigate('UserProfileScreen', {index: 1});
+                    break;
+                case 'MITDeclined':
+                    navigation.navigate('UserMITHubScreen', {index: 1});
+                    break;
+                case NotificationType.MITExpiringSoon:
+                case NotificationType.MITExpired:
+                case NotificationType.MITMovieChanged:
+                    navigation.navigate('UserMITHubScreen', {index: 1});
+                    break;
+                case NotificationType.MITCanceled:
+                    navigation.navigate('UserProfileScreen', {index: 1});
+                    break;
                 case 'UserLikedComment':
                 case 'UserLikedPost':
                 case 'UserTaggedOnPost':
@@ -103,8 +121,13 @@ const UserNotifications = () => {
 
     const getNotificationDisplayName = (type: string) => {
         const typeDisplayNames: {[key: string]: string} = {
+            MITReceived: 'You have received a MIT',
             MITAccepted: 'Your MIT was Accepted',
             MITDeclined: 'Your MIT was Declined',
+            [NotificationType.MITExpiringSoon]: 'Your MIT is expiring soon',
+            [NotificationType.MITExpired]: 'Your MIT has expired',
+            [NotificationType.MITMovieChanged]: 'Your MIT movie was changed',
+            [NotificationType.MITCanceled]: 'Your MIT was canceled',
             CruInviteAccepted: 'Your Cru Invite was Accepted',
             CruInviteDeclined: 'Your Cru Invite was Declined',
             UserFollowed: 'New follower',
@@ -131,8 +154,13 @@ const UserNotifications = () => {
     const filteredNotifications = notifications.filter(
         notification =>
             !notification.isRead &&
-            (notification.type === 'MITAccepted' ||
+            (notification.type === 'MITReceived' ||
+                notification.type === 'MITAccepted' ||
                 notification.type === 'MITDeclined' ||
+                notification.type === NotificationType.MITExpiringSoon ||
+                notification.type === NotificationType.MITExpired ||
+                notification.type === NotificationType.MITMovieChanged ||
+                notification.type === NotificationType.MITCanceled ||
                 notification.type === 'CruInviteAccepted' ||
                 notification.type === 'CruInviteDeclined' ||
                 notification.type === 'UserFollowed' ||

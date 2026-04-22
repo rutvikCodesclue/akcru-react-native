@@ -49,7 +49,7 @@ interface TabContextType {
     notificationUnreadCount: number;
     setNotificationUnreadCount: (value: number) => void;
 
-    /** Unread MITReceived / MITAccepted / MITDeclined (hex ticket dot + center hex dot + shake). */
+    /** Unread MIT types incl. expiring / expired / movie changed (excludes `MITCanceled`; see `notificationUnreadCount` MIT hex types). */
     mitNotificationUnreadCount: number;
     setMitNotificationUnreadCount: (value: number) => void;
 
@@ -119,7 +119,7 @@ export const TabContextProvider = ({children}: {children: React.ReactNode}) => {
 
     const [msgRcvdNotificationUnreadCount, setMsgRcvdNotificationUnreadCountState] = React.useState(0);
 
-    /** After first sync, hex shakes only when unread count rises for MITReceived/MITAccepted/MITDeclined or MsgRcvd (see sync). */
+    /** After first sync, hex shakes when unread count rises for MIT types (incl. expiring/expired/movie changed) or MsgRcvd (see sync). */
     const notificationBadgeCountsHydratedRef = React.useRef(false);
     const lastSyncedMitHexRef = React.useRef(0);
     const lastSyncedMsgRcvdRef = React.useRef(0);

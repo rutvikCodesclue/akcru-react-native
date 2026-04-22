@@ -6,7 +6,8 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {RouteProp} from '@react-navigation/native';
-import {INotification} from '../../../../types';
+import type {INotification} from '../../../../types';
+import {NotificationType} from '../../../types/NotificationType';
 import LinearGradient from 'react-native-linear-gradient';
 import styles from './styles';
 import BackButton from '../../../components/General/backbutton';
@@ -68,6 +69,10 @@ const UserNotification = ({route}: Props) => {
             MITReceived: 'You have received a MIT',
             MITAccepted: 'Your MIT was Accepted',
             MITDeclined: 'Your MIT was Declined',
+            [NotificationType.MITExpiringSoon]: 'Your MIT is expiring soon',
+            [NotificationType.MITExpired]: 'Your MIT has expired',
+            [NotificationType.MITMovieChanged]: 'Your MIT movie was changed',
+            [NotificationType.MITCanceled]: 'Your MIT was canceled',
             CruInviteAccepted: 'Your Cru Invite was Accepted',
             CruInviteDeclined: 'Your Cru Invite was Declined',
             UserFollowed: 'New follower',

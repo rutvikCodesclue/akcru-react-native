@@ -1,10 +1,14 @@
-import {INotification} from '../../types';
+import type {INotification} from '../../types';
+import {NotificationType} from '../types/NotificationType';
 
-/** MIT push types for center hex + MIT ticket badge, shake, and hub batch-read (not MITCanceled). */
-const MIT_TYPES_FOR_HEX_BADGE: Array<'MITReceived' | 'MITAccepted' | 'MITDeclined'> = [
+/** MIT push types for center hex + MIT ticket badge, shake, and hub batch-read (excludes `MITCanceled`). */
+const MIT_TYPES_FOR_HEX_BADGE: INotification['type'][] = [
     'MITReceived',
     'MITAccepted',
     'MITDeclined',
+    NotificationType.MITExpiringSoon,
+    NotificationType.MITExpired,
+    NotificationType.MITMovieChanged,
 ];
 
 function isMitHexBadgeType(type: INotification['type']): boolean {
@@ -36,11 +40,14 @@ export function getUnreadMsgRcvdNotificationIds(notifications: INotification[]):
 }
 
 /** Types that count toward the in-app notification badge (matches Header / notification screens). */
-const NOTIFICATION_TYPES_FOR_BADGE: string[] = [
+const NOTIFICATION_TYPES_FOR_BADGE: readonly string[] = [
     'MITReceived',
     'MITAccepted',
     'MITDeclined',
-    'MITCanceled',
+    NotificationType.MITExpiringSoon,
+    NotificationType.MITExpired,
+    NotificationType.MITMovieChanged,
+    NotificationType.MITCanceled,
     'CruViewStarted',
     'CRUViewCanceled',
     'UserLikedGallery',

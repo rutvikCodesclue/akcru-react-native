@@ -5,7 +5,8 @@ import {COLORS, FONTS} from '../../../../assets/constants';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {batchMarkNotificationsRead, getMyNotifications, markNotificationRead} from '../../../lib/api/notify.lib';
-import {INotification} from '../../../../types';
+import type {INotification} from '../../../../types';
+import {NotificationType} from '../../../types/NotificationType';
 import {formatDatestamp, formatTimestampToAMPM} from '../../../util/util';
 import AkcruButtons from '../../../components/akcruButtons';
 import LoadingComponent from '../../../components/Loading';
@@ -40,6 +41,10 @@ const Unread = () => {
             MITReceived: 'You have received a MIT',
             MITAccepted: 'Your MIT was Accepted',
             MITDeclined: 'Your MIT was Declined',
+            [NotificationType.MITExpiringSoon]: 'Your MIT is expiring soon',
+            [NotificationType.MITExpired]: 'Your MIT has expired',
+            [NotificationType.MITMovieChanged]: 'Your MIT movie was changed',
+            [NotificationType.MITCanceled]: 'Your MIT was canceled',
             CruInviteAccepted: 'Your Cru Invite was Accepted',
             CruInviteDeclined: 'Your Cru Invite was Declined',
             UserFollowed: 'New follower',
@@ -66,6 +71,10 @@ const Unread = () => {
             (notification.type === 'MITAccepted' ||
                 notification.type === 'MITDeclined' ||
                 notification.type === 'MITReceived' ||
+                notification.type === NotificationType.MITExpiringSoon ||
+                notification.type === NotificationType.MITExpired ||
+                notification.type === NotificationType.MITMovieChanged ||
+                notification.type === NotificationType.MITCanceled ||
                 notification.type === 'CruInviteAccepted' ||
                 notification.type === 'CruInviteDeclined' ||
                 notification.type === 'UserFollowed' ||
