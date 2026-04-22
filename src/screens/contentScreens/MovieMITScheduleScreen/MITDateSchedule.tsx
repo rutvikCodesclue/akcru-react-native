@@ -5,18 +5,17 @@ import {
     TouchableOpacity,
     Pressable,
     Image,
-    FlatList,
     TextInput,
     ImageBackground,
     Platform,
     Alert,
     Animated,
     Modal,
+    Easing,
 } from 'react-native';
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
-import MITUserSearchCard from './MITUserCard';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
@@ -75,6 +74,14 @@ type Props = {
     route: MITDateScheduleRouteProp;
 };
 
+type SelectedInvitee = {
+    id: string;
+    username: string;
+    badge: string;
+    profilePicture: string;
+    description?: string;
+};
+
 const MITDateSchedule = ({route, navigation}: Props) => {
     const loggedInUser = useAuthStore(state => state.user);
     const id: string | undefined = route.params?.id ?? null;
@@ -131,7 +138,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             ticketTimerRef.current = setTimeout(() => {
                 setShowSendMIT(false);
                 setIsSelectionDisabled(true);
-                navigation.navigate('UserMITHubScreen', {index: 1});
+                navigateToMITHubOneWay();
             }, TICKET_DISPLAY_MS);
 
             ad.load(); // preload next ad
@@ -253,12 +260,15 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         | {kind: 'archetype'; id: string};
 
     const [discoverySelection, setDiscoverySelection] = useState<DiscoveryCardSelection | null>(null);
+    const [selectedInvitee, setSelectedInvitee] = useState<SelectedInvitee | null>(null);
+    const [selectedFromSearch, setSelectedFromSearch] = useState(false);
 
     const shouldShowSearchResults = searchQuery.trim().length > 1;
 
-    const handleSearch = (text: any) => {
+    const handleSearch = (text: string) => {
         setSearchQuery(text);
-        if (text.length > 1) {
+        const trimmedText = text.trim();
+        if (trimmedText.length > 1) {
             searchForUsers(text).then(res => {
                 if (res.length > 0) {
                     setData(res);
@@ -268,6 +278,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             });
         } else {
             setData([]);
+            if (trimmedText.length === 0) {
+                setSelectedFromSearch(false);
+            }
         }
     };
 
@@ -283,12 +296,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [selectedUser, setSelectedUser] = useState(false);
     const [selectedBorderColor, setSelectedBorderColor] = useState('');
 
-    const handlePress = (username: string, badge: string, profilePicture: string) => {
+    const applySelectedInvitee = (username: string, badge: string, profilePicture: string) => {
         //console.log('Item with username', username, badge, 'pressed!');
         //console.log('Item with movie title', movie?.title, movie?.year, 'pressed!');
         const borderColor = selectAvatarBorderColor(badge);
 
-        setScheduleIsShown(true);
         setSelectedUserName(username);
         setSelectedAkcruBadgeAkcruit(badge);
         setSelectedAkcruBadgeGuardian(badge);
@@ -300,8 +312,13 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedBorderColor(borderColor);
     };
 
+    const handlePress = (username: string, badge: string, profilePicture: string) => {
+        applySelectedInvitee(username, badge, profilePicture);
+        setScheduleIsShown(true);
+    };
+
     const handleSendDiscoveryInvite = () => {
-        if (!discoverySelection) {
+        if (!selectedInvitee) {
             Alert.alert(
                 'No user selected',
                 'Please tap a profile above to choose who you want to invite, then try again.',
@@ -309,32 +326,12 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             );
             return;
         }
-        if (discoverySelection.kind === 'showcase') {
-            const profile = showcaseProfiles.find(p => p.id === discoverySelection.id);
-            if (profile) {
-                handlePress(profile.name, profile.badge, profile.profilePicture);
-            }
-            return;
-        }
-        if (discoverySelection.kind === 'archetype') {
-            const profile = archetypeProfiles.find(p => p.id === discoverySelection.id);
-            if (profile) {
-                handlePress(profile.name, profile.badge, profile.profilePicture);
-            }
-        }
+        applySelectedInvitee(selectedInvitee.username, selectedInvitee.badge, selectedInvitee.profilePicture);
+        setScheduleIsShown(true);
     };
 
     const getDiscoveryInviteUserName = (): string | null => {
-        if (!discoverySelection) {
-            return null;
-        }
-        if (discoverySelection.kind === 'showcase') {
-            return showcaseProfiles.find(p => p.id === discoverySelection.id)?.name ?? null;
-        }
-        if (discoverySelection.kind === 'archetype') {
-            return archetypeProfiles.find(p => p.id === discoverySelection.id)?.name ?? null;
-        }
-        return null;
+        return selectedInvitee?.username ?? null;
     };
 
     const preFilledInviteeFromRoute = useRef(false);
@@ -349,6 +346,13 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             return;
         }
         preFilledInviteeFromRoute.current = true;
+        setSelectedInvitee({
+            id: user.id,
+            username: user.username,
+            badge: user.badge ?? '',
+            profilePicture: user.profilePicture ?? '',
+            description: user.description,
+        });
         handlePress(user.username, user.badge ?? '', user.profilePicture ?? '');
     }, [user, userID]);
 
@@ -366,6 +370,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [kickoffMessage, setKickoffMessage] = useState("Hey! Ready for our movie night? 🍿");
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
+    const [isSendingInvite, setIsSendingInvite] = useState(false);
     const months = [
         'January',
         'February',
@@ -431,6 +436,16 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [showSendMIT, setShowSendMIT] = useState(false);
     const [showInviteResultModal, setShowInviteResultModal] = useState(false);
     const [inviteResultMessage, setInviteResultMessage] = useState('');
+    const [showCinematicAnimationModal, setShowCinematicAnimationModal] = useState(false);
+    const [animationStage, setAnimationStage] = useState(0);
+    const animationTimersRef = useRef<NodeJS.Timeout[]>([]);
+    const burstScaleAnim = useRef(new Animated.Value(0.2)).current;
+    const burstOpacityAnim = useRef(new Animated.Value(0)).current;
+    const ticketScaleAnim = useRef(new Animated.Value(0.6)).current;
+    const ticketOpacityAnim = useRef(new Animated.Value(0)).current;
+    const ticketTravelProgressAnim = useRef(new Animated.Value(0)).current;
+    const ticketRotateAnim = useRef(new Animated.Value(0)).current;
+    const confirmOpacityAnim = useRef(new Animated.Value(0)).current;
     const [leftHexCenterX, setLeftHexCenterX] = useState<number>(SIZES.ScreenWidth * 0.2);
     const [rightHexCenterX, setRightHexCenterX] = useState<number>(SIZES.ScreenWidth * 0.8);
     const [leftHexCenterY, setLeftHexCenterY] = useState<number>(46);
@@ -457,6 +472,184 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         inputRange: [0, 1],
         outputRange: ['0deg', '360deg'],
     });
+    const ticketOverlayRotation = ticketRotateAnim.interpolate({
+        inputRange: [0, 0.14, 0.28, 0.42, 0.58, 0.74, 0.88, 1],
+        outputRange: ['-18deg', '-6deg', '10deg', '24deg', '42deg', '26deg', '8deg', '-10deg'],
+    });
+    const ticketOverlayTranslateX = ticketTravelProgressAnim.interpolate({
+        // Fullscreen ribbon sweep: move across the whole screen in one run.
+        inputRange: [0, 0.14, 0.28, 0.42, 0.58, 0.74, 0.88, 1],
+        outputRange: [
+            SIZES.ScreenWidth * 0.05,
+            SIZES.ScreenWidth * 0.28,
+            SIZES.ScreenWidth * 0.58,
+            SIZES.ScreenWidth * 0.78,
+            SIZES.ScreenWidth * 0.58,
+            SIZES.ScreenWidth * 0.34,
+            SIZES.ScreenWidth * 0.62,
+            SIZES.ScreenWidth * 0.86,
+        ],
+    });
+    const ticketOverlayTranslateY = ticketTravelProgressAnim.interpolate({
+        // Fullscreen vertical coverage (top to lower region).
+        inputRange: [0, 0.14, 0.28, 0.42, 0.58, 0.74, 0.88, 1],
+        outputRange: [
+            SIZES.ScreenHeight * 0.14,
+            SIZES.ScreenHeight * 0.08,
+            SIZES.ScreenHeight * 0.2,
+            SIZES.ScreenHeight * 0.34,
+            SIZES.ScreenHeight * 0.52,
+            SIZES.ScreenHeight * 0.62,
+            SIZES.ScreenHeight * 0.68,
+            SIZES.ScreenHeight * 0.7,
+        ],
+    });
+    const cinematicStageTitle =
+        animationStage === 1
+            ? 'Tap Initiation'
+            : animationStage === 2
+              ? 'Energy Burst'
+              : animationStage === 3
+                ? 'Ticket Formation'
+                : animationStage === 4
+                  ? 'Target Lock'
+                  : animationStage === 5
+                    ? 'Delivery'
+                    : animationStage === 6
+                      ? 'Confirmation'
+                      : 'MIT Invite Animation';
+
+    const clearAnimationTimers = () => {
+        animationTimersRef.current.forEach(timerId => clearTimeout(timerId));
+        animationTimersRef.current = [];
+    };
+
+    const resetCinematicAnimationValues = () => {
+        burstScaleAnim.stopAnimation();
+        burstOpacityAnim.stopAnimation();
+        ticketScaleAnim.stopAnimation();
+        ticketOpacityAnim.stopAnimation();
+        ticketTravelProgressAnim.stopAnimation();
+        ticketRotateAnim.stopAnimation();
+        confirmOpacityAnim.stopAnimation();
+        burstScaleAnim.setValue(0.2);
+        burstOpacityAnim.setValue(0);
+        ticketScaleAnim.setValue(0.6);
+        ticketOpacityAnim.setValue(0);
+        ticketTravelProgressAnim.setValue(0);
+        ticketRotateAnim.setValue(0);
+        confirmOpacityAnim.setValue(0);
+    };
+
+    const stageTimeout = (callback: () => void, delayMs: number) => {
+        const timeoutId = setTimeout(callback, delayMs);
+        animationTimersRef.current.push(timeoutId);
+    };
+
+    const navigateToMITHubOneWay = () => {
+        navigation.replace('UserMITHubScreen', {index: 1});
+    };
+
+    const runCinematicAnimationPreview = (onComplete?: (() => void) | unknown) => {
+        clearAnimationTimers();
+        resetCinematicAnimationValues();
+        setAnimationStage(1);
+        setShowCinematicAnimationModal(true);
+
+        Animated.sequence([
+            Animated.parallel([
+                Animated.timing(burstScaleAnim, {
+                    toValue: 1.35,
+                    duration: 520,
+                    easing: Easing.out(Easing.cubic),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(burstOpacityAnim, {
+                    toValue: 1,
+                    duration: 420,
+                    useNativeDriver: true,
+                }),
+            ]),
+            Animated.timing(burstOpacityAnim, {
+                toValue: 0,
+                duration: 420,
+                useNativeDriver: true,
+            }),
+            Animated.parallel([
+                Animated.timing(ticketScaleAnim, {
+                    toValue: 1.06,
+                    duration: 560,
+                    easing: Easing.out(Easing.back(1.2)),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(ticketOpacityAnim, {
+                    toValue: 1,
+                    duration: 520,
+                    useNativeDriver: true,
+                }),
+            ]),
+            Animated.parallel([
+                Animated.timing(ticketTravelProgressAnim, {
+                    toValue: 1,
+                    duration: 2200,
+                    easing: Easing.inOut(Easing.cubic),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(ticketRotateAnim, {
+                    toValue: 1,
+                    duration: 2200,
+                    easing: Easing.inOut(Easing.sin),
+                    useNativeDriver: true,
+                }),
+            ]),
+            Animated.timing(confirmOpacityAnim, {
+                toValue: 1,
+                duration: 560,
+                easing: Easing.out(Easing.quad),
+                useNativeDriver: true,
+            }),
+        ]).start(({finished}) => {
+            if (finished) {
+                stageTimeout(() => {
+                    setShowCinematicAnimationModal(false);
+                    setAnimationStage(0);
+                    if (typeof onComplete === 'function') {
+                        onComplete();
+                    }
+                }, 900);
+            }
+        });
+
+        stageTimeout(() => setAnimationStage(2), 700);
+        stageTimeout(() => setAnimationStage(3), 1450);
+        stageTimeout(() => setAnimationStage(4), 2450);
+        stageTimeout(() => setAnimationStage(5), 3850);
+        stageTimeout(() => setAnimationStage(6), 4650);
+    };
+
+    const handleInviteSuccessFlow = () => {
+        setIsDateTimeSelected(true);
+        setShowSendMIT(true);
+
+        if (adLoaded && interstitialRef.current) {
+            interstitialRef.current.show();
+        } else {
+            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
+            ticketTimerRef.current = setTimeout(() => {
+                setShowSendMIT(false);
+                setIsSelectionDisabled(true);
+                navigateToMITHubOneWay();
+            }, TICKET_DISPLAY_MS);
+
+            interstitialRef.current?.load?.();
+        }
+    };
+
+    useEffect(() => {
+        return () => {
+            clearAnimationTimers();
+        };
+    }, []);
 
     const handleSetDateTime = async () => {
         if (
@@ -475,6 +668,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }
 
         setIsSelectionDisabled(true);
+        setIsSendingInvite(true);
         try {
             const response = await createAMITInvite({
                 movieId: movie.id,
@@ -484,23 +678,10 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             });
 
             if (response.success) {
-                setIsDateTimeSelected(true);
-                setShowSendMIT(true);
-
-                if (adLoaded && interstitialRef.current) {
-                    interstitialRef.current.show();
-                } else {
-                    if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
-                    ticketTimerRef.current = setTimeout(() => {
-                        setShowSendMIT(false);
-                        setIsSelectionDisabled(true);
-                        navigation.navigate('UserMITHubScreen', {index: 1});
-                    }, TICKET_DISPLAY_MS);
-
-                    interstitialRef.current?.load?.();
-                }
+                runCinematicAnimationPreview(handleInviteSuccessFlow);
             } else {
                 setIsSelectionDisabled(false);
+                setIsSendingInvite(false);
                 const failedMessage =
                     (response as {message?: string; data?: {message?: string}})?.message ??
                     (response as {message?: string; data?: {message?: string}})?.data?.message ??
@@ -510,6 +691,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             }
         } catch {
             setIsSelectionDisabled(false);
+            setIsSendingInvite(false);
             setInviteResultMessage('Unable to send invite right now. Please try again.');
             setShowInviteResultModal(true);
         }
@@ -620,6 +802,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 placeholderTextColor={COLORS.DARKGREY}
                                                 autoCorrect={false}
                                                 autoFocus={false}
+                                                value={searchQuery}
                                                 ref={textInputRef}
                                                 onFocus={() => {
                                                     setTextInputFocused(true);
@@ -638,45 +821,114 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                             <ScrollView style={{flex: 1}} contentContainerStyle={styles.discoveryScrollContent}>
                             <View style={{marginHorizontal: 15, marginBottom: 70}}>
                                 {shouldShowSearchResults ? (
-                                    <FlatList
-                                        data={data}
-                                        horizontal={false}
-                                        showsHorizontalScrollIndicator={false}
-                                        scrollEnabled={false}
-                                        keyExtractor={item => item.id}
-                                        renderItem={({item}) => (
-                                            <View style={{marginVertical: 5}}>
-                                                <MITUserSearchCard
-                                                    userPicture={item.profilePicture}
-                                                    userName={item.username}
-                                                    onPress={() => {
+                                    <View style={styles.defaultDiscoveryWrap}>
+                                        {data.length > 0 ? (
+                                            (() => {
+                                                const item = data[0];
+                                                return (
+                                                <Pressable
+                                                    key={item.id}
+                                                    onPress={() =>
+                                                        {
+                                                            setDiscoverySelection(null);
+                                                            setSelectedInvitee({
+                                                                id: item.id,
+                                                                username: item.username,
+                                                                badge: item.badge ?? '',
+                                                                profilePicture: item.profilePicture ?? '',
+                                                                description: item.description,
+                                                            });
+                                                            setSelectedFromSearch(true);
+                                                            setSearchQuery('');
+                                                            setData([]);
+                                                        }
+                                                    }
+                                                    onLongPress={() =>
                                                         navigation.navigate('ViewUserScreen', {
                                                             userID: item.id,
                                                             imageURL: item.profilePicture ?? '',
-                                                        });
-                                                        setTextInputFocused(true);
-                                                    }}
-                                                    userID={item.id}
-                                                    akcruBadge={item.badge}
-                                                    userDesc={item.description}
-                                                    onPressOut={() =>
-                                                        handlePress(
-                                                            item.username,
-                                                            item.badge ?? '',
-                                                            item.profilePicture ?? '',
-                                                        )
+                                                        })
                                                     }
-                                                    influencerStatus={item.influencerStatus}
-                                                    companyStatus={item.companyStatus}
-                                                    ownerStatus={item.ownerStatus}
-                                                    blackCloakStatus={item.blackCloakStatus}
-                                                    firstName={item.firstName}
-                                                />
-                                            </View>
+                                                    style={styles.defaultProfileGradient}>
+                                                    <LinearGradient
+                                                        colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
+                                                        start={{x: 0, y: 0}}
+                                                        end={{x: 1, y: 1}}
+                                                        style={{borderRadius: 13}}>
+                                                        <View style={styles.defaultProfileInner}>
+                                                            <HexAvatar
+                                                                source={
+                                                                    item.profilePicture
+                                                                        ? {uri: item.profilePicture}
+                                                                        : imageindex.Akcruplaceholder
+                                                                }
+                                                                size={MULTISIZES.Xlarge60}
+                                                                borderThickness={5}
+                                                                bordercolor={selectAvatarBorderColor(item.badge ?? '')}
+                                                            />
+                                                            <View style={styles.defaultProfileInfo}>
+                                                                <Text style={styles.defaultProfileName}>
+                                                                    {item.username}
+                                                                </Text>
+                                                                <Text style={styles.defaultProfileMatch}>
+                                                                    Archetype Match
+                                                                </Text>
+                                                                <Text style={styles.defaultProfileDesc}>
+                                                                    {item.description?.trim() || 'Tap to schedule invite'}
+                                                                </Text>
+                                                            </View>
+                                                        </View>
+                                                    </LinearGradient>
+                                                </Pressable>
+                                                );
+                                            })()
+                                        ) : (
+                                            <Text style={styles.defaultSuggestionText}>No user found</Text>
                                         )}
-                                    />
+                                    </View>
                                 ) : (
                                     <View style={styles.defaultDiscoveryWrap}>
+                                        {selectedInvitee && selectedFromSearch ? (
+                                            <View style={styles.defaultProfileGradientPressed}>
+                                                <View style={styles.profileCardSelectedScale}>
+                                                    <LinearGradient
+                                                        colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
+                                                        start={{x: 0, y: 0}}
+                                                        end={{x: 1, y: 1}}
+                                                        style={styles.profileCardGradientBorderOuter}>
+                                                        <View style={styles.profileCardGradientBorderInner}>
+                                                            <View style={styles.defaultProfileInner}>
+                                                                <HexAvatar
+                                                                    source={
+                                                                        selectedInvitee.profilePicture
+                                                                            ? {uri: selectedInvitee.profilePicture}
+                                                                            : imageindex.Akcruplaceholder
+                                                                    }
+                                                                    size={MULTISIZES.Xlarge60 + 6}
+                                                                    borderThickness={3}
+                                                                    imageZoom={1.12}
+                                                                    bordercolor={selectAvatarBorderColor(
+                                                                        selectedInvitee.badge,
+                                                                    )}
+                                                                />
+                                                                <View style={styles.defaultProfileInfo}>
+                                                                    <Text style={styles.defaultProfileName}>
+                                                                        {selectedInvitee.username}
+                                                                    </Text>
+                                                                    <Text style={styles.defaultProfileMatch}>
+                                                                        Selected Invitee
+                                                                    </Text>
+                                                                    <Text style={styles.defaultProfileDesc}>
+                                                                        {selectedInvitee.description?.trim() ||
+                                                                            'Ready to send movie invite'}
+                                                                    </Text>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                    </LinearGradient>
+                                                </View>
+                                            </View>
+                                        ) : null}
                                         <DiscoverySectionTitle title="Your Matches" />
                                         {showcaseProfiles.map(profile => {
                                             const isSelected =
@@ -685,9 +937,17 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             return (
                                                 <Pressable
                                                     key={profile.id}
-                                                    onPress={() =>
-                                                        setDiscoverySelection({kind: 'showcase', id: profile.id})
-                                                    }
+                                                    onPress={() => {
+                                                        setDiscoverySelection({kind: 'showcase', id: profile.id});
+                                                        setSelectedFromSearch(false);
+                                                        setSelectedInvitee({
+                                                            id: profile.id,
+                                                            username: profile.name,
+                                                            badge: profile.badge,
+                                                            profilePicture: profile.profilePicture,
+                                                            description: profile.desc,
+                                                        });
+                                                    }}
                                                     style={[
                                                         styles.defaultProfileGradient,
                                                         isSelected && styles.defaultProfileGradientPressed,
@@ -766,9 +1026,17 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             return (
                                                 <Pressable
                                                     key={profile.id}
-                                                    onPress={() =>
-                                                        setDiscoverySelection({kind: 'archetype', id: profile.id})
-                                                    }
+                                                    onPress={() => {
+                                                        setDiscoverySelection({kind: 'archetype', id: profile.id});
+                                                        setSelectedFromSearch(false);
+                                                        setSelectedInvitee({
+                                                            id: profile.id,
+                                                            username: profile.name,
+                                                            badge: profile.badge,
+                                                            profilePicture: profile.profilePicture,
+                                                            description: profile.desc,
+                                                        });
+                                                    }}
                                                     style={[
                                                         styles.defaultProfileGradient,
                                                         isSelected && styles.defaultProfileGradientPressed,
@@ -850,7 +1118,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         end={{x: 1, y: 1}}
                                         style={styles.defaultInviteBar}>
                                         <View style={styles.defaultInviteInner}>
-                                            {!discoverySelection ? (
+                                            {!selectedInvitee ? (
                                                 <Text style={styles.defaultInviteText}>
                                                     Select a profile, then tap Send Movie Invite
                                                 </Text>
@@ -892,6 +1160,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             authButtonWidth={SIZES.ScreenWidth - 30}
                                             authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
                                             authImagePosition="right"
+                                            disabled={!selectedInvitee}
                                         />
                                     </View>
                                 </View>
@@ -1141,6 +1410,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             btnname={'Send Invite'}
                                             color={COLORS.AKCRUBLUE}
                                             onPress={handleSetDateTime}
+                                            loading={isSendingInvite}
                                             authButtonWidth={SIZES.ScreenWidth - 80}
                                             authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
                                             authImagePosition="right"
@@ -1160,6 +1430,47 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                     )}
                 </View>
             )}
+            <Modal animationType="fade" transparent={true} visible={showCinematicAnimationModal}>
+                <View style={styles.cinematicModalBackdrop}>
+                    <LinearGradient
+                        colors={['rgba(9, 5, 30, 0.95)', 'rgba(32, 12, 60, 0.92)', 'rgba(9, 5, 30, 0.95)']}
+                        style={styles.cinematicFullScreenLayer}>
+                        <Text style={styles.cinematicTitle}>{cinematicStageTitle}</Text>
+                        <Text style={styles.cinematicStageText}>Stage {animationStage || 1} of 6</Text>
+                        <View style={styles.cinematicMotionCanvas}>
+                            <Animated.View
+                                pointerEvents="none"
+                                style={[
+                                    styles.cinematicBurst,
+                                    {
+                                        opacity: burstOpacityAnim,
+                                        transform: [{scale: burstScaleAnim}],
+                                    },
+                                ]}
+                            />
+                            <Animated.View
+                                style={[
+                                    styles.cinematicTicketWrap,
+                                    {
+                                        opacity: ticketOpacityAnim,
+                                        transform: [
+                                            {translateX: ticketOverlayTranslateX},
+                                            {translateY: ticketOverlayTranslateY},
+                                            {scale: ticketScaleAnim},
+                                            {rotate: ticketOverlayRotation},
+                                        ],
+                                    },
+                                ]}>
+                                <Image source={imageindex.mitTicketImage} style={styles.cinematicTicketImage} />
+                            </Animated.View>
+                        </View>
+                        <Animated.View style={[styles.cinematicConfirmFloat, {opacity: confirmOpacityAnim}]}>
+                            <Text style={styles.cinematicConfirmTitle}>Invite Sent</Text>
+                            <Text style={styles.cinematicConfirmSubtitle}>Waiting for response...</Text>
+                        </Animated.View>
+                    </LinearGradient>
+                </View>
+            </Modal>
             <Modal animationType="fade" transparent={true} visible={showInviteResultModal}>
                 <OTPResultModal
                     closeModal={() => setShowInviteResultModal(false)}

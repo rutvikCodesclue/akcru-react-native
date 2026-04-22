@@ -78,13 +78,17 @@ export function navigateToUserMITHubScreen(
     hubParams?: UserMITHubNavigateParams,
 ) {
     const index = hubParams?.index ?? 0;
-    const action = CommonActions.navigate({
-        name: 'NoBottomStack',
-        merge: true,
-        params: {
-            screen: 'UserMITHubScreen',
-            params: {index},
-        },
+    const action = CommonActions.reset({
+        index: 0,
+        routes: [
+            {
+                name: 'NoBottomStack',
+                params: {
+                    screen: 'UserMITHubScreen',
+                    params: {index},
+                },
+            },
+        ],
     });
 
     if (navigationRef.isReady()) {
@@ -98,17 +102,17 @@ export function navigateToUserMITHubScreen(
             const state = nav.getState?.();
             const routeNames = state?.routeNames as string[] | undefined;
             if (routeNames?.includes('NoBottomStack')) {
-                (nav as {navigate: (name: string, params?: object) => void}).navigate('NoBottomStack', {
-                    screen: 'UserMITHubScreen',
-                    params: {index},
-                });
+                (nav as {dispatch: (action: object) => void}).dispatch(action);
                 return;
             }
             nav = nav.getParent?.();
         }
     }
 
-    navigate('NoBottomStack', {screen: 'UserMITHubScreen', params: {index}});
+    navigate('NoBottomStack', {
+        screen: 'UserMITHubScreen',
+        params: {index},
+    });
 }
 
 export function navigateToUserNotificationScreen(navigation?: NavigationProp<ParamListBase>) {
@@ -194,10 +198,20 @@ export function navigateToUserMITHub(index = 0) {
         if (!navigationRef.isReady()) {
             return;
         }
-        navigationRef.navigate('NoBottomStack', {
-            screen: 'UserMITHubScreen',
-            params: {index},
-        });
+        navigationRef.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [
+                    {
+                        name: 'NoBottomStack',
+                        params: {
+                            screen: 'UserMITHubScreen',
+                            params: {index},
+                        },
+                    },
+                ],
+            }),
+        );
     };
     go();
     if (!navigationRef.isReady()) {

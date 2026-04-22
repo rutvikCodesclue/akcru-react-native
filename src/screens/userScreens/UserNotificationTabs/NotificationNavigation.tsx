@@ -1,7 +1,7 @@
 import {getPost} from '../../../lib/api/post.lib';
 import {findAUser} from '../../../lib/api/user.lib';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
-import {navigate, navigateToPostScreen} from '../../../util/RootNavigation';
+import {navigate, navigateToPostScreen, navigateToUserMITHubScreen} from '../../../util/RootNavigation';
 import {NotificationType} from '../../../types/NotificationType';
 
 export function navigateToScreen(screenname: string, params?: object) {
@@ -22,18 +22,18 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
         let currentUser;
         switch (notification.type) {
             case 'MITReceived':
-                navigateToScreen('UserMITHubScreen', {index: 0});
+                navigateToUserMITHubScreen(undefined, {index: 0});
                 break;
             case 'MITAccepted':
                 navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'MITDeclined':
-                navigateToScreen('UserMITHubScreen', {index: 1});
+                navigateToUserMITHubScreen(undefined, {index: 1});
                 break;
             case NotificationType.MITExpiringSoon:
             case NotificationType.MITExpired:
             case NotificationType.MITMovieChanged:
-                navigateToScreen('UserMITHubScreen', {index: 1});
+                navigateToUserMITHubScreen(undefined, {index: 1});
                 break;
             case NotificationType.MITCanceled:
                 navigateToScreen('UserProfileScreen', {tabKey: 'second'});

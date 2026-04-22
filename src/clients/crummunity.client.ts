@@ -69,6 +69,26 @@ CRUMMUNITY.interceptors.request.use(
             };
         }
 
+        if (!isProduction) {
+            const base = config.baseURL ?? CRUMMUNITY.defaults.baseURL ?? '';
+            const url = `${base}${config.url ?? ''}`;
+            const safeBody =
+                config.data && typeof config.data === 'object'
+                    ? {
+                          ...config.data,
+                          password: config.data.password ? '***' : config.data.password,
+                      }
+                    : config.data;
+
+            console.log('\n\n[CRUMMUNITY REQUEST]', {
+                method: config.method,
+                url,
+                baseURL: base,
+                headers: config.headers,
+                body: safeBody,
+            });
+        }
+
         return config;
     },
     error => {
@@ -81,8 +101,34 @@ let isForceLoggingOut = false;
 
 // Response interceptor to handle 401 responses
 CRUMMUNITY.interceptors.response.use(
-    response => response,
+    response => {
+        if (!isProduction) {
+            const base = response.config.baseURL ?? CRUMMUNITY.defaults.baseURL ?? '';
+            const url = `${base}${response.config.url ?? ''}`;
+
+            console.log('\n\n[CRUMMUNITY RESPONSE]', {
+                url,
+                status: response.status,
+                headers: response.headers,
+                data: response.data,
+            });
+        }
+
+        return response;
+    },
     async error => {
+        if (!isProduction && error.config) {
+            const base = error.config.baseURL ?? CRUMMUNITY.defaults.baseURL ?? '';
+            const url = `${base}${error.config.url ?? ''}`;
+
+            console.log('\n\n[CRUMMUNITY ERROR]', {
+                url,
+                status: error.response?.status,
+                headers: error.response?.headers,
+                data: error.response?.data,
+            });
+        }
+
         // Handle 401 responses globally
         if (error.response?.status === 401) {
             try {
