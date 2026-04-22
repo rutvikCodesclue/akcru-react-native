@@ -2,6 +2,7 @@ import {getPost} from '../../../lib/api/post.lib';
 import {findAUser} from '../../../lib/api/user.lib';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
 import {navigate, navigateToPostScreen} from '../../../util/RootNavigation';
+import {NotificationType} from '../../../types/NotificationType';
 
 export function navigateToScreen(screenname: string, params?: object) {
     if (screenname === 'UserProfileScreen') {
@@ -29,7 +30,12 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
             case 'MITDeclined':
                 navigateToScreen('UserMITHubScreen', {index: 1});
                 break;
-            case 'MITCanceled':
+            case NotificationType.MITExpiringSoon:
+            case NotificationType.MITExpired:
+            case NotificationType.MITMovieChanged:
+                navigateToScreen('UserMITHubScreen', {index: 1});
+                break;
+            case NotificationType.MITCanceled:
                 navigateToScreen('UserProfileScreen', {tabKey: 'second'});
                 break;
             case 'CruViewStarted':
