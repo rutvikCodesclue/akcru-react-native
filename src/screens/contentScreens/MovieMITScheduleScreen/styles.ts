@@ -384,6 +384,11 @@ export default StyleSheet.create({
         borderColor: 'rgba(116,133,255,0.38)',
         backgroundColor: COLORS.BLACK,
     },
+    defaultDiscoveryWrapEmpty: {
+        borderWidth: 0,
+        padding: 0,
+        backgroundColor: 'transparent',
+    },
     discoverySectionTitleRow: {
         flexDirection: 'row',
         alignItems: 'center',

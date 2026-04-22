@@ -8,6 +8,40 @@ export interface UnlockOption {
     cost: number;
 }
 
+export interface UnifiedMatchUser {
+    id: string;
+    username: string;
+    firstName: string | null;
+    lastName: string | null;
+    profilePicture: string | null;
+    archetype: string | null;
+    gender: string | null;
+    finalScore?: number;
+    matchPercentage?: number;
+    matchLabel?: string;
+    isArchetypeMatch?: boolean;
+}
+
+export interface UnifiedMatchesSection {
+    visibleCount: number;
+    totalCount: number;
+    matches: UnifiedMatchUser[];
+    hasExtraUnlocked?: boolean;
+    scoresPending?: boolean;
+}
+
+export interface UnifiedMatchesResponse {
+    success: boolean;
+    hasCompletedFlickFlirt: boolean;
+    flickFlirt: UnifiedMatchesSection;
+    archetype: {
+        hasArchetypeConfigured: boolean;
+        visibleCount: number;
+        totalCount: number;
+        matches: UnifiedMatchUser[];
+    };
+}
+
 export interface MatchesResponse {
     success: boolean;
     message?: string;
@@ -30,6 +64,16 @@ export const getMatches = async (): Promise<MatchesResponse> => {
             unlockOptions: [],
             message: res.data?.message ?? 'Server error',
         };
+    }
+    return res.data;
+};
+
+export const getUnifiedMatches = async (): Promise<UnifiedMatchesResponse | null> => {
+    const res = await API.get<UnifiedMatchesResponse>('/v1/flickflirt/unified-matches', {
+        validateStatus: () => true,
+    });
+    if (res.status !== 200 || !res.data?.success) {
+        return null;
     }
     return res.data;
 };

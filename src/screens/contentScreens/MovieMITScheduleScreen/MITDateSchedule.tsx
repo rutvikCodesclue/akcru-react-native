@@ -37,6 +37,7 @@ import Video from 'react-native-video';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
 import {createAMITInvite} from '../../../lib/api/mit.lib';
+import {getUnifiedMatches, UnifiedMatchUser} from '../../../lib/api/flickflirt.lib';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
@@ -82,6 +83,15 @@ type SelectedInvitee = {
     badge: string;
     profilePicture: string;
     description?: string;
+};
+
+type DiscoveryProfile = {
+    id: string;
+    name: string;
+    match: string;
+    desc: string;
+    badge: string;
+    profilePicture: string;
 };
 
 const MITDateSchedule = ({route, navigation}: Props) => {
@@ -203,59 +213,67 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const textInputRef = useRef(null);
     const [searchQuery, setSearchQuery] = useState('');
 
-    const showcaseProfiles = [
-        {
-            id: 'jasmine',
-            name: 'Jasmine',
-            match: '82% Match',
-            desc: 'Loves thrillers & late night vibes',
-            badge: 'SUPERHERO',
-            profilePicture: 'https://i.pravatar.cc/200?img=47',
-        },
-        {
-            id: 'alex',
-            name: 'Alex',
-            match: '78% Match',
-            desc: 'Horror movie fan',
-            badge: 'HERO',
-            profilePicture: 'https://i.pravatar.cc/200?img=12',
-        },
-        {
-            id: 'mia',
-            name: 'Mia',
-            match: '78% Match',
-            desc: 'Night owl & chill seeker',
-            badge: 'GUARDIAN',
-            profilePicture: 'https://i.pravatar.cc/200?img=32',
-        },
-    ] as const;
+    const [showcaseProfiles, setShowcaseProfiles] = useState<DiscoveryProfile[]>([]);
+    const [archetypeProfiles, setArchetypeProfiles] = useState<DiscoveryProfile[]>([]);
 
-    const archetypeProfiles = [
-        {
-            id: 'mystic',
-            name: 'Mystic',
-            match: 'Archetype Match',
-            desc: 'Loves cozy mysteries',
-            badge: 'HERO',
-            profilePicture: 'https://i.pravatar.cc/200?img=15',
-        },
-        {
-            id: 'rebel',
-            name: 'Rebel',
-            match: 'Archetype Match',
-            desc: 'Adventurous and spontaneous',
-            badge: 'GUARDIAN',
-            profilePicture: 'https://i.pravatar.cc/200?img=26',
-        },
-        {
-            id: 'nightowl',
-            name: 'Night Owl',
-            match: 'Archetype Match',
-            desc: 'Likes late-night thrillers',
-            badge: 'SUPERHERO',
-            profilePicture: 'https://i.pravatar.cc/200?img=31',
-        },
-    ] as const;
+    const getArchetypeDescription = (archetype: string | null): string => {
+        if (!archetype) {
+            return 'Tap to schedule invite';
+        }
+        try {
+            const parsed = JSON.parse(archetype) as {description?: string};
+            return parsed.description?.trim() || 'Tap to schedule invite';
+        } catch {
+            return 'Tap to schedule invite';
+        }
+    };
+
+    const mapUnifiedMatchToDiscoveryProfile = (
+        match: UnifiedMatchUser,
+        defaultMatchLabel: string,
+    ): DiscoveryProfile => {
+        const fallbackName = [match.firstName, match.lastName].filter(Boolean).join(' ').trim();
+        return {
+            id: match.id,
+            name: match.username || fallbackName || 'Unknown User',
+            match: match.matchLabel?.trim() || defaultMatchLabel,
+            desc: getArchetypeDescription(match.archetype),
+            // Unified matches API currently does not include badge.
+            badge: '',
+            profilePicture: match.profilePicture ?? '',
+        };
+    };
+
+    const fetchUnifiedMatchesData = async () => {
+        try {
+            const unifiedMatches = await getUnifiedMatches();
+            if (!unifiedMatches) {
+                setShowcaseProfiles([]);
+                setArchetypeProfiles([]);
+                return;
+            }
+            setShowcaseProfiles(
+                (unifiedMatches.flickFlirt.matches ?? []).map(match =>
+                    mapUnifiedMatchToDiscoveryProfile(match, 'FlickFlirt Match'),
+                ),
+            );
+            setArchetypeProfiles(
+                (unifiedMatches.archetype.matches ?? []).map(match =>
+                    mapUnifiedMatchToDiscoveryProfile(match, 'Archetype Match'),
+                ),
+            );
+        } catch (error) {
+            console.error('Error fetching unified matches:', error);
+            setShowcaseProfiles([]);
+            setArchetypeProfiles([]);
+        }
+    };
+
+    useFocusEffect(
+        React.useCallback(() => {
+            fetchUnifiedMatchesData();
+        }, []),
+    );
 
     type DiscoveryCardSelection =
         | {kind: 'showcase'; id: string}
@@ -335,6 +353,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const getDiscoveryInviteUserName = (): string | null => {
         return selectedInvitee?.username ?? null;
     };
+    const hasDefaultDiscoveryContent =
+        (selectedInvitee && selectedFromSearch) || showcaseProfiles.length > 0 || archetypeProfiles.length > 0;
 
     const preFilledInviteeFromRoute = useRef(false);
     useEffect(() => {
@@ -853,11 +873,13 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                             <ScrollView style={{flex: 1}} contentContainerStyle={styles.discoveryScrollContent}>
                             <View style={{marginHorizontal: 15, marginBottom: 70}}>
                                 {shouldShowSearchResults ? (
-                                    <View style={styles.defaultDiscoveryWrap}>
+                                    <View
+                                        style={[
+                                            styles.defaultDiscoveryWrap,
+                                            !hasDefaultDiscoveryContent && styles.defaultDiscoveryWrapEmpty,
+                                        ]}>
                                         {data.length > 0 ? (
-                                            (() => {
-                                                const item = data[0];
-                                                return (
+                                            data.map(item => (
                                                 <Pressable
                                                     key={item.id}
                                                     onPress={() =>
@@ -905,15 +927,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                 <Text style={styles.defaultProfileMatch}>
                                                                     Archetype Match
                                                                 </Text>
-                                                                <Text style={styles.defaultProfileDesc}>
+                                                                <Text style={styles.defaultProfileDesc} numberOfLines={3}>
                                                                     {item.description?.trim() || 'Tap to schedule invite'}
                                                                 </Text>
                                                             </View>
                                                         </View>
                                                     </LinearGradient>
                                                 </Pressable>
-                                                );
-                                            })()
+                                            ))
                                         ) : (
                                             <Text style={styles.defaultSuggestionText}>No user found</Text>
                                         )}
@@ -950,7 +971,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                     <Text style={styles.defaultProfileMatch}>
                                                                         Selected Invitee
                                                                     </Text>
-                                                                    <Text style={styles.defaultProfileDesc}>
+                                                                    <Text style={styles.defaultProfileDesc} numberOfLines={3}>
                                                                         {selectedInvitee.description?.trim() ||
                                                                             'Ready to send movie invite'}
                                                                     </Text>
@@ -961,7 +982,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 </View>
                                             </View>
                                         ) : null}
-                                        <DiscoverySectionTitle title="Your Matches" />
+                                        {showcaseProfiles.length > 0 ? <DiscoverySectionTitle title="Your Matches" /> : null}
                                         {showcaseProfiles.map(profile => {
                                             const isSelected =
                                                 discoverySelection?.kind === 'showcase' &&
@@ -1009,7 +1030,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                             <Text style={styles.defaultProfileMatch}>
                                                                                 {profile.match}
                                                                             </Text>
-                                                                            <Text style={styles.defaultProfileDesc}>
+                                                                            <Text style={styles.defaultProfileDesc} numberOfLines={3}>
                                                                                 {profile.desc}
                                                                             </Text>
                                                                         </View>
@@ -1039,7 +1060,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                     <Text style={styles.defaultProfileMatch}>
                                                                         {profile.match}
                                                                     </Text>
-                                                                    <Text style={styles.defaultProfileDesc}>
+                                                                    <Text style={styles.defaultProfileDesc} numberOfLines={3}>
                                                                         {profile.desc}
                                                                     </Text>
                                                                 </View>
@@ -1050,7 +1071,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             );
                                         })}
 
-                                        <DiscoverySectionTitle title="Your Archetype" />
+                                        {archetypeProfiles.length > 0 ? (
+                                            <DiscoverySectionTitle title="Your Archetype" />
+                                        ) : null}
                                         {archetypeProfiles.map(profile => {
                                             const isSelected =
                                                 discoverySelection?.kind === 'archetype' &&
@@ -1098,7 +1121,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                             <Text style={styles.defaultProfileMatch}>
                                                                                 {profile.match}
                                                                             </Text>
-                                                                            <Text style={styles.defaultProfileDesc}>
+                                                                            <Text style={styles.defaultProfileDesc} numberOfLines={3}>
                                                                                 {profile.desc}
                                                                             </Text>
                                                                         </View>
@@ -1128,7 +1151,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                     <Text style={styles.defaultProfileMatch}>
                                                                         {profile.match}
                                                                     </Text>
-                                                                    <Text style={styles.defaultProfileDesc}>
+                                                                    <Text style={styles.defaultProfileDesc} numberOfLines={3}>
                                                                         {profile.desc}
                                                                     </Text>
                                                                 </View>
