@@ -2,6 +2,7 @@ import {
     View,
     Text,
     ScrollView,
+    FlatList,
     TouchableOpacity,
     Pressable,
     Image,
@@ -22,7 +23,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {findAUser} from '../../../lib/api/user.lib';
 import {searchForUsers} from '../../../lib/api/user.lib';
-import {IMovie, IUserProfile} from '../../../../types';
+import {IMITInvite, IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
@@ -115,6 +116,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
     const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
     const lightTravelAnim = useRef(new Animated.Value(0)).current;
+    const latestSentInviteRef = useRef<IMITInvite | null>(null);
 
     useEffect(() => {
         const loop = Animated.loop(
@@ -150,7 +152,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             ticketTimerRef.current = setTimeout(() => {
                 setShowSendMIT(false);
                 setIsSelectionDisabled(true);
-                navigateToMITHubOneWay();
+                navigateToChooseMITOneWay();
             }, TICKET_DISPLAY_MS);
 
             ad.load(); // preload next ad
@@ -393,6 +395,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
     const [isSendingInvite, setIsSendingInvite] = useState(false);
+    const [isScheduleVerticalScrollEnabled, setIsScheduleVerticalScrollEnabled] = useState(true);
     const months = [
         'January',
         'February',
@@ -444,6 +447,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         setSelectedTimeZone(timeZone);
     };
 
+    const lockScheduleVerticalScroll = () => {
+        setIsScheduleVerticalScrollEnabled(false);
+    };
+
+    const unlockScheduleVerticalScroll = () => {
+        setIsScheduleVerticalScrollEnabled(true);
+    };
+
     const timeZones = [
         'America/New_York',
         'America/Chicago',
@@ -454,6 +465,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         'Asia/Tokyo',
         'Australia/Sydney',
     ];
+    const timeSlotIndexes = [...Array(24 * 4)].map((_, index) => index);
 
     const [showSendMIT, setShowSendMIT] = useState(false);
     const [showInviteResultModal, setShowInviteResultModal] = useState(false);
@@ -570,7 +582,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         animationTimersRef.current.push(timeoutId);
     };
 
-    const navigateToMITHubOneWay = () => {
+    const navigateToChooseMITOneWay = () => {
         navigation.replace('UserMITHubScreen', {index: 1});
     };
 
@@ -663,7 +675,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             ticketTimerRef.current = setTimeout(() => {
                 setShowSendMIT(false);
                 setIsSelectionDisabled(true);
-                navigateToMITHubOneWay();
+                navigateToChooseMITOneWay();
             }, TICKET_DISPLAY_MS);
 
             interstitialRef.current?.load?.();
@@ -729,6 +741,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             });
 
             if (response.success) {
+                latestSentInviteRef.current = response.invite ?? null;
 //                runCinematicAnimationPreview(handleInviteSuccessFlow);
                 playSendMITVideoThen(handleInviteSuccessFlow);
             } else {
@@ -1226,7 +1239,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                             <LinearGradient
                                 colors={['rgba(5,3,20,0.88)', 'rgba(14,8,34,0.78)', 'rgba(5,3,20,0.92)']}
                                 style={styles.scheduleOverlay}>
-                                <ScrollView contentContainerStyle={styles.scheduleContent}>
+                                <ScrollView
+                                    scrollEnabled={isScheduleVerticalScrollEnabled}
+                                    nestedScrollEnabled
+                                    keyboardShouldPersistTaps="handled"
+                                    contentContainerStyle={styles.scheduleContent}>
 
                                     <Text style={styles.scheduleTitle}>Schedule Invite...</Text>
                                     <LinearGradient
@@ -1344,7 +1361,16 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             <Icon name="chevron-forward" type="ionicon" color="#D7CBFF" size={18} />
                                         </TouchableOpacity>
                                     </View>
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    <ScrollView
+                                        horizontal
+                                        nestedScrollEnabled
+                                        directionalLockEnabled
+                                        showsHorizontalScrollIndicator={false}
+                                        keyboardShouldPersistTaps="handled"
+                                        onTouchStart={lockScheduleVerticalScroll}
+                                        onTouchEnd={unlockScheduleVerticalScroll}
+                                        onScrollEndDrag={unlockScheduleVerticalScroll}
+                                        onMomentumScrollEnd={unlockScheduleVerticalScroll}>
                                         <View style={styles.datePickerContainer}>
                                             {[...Array(daysInMonth)].map((_, index) => {
                                                 const day = index + 1;
@@ -1376,70 +1402,99 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     </ScrollView>
 
                                     <Text style={styles.scheduleFieldLabel}>Choose a Time & Zone...</Text>
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                        <View style={styles.timePickerContainer}>
-                                            {[...Array(24 * 4)].map((_, index) => {
-                                                const hours = Math.floor(index / 4);
-                                                const minutes = (index % 4) * 15;
-                                                const isSelected =
-                                                    selectedTime.getHours() === hours &&
-                                                    selectedTime.getMinutes() === minutes;
-                                                const currentTime = new Date();
-                                                const selectedDateTime = new Date(
-                                                    selectedDate.getFullYear(),
-                                                    selectedDate.getMonth(),
-                                                    selectedDate.getDate(),
-                                                    hours,
-                                                    minutes,
-                                                );
-                                                const isPastTime = selectedDateTime < currentTime;
-                                                const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                                                const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
-                                                return (
-                                                    <TouchableOpacity
-                                                        key={index}
-                                                        onPress={() => handleTimeChange(hours, minutes)}
-                                                        style={[
-                                                            styles.timeButton,
-                                                            isSelected && styles.timeButtonSelected,
-                                                            (isSelectionDisabled || isPastTime) && styles.disabledButton,
-                                                        ]}
-                                                        disabled={isSelectionDisabled || isPastTime}>
-                                                        <Text style={[styles.timeText, isSelected && styles.timeTextSelected]}>
-                                                            {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
-                                                            {minutes === 0 ? '00' : minutes} {ampmSuffix}
-                                                        </Text>
-                                                    </TouchableOpacity>
-                                                );
-                                            })}
-                                        </View>
-                                    </ScrollView>
-                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                        <View style={styles.timeZonePickerContainer}>
-                                            {timeZones.map(timeZone => {
-                                                const isSelected = selectedTimeZone === timeZone;
-                                                return (
-                                                    <TouchableOpacity
-                                                        key={timeZone}
-                                                        onPress={() => handleTimeZoneChange(timeZone)}
-                                                        style={[
-                                                            styles.timeZoneButton,
-                                                            isSelected && styles.timeZoneButtonSelected,
-                                                            isSelectionDisabled && styles.disabledButton,
-                                                        ]}
-                                                        disabled={isSelectionDisabled}>
-                                                        <Text
+                                    <View style={styles.scheduleSplitPickerRow}>
+                                        <View style={styles.scheduleSplitPickerColumn}>
+                                            <Text style={styles.scheduleSplitPickerTitle}>Time</Text>
+                                            <FlatList
+                                                nestedScrollEnabled
+                                                data={timeSlotIndexes}
+                                                keyExtractor={item => item.toString()}
+                                                style={styles.scheduleSplitPickerList}
+                                                contentContainerStyle={styles.scheduleSplitPickerListContent}
+                                                showsVerticalScrollIndicator={true}
+                                                keyboardShouldPersistTaps="handled"
+                                                onTouchStart={lockScheduleVerticalScroll}
+                                                onTouchEnd={unlockScheduleVerticalScroll}
+                                                onTouchCancel={unlockScheduleVerticalScroll}
+                                                onScrollEndDrag={unlockScheduleVerticalScroll}
+                                                onMomentumScrollEnd={unlockScheduleVerticalScroll}
+                                                renderItem={({item}) => {
+                                                    const hours = Math.floor(item / 4);
+                                                    const minutes = (item % 4) * 15;
+                                                    const isSelected =
+                                                        selectedTime.getHours() === hours &&
+                                                        selectedTime.getMinutes() === minutes;
+                                                    const currentTime = new Date();
+                                                    const selectedDateTime = new Date(
+                                                        selectedDate.getFullYear(),
+                                                        selectedDate.getMonth(),
+                                                        selectedDate.getDate(),
+                                                        hours,
+                                                        minutes,
+                                                    );
+                                                    const isPastTime = selectedDateTime < currentTime;
+                                                    const ampmHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                                                    const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
+                                                    return (
+                                                        <TouchableOpacity
+                                                            onPress={() => handleTimeChange(hours, minutes)}
                                                             style={[
-                                                                styles.timeZoneText,
-                                                                isSelected && styles.timeZoneTextSelected,
-                                                            ]}>
-                                                            {timeZone}
-                                                        </Text>
-                                                    </TouchableOpacity>
-                                                );
-                                            })}
+                                                                styles.timeButton,
+                                                                styles.timeButtonBlock,
+                                                                isSelected && styles.timeButtonSelected,
+                                                                (isSelectionDisabled || isPastTime) && styles.disabledButton,
+                                                            ]}
+                                                            disabled={isSelectionDisabled || isPastTime}>
+                                                            <Text
+                                                                style={[styles.timeText, isSelected && styles.timeTextSelected]}>
+                                                                {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
+                                                                {minutes === 0 ? '00' : minutes} {ampmSuffix}
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    );
+                                                }}
+                                            />
                                         </View>
-                                    </ScrollView>
+                                        <View style={styles.scheduleSplitPickerColumn}>
+                                            <Text style={styles.scheduleSplitPickerTitle}>Timezone</Text>
+                                            <FlatList
+                                                nestedScrollEnabled
+                                                data={timeZones}
+                                                keyExtractor={item => item}
+                                                style={styles.scheduleSplitPickerList}
+                                                contentContainerStyle={styles.scheduleSplitPickerListContent}
+                                                showsVerticalScrollIndicator={true}
+                                                keyboardShouldPersistTaps="handled"
+                                                onTouchStart={lockScheduleVerticalScroll}
+                                                onTouchEnd={unlockScheduleVerticalScroll}
+                                                onTouchCancel={unlockScheduleVerticalScroll}
+                                                onScrollEndDrag={unlockScheduleVerticalScroll}
+                                                onMomentumScrollEnd={unlockScheduleVerticalScroll}
+                                                renderItem={({item}) => {
+                                                    const isSelected = selectedTimeZone === item;
+                                                    return (
+                                                        <TouchableOpacity
+                                                            onPress={() => handleTimeZoneChange(item)}
+                                                            style={[
+                                                                styles.timeZoneButton,
+                                                                styles.timeZoneButtonBlock,
+                                                                isSelected && styles.timeZoneButtonSelected,
+                                                                isSelectionDisabled && styles.disabledButton,
+                                                            ]}
+                                                            disabled={isSelectionDisabled}>
+                                                            <Text
+                                                                style={[
+                                                                    styles.timeZoneText,
+                                                                    isSelected && styles.timeZoneTextSelected,
+                                                                ]}>
+                                                                {item}
+                                                            </Text>
+                                                        </TouchableOpacity>
+                                                    );
+                                                }}
+                                            />
+                                        </View>
+                                    </View>
 
                                     <Text style={styles.scheduleFieldLabel}>Say something to kick things off...</Text>
                                     <LinearGradient

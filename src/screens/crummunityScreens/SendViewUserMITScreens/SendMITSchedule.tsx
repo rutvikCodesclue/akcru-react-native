@@ -21,7 +21,7 @@ import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
 import styles from './styles';
-import {IMovie, IUserProfile} from '../../../../types';
+import {IMITInvite, IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
@@ -32,15 +32,17 @@ import {
     selectAvatarBorderColor,
 } from '../../../util/util';
 import {findAUser} from '../../../lib/api/user.lib';
-import {createAMITInvite} from '../../../lib/api/mit.lib';
+import {changeMITInviteMovie, createAMITInvite} from '../../../lib/api/mit.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {ClientTabsParams} from '../../../navigation/ClientTabNavigator';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import BackButton from '../../../components/General/backbutton';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {reset} from '../../../util/RootNavigation';
 
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 
@@ -54,18 +56,29 @@ type Props = {
 };
 
 export default function SendMITSchedule({route}: Props) {
-    const navigation = useNavigation<NativeStackNavigationProp<ClientTabsParams>>();
+    const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const insets = useSafeAreaInsets();
+    const routeParams = useRoute<RouteProp<CrummunityStackParams, 'SendMITSchedule'>>();
 
     const userID: string | undefined = route.params?.userID ?? null;
+    const rawIsFromChangeMovie = route.params?.isFromChangeMovie ?? routeParams.params?.isFromChangeMovie;
+    const isFromChangeMovie = rawIsFromChangeMovie === true || rawIsFromChangeMovie === 'true';
+    const inviteId: string | undefined =
+        route.params?.inviteId != null
+            ? String(route.params.inviteId)
+            : routeParams.params?.inviteId != null
+              ? String(routeParams.params?.inviteId)
+              : undefined;
+    const primaryMitActionLabel = isFromChangeMovie ? 'Update MIT' : 'Send MIT';
 
     const [movie, setMovie] = useState<IMovie | null>(null);
     const [isMovieDataLoaded, setIsMovieDataLoaded] = useState(false);
-    const routeParams = useRoute<RouteProp<CrummunityStackParams, 'SendMITSchedule'>>();
     const [loading, setLoading] = useState(true);
 
     // Interstitial setup
     const interstitialRef = useRef<InterstitialAd | null>(null);
     const [adLoaded, setAdLoaded] = useState(false);
+    const latestSentInviteRef = useRef<IMITInvite | null>(null);
 
     const PROD_IDS = Platform.select({
             android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
@@ -95,7 +108,7 @@ export default function SendMITSchedule({route}: Props) {
             ticketTimerRef.current = setTimeout(() => {
                 setShowSendMIT(false);
                 setIsSelectionDisabled(true);
-                navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+                navigateAfterInviteSent();
             }, TICKET_DISPLAY_MS);
 
             ad.load(); // preload next ad
@@ -112,7 +125,7 @@ export default function SendMITSchedule({route}: Props) {
             interstitialRef.current = null;
             if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
         };
-    }, [interstitialUnitId, navigation]);
+    }, [interstitialUnitId, navigateAfterInviteSent]);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -219,6 +232,42 @@ export default function SendMITSchedule({route}: Props) {
         setIsSelectionDisabled(true);
 
         try {
+            if (isFromChangeMovie && movie?.id && inviteId) {
+                const response = await changeMITInviteMovie({
+                    inviteId,
+                    newMovieId: movie.id,
+                });
+
+                if (response.success) {
+                    reset({
+                        index: 0,
+                        routes: [
+                            {
+                                name: 'NoBottomStack',
+                                params: {
+                                    screen: 'ClientTabNavigator',
+                                    params: {
+                                        screen: 'CrummunityStack',
+                                        params: {
+                                            screen: 'CrummunityScreen',
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                    });
+                    return;
+                }
+
+                const updateMessage = response.message?.trim();
+                setInviteFailedMessage(
+                    updateMessage ? updateMessage : 'Failed to update Movie Invite Ticket. Please try again.',
+                );
+                setShowInviteFailedModal(true);
+                setIsSelectionDisabled(false);
+                return;
+            }
+
             if (selectedDate && selectedTime && selectedTimeZone && movie && user) {
                 const startDateISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
 
@@ -231,6 +280,7 @@ export default function SendMITSchedule({route}: Props) {
                     });
 
                     if (response.success) {
+                        latestSentInviteRef.current = response.invite ?? null;
                         // Show the success ticket immediately
                         setIsDateTimeSelected(true);
                         setShowSendMIT(true);
@@ -243,7 +293,7 @@ export default function SendMITSchedule({route}: Props) {
                             ticketTimerRef.current = setTimeout(() => {
                                 setShowSendMIT(false);
                                 setIsSelectionDisabled(true);
-                                navigation.navigate('UserProfileStack', {screen: 'UserMITHubScreen'});
+                                navigateAfterInviteSent();
                             }, TICKET_DISPLAY_MS);
 
                             // try to have the next ad ready
@@ -259,7 +309,11 @@ export default function SendMITSchedule({route}: Props) {
             }
         } catch (error) {
             console.error('Error setting date and time:', error);
-            setInviteFailedMessage('Failed to send Movie Invite Ticket. Please try again.');
+            setInviteFailedMessage(
+                isFromChangeMovie
+                    ? 'Failed to update Movie Invite Ticket. Please try again.'
+                    : 'Failed to send Movie Invite Ticket. Please try again.',
+            );
             setShowInviteFailedModal(true);
             setIsSelectionDisabled(false);
         } finally {
@@ -281,6 +335,47 @@ export default function SendMITSchedule({route}: Props) {
     const [showSendMIT, setShowSendMIT] = useState(false);
     const [showInviteFailedModal, setShowInviteFailedModal] = useState(false);
     const [inviteFailedMessage, setInviteFailedMessage] = useState('');
+    const fixedActionBottom = Math.max(insets.bottom, 12);
+    const fixedActionReservedSpace = 96 + fixedActionBottom;
+    const isPrimaryActionDisabled = isFromChangeMovie
+        ? isSelectionDisabled
+        : !selectedDate || !selectedTime || !selectedTimeZone || isSelectionDisabled;
+
+    useEffect(() => {
+        if (!isFromChangeMovie || selectedTimeZone) {
+            return;
+        }
+        const detectedTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        setSelectedTimeZone(detectedTimeZone || timeZones[0]);
+    }, [isFromChangeMovie, selectedTimeZone, timeZones]);
+
+    const navigateAfterInviteSent = React.useCallback(() => {
+        const latestInvite = latestSentInviteRef.current;
+        if (latestInvite) {
+            navigation.replace('ChooseMITScreen', {
+                MITID: latestInvite.id,
+                movie: latestInvite.movie,
+                creator: latestInvite.creator,
+                invitee: latestInvite.invitee,
+                inviteDate: latestInvite.createdAt,
+                akcruBadge: latestInvite.invitee,
+                schedule: latestInvite.startDate,
+                timezone: latestInvite.timezone,
+                expiresAt: latestInvite.expiresAt,
+                status: latestInvite.status,
+                fromSentTab: true,
+            });
+            return;
+        }
+        if (userID) {
+            navigation.navigate('ViewUserScreen', {
+                userID,
+                imageURL: user?.profilePicture ?? '',
+            });
+            return;
+        }
+        navigation.navigate('UserMITHubScreen', {index: 0});
+    }, [navigation, user?.profilePicture, userID]);
 
     const handleCloseInviteFailedModal = () => {
         setShowInviteFailedModal(false);
@@ -290,7 +385,9 @@ export default function SendMITSchedule({route}: Props) {
     return (
         <TabContainer>
             <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[1]}>
+                <ScrollView
+                    stickyHeaderIndices={[1]}
+                    contentContainerStyle={{paddingBottom: showSendMIT ? 20 : fixedActionReservedSpace}}>
                     {showSendMIT ? (
                         <View
                             style={{
@@ -544,172 +641,163 @@ export default function SendMITSchedule({route}: Props) {
                                         </View>
                                     </View>
                                     <View style={{marginTop: 20, marginBottom: 75}}>
-                                        <Text style={styles.choosedate}>Choose date</Text>
-                                        <View style={styles.container}>
-                                            <View style={styles.monthContainer}>
-                                                <TouchableOpacity
-                                                    onPress={handlePreviousMonth}
-                                                    style={styles.arrowButton}>
-                                                    <Text style={styles.arrowbuttonstyle}>{'<'}</Text>
-                                                </TouchableOpacity>
-                                                <Text style={styles.monthText}>
-                                                    {months[currentMonth]} {currentYear}
-                                                </Text>
-                                                <TouchableOpacity onPress={handleNextMonth} style={styles.arrowButton}>
-                                                    <Text style={styles.arrowbuttonstyle}>{'>'}</Text>
-                                                </TouchableOpacity>
-                                            </View>
+                                        {!isFromChangeMovie ? (
+                                            <>
+                                                <Text style={styles.choosedate}>Choose date</Text>
+                                                <View style={styles.container}>
+                                                    <View style={styles.monthContainer}>
+                                                        <TouchableOpacity
+                                                            onPress={handlePreviousMonth}
+                                                            style={styles.arrowButton}>
+                                                            <Text style={styles.arrowbuttonstyle}>{'<'}</Text>
+                                                        </TouchableOpacity>
+                                                        <Text style={styles.monthText}>
+                                                            {months[currentMonth]} {currentYear}
+                                                        </Text>
+                                                        <TouchableOpacity onPress={handleNextMonth} style={styles.arrowButton}>
+                                                            <Text style={styles.arrowbuttonstyle}>{'>'}</Text>
+                                                        </TouchableOpacity>
+                                                    </View>
 
-                                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                                <View style={styles.datePickerContainer}>
-                                                    {[...Array(daysInMonth)].map((_, index) => {
-                                                        const day = index + 1;
-                                                        const isSelected = selectedDate.getDate() === day;
-                                                        const currentDate = new Date();
-                                                        const currentDay = new Date(currentYear, currentMonth, day);
-                                                        const currentDayOfWeek = currentDay.getDay();
+                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                                        <View style={styles.datePickerContainer}>
+                                                            {[...Array(daysInMonth)].map((_, index) => {
+                                                                const day = index + 1;
+                                                                const isSelected = selectedDate.getDate() === day;
+                                                                const currentDate = new Date();
+                                                                const currentDay = new Date(currentYear, currentMonth, day);
+                                                                const currentDayOfWeek = currentDay.getDay();
 
-                                                        const isSelectable = currentDay >= currentDate;
-                                                        return (
-                                                            <TouchableOpacity
-                                                                key={day}
-                                                                onPress={() => handleDateChange(day)}
-                                                                style={[
-                                                                    styles.dayButton,
-                                                                    isSelected && styles.dayButtonSelected,
-                                                                    (isSelectionDisabled || !isSelectable) &&
-                                                                        styles.disabledButton,
-                                                                ]}
-                                                                disabled={isSelectionDisabled || !isSelectable}>
-                                                                <Text style={styles.dayOfWeekText}>
-                                                                    {daysOfWeek[currentDayOfWeek]}
-                                                                </Text>
-                                                                <Text
-                                                                    style={[
-                                                                        styles.dayText,
-                                                                        isSelected && styles.dayTextSelected,
-                                                                    ]}>
-                                                                    {day}
-                                                                </Text>
-                                                            </TouchableOpacity>
-                                                        );
-                                                    })}
+                                                                const isSelectable = currentDay >= currentDate;
+                                                                return (
+                                                                    <TouchableOpacity
+                                                                        key={day}
+                                                                        onPress={() => handleDateChange(day)}
+                                                                        style={[
+                                                                            styles.dayButton,
+                                                                            isSelected && styles.dayButtonSelected,
+                                                                            (isSelectionDisabled || !isSelectable) &&
+                                                                                styles.disabledButton,
+                                                                        ]}
+                                                                        disabled={isSelectionDisabled || !isSelectable}>
+                                                                        <Text style={styles.dayOfWeekText}>
+                                                                            {daysOfWeek[currentDayOfWeek]}
+                                                                        </Text>
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.dayText,
+                                                                                isSelected && styles.dayTextSelected,
+                                                                            ]}>
+                                                                            {day}
+                                                                        </Text>
+                                                                    </TouchableOpacity>
+                                                                );
+                                                            })}
+                                                        </View>
+                                                    </ScrollView>
+                                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                                                        <Text style={{...FONTS.Title2}}>Choose Date: </Text>
+                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                            {' '}
+                                                            {selectedDate.toLocaleDateString()}
+                                                        </Text>
+                                                    </View>
+
+                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                                        <View style={styles.timePickerContainer}>
+                                                            {[...Array(24 * 4)].map((_, index) => {
+                                                                const hours = Math.floor(index / 4);
+                                                                const minutes = (index % 4) * 15;
+                                                                const isSelected =
+                                                                    selectedTime.getHours() === hours &&
+                                                                    selectedTime.getMinutes() === minutes;
+
+                                                                const currentTime = new Date();
+                                                                const selectedDateTime = new Date(
+                                                                    selectedDate.getFullYear(),
+                                                                    selectedDate.getMonth(),
+                                                                    selectedDate.getDate(),
+                                                                    hours,
+                                                                    minutes,
+                                                                );
+
+                                                                const isPastTime = selectedDateTime < currentTime;
+
+                                                                const ampmHours =
+                                                                    hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+                                                                const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
+                                                                return (
+                                                                    <TouchableOpacity
+                                                                        key={index}
+                                                                        onPress={() => handleTimeChange(hours, minutes)}
+                                                                        style={[
+                                                                            styles.timeButton,
+                                                                            isSelected && styles.timeButtonSelected,
+                                                                            (isSelectionDisabled || isPastTime) &&
+                                                                                styles.disabledButton,
+                                                                        ]}
+                                                                        disabled={isSelectionDisabled || isPastTime}>
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.timeText,
+                                                                                isSelected && styles.timeTextSelected,
+                                                                            ]}>
+                                                                            {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
+                                                                            {minutes === 0 ? '00' : minutes} {ampmSuffix}
+                                                                        </Text>
+                                                                    </TouchableOpacity>
+                                                                );
+                                                            })}
+                                                        </View>
+                                                    </ScrollView>
+                                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
+                                                        <Text style={{...FONTS.Title2}}>Choose Time: </Text>
+                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                            {' '}
+                                                            {selectedTime.toLocaleTimeString([], {
+                                                                hour: '2-digit',
+                                                                minute: '2-digit',
+                                                            })}
+                                                        </Text>
+                                                    </View>
+                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                                        <View style={styles.timeZonePickerContainer}>
+                                                            {timeZones.map(timeZone => {
+                                                                const isSelected = selectedTimeZone === timeZone;
+                                                                return (
+                                                                    <TouchableOpacity
+                                                                        key={timeZone}
+                                                                        onPress={() => handleTimeZoneChange(timeZone)}
+                                                                        style={[
+                                                                            styles.timeZoneButton,
+                                                                            isSelected && styles.timeZoneButtonSelected,
+                                                                            isSelectionDisabled && styles.disabledButton,
+                                                                        ]}
+                                                                        disabled={isSelectionDisabled}>
+                                                                        <Text
+                                                                            style={[
+                                                                                styles.timeZoneText,
+                                                                                isSelected && styles.timeZoneTextSelected,
+                                                                            ]}>
+                                                                            {timeZone}
+                                                                        </Text>
+                                                                    </TouchableOpacity>
+                                                                );
+                                                            })}
+                                                        </View>
+                                                    </ScrollView>
+                                                    <View style={{flexDirection: 'row', marginBottom: 30}}>
+                                                        <Text style={{...FONTS.Title2}}>Choose Time Zone:{'  '}</Text>
+                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
+                                                            {selectedTimeZone}
+                                                        </Text>
+                                                    </View>
                                                 </View>
-                                            </ScrollView>
-                                            <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                                <Text style={{...FONTS.Title2}}>Choose Date: </Text>
-                                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                    {' '}
-                                                    {selectedDate.toLocaleDateString()}
-                                                </Text>
-                                            </View>
-
-                                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                                <View style={styles.timePickerContainer}>
-                                                    {[...Array(24 * 4)].map((_, index) => {
-                                                        const hours = Math.floor(index / 4);
-                                                        const minutes = (index % 4) * 15;
-                                                        const isSelected =
-                                                            selectedTime.getHours() === hours &&
-                                                            selectedTime.getMinutes() === minutes;
-
-                                                        const currentTime = new Date();
-                                                        const selectedDateTime = new Date(
-                                                            selectedDate.getFullYear(),
-                                                            selectedDate.getMonth(),
-                                                            selectedDate.getDate(),
-                                                            hours,
-                                                            minutes,
-                                                        );
-
-                                                        const isPastTime = selectedDateTime < currentTime;
-
-                                                        const ampmHours =
-                                                            hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-                                                        const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
-                                                        return (
-                                                            <TouchableOpacity
-                                                                key={index}
-                                                                onPress={() => handleTimeChange(hours, minutes)}
-                                                                style={[
-                                                                    styles.timeButton,
-                                                                    isSelected && styles.timeButtonSelected,
-                                                                    (isSelectionDisabled || isPastTime) &&
-                                                                        styles.disabledButton,
-                                                                ]}
-                                                                disabled={isSelectionDisabled || isPastTime}>
-                                                                <Text
-                                                                    style={[
-                                                                        styles.timeText,
-                                                                        isSelected && styles.timeTextSelected,
-                                                                    ]}>
-                                                                    {ampmHours < 10 ? `0${ampmHours}` : ampmHours}:
-                                                                    {minutes === 0 ? '00' : minutes} {ampmSuffix}
-                                                                </Text>
-                                                            </TouchableOpacity>
-                                                        );
-                                                    })}
-                                                </View>
-                                            </ScrollView>
-                                            <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                                <Text style={{...FONTS.Title2}}>Choose Time: </Text>
-                                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                    {' '}
-                                                    {selectedTime.toLocaleTimeString([], {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit',
-                                                    })}
-                                                </Text>
-                                            </View>
-                                            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                                <View style={styles.timeZonePickerContainer}>
-                                                    {timeZones.map(timeZone => {
-                                                        const isSelected = selectedTimeZone === timeZone;
-                                                        return (
-                                                            <TouchableOpacity
-                                                                key={timeZone}
-                                                                onPress={() => handleTimeZoneChange(timeZone)}
-                                                                style={[
-                                                                    styles.timeZoneButton,
-                                                                    isSelected && styles.timeZoneButtonSelected,
-                                                                    isSelectionDisabled && styles.disabledButton,
-                                                                ]}
-                                                                disabled={isSelectionDisabled}>
-                                                                <Text
-                                                                    style={[
-                                                                        styles.timeZoneText,
-                                                                        isSelected && styles.timeZoneTextSelected,
-                                                                    ]}>
-                                                                    {timeZone}
-                                                                </Text>
-                                                            </TouchableOpacity>
-                                                        );
-                                                    })}
-                                                </View>
-                                            </ScrollView>
-                                            <View style={{flexDirection: 'row', marginBottom: 30}}>
-                                                <Text style={{...FONTS.Title2}}>Choose Time Zone:{'  '}</Text>
-                                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                    {selectedTimeZone}
-                                                </Text>
-                                            </View>
+                                            </>
+                                        ) : null}
                                             <View>
                                                 <View>
-                                                    {!showSendMIT ? (
-                                                        <View style={{alignItems: 'center'}}>
-                                                            <AkcruButtons.SmallButton
-                                                                btnname={'Send MIT'}
-                                                                color={COLORS.AKCRUBLUE}
-                                                                onPress={handleSetDateTime}
-                                                                disabled={
-                                                                    !selectedDate ||
-                                                                    !selectedTime ||
-                                                                    !selectedTimeZone ||
-                                                                    isSelectionDisabled
-                                                                }
-                                                            />
-                                                        </View>
-                                                    ) : (
+                                                    {showSendMIT ? (
                                                         <View>
                                                             <Text
                                                                 style={{
@@ -781,12 +869,12 @@ export default function SendMITSchedule({route}: Props) {
                                                                 </View>
                                                             </View>
                                                         </View>
-                                                    )}
+                                                    ) : null}
                                                 </View>
                                             </View>
                                         </View>
                                     </View>
-                                </View>
+
                             ) : (
                                 <View style={styles.activitycontainer}>
                                     <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
@@ -796,6 +884,30 @@ export default function SendMITSchedule({route}: Props) {
                     )}
                     {!loading && <Text style={{...FONTS.Title1, textAlign: 'center'}}>Loading...</Text>}
                 </ScrollView>
+                {!showSendMIT && isMovieDataLoaded ? (
+                    <View
+                        style={{
+                            position: 'absolute',
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            backgroundColor: COLORS.AKCRUBACKGROUND,
+                            paddingHorizontal: 15,
+                            paddingTop: 10,
+                            paddingBottom: fixedActionBottom,
+                        }}>
+                        <AkcruButtons.SmallButton
+                            btnname={primaryMitActionLabel}
+                            variant="auth"
+                            authButtonWidth={SIZES.ScreenWidth - 30}
+                            color={COLORS.AKCRUBLUE}
+                            onPress={handleSetDateTime}
+                            disabled={isPrimaryActionDisabled}
+                        />
+                    </View>
+                ) : null}
                 <Modal transparent visible={showInviteFailedModal} animationType="fade">
                     <OTPResultModal
                         closeModal={handleCloseInviteFailedModal}

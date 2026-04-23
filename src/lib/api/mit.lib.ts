@@ -125,6 +125,39 @@ export const createAMITInvite = async (params: {
     }
 };
 
+export const changeMITInviteMovie = async (params: {
+    inviteId: string;
+    newMovieId: string;
+}): Promise<{success: boolean; message?: string; code?: string}> => {
+    try {
+        const {inviteId, newMovieId} = params;
+        const {data} = await API.patch(
+            '/v1/mit/invite/change-movie',
+            {inviteId, newMovieId},
+            {validateStatus: () => true},
+        );
+
+        if (data?.success === true) {
+            return {success: true, message: data.message, code: data.code};
+        }
+
+        return {
+            success: false,
+            message:
+                typeof data?.message === 'string' && data.message.trim() !== ''
+                    ? data.message.trim()
+                    : 'Could not update Movie Invite Ticket. Please try again.',
+            code: typeof data?.code === 'string' ? data.code : undefined,
+        };
+    } catch (error) {
+        console.error('Error updating MIT invite movie:', error);
+        return {
+            success: false,
+            message: 'Network error. Please try again.',
+        };
+    }
+};
+
 export const cancelMIT = async (mitInviteId: string): Promise<any> => {
     try {
         const {data} = await API.post('/v1/mit/cancel-mit', {mitInviteId});

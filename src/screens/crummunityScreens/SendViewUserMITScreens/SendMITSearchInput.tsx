@@ -23,8 +23,20 @@ import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 
-const SendMITSearchInput = (props: any) => {
-    const {userid} = props;
+type SendMITSearchInputProps = {
+    userid?: string;
+    isFromChangeMovie?: boolean;
+    inviteId?: string;
+    currentMovieId?: string;
+};
+
+const SendMITSearchInput = ({
+    userid,
+    isFromChangeMovie = false,
+    inviteId,
+    currentMovieId,
+}: SendMITSearchInputProps) => {
+    const normalizedIsFromChangeMovie = isFromChangeMovie === true || isFromChangeMovie === 'true';
 
     //search input function
     const [data, setData] = useState<IMovie[]>([]);
@@ -159,6 +171,9 @@ const SendMITSearchInput = (props: any) => {
                                                     id: item.id,
                                                     movie: item.id,
                                                     userID: userid,
+                                                    isFromChangeMovie: Boolean(normalizedIsFromChangeMovie),
+                                                    inviteId,
+                                                    currentMovieId,
                                                 });
                                                 setModalVisible(false);
                                                 setTextInputFocused(true);

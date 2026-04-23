@@ -25,6 +25,12 @@ type Props = {
 
 const SendMITSearchResult = ({navigation, route}: Props) => {
     const userID: string | undefined = route.params?.userID ?? route.params?.userid ?? null;
+    const rawIsFromChangeMovie = route.params?.isFromChangeMovie;
+    const isFromChangeMovie = rawIsFromChangeMovie === true || rawIsFromChangeMovie === 'true';
+    const inviteId: string | undefined = route.params?.inviteId ? String(route.params.inviteId) : undefined;
+    const currentMovieId: string | undefined = route.params?.currentMovieId
+        ? String(route.params.currentMovieId)
+        : undefined;
 
     const [selectedGenre, setSelectedGenre] = useState('');
 
@@ -92,7 +98,12 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
                 <ScrollView stickyHeaderIndices={[0]}>
                     <BackButton navigation={navigation} />
                     <View style={styles.backbutton}>
-                        <SendMITSearchInput userid={userID} />
+                        <SendMITSearchInput
+                            userid={userID}
+                            isFromChangeMovie={isFromChangeMovie}
+                            inviteId={inviteId}
+                            currentMovieId={currentMovieId}
+                        />
                         <View
                             style={{
                                 backgroundColor: COLORS.TAGCOLOR,
@@ -139,6 +150,9 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
                                                     movie: item.title,
                                                     userID: user?.id,
                                                     userName: user?.username,
+                                                    isFromChangeMovie: Boolean(isFromChangeMovie),
+                                                    inviteId,
+                                                    currentMovieId,
                                                 });
                                             }}
                                         />

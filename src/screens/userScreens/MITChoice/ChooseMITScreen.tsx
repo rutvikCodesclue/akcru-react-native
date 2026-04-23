@@ -149,6 +149,9 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const showPendingInviteUi = showAcceptDeclineSection;
     const counterpartUser = isCurrentUserCreator ? invitee : creator;
     const counterpartUserId = counterpartUser?.id != null ? String(counterpartUser.id) : null;
+    const waitingForResponseText = counterpartUser?.username
+        ? `Waitng for @${counterpartUser.username} to response`
+        : 'Waitng for response';
 
     /** Expired (status or response window) or declined → ghosted content + fog overlay. */
     const isFogged = React.useMemo(() => {
@@ -360,6 +363,18 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     }, []);
 
     const handleChangeMovie = () => {
+        if (counterpartUserId) {
+            navigate('NoBottomStack', {
+                screen: 'SendMITViewUser',
+                params: {
+                    userID: counterpartUserId,
+                    isFromChangeMovie: true,
+                    inviteId: MITID,
+                    currentMovieId: movie?.id,
+                },
+            });
+            return;
+        }
         navigation.goBack();
     };
 
@@ -535,6 +550,11 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     />
                                     <Text style={styles.pendingBackText}>Back</Text>
                                 </TouchableOpacity>
+                                {isCurrentUserCreator ? (
+                                    <Text style={styles.pendingWaitingText} numberOfLines={1}>
+                                        {waitingForResponseText}
+                                    </Text>
+                                ) : null}
                             </View>
 
                             <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
@@ -1094,6 +1114,11 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         />
                                         <Text style={styles.pendingBackText}>Back</Text>
                                     </TouchableOpacity>
+                                    {isCurrentUserCreator ? (
+                                        <Text style={styles.pendingWaitingText} numberOfLines={1}>
+                                            {waitingForResponseText}
+                                        </Text>
+                                    ) : null}
                                 </View>
                             ) : null}
                             <View

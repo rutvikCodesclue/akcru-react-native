@@ -215,6 +215,9 @@ export default StyleSheet.create({
     pendingBackRow: {
         width: '96%',
         marginBottom: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
     },
     pendingBackRowCompact: {
         marginBottom: 4,
@@ -228,6 +231,12 @@ export default StyleSheet.create({
         ...FONTS.Title3,
         color: COLORS.LIGHTGREY,
         marginLeft: 3,
+    },
+    pendingWaitingText: {
+        ...FONTS.Title3,
+        color: COLORS.AKCRUBLUE,
+        marginLeft: 10,
+        textAlign: 'left',
     },
     countdownRingWrap: {
         width: 265,

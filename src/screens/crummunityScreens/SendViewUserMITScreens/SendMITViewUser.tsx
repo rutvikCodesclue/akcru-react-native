@@ -28,6 +28,12 @@ type Props = {
 
 const SendMITViewUser = ({route, navigation}: Props) => {
     const userID: string | undefined = route.params?.userID ?? route.params?.userid ?? null;
+    const rawIsFromChangeMovie = route.params?.isFromChangeMovie;
+    const isFromChangeMovie = rawIsFromChangeMovie === true || rawIsFromChangeMovie === 'true';
+    const inviteId: string | undefined = route.params?.inviteId ? String(route.params.inviteId) : undefined;
+    const currentMovieId: string | undefined = route.params?.currentMovieId
+        ? String(route.params.currentMovieId)
+        : undefined;
 
     useFocusEffect(
         React.useCallback(() => {
@@ -71,6 +77,9 @@ const SendMITViewUser = ({route, navigation}: Props) => {
             // Use route param directly so userID is always available.
             userID: userID,
             userName: user?.username,
+            isFromChangeMovie: Boolean(isFromChangeMovie),
+            inviteId,
+            currentMovieId,
         });
     };
 
@@ -87,7 +96,12 @@ const SendMITViewUser = ({route, navigation}: Props) => {
                             <BackButton navigation={navigation} />
                         </View>
 
-                        <SendMITSearchInput userid={userID} />
+                        <SendMITSearchInput
+                            userid={userID}
+                            isFromChangeMovie={isFromChangeMovie}
+                            inviteId={inviteId}
+                            currentMovieId={currentMovieId}
+                        />
                     </View>
                     <View>
                         <Text

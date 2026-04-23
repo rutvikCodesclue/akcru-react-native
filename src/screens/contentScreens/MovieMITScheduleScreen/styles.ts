@@ -272,6 +272,44 @@ export default StyleSheet.create({
         flexDirection: 'row',
         marginBottom: 10,
     },
+    scheduleSplitPickerRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
+        marginBottom: 10,
+    },
+    scheduleSplitPickerColumn: {
+        width: '48%',
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(170, 139, 255, 0.45)',
+        backgroundColor: 'rgba(10, 6, 33, 0.86)',
+        paddingHorizontal: 8,
+        paddingTop: 8,
+        paddingBottom: 6,
+    },
+    scheduleSplitPickerTitle: {
+        ...FONTS.Title2,
+        color: '#EAD6FF',
+        marginBottom: 8,
+        textAlign: 'center',
+    },
+    scheduleSplitPickerList: {
+        maxHeight: 220,
+    },
+    scheduleSplitPickerListContent: {
+        paddingBottom: 4,
+    },
+    timeButtonBlock: {
+        width: '100%',
+        marginRight: 0,
+        marginBottom: 8,
+    },
+    timeZoneButtonBlock: {
+        width: '100%',
+        marginRight: 0,
+        marginBottom: 8,
+    },
     timeZoneButton: {
         paddingVertical: 10,
         borderRadius: 12,
