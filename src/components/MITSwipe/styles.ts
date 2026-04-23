@@ -4,7 +4,8 @@ import {COLORS, FONTS} from '../../../assets/constants';
 export default StyleSheet.create({
     container: {
         alignItems: 'center',
-        marginHorizontal: '5%',
+        width: '96%',
+        alignSelf: 'center',
         flexDirection: 'row',
         borderWidth: 0.8,
         borderColor: COLORS.AKCRUBLUE,

@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useRef, useEffect} from 'react';
+import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react';
 import {
     View,
     Text,
@@ -99,8 +99,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const movie: IMovie | null = route.params?.movie ?? null;
     const creator: IUserProfile | null = route.params?.creator ?? null;
     const invitee: IUserProfile | null = route.params?.invitee ?? null;
-    const creatorID: IUserProfile | null = route.params?.creator?.id ?? null;
-    const inviteeId: IUserProfile | null = route.params?.invitee?.id ?? null;
     const inviteDate: string | undefined = route.params?.inviteDate ?? null;
     const akcruBadge: IUserProfile = route.params?.akcruBadge ?? null;
     const schedule: string | undefined = route.params?.schedule ?? null;
@@ -113,6 +111,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             : undefined;
     const displayMovieStatus = statusFromParams ?? statusFromMovie;
     const inviteStatusCode = (displayMovieStatus ?? 'PENDING').toString().toUpperCase();
+    const isPendingInvite = inviteStatusCode === 'PENDING';
     const inviteStatusExplanation = getInviteStatusExplanation(inviteStatusCode);
     const inviteStatusColor = mitStatusValueColor(inviteStatusCode);
     const initialRemainingSeconds = getRemainingSecondsFromExpiry(expiresAt);
@@ -147,6 +146,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     /** Receiver only: sender must not see Accept/Decline swipe. */
     const showMITSwipe = showAcceptDeclineSection && !isCurrentUserCreator;
+    const showPendingInviteUi = showAcceptDeclineSection;
     const counterpartUser = isCurrentUserCreator ? invitee : creator;
     const counterpartUserId = counterpartUser?.id != null ? String(counterpartUser.id) : null;
 
@@ -162,6 +162,15 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     }, [inviteStatusCode, expiresAt, remainingSeconds]);
 
     const fogFadeProgress = useRef(new Animated.Value(0)).current;
+    const ringSpin = useRef(new Animated.Value(0)).current;
+    const ringSpinRotation = useMemo(
+        () =>
+            ringSpin.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0deg', '360deg'],
+            }),
+        [ringSpin],
+    );
 
     useEffect(() => {
         if (!isFogged) {
@@ -187,6 +196,25 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         sequence.start();
         return () => sequence.stop();
     }, [isFogged, fogFadeProgress]);
+
+    useEffect(() => {
+        if (!showAcceptDeclineSection) {
+            return;
+        }
+        const loop = Animated.loop(
+            Animated.timing(ringSpin, {
+                toValue: 1,
+                duration: 18000,
+                easing: Easing.linear,
+                useNativeDriver: true,
+            }),
+        );
+        loop.start();
+        return () => {
+            loop.stop();
+            ringSpin.setValue(0);
+        };
+    }, [showAcceptDeclineSection, ringSpin]);
 
     const ghostContentStyle = {
         opacity: fogFadeProgress.interpolate({
@@ -331,21 +359,13 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         setPlaying(prev => !prev);
     }, []);
 
-    const sayhi = () => {
-        const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
-        const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
-        const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
+    const handleChangeMovie = () => {
+        navigation.goBack();
+    };
 
-        if (MITID == null || receiverUserId == null || receiverUserId === '') {
-            Alert.alert('Chat unavailable', 'Missing invite or user information.');
-            return;
-        }
-
-        navigation.navigate('ViewChat', {
-            mItInviteId: String(MITID),
-            userId: String(receiverUserId),
-            profilePicture: receiverProfilePicture ?? '',
-            username: receiverUsername ?? '',
+    const handleBackToFeed = () => {
+        navigate('ClientTabNavigator', {
+            screen: 'ClientTabScreen',
         });
     };
 
@@ -454,6 +474,17 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const hourDigits = countdownHours.split('');
     const minuteDigits = countdownMinutes.split('');
     const secondDigits = countdownSeconds.split('');
+    const inviteDayLabel =
+        schedule && timezone ? moment(schedule).tz(timezone).format('dddd') : '';
+    const inviteDateTimeLabel =
+        schedule && timezone
+            ? `${moment(schedule).tz(timezone).format('MMM D')} • ${moment(schedule)
+                  .tz(timezone)
+                  .format('h:mm A')} ${getShortenedTimezone(timezone)}`
+            : '';
+    const inviteStatusDisplay = inviteStatusCode === 'PENDING' ? 'Awaiting Response' : inviteStatusCode;
+    const safeBottomInset = Math.max(insets.bottom, 10);
+    const pendingContentBottomPadding = showMITSwipe ? safeBottomInset + 180 : safeBottomInset + 24;
     const getFoldDigitStyle = (animValue: Animated.Value) => ({
         transform: [
             {perspective: 1000},
@@ -470,9 +501,256 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         }),
     });
 
+    if (isPendingInvite) {
+        return (
+            <TabContainer>
+                <View style={styles.pendingScreenContainer}>
+                    <Animated.View style={[styles.sheetcontainer, isFogged ? ghostContentStyle : null]}>
+                        <ScrollView
+                            style={styles.chooseMitScroll}
+                            contentContainerStyle={[
+                                styles.pendingScreenScrollContent,
+                                {paddingBottom: pendingContentBottomPadding},
+                            ]}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}
+                            alwaysBounceVertical>
+                            <View>
+                                <Header />
+                            </View>
+                            <View style={[styles.pendingBackRow, showMITSwipe ? styles.pendingBackRowCompact : null]}>
+                                <TouchableOpacity
+                                    style={styles.pendingBackButton}
+                                    activeOpacity={0.85}
+                                    onPress={() =>
+                                        navigate('NoBottomStack', {
+                                            screen: 'UserMITHubScreen',
+                                        })
+                                    }>
+                                    <Icon
+                                        name="chevron-back"
+                                        type="ionicon"
+                                        size={18}
+                                        color={COLORS.LIGHTGREY}
+                                    />
+                                    <Text style={styles.pendingBackText}>Back</Text>
+                                </TouchableOpacity>
+                            </View>
+
+                            <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
+                                <View style={[styles.countdownRingWrap, showMITSwipe ? styles.countdownRingWrapCompact : null]}>
+                                    <View style={styles.countdownOuterGlow} />
+                                    <View style={styles.countdownRingOuter}>
+                                        <Animated.View
+                                            style={[
+                                                styles.countdownRingSpin,
+                                                {transform: [{rotate: ringSpinRotation}]},
+                                            ]}>
+                                            <LinearGradient
+                                                colors={['rgba(121, 95, 255, 0.75)', 'rgba(255, 67, 195, 0.75)', 'rgba(101, 230, 255, 0.65)']}
+                                                start={{x: 0, y: 0}}
+                                                end={{x: 1, y: 1}}
+                                                style={StyleSheet.absoluteFill}
+                                            />
+                                        </Animated.View>
+                                        <View style={styles.countdownRingInnerContent}>
+                                            <View style={styles.countdownDialCenter}>
+                                                <Text style={styles.countdownTitleInCircle}>Expires in</Text>
+                                                <View style={styles.countdownTimerRow}>
+                                                    <View style={styles.countdownUnit}>
+                                                        <View style={styles.countdownDigitsRow}>
+                                                            <Animated.View style={getFoldDigitStyle(hourTensSwipeAnim)}>
+                                                                <View style={styles.countdownDigitBox}>
+                                                                    <Text style={styles.countdownDigitText}>{hourDigits[0]}</Text>
+                                                                </View>
+                                                            </Animated.View>
+                                                            <Animated.View style={getFoldDigitStyle(hourOnesSwipeAnim)}>
+                                                                <View style={styles.countdownDigitBox}>
+                                                                    <Text style={styles.countdownDigitText}>{hourDigits[1]}</Text>
+                                                                </View>
+                                                            </Animated.View>
+                                                        </View>
+                                                    </View>
+                                                    <Text style={styles.countdownSeparator}>:</Text>
+                                                    <View style={styles.countdownUnit}>
+                                                        <View style={styles.countdownDigitsRow}>
+                                                            <Animated.View style={getFoldDigitStyle(minuteTensSwipeAnim)}>
+                                                                <View style={styles.countdownDigitBox}>
+                                                                    <Text style={styles.countdownDigitText}>{minuteDigits[0]}</Text>
+                                                                </View>
+                                                            </Animated.View>
+                                                            <Animated.View style={getFoldDigitStyle(minuteOnesSwipeAnim)}>
+                                                                <View style={styles.countdownDigitBox}>
+                                                                    <Text style={styles.countdownDigitText}>{minuteDigits[1]}</Text>
+                                                                </View>
+                                                            </Animated.View>
+                                                        </View>
+                                                    </View>
+                                                    <Text style={styles.countdownSeparator}>:</Text>
+                                                    <View style={styles.countdownUnit}>
+                                                        <View style={styles.countdownDigitsRow}>
+                                                            <Animated.View style={getFoldDigitStyle(secondTensSwipeAnim)}>
+                                                                <View style={styles.countdownDigitBox}>
+                                                                    <Text style={styles.countdownDigitText}>{secondDigits[0]}</Text>
+                                                                </View>
+                                                            </Animated.View>
+                                                            <Animated.View style={getFoldDigitStyle(secondOnesSwipeAnim)}>
+                                                                <View style={styles.countdownDigitBox}>
+                                                                    <Text style={styles.countdownDigitText}>{secondDigits[1]}</Text>
+                                                                </View>
+                                                            </Animated.View>
+                                                        </View>
+                                                    </View>
+                                                </View>
+                                                {!showMITSwipe ? (
+                                                    <>
+                                                        <View style={styles.countdownHRule} />
+                                                        <Text style={styles.countdownSubTextInCircle}>
+                                                            {"If they don't respond,\nyour mit is returned."}
+                                                        </Text>
+                                                    </>
+                                                ) : null}
+                                            </View>
+                                        </View>
+                                    </View>
+                                </View>
+
+                                <LinearGradient
+                                    colors={['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)']}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 1}}
+                                    style={styles.inviteInfoCardBorder}>
+                                    <View style={styles.inviteInfoCard}>
+                                        <View style={styles.inviteAvatarWrap}>
+                                            <HexAvatar
+                                                source={{uri: counterpartUser?.profilePicture}}
+                                                size={54}
+                                                bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
+                                            />
+                                        </View>
+                                        <View style={styles.inviteInfoBody}>
+                                            <Text style={styles.inviteInfoUsername} numberOfLines={1}>
+                                                @{counterpartUser?.username ?? 'user'}
+                                            </Text>
+                                            <View style={styles.inviteInfoMetaRow}>
+                                                <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                                                <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
+                                            </View>
+                                            <View style={styles.inviteInfoMetaRow}>
+                                                <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                                                <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
+                                            </View>
+                                            <View style={styles.inviteInfoStatusRow}>
+                                                <View style={styles.inviteInfoStatusDot} />
+                                                <Text style={styles.inviteInfoStatusText}>Status: {inviteStatusDisplay}</Text>
+                                            </View>
+                                        </View>
+                                    </View>
+                                </LinearGradient>
+
+                                <LinearGradient
+                                    colors={['rgba(255, 166, 214, 0.96)', 'rgba(223, 128, 255, 0.96)', 'rgba(134, 220, 255, 0.96)']}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 1}}
+                                    style={styles.inviteMovieCardBorder}>
+                                    <View style={styles.inviteMovieCard}>
+                                        <Image
+                                            source={{uri: movie?.portraitURL || movie?.landscapeURL}}
+                                            style={styles.inviteMoviePoster}
+                                            resizeMode="cover"
+                                        />
+                                        <View style={styles.inviteMovieInfo}>
+                                            <Text style={styles.inviteMovieTitle} numberOfLines={2}>
+                                                {movie?.title}
+                                            </Text>
+                                            <Text style={styles.inviteMovieMeta}>
+                                                {movie?.year} • {formatMovieDuration(movie?.duration)}
+                                            </Text>
+                                            <View style={styles.inviteMovieTagRow}>
+                                                {movie?.rated ? (
+                                                    <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                        {movie.rated}
+                                                    </Text>
+                                                ) : null}
+                                                {movie?.genres?.[0] ? (
+                                                    <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                        {capitalizeFirstLetterOfString(movie.genres[0])}
+                                                    </Text>
+                                                ) : null}
+                                                {movie?.rating ? (
+                                                    <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                        {movie.rating}/10
+                                                    </Text>
+                                                ) : null}
+                                            </View>
+                                        </View>
+                                    </View>
+                                </LinearGradient>
+
+                                {fromSentTab ? (
+                                    <View style={styles.pendingActionsWrap}>
+                                        <TouchableOpacity
+                                            style={styles.cancelInviteButton}
+                                            activeOpacity={0.85}
+                                            onPress={handleCancelInviteFromSent}
+                                            disabled={isLoading}>
+                                            <Icon
+                                                name="close"
+                                                type="ionicon"
+                                                size={16}
+                                                color="#FFD8DE"
+                                                style={styles.cancelInviteIcon}
+                                            />
+                                            <Text style={styles.cancelInviteButtonText}>
+                                                {isLoading ? 'Cancelling...' : 'Cancel Invite'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.secondaryActionButton}
+                                            activeOpacity={0.85}
+                                            onPress={handleChangeMovie}>
+                                            <Icon
+                                                name="film"
+                                                type="ionicon"
+                                                size={16}
+                                                color={COLORS.WHITE}
+                                                style={styles.secondaryActionIcon}
+                                            />
+                                            <Text style={styles.secondaryActionText}>Change Movie</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity activeOpacity={0.85} onPress={handleBackToFeed}>
+                                            <Text style={styles.backToFeedText}>Back to feed</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                ) : null}
+                            </View>
+                        </ScrollView>
+
+                        {showMITSwipe ? (
+                            <View style={[styles.pendingSwipeBottomArea, {paddingBottom: safeBottomInset}]}>
+                                <View style={styles.mitSwipeWrap}>
+                                    <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                </View>
+                                <Text style={styles.pendingSwipeHintText}>SWIPE BUTTON LEFT OR RIGHT.</Text>
+                            </View>
+                        ) : null}
+                    </Animated.View>
+                </View>
+            </TabContainer>
+        );
+    }
+
     return (
         <TabContainer>
             <View style={{flex: 1, backgroundColor: COLORS.BLACK, position: 'relative'}}>
+                {!isPendingInvite ? (
+                    <LinearGradient
+                        colors={['#07030F', '#1B0830', '#2A0F46', '#130522', '#05020B']}
+                        start={{x: 0, y: 0}}
+                        end={{x: 1, y: 1}}
+                        style={styles.screenGlowBackground}
+                    />
+                ) : null}
                 <Animated.View style={[styles.sheetcontainer, isFogged ? ghostContentStyle : null]}>
                     <ScrollView
                         style={styles.chooseMitScroll}
@@ -483,11 +761,14 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                         <View>
                             <Header />
                         </View>
-                        <View>
+                        <View style={isPendingInvite ? styles.hiddenSection : undefined}>
                             <View
                                 //   source={{uri: DIGITAL_PASS[0].SuperHeroPass}}
                                 //   resizeMode="cover"
-                                style={{height: SIZES.ScreenHeight / 4, marginTop: -60}}>
+                                style={{
+                                    height: isPendingInvite ? SIZES.ScreenHeight / 6 : SIZES.ScreenHeight / 4,
+                                    marginTop: -60,
+                                }}>
                                 <LinearGradient
                                     // Background Linear Gradient
                                     colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.BLACK]}
@@ -497,7 +778,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         right: 0,
                                         top: 0,
                                         bottom: 0,
-                                        height: SIZES.ScreenHeight / 4,
+                                        height: isPendingInvite ? SIZES.ScreenHeight / 6 : SIZES.ScreenHeight / 4,
                                     }}
                                 />
                                 <View style={styles.topcontainer}>
@@ -505,7 +786,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         style={{
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                            justifyContent: 'space-between',
+                                            justifyContent: 'flex-start',
                                         }}>
                                         <TouchableOpacity
                                             onPress={() =>
@@ -527,268 +808,263 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                 <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
                                             </View>
                                         </TouchableOpacity>
-                                        <TouchableOpacity onPress={() => sayhi()} style={{alignItems: 'center'}}>
-                                            <Icon
-                                                name="chatbox-ellipses"
-                                                type="ionicon"
-                                                size={30}
-                                                color={COLORS.PURPLE}
-                                            />
-                                            <Text style={{...FONTS.paragraph1}}>Start Chat</Text>
-                                        </TouchableOpacity>
                                     </View>
                                 </View>
                             </View>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'center',
-                                    marginTop: -120,
-                                    marginHorizontal: 15,
-                                }}>
-                                <View style={{flexDirection: 'row'}}>
-                                    <View style={{marginRight: 8}}>
-                                        <TouchableOpacity
-                                            onPress={() =>
-                                                navigation.navigate('ViewUserScreen', {userID: counterpartUserId})
-                                            }>
-                                            <HexAvatar
-                                                source={{uri: counterpartUser?.profilePicture}}
-                                                size={58}
-                                                bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
-                                            />
-                                        </TouchableOpacity>
-                                        <View />
-                                    </View>
-                                    <View>
-                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <Text style={{...FONTS.Username}}>{counterpartUser?.username}</Text>
-                                            {counterpartUser?.ownerStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.STARGOLD}
-                                                    baseSize={12}
-                                                    style={{marginRight: 5}}
+                            {inviteStatusCode !== 'PENDING' ? (
+                                <View
+                                    style={{
+                                        flexDirection: 'row',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginTop: -120,
+                                        marginHorizontal: 15,
+                                    }}>
+                                    <View style={{flexDirection: 'row'}}>
+                                        <View style={{marginRight: 8}}>
+                                            <TouchableOpacity
+                                                onPress={() =>
+                                                    navigation.navigate('ViewUserScreen', {userID: counterpartUserId})
+                                                }>
+                                                <HexAvatar
+                                                    source={{uri: counterpartUser?.profilePicture}}
+                                                    size={58}
+                                                    bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
                                                 />
+                                            </TouchableOpacity>
+                                            <View />
+                                        </View>
+                                        <View>
+                                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                                                <Text style={{...FONTS.Username}}>{counterpartUser?.username}</Text>
+                                                {counterpartUser?.ownerStatus && (
+                                                    <CustomIcon
+                                                        name="ribbon"
+                                                        type="ionicon"
+                                                        color={COLORS.STARGOLD}
+                                                        baseSize={12}
+                                                        style={{marginRight: 5}}
+                                                    />
+                                                )}
+                                                {counterpartUser?.companyStatus && (
+                                                    <CustomIcon
+                                                        name="ribbon"
+                                                        type="ionicon"
+                                                        color={COLORS.WHITE}
+                                                        baseSize={12}
+                                                        style={{marginRight: 5}}
+                                                    />
+                                                )}
+                                                {counterpartUser?.influencerStatus && (
+                                                    <CustomIcon
+                                                        name="ribbon"
+                                                        type="ionicon"
+                                                        color={COLORS.AKCRUBLUE}
+                                                        baseSize={12}
+                                                        style={{marginRight: 5}}
+                                                    />
+                                                )}
+                                                {counterpartUser?.blackCloakStatus && (
+                                                    <CustomIcon
+                                                        name="ribbon"
+                                                        type="ionicon"
+                                                        color={COLORS.BLACKCLOAK}
+                                                        baseSize={12}
+                                                        style={{marginRight: 5}}
+                                                    />
+                                                )}
+                                            </View>
+                                            <Text style={{...FONTS.paragraph1}}>{counterpartUser?.firstName}</Text>
+                                            {counterpartUser?.badge === 'AKCRUIT' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeAkcruit />
+                                                </View>
                                             )}
-                                            {counterpartUser?.companyStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.WHITE}
-                                                    baseSize={12}
-                                                    style={{marginRight: 5}}
-                                                />
+                                            {counterpartUser?.badge === 'GUARDIAN' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeGuardian />
+                                                </View>
                                             )}
-                                            {counterpartUser?.influencerStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.AKCRUBLUE}
-                                                    baseSize={12}
-                                                    style={{marginRight: 5}}
-                                                />
+                                            {counterpartUser?.badge === 'HERO' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeHero />
+                                                </View>
                                             )}
-                                            {counterpartUser?.blackCloakStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.BLACKCLOAK}
-                                                    baseSize={12}
-                                                    style={{marginRight: 5}}
-                                                />
+                                            {counterpartUser?.badge === 'SUPERHERO' && (
+                                                <View>
+                                                    <AkcruLevels.AkcruBadgeSuperHero />
+                                                </View>
                                             )}
                                         </View>
-                                        <Text style={{...FONTS.paragraph1}}>{counterpartUser?.firstName}</Text>
-                                        {counterpartUser?.badge === 'AKCRUIT' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeAkcruit />
-                                            </View>
-                                        )}
-                                        {counterpartUser?.badge === 'GUARDIAN' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeGuardian />
-                                            </View>
-                                        )}
-                                        {counterpartUser?.badge === 'HERO' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeHero />
-                                            </View>
-                                        )}
-                                        {counterpartUser?.badge === 'SUPERHERO' && (
-                                            <View>
-                                                <AkcruLevels.AkcruBadgeSuperHero />
-                                            </View>
-                                        )}
                                     </View>
-                                </View>
-                                <View style={{marginVertical: 8}}>
-                                    <View
-                                        style={{
-                                            alignItems: 'center',
-                                            borderLeftWidth: 1,
-                                            borderColor: COLORS.DARKGREY,
-                                            paddingLeft: 10,
-                                        }}>
+                                    <View style={{marginVertical: 8}}>
                                         <View
                                             style={{
-                                                width: 100,
-                                                height: 52,
-                                                justifyContent: 'center',
                                                 alignItems: 'center',
+                                                borderLeftWidth: 1,
+                                                borderColor: COLORS.DARKGREY,
+                                                paddingLeft: 10,
                                             }}>
-                                            <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
-                                                {formatNumber(data.length)}
-                                            </Text>
-                                            <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
+                                            <View
+                                                style={{
+                                                    width: 100,
+                                                    height: 52,
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                }}>
+                                                <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
+                                                    {formatNumber(data.length)}
+                                                </Text>
+                                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
+                                            </View>
                                         </View>
                                     </View>
                                 </View>
-                            </View>
+                            ) : null}
                             <View>
                                 <View style={styles.bottomcontainer}>
-                                    <View style={{alignItems: 'center', marginBottom: 10}}>
-                                        <View style={{marginTop: 20, width: '100%'}}>
-                                            <View style={styles.mitMovieCard}>
-                                                <View style={styles.ticketWrapper}>
-                                                    <View style={styles.ticketContainer}>
-                                                        <ImageBackground
-                                                            source={{uri: movie?.portraitURL}}
-                                                            style={styles.ticketImage}
-                                                            resizeMode="cover">
-                                                            <LinearGradient
-                                                                colors={['transparent', COLORS.BLACK]}
-                                                                style={styles.linearGradient}>
+                                    {!isPendingInvite ? (
+                                        <>
+                                            <View style={{alignItems: 'center', marginBottom: 10}}>
+                                                <View style={{marginTop: 20, width: '100%'}}>
+                                                    <View style={styles.mitMovieCard}>
+                                                        <View style={styles.ticketWrapper}>
+                                                            <View style={styles.ticketContainer}>
+                                                                <ImageBackground
+                                                                    source={{uri: movie?.portraitURL}}
+                                                                    style={styles.ticketImage}
+                                                                    resizeMode="cover">
+                                                                    <LinearGradient
+                                                                        colors={['transparent', COLORS.BLACK]}
+                                                                        style={styles.linearGradient}>
+                                                                        <View
+                                                                            style={[
+                                                                                styles.ticketCircle,
+                                                                                {position: 'absolute', bottom: -10, left: -10},
+                                                                            ]}
+                                                                        />
+                                                                        <View
+                                                                            style={[
+                                                                                styles.ticketCircle,
+                                                                                {position: 'absolute', bottom: -10, right: -10},
+                                                                            ]}
+                                                                        />
+                                                                    </LinearGradient>
+                                                                </ImageBackground>
+                                                            </View>
+                                                            <View style={styles.ticketFooter}>
                                                                 <View
                                                                     style={[
                                                                         styles.ticketCircle,
-                                                                        {position: 'absolute', bottom: -10, left: -10},
+                                                                        {position: 'absolute', top: -10, left: -10},
                                                                     ]}
                                                                 />
                                                                 <View
                                                                     style={[
                                                                         styles.ticketCircle,
-                                                                        {position: 'absolute', bottom: -10, right: -10},
+                                                                        {position: 'absolute', top: -10, right: -10},
                                                                     ]}
                                                                 />
-                                                            </LinearGradient>
-                                                        </ImageBackground>
-                                                    </View>
-                                                    <View style={styles.ticketFooter}>
-                                                        <View
-                                                            style={[
-                                                                styles.ticketCircle,
-                                                                {position: 'absolute', top: -10, left: -10},
-                                                            ]}
-                                                        />
-                                                        <View
-                                                            style={[
-                                                                styles.ticketCircle,
-                                                                {position: 'absolute', top: -10, right: -10},
-                                                            ]}
-                                                        />
-                                                        <View style={{alignItems: 'center', marginVertical: 10}}>
-                                                            <Image
-                                                                source={imageindex.barcode}
+                                                                <View style={{alignItems: 'center', marginVertical: 10}}>
+                                                                    <Image
+                                                                        source={imageindex.barcode}
+                                                                        style={{
+                                                                            width: '75%',
+                                                                            height: '100%',
+                                                                        }}
+                                                                    />
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                        <View style={styles.mitMovieCardContent}>
+                                                            <Text style={{...FONTS.ContentTitle}} numberOfLines={3}>
+                                                                {movie?.title}
+                                                            </Text>
+                                                            <View
                                                                 style={{
-                                                                    width: '75%',
-                                                                    height: '100%',
+                                                                    flexDirection: 'row',
+                                                                    marginBottom: 5,
+                                                                    marginTop: 6,
+                                                                    alignItems: 'center',
+                                                                    flexWrap: 'wrap',
+                                                                }}>
+                                                                <Text style={{...FONTS.Title2}}>{movie?.year}</Text>
+                                                                <Text style={{...FONTS.Title2}}> | </Text>
+                                                                <Text
+                                                                    style={{
+                                                                        ...FONTS.Title2,
+                                                                    }}>
+                                                                    {formatMovieDuration(movie?.duration)}
+                                                                </Text>
+                                                            </View>
+                                                            <View style={{flexDirection: 'row', marginVertical: 5, flexWrap: 'wrap'}}>
+                                                                <Text style={styles.drawfonttag}>{movie?.rated}</Text>
+                                                                <Text style={styles.drawfonttag}>
+                                                                    {capitalizeFirstLetterOfString(movie?.genres[0])}
+                                                                </Text>
+                                                                <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
+                                                            </View>
+                                                            <AkcruButtons.SmallButton
+                                                                btnname="Play Trailer"
+                                                                variant="auth"
+                                                                onPress={() => {
+                                                                    navigation.navigate('TrailerPlayer', {
+                                                                        id: movie?.id,
+                                                                        trailerURL: movie?.trailerURL,
+                                                                        landscapeURL: movie?.landscapeURL,
+                                                                    });
                                                                 }}
+                                                                color={COLORS.PURPLE}
                                                             />
                                                         </View>
                                                     </View>
                                                 </View>
-                                                <View style={styles.mitMovieCardContent}>
-                                                    <Text style={{...FONTS.ContentTitle}} numberOfLines={3}>
-                                                        {movie?.title}
+                                            </View>
+
+                                            <Text
+                                                style={{
+                                                    ...FONTS.Title2,
+                                                    color: COLORS.PINK,
+                                                    textAlign: 'center',
+                                                }}>
+                                                "{counterpartUser?.firstName}" wants to watch "{movie?.title}" with you
+                                            </Text>
+                                            <View style={{marginVertical: 10}}>
+                                                <View style={styles.datebox}>
+                                                    <Text style={styles.datetext}>
+                                                        {' '}
+                                                        {moment(schedule)
+                                                            .tz(timezone)
+                                                            .format('ddd, MMM Do')}{' '}
                                                     </Text>
-                                                    <View
-                                                        style={{
-                                                            flexDirection: 'row',
-                                                            marginBottom: 5,
-                                                            marginTop: 6,
-                                                            alignItems: 'center',
-                                                            flexWrap: 'wrap',
-                                                        }}>
-                                                        <Text style={{...FONTS.Title2}}>{movie?.year}</Text>
-                                                        <Text style={{...FONTS.Title2}}> | </Text>
+                                                    <Text style={styles.datetext}>@ </Text>
+                                                    <Text style={styles.datetext}>
+                                                        {moment(schedule).tz(timezone).format('h:mm A')}{' '}
+                                                        {getShortenedTimezone(timezone)}
+                                                    </Text>
+                                                </View>
+                                                <View style={{alignItems: 'center'}}>
+                                                    <Text style={styles.inviteStatusRow}>
+                                                        <Text style={styles.inviteStatusPrefix}>
+                                                            Status:{' '}
+                                                        </Text>
                                                         <Text
-                                                            style={{
-                                                                ...FONTS.Title2,
-
-                                                            }}>
-                                                            {formatMovieDuration(movie?.duration)}
+                                                            style={[
+                                                                styles.inviteStatusValue,
+                                                                {color: inviteStatusColor},
+                                                            ]}>
+                                                            {inviteStatusCode}
                                                         </Text>
-                                                    </View>
-                                                    <View style={{flexDirection: 'row', marginVertical: 5, flexWrap: 'wrap'}}>
-                                                        <Text style={styles.drawfonttag}>{movie?.rated}</Text>
-                                                        <Text style={styles.drawfonttag}>
-                                                            {capitalizeFirstLetterOfString(movie?.genres[0])}
+                                                    </Text>
+                                                    {inviteStatusExplanation ? (
+                                                        <Text style={styles.inviteStatusSubtext}>
+                                                            {inviteStatusExplanation}
                                                         </Text>
-                                                        <Text style={styles.drawfonttag}>{movie?.rating}/10</Text>
-                                                    </View>
-                                                    <AkcruButtons.SmallButton
-                                                        btnname="Play Trailer"
-                                                        variant="auth"
-                                                        onPress={() => {
-                                                            navigation.navigate('TrailerPlayer', {
-                                                                id: movie?.id,
-                                                                trailerURL: movie?.trailerURL,
-                                                                landscapeURL: movie?.landscapeURL,
-                                                            });
-                                                        }}
-                                                        color={COLORS.PURPLE}
-                                                    />
-
+                                                    ) : null}
                                                 </View>
                                             </View>
-                                        </View>
-                                    </View>
-
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            color: COLORS.PINK,
-                                            textAlign: 'center',
-                                        }}>
-                                        "{counterpartUser?.firstName}" wants to watch "{movie?.title}" with you
-                                    </Text>
-                                      <View style={{marginVertical: 10}}>
-                                                                                            <View style={styles.datebox}>
-                                                                                                <Text style={styles.datetext}>
-                                                                                                    {' '}
-                                                                                                    {moment(schedule)
-                                                                                                        .tz(timezone)
-                                                                                                        .format('ddd, MMM Do')}{' '}
-                                                                                                </Text>
-                                                                                                <Text style={styles.datetext}>@ </Text>
-                                                                                                <Text style={styles.datetext}>
-                                                                                                    {moment(schedule).tz(timezone).format('h:mm A')}{' '}
-                                                                                                    {getShortenedTimezone(timezone)}
-                                                                                                </Text>
-                                                                                            </View>
-                                                                                            <View style={{alignItems: 'center'}}>
-                                                                                                <Text style={styles.inviteStatusRow}>
-                                                                                                    <Text style={styles.inviteStatusPrefix}>
-                                                                                                        Status:{' '}
-                                                                                                    </Text>
-                                                                                                    <Text
-                                                                                                        style={[
-                                                                                                            styles.inviteStatusValue,
-                                                                                                            {color: inviteStatusColor},
-                                                                                                        ]}>
-                                                                                                        {inviteStatusCode}
-                                                                                                    </Text>
-                                                                                                </Text>
-                                                                                                {inviteStatusExplanation ? (
-                                                                                                    <Text style={styles.inviteStatusSubtext}>
-                                                                                                        {inviteStatusExplanation}
-                                                                                                    </Text>
-                                                                                                ) : null}
-                                                                                            </View>
-                                                                                        </View>
+                                        </>
+                                    ) : null}
                                 </View>
                             </View>
                         </View>
@@ -797,65 +1073,190 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                         <View
                             style={[
                                 styles.chooseMitBottomBar,
+                                showMITSwipe ? styles.swipeSectionRaised : null,
                                 {paddingBottom: Math.max(insets.bottom, 10)},
                             ]}>
-                            <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
-                                <Text style={styles.countdownTitle}>Expires in....</Text>
-                                <View style={styles.countdownTimerRow}>
-                                    <View style={styles.countdownUnit}>
-                                        <View style={styles.countdownDigitsRow}>
-                                            <Animated.View style={getFoldDigitStyle(hourTensSwipeAnim)}>
-                                                <View style={styles.countdownDigitBox}>
-                                                    <Text style={styles.countdownDigitText}>{hourDigits[0]}</Text>
-                                                </View>
-                                            </Animated.View>
-                                            <Animated.View style={getFoldDigitStyle(hourOnesSwipeAnim)}>
-                                                <View style={styles.countdownDigitBox}>
-                                                    <Text style={styles.countdownDigitText}>{hourDigits[1]}</Text>
-                                                </View>
-                                            </Animated.View>
-                                        </View>
-                                        <View style={styles.countdownMidLine} />
-                                        <Text style={styles.countdownUnitLabel}>HOURS</Text>
-                                    </View>
-
-                                    <View style={styles.countdownUnit}>
-                                        <View style={styles.countdownDigitsRow}>
-                                            <Animated.View style={getFoldDigitStyle(minuteTensSwipeAnim)}>
-                                                <View style={styles.countdownDigitBox}>
-                                                    <Text style={styles.countdownDigitText}>{minuteDigits[0]}</Text>
-                                                </View>
-                                            </Animated.View>
-                                            <Animated.View style={getFoldDigitStyle(minuteOnesSwipeAnim)}>
-                                                <View style={styles.countdownDigitBox}>
-                                                    <Text style={styles.countdownDigitText}>{minuteDigits[1]}</Text>
-                                                </View>
-                                            </Animated.View>
-                                        </View>
-                                        <View style={styles.countdownMidLine} />
-                                        <Text style={styles.countdownUnitLabel}>MINUTES</Text>
-                                    </View>
-
-                                    <View style={styles.countdownUnit}>
-                                        <View style={styles.countdownDigitsRow}>
-                                            <Animated.View style={getFoldDigitStyle(secondTensSwipeAnim)}>
-                                                <View style={styles.countdownDigitBox}>
-                                                    <Text style={styles.countdownDigitText}>{secondDigits[0]}</Text>
-                                                </View>
-                                            </Animated.View>
-                                            <Animated.View style={getFoldDigitStyle(secondOnesSwipeAnim)}>
-                                                <View style={styles.countdownDigitBox}>
-                                                    <Text style={styles.countdownDigitText}>{secondDigits[1]}</Text>
-                                                </View>
-                                            </Animated.View>
-                                        </View>
-                                        <View style={styles.countdownMidLine} />
-                                        <Text style={styles.countdownUnitLabel}>SECONDS</Text>
-                                    </View>
+                            {showPendingInviteUi ? (
+                                <View style={[styles.pendingBackRow, showMITSwipe ? styles.pendingBackRowCompact : null]}>
+                                    <TouchableOpacity
+                                        style={styles.pendingBackButton}
+                                        activeOpacity={0.85}
+                                        onPress={() =>
+                                            navigate('NoBottomStack', {
+                                                screen: 'UserMITHubScreen',
+                                            })
+                                        }>
+                                        <Icon
+                                            name="chevron-back"
+                                            type="ionicon"
+                                            size={18}
+                                            color={COLORS.LIGHTGREY}
+                                        />
+                                        <Text style={styles.pendingBackText}>Back</Text>
+                                    </TouchableOpacity>
                                 </View>
+                            ) : null}
+                            <View
+                                style={[
+                                    styles.countdownContainer,
+                                    styles.countdownContainerSticky,
+                                    showMITSwipe ? styles.receiveTopCompact : null,
+                                ]}>
+                                {showPendingInviteUi ? (
+                                    <>
+                                        <View style={[styles.countdownRingWrap, showMITSwipe ? styles.countdownRingWrapCompact : null]}>
+                                            <View style={styles.countdownOuterGlow} />
+                                            <View style={styles.countdownRingOuter}>
+                                                <Animated.View
+                                                    style={[
+                                                        styles.countdownRingSpin,
+                                                        {transform: [{rotate: ringSpinRotation}]},
+                                                    ]}>
+                                                    <LinearGradient
+                                                        colors={['rgba(121, 95, 255, 0.75)', 'rgba(255, 67, 195, 0.75)', 'rgba(101, 230, 255, 0.65)']}
+                                                        start={{x: 0, y: 0}}
+                                                        end={{x: 1, y: 1}}
+                                                        style={StyleSheet.absoluteFill}
+                                                    />
+                                                </Animated.View>
+                                                <View style={styles.countdownRingInnerContent}>
+                                                    <View style={styles.countdownDialCenter}>
+                                                        <Text style={styles.countdownTitleInCircle}>Expires in</Text>
+                                                        <View style={styles.countdownTimerRow}>
+                                                            <View style={styles.countdownUnit}>
+                                                                <View style={styles.countdownDigitsRow}>
+                                                                    <Animated.View style={getFoldDigitStyle(hourTensSwipeAnim)}>
+                                                                        <View style={styles.countdownDigitBox}>
+                                                                            <Text style={styles.countdownDigitText}>{hourDigits[0]}</Text>
+                                                                        </View>
+                                                                    </Animated.View>
+                                                                    <Animated.View style={getFoldDigitStyle(hourOnesSwipeAnim)}>
+                                                                        <View style={styles.countdownDigitBox}>
+                                                                            <Text style={styles.countdownDigitText}>{hourDigits[1]}</Text>
+                                                                        </View>
+                                                                    </Animated.View>
+                                                                </View>
+                                                            </View>
+
+                                                            <Text style={styles.countdownSeparator}>:</Text>
+
+                                                            <View style={styles.countdownUnit}>
+                                                                <View style={styles.countdownDigitsRow}>
+                                                                    <Animated.View style={getFoldDigitStyle(minuteTensSwipeAnim)}>
+                                                                        <View style={styles.countdownDigitBox}>
+                                                                            <Text style={styles.countdownDigitText}>{minuteDigits[0]}</Text>
+                                                                        </View>
+                                                                    </Animated.View>
+                                                                    <Animated.View style={getFoldDigitStyle(minuteOnesSwipeAnim)}>
+                                                                        <View style={styles.countdownDigitBox}>
+                                                                            <Text style={styles.countdownDigitText}>{minuteDigits[1]}</Text>
+                                                                        </View>
+                                                                    </Animated.View>
+                                                                </View>
+                                                            </View>
+
+                                                            <Text style={styles.countdownSeparator}>:</Text>
+
+                                                            <View style={styles.countdownUnit}>
+                                                                <View style={styles.countdownDigitsRow}>
+                                                                    <Animated.View style={getFoldDigitStyle(secondTensSwipeAnim)}>
+                                                                        <View style={styles.countdownDigitBox}>
+                                                                            <Text style={styles.countdownDigitText}>{secondDigits[0]}</Text>
+                                                                        </View>
+                                                                    </Animated.View>
+                                                                    <Animated.View style={getFoldDigitStyle(secondOnesSwipeAnim)}>
+                                                                        <View style={styles.countdownDigitBox}>
+                                                                            <Text style={styles.countdownDigitText}>{secondDigits[1]}</Text>
+                                                                        </View>
+                                                                    </Animated.View>
+                                                                </View>
+                                                            </View>
+                                                        </View>
+                                                        <View style={styles.countdownHRule} />
+                                                        <Text style={styles.countdownSubTextInCircle}>
+                                                            {"If they don't respond,\nyour mit is returned."}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </View>
+                                        <LinearGradient
+                                            colors={['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)']}
+                                            start={{x: 0, y: 0}}
+                                            end={{x: 1, y: 1}}
+                                            style={styles.inviteInfoCardBorder}>
+                                            <View style={styles.inviteInfoCard}>
+                                                <View style={styles.inviteAvatarWrap}>
+                                                    <HexAvatar
+                                                        source={{uri: counterpartUser?.profilePicture}}
+                                                        size={54}
+                                                        bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
+                                                    />
+                                                </View>
+                                                <View style={styles.inviteInfoBody}>
+                                                    <Text style={styles.inviteInfoUsername} numberOfLines={1}>
+                                                        @{counterpartUser?.username ?? 'user'}
+                                                    </Text>
+                                                    <View style={styles.inviteInfoMetaRow}>
+                                                        <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                                                        <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
+                                                    </View>
+                                                    <View style={styles.inviteInfoMetaRow}>
+                                                        <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                                                        <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
+                                                    </View>
+                                                    <View style={styles.inviteInfoStatusRow}>
+                                                        <View style={styles.inviteInfoStatusDot} />
+                                                        <Text style={styles.inviteInfoStatusText}>Status: {inviteStatusDisplay}</Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </LinearGradient>
+                                        <LinearGradient
+                                            colors={['rgba(255, 166, 214, 0.96)', 'rgba(223, 128, 255, 0.96)', 'rgba(134, 220, 255, 0.96)']}
+                                            start={{x: 0, y: 0}}
+                                            end={{x: 1, y: 1}}
+                                            style={styles.inviteMovieCardBorder}>
+                                            <View style={styles.inviteMovieCard}>
+                                                <Image
+                                                    source={{uri: movie?.portraitURL || movie?.landscapeURL}}
+                                                    style={styles.inviteMoviePoster}
+                                                    resizeMode="cover"
+                                                />
+                                                <View style={styles.inviteMovieInfo}>
+                                                    <Text style={styles.inviteMovieTitle} numberOfLines={2}>
+                                                        {movie?.title}
+                                                    </Text>
+                                                    <Text style={styles.inviteMovieMeta}>
+                                                        {movie?.year} • {formatMovieDuration(movie?.duration)}
+                                                    </Text>
+                                                    <View style={styles.inviteMovieTagRow}>
+                                                        {movie?.rated ? (
+                                                            <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                                {movie.rated}
+                                                            </Text>
+                                                        ) : null}
+                                                        {movie?.genres?.[0] ? (
+                                                            <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                                {capitalizeFirstLetterOfString(movie.genres[0])}
+                                                            </Text>
+                                                        ) : null}
+                                                        {movie?.rating ? (
+                                                            <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                                {movie.rating}/10
+                                                            </Text>
+                                                        ) : null}
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </LinearGradient>
+                                    </>
+                                ) : null}
                                 {showMITSwipe ? (
                                     <>
-                                        <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                        <View style={styles.mitSwipeWrap}>
+                                            <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                        </View>
                                         <View>
                                             <Text
                                                 style={{
@@ -869,13 +1270,39 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         </View>
                                     </>
                                 ) : fromSentTab && inviteStatusCode === 'PENDING' ? (
-                                    <View style={{marginTop: 12, alignItems: 'center'}}>
-                                        <AkcruButtons.SmallButton
-                                            btnname={isLoading ? 'Cancelling...' : 'Cancel Invite'}
-                                            variant="auth"
+                                    <View style={styles.pendingActionsWrap}>
+                                        <TouchableOpacity
+                                            style={styles.cancelInviteButton}
+                                            activeOpacity={0.85}
                                             onPress={handleCancelInviteFromSent}
-                                            color={COLORS.PURPLE}
-                                        />
+                                            disabled={isLoading}>
+                                            <Icon
+                                                name="close"
+                                                type="ionicon"
+                                                size={16}
+                                                color="#FFD8DE"
+                                                style={styles.cancelInviteIcon}
+                                            />
+                                            <Text style={styles.cancelInviteButtonText}>
+                                                {isLoading ? 'Cancelling...' : 'Cancel Invite'}
+                                            </Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={styles.secondaryActionButton}
+                                            activeOpacity={0.85}
+                                            onPress={handleChangeMovie}>
+                                            <Icon
+                                                name="film"
+                                                type="ionicon"
+                                                size={16}
+                                                color={COLORS.WHITE}
+                                                style={styles.secondaryActionIcon}
+                                            />
+                                            <Text style={styles.secondaryActionText}>Change Movie</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity activeOpacity={0.85} onPress={handleBackToFeed}>
+                                            <Text style={styles.backToFeedText}>Back to feed</Text>
+                                        </TouchableOpacity>
                                     </View>
                                 ) : null}
                             </View>
