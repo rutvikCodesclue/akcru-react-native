@@ -1,29 +1,21 @@
-import {View, FlatList, Text, Modal} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import MITHubCard from '../../../components/MITHubComps/MITHubCard';
+import {View, Text, TouchableOpacity, ActivityIndicator, StyleSheet} from 'react-native';
+import React, {useMemo, useState} from 'react';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {cancelSentMIT, getMyMITs} from '../../../lib/api/mit.lib';
-import {ICruInvite, IMITInvite} from '../../../../types';
-import {MITInviteHubCard} from '../../../components/MITHubComps';
+import {getMyMITs} from '../../../lib/api/mit.lib';
+import {IMITInvite} from '../../../../types';
 import {COLORS, FONTS} from '../../../../assets/constants/theme';
-import CruInviteCard from '../../../components/CruInviteCard';
-import {getCRUInvites} from '../../../lib/api/cru.lib';
 import useAuthStore from '../../../stores/auth.store';
-import { UseTabMenu } from '../../../context/TabContext';
-import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
+import UserCruChatCard from '../../../components/UserCruChatCard';
+import moment from 'moment-timezone';
 
 
 const MITSent = () => {
     const [currentMITS, setCurrentMITS] = useState<IMITInvite[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
-    const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
-    const [showCancelFailedModal, setShowCancelFailedModal] = useState(false);
-    const [cancelFailedMessage, setCancelFailedMessage] = useState('');
-    const {user, hydrateUser} = useAuthStore();
+    const {user} = useAuthStore();
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
-    const {setUpdateMITs} = UseTabMenu();
 
     useFocusEffect(
         React.useCallback(() => {
@@ -54,55 +46,26 @@ const MITSent = () => {
         }, []),
     );
 
-    const fetchMITs = async () => {
-        setIsLoaded(true);
-        try {
-            const fetchedMITS = await getMyMITs();
-            if (fetchedMITS) {
-                setCurrentMITS(fetchedMITS);
-            }
-        } catch (error) {
-            console.error('Error fetching MITs:', error);
-        } finally {
-            setIsLoaded(false);
-        }
+    const navigateToChooseMITForSent = (mit: IMITInvite) => {
+        navigation.navigate('ChooseMITScreen', {
+            MITID: mit.id,
+            movie: mit.movie,
+            creator: mit.creator,
+            inviteDate: mit.createdAt,
+            akcruBadge: mit.invitee.badge,
+            schedule: mit.startDate,
+            timezone: mit.timezone,
+            invitee: mit.invitee,
+            expiresAt: mit.expiresAt,
+            status: mit.status,
+            fromSentTab: true,
+        });
     };
 
-    const handleCancelMIT = async (mitInviteId: string) => {
-        setIsLoaded(true);
-        try {
-            const response = await cancelSentMIT(mitInviteId);
-            if (response.success) {
-                hydrateUser({...user, MITCount: (user?.MITCount || 0) + 1});
-
-                setCurrentMITS(currentMITS.filter(mit => mit.id !== mitInviteId));
-
-
-            } else {
-                console.error('Failed to cancel MIT:', response.message, response.code);
-                const msg = response.message?.trim();
-                setCancelFailedMessage(msg ? msg : 'Failed to cancel MIT. Please try again.');
-                setShowCancelFailedModal(true);
-            }
-        } catch (error) {
-            console.error('Error cancelling MIT:', error);
-            setCancelFailedMessage('Failed to cancel MIT. Please try again.');
-            setShowCancelFailedModal(true);
-        } finally {
-            setIsLoaded(false);
-        }
-    };
-
-    const handleCloseCancelFailedModal = () => {
-        const shouldRefreshHubScreen = cancelFailedMessage.toLowerCase().includes('already declined');
-        setShowCancelFailedModal(false);
-        setCancelFailedMessage('');
-
-        if (shouldRefreshHubScreen) {
-            navigation.replace('UserMITHubScreen', {index: 1});
-        }
-    };
-
+    const sortedSentMITs = useMemo(
+        () => [...currentMITS].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+        [currentMITS],
+    );
 
     return (
         <>
@@ -111,59 +74,93 @@ const MITSent = () => {
                     You have {user?.MITCount} Movie Invites Tickets left
                 </Text>
                 {isLoaded ? (
-                    <Text style={{...FONTS.Title1, textAlign: 'center', marginTop: '5%'}}>Loading...</Text>
-                ) : currentMITS.length === 0 ? (
+                    <View style={styles.loadingWrap}>
+                        <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                    </View>
+                ) : sortedSentMITs.length === 0 ? (
                     <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY, marginTop: '5%'}}>
                         You have no sent Movie Invites Tickets
                     </Text>
                 ) : (
                     <View>
-                        <FlatList
-                            data={currentMITS}
-                            horizontal={false}
-                            scrollEnabled={false}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item }) => {
-                                const { username, profilePicture, badge, influencerStatus, companyStatus, ownerStatus, blackCloakStatus } = item.invitee;
-                                const startDate = item.startDate ?? '';
+                        {sortedSentMITs.map((mit, index) => {
+                            const invitee = mit.invitee;
+                            const username = invitee?.username ?? 'User';
+                            const schedule = mit.startDate;
+                            const tz = mit.timezone ?? undefined;
+                            const dateLabel =
+                                schedule && tz
+                                    ? moment(schedule).tz(tz).format('MMM D, YYYY')
+                                    : schedule
+                                      ? new Date(schedule).toLocaleDateString()
+                                      : '';
+                            const timeLabel =
+                                schedule && tz
+                                    ? moment(schedule).tz(tz).format('h:mm a')
+                                    : schedule
+                                      ? new Date(schedule)
+                                            .toLocaleTimeString(undefined, {
+                                                hour: 'numeric',
+                                                minute: '2-digit',
+                                                hour12: true,
+                                            })
+                                            .toLowerCase()
+                                      : '';
+                            const statusText = (mit.status ?? 'PENDING').toString().toUpperCase();
+                            const isLast = index === sortedSentMITs.length - 1;
 
-                                // Safely access movie title only if item.movie exists and is not null
-                                const movieTitle = item.movie ? item.movie.title ?? 'N/A' : 'N/A';
-
-                                return (
-                                  <View style={{ marginVertical: 5, marginHorizontal: 15 }}>
-                                    <MITHubCard
-                                      inviteeName={username ?? 'Unknown User'}
-                                      inviteePicture={profilePicture ?? ''}
-                                      MITDate={startDate}
-                                      MITMoviechoice={movieTitle}
-                                      scheduleDate={startDate}
-                                      scheduleTime={startDate}
-                                      timezone={item.timezone ?? 'N/A'}
-                                      onPressIn={() => navigation.navigate('ViewUserScreen', { userID: item.inviteeId })}
-                                      akcruBadge={badge}
-                                      cancel={() => handleCancelMIT(item.id)}
-                                      influencerStatus={influencerStatus}
-                                      companyStatus={companyStatus}
-                                      ownerStatus={ownerStatus}
-                                      blackCloakStatus={blackCloakStatus}
-                                    />
-                                  </View>
-                                );
-                              }}
-                        />
+                            return (
+                                <View key={mit.id} style={[styles.chatPanelBody, isLast && styles.chatPanelBodyLast]}>
+                                    <TouchableOpacity
+                                        activeOpacity={0.92}
+                                        onPress={() => navigateToChooseMITForSent(mit)}
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Open movie invite details"
+                                        style={styles.chatCardTouch}>
+                                        <UserCruChatCard
+                                            userName={`you invited : ${username}`}
+                                            movie={mit.movie?.title ?? ''}
+                                            moviePoster={mit.movie?.landscapeURL}
+                                            CruChatDate={dateLabel}
+                                            CruChatTime={timeLabel}
+                                            CRUChat={statusText}
+                                            previewKind="mitStatus"
+                                            userPicture={invitee?.profilePicture}
+                                            badge={invitee?.badge}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                            );
+                        })}
                     </View>
                 )}
             </View>
-            <Modal transparent visible={showCancelFailedModal} animationType="fade">
-                <OTPResultModal
-                    closeModal={handleCloseCancelFailedModal}
-                    type="failed"
-                    message={cancelFailedMessage}
-                />
-            </Modal>
         </>
     );
 };
+
+const styles = StyleSheet.create({
+    loadingWrap: {
+        minHeight: 160,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    chatPanelBody: {
+        width: '100%',
+        alignSelf: 'stretch',
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: 'transparent',
+    },
+    chatPanelBodyLast: {
+        paddingBottom: 8,
+    },
+    chatCardTouch: {
+        width: '100%',
+        marginHorizontal: 0,
+        marginTop: 8,
+        marginBottom: 8,
+    },
+});
 
 export default MITSent;

@@ -240,6 +240,10 @@ const UserNotification = ({route}: Props) => {
                     <SafeAreaView style={{flex: 1}}>
                         {isLoading ? (
                             <LoadingComponent />
+                        ) : sortedNotifications.length === 0 ? (
+                            <View style={styles.emptyStateContainer}>
+                                <Text style={styles.emptyStateText}>No notification available</Text>
+                            </View>
                         ) : (
                             <>
                                 <ScrollView

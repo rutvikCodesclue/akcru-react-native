@@ -23,7 +23,7 @@ import imageindex from '../../../../assets/images/imageindex';
 import {RouteProp} from '@react-navigation/native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {acceptAMITInvite, declineAMITInvite} from '../../../lib/api/mit.lib';
+import {acceptAMITInvite, declineAMITInvite, cancelSentMIT} from '../../../lib/api/mit.lib';
 import {IMovie, IUserProfile} from '../../../../types';
 import moment from 'moment';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -31,7 +31,7 @@ import {IMessage} from 'react-native-gifted-chat';
 import {HMSSDK} from '@100mslive/react-native-hms';
 import {getMitMessages} from '../../../lib/api/rooms.lib';
 import useAuthStore from '../../../stores/auth.store';
-import {navigate} from '../../../util/RootNavigation';
+import {navigate, reset} from '../../../util/RootNavigation';
 import HexAvatar from '../../../components/HexAvatar';
 import {
     capitalizeFirstLetterOfString,
@@ -127,13 +127,28 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const secondOnesSwipeAnim = useRef(new Animated.Value(1)).current;
     const previousRemainingSeconds = useRef<number>(initialRemainingSeconds);
 
-    /** Hide entire bottom accept/decline section (timer + swipe + hint) when invite is done or window ended. */
+    const fromSentTab = route.params?.fromSentTab === true;
+    const creatorIdStr = creator?.id != null ? String(creator.id) : null;
+    /** Logged-in user sent this MIT (Sent tab or any path with matching creator id). */
+    const isCurrentUserCreator = React.useMemo(
+        () =>
+            fromSentTab ||
+            (user?.id != null && creatorIdStr != null && String(user.id) === creatorIdStr),
+        [fromSentTab, user?.id, creatorIdStr],
+    );
+
+    /** Hide entire bottom section (timer + swipe) when invite is done or window ended. */
     const showAcceptDeclineSection = React.useMemo(
         () =>
             inviteStatusCode === 'PENDING' &&
             remainingSeconds > 0,
         [inviteStatusCode, remainingSeconds],
     );
+
+    /** Receiver only: sender must not see Accept/Decline swipe. */
+    const showMITSwipe = showAcceptDeclineSection && !isCurrentUserCreator;
+    const counterpartUser = isCurrentUserCreator ? invitee : creator;
+    const counterpartUserId = counterpartUser?.id != null ? String(counterpartUser.id) : null;
 
     /** Expired (status or response window) or declined → ghosted content + fog overlay. */
     const isFogged = React.useMemo(() => {
@@ -265,6 +280,42 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         });
     };
 
+    const handleCancelInviteFromSent = () => {
+        if (MITID == null) {
+            Alert.alert('Unable to cancel invite', 'Missing invite information.');
+            return;
+        }
+
+        setIsLoading(true);
+        cancelSentMIT(String(MITID))
+            .then(response => {
+                setIsLoading(false);
+                if (response.success) {
+                    reset({
+                        index: 0,
+                        routes: [
+                            {
+                                name: 'ClientTabNavigator',
+                                params: {
+                                    screen: 'UserProfileStack',
+                                    params: {
+                                        screen: 'UserProfileScreen',
+                                    },
+                                },
+                            },
+                        ],
+                    });
+                    return;
+                }
+                Alert.alert('Unable to cancel invite', response.message || 'Please try again.');
+            })
+            .catch(error => {
+                console.error('Error cancelling sent MIT invite:', error);
+                setIsLoading(false);
+                Alert.alert('Unable to cancel invite', 'Please try again.');
+            });
+    };
+
     //Playing Trailer functions
 
     const [playing, setPlaying] = useState(false);
@@ -281,7 +332,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     }, []);
 
     const sayhi = () => {
-        const isCurrentUserCreator = user?.id === creatorID;
         const receiverUserId = isCurrentUserCreator ? inviteeId : creatorID;
         const receiverProfilePicture = isCurrentUserCreator ? invitee?.profilePicture : creator?.profilePicture;
         const receiverUsername = isCurrentUserCreator ? invitee?.username : creator?.username;
@@ -303,8 +353,8 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (creatorID) {
-                const result = await getFollowers(creatorID);
+            if (counterpartUserId) {
+                const result = await getFollowers(counterpartUserId);
                 console.log('result:', result);
 
                 if (result && result.followers && Array.isArray(result.followers)) {
@@ -314,7 +364,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         };
 
         fetchData();
-    }, [creatorID]);
+    }, [counterpartUserId]);
 
     useEffect(() => {
         setRemainingSeconds(getRemainingSecondsFromExpiry(expiresAt));
@@ -501,20 +551,20 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     <View style={{marginRight: 8}}>
                                         <TouchableOpacity
                                             onPress={() =>
-                                                navigation.navigate('ViewUserScreen', {userID: creator?.id})
+                                                navigation.navigate('ViewUserScreen', {userID: counterpartUserId})
                                             }>
                                             <HexAvatar
-                                                source={{uri: creator?.profilePicture}}
+                                                source={{uri: counterpartUser?.profilePicture}}
                                                 size={58}
-                                                bordercolor={selectAvatarBorderColor(creator?.badge ?? 'AKCRUIT')}
+                                                bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
                                             />
                                         </TouchableOpacity>
                                         <View />
                                     </View>
                                     <View>
                                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            <Text style={{...FONTS.Username}}>{creator?.username}</Text>
-                                            {creator?.ownerStatus && (
+                                            <Text style={{...FONTS.Username}}>{counterpartUser?.username}</Text>
+                                            {counterpartUser?.ownerStatus && (
                                                 <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
@@ -523,7 +573,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
-                                            {creator?.companyStatus && (
+                                            {counterpartUser?.companyStatus && (
                                                 <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
@@ -532,7 +582,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
-                                            {creator?.influencerStatus && (
+                                            {counterpartUser?.influencerStatus && (
                                                 <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
@@ -541,7 +591,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                     style={{marginRight: 5}}
                                                 />
                                             )}
-                                            {creator?.blackCloakStatus && (
+                                            {counterpartUser?.blackCloakStatus && (
                                                 <CustomIcon
                                                     name="ribbon"
                                                     type="ionicon"
@@ -551,23 +601,23 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                 />
                                             )}
                                         </View>
-                                        <Text style={{...FONTS.paragraph1}}>{creator?.firstName}</Text>
-                                        {creator?.badge === 'AKCRUIT' && (
+                                        <Text style={{...FONTS.paragraph1}}>{counterpartUser?.firstName}</Text>
+                                        {counterpartUser?.badge === 'AKCRUIT' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeAkcruit />
                                             </View>
                                         )}
-                                        {creator?.badge === 'GUARDIAN' && (
+                                        {counterpartUser?.badge === 'GUARDIAN' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeGuardian />
                                             </View>
                                         )}
-                                        {creator?.badge === 'HERO' && (
+                                        {counterpartUser?.badge === 'HERO' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeHero />
                                             </View>
                                         )}
-                                        {creator?.badge === 'SUPERHERO' && (
+                                        {counterpartUser?.badge === 'SUPERHERO' && (
                                             <View>
                                                 <AkcruLevels.AkcruBadgeSuperHero />
                                             </View>
@@ -703,7 +753,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             color: COLORS.PINK,
                                             textAlign: 'center',
                                         }}>
-                                        "{creator?.firstName}" wants to watch "{movie?.title}" with you
+                                        "{counterpartUser?.firstName}" wants to watch "{movie?.title}" with you
                                     </Text>
                                       <View style={{marginVertical: 10}}>
                                                                                             <View style={styles.datebox}>
@@ -803,18 +853,31 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         <Text style={styles.countdownUnitLabel}>SECONDS</Text>
                                     </View>
                                 </View>
-                            </View>
-                            <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
-                            <View>
-                                <Text
-                                    style={{
-                                        ...FONTS.Title2,
-                                        color: COLORS.PINK,
-                                        textAlign: 'center',
-                                        paddingTop: 10,
-                                    }}>
-                                    SWIPE BUTTON LEFT OR RIGHT.
-                                </Text>
+                                {showMITSwipe ? (
+                                    <>
+                                        <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                        <View>
+                                            <Text
+                                                style={{
+                                                    ...FONTS.Title2,
+                                                    color: COLORS.PINK,
+                                                    textAlign: 'center',
+                                                    paddingTop: 10,
+                                                }}>
+                                                SWIPE BUTTON LEFT OR RIGHT.
+                                            </Text>
+                                        </View>
+                                    </>
+                                ) : fromSentTab && inviteStatusCode === 'PENDING' ? (
+                                    <View style={{marginTop: 12, alignItems: 'center'}}>
+                                        <AkcruButtons.SmallButton
+                                            btnname={isLoading ? 'Cancelling...' : 'Cancel Invite'}
+                                            variant="auth"
+                                            onPress={handleCancelInviteFromSent}
+                                            color={COLORS.PURPLE}
+                                        />
+                                    </View>
+                                ) : null}
                             </View>
                         </View>
                     ) : null}

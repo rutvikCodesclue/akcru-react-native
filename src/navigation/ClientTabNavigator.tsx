@@ -15,7 +15,7 @@ import {getFocusedRouteNameFromRoute} from '@react-navigation/native';
 import {BottomTabBar, createBottomTabNavigator, BottomTabBarButtonProps} from '@react-navigation/bottom-tabs';
 import LinearGradient from 'react-native-linear-gradient';
 import {BlurView} from '@react-native-community/blur';
-import BottomSheet, {BottomSheetBackdrop, BottomSheetView} from '@gorhom/bottom-sheet';
+import BottomSheet, {BottomSheetBackdrop, BottomSheetScrollView} from '@gorhom/bottom-sheet';
 import type {BottomSheetBackdropProps} from '@gorhom/bottom-sheet';
 
 import {COLORS, SIZES} from '../../assets/constants';
@@ -33,7 +33,12 @@ import {API} from '../clients/api.client';
 import {DeviceEventEmitter} from 'react-native';
 import {isTablet} from '../../assets/constants/theme';
 import {logTabBarTouch} from '../debug/tabBarTouchDebug';
-import {navigate} from '../util/RootNavigation';
+import {navigate, navigateToUserNotificationScreen} from '../util/RootNavigation';
+import {getNotifyMePayload, markNotificationRead} from '../lib/api/notify.lib';
+import {NotificationNavigation} from '../screens/userScreens/UserNotificationTabs/NotificationNavigation';
+import useAuthStore from '../stores/auth.store';
+import type {INotification} from '../../types';
+import {formatDatestamp} from '../util/util';
 
 /** Selected tab only: gradient disk + glow; inactive tabs show icon only (no circle) */
 const ICON_FOCUSED_GRADIENT = ['rgba(232,205,255,0.96)', 'rgba(255,200,232,0.88)', 'rgba(118,95,145,1)'];
@@ -190,11 +195,34 @@ function ClientTabBar(props: TabBarProps) {
     return <BottomTabBar {...props} />;
 }
 
+function getLatestNotificationPreview(n: INotification): string {
+    const m = n.message?.trim();
+    if (m) {
+        return m.length > 96 ? `${m.slice(0, 93)}…` : m;
+    }
+    return n.type;
+}
+
 export default function ClientTabNavigator() {
-    const {opened, toggleOpened} = UseTabMenu();
+    const {
+        opened,
+        toggleOpened,
+        syncNotificationBadgeCounts,
+        setRefetchReadNotifications,
+        setRefetchUnreadNotifications,
+    } = UseTabMenu();
+    const userID = useAuthStore(state => state.user?.id);
     const [hasMatches, setHasMatches] = useState(false);
+    const [centerSheetLatestNotification, setCenterSheetLatestNotification] = useState<INotification | null>(null);
+    const [isCenterSheetLatestNotificationLoading, setIsCenterSheetLatestNotificationLoading] = useState(false);
     const centerSheetRef = useRef<BottomSheet>(null);
-    const centerSheetSnapPoints = useMemo(() => ['70%'], []);
+    /** 90% when a latest notification is shown; 70% with no notification (or while loading) so the sheet stays compact. */
+    const centerSheetSnapPoints = useMemo(() => {
+        if (isCenterSheetLatestNotificationLoading) {
+            return ['70%'];
+        }
+        return centerSheetLatestNotification ? ['90%'] : ['70%'];
+    }, [isCenterSheetLatestNotificationLoading, centerSheetLatestNotification]);
     const [selectedCenterAction, setSelectedCenterAction] = useState<'invite' | 'purchase' | 'match' | 'solo' | null>(null);
     const centerActionNavTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const CENTER_ACTION_NAV_DELAY_MS = 500;
@@ -225,6 +253,37 @@ export default function ClientTabNavigator() {
         logTabBarTouch('ClientTabNavigator mounted (debug tap logging active)');
     }, []);
 
+    const loadCenterSheetLatestNotification = useCallback(async () => {
+        setIsCenterSheetLatestNotificationLoading(true);
+        try {
+            const payload = await getNotifyMePayload();
+            const list = payload?.notifications ?? [];
+            syncNotificationBadgeCounts(list);
+            if (list.length === 0) {
+                setCenterSheetLatestNotification(null);
+                return;
+            }
+            const sorted = [...list].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+            );
+            setCenterSheetLatestNotification(sorted[0] ?? null);
+        } catch (e) {
+            console.error('loadCenterSheetLatestNotification', e);
+            setCenterSheetLatestNotification(null);
+        } finally {
+            setIsCenterSheetLatestNotificationLoading(false);
+        }
+    }, [syncNotificationBadgeCounts]);
+
+    const onCenterSheetIndexChange = useCallback(
+        (index: number) => {
+            if (index === 0) {
+                void loadCenterSheetLatestNotification();
+            }
+        },
+        [loadCenterSheetLatestNotification],
+    );
+
     useEffect(() => {
         return () => {
             if (centerActionNavTimeoutRef.current) {
@@ -251,6 +310,35 @@ export default function ClientTabNavigator() {
     const closeCenterHexSheet = () => {
         centerSheetRef.current?.close();
     };
+
+    const handlePressSeeAllNotifications = useCallback(() => {
+        centerSheetRef.current?.close();
+        navigateToUserNotificationScreen();
+    }, []);
+
+    const handlePressCenterSheetNotification = useCallback(
+        async (notification: INotification) => {
+            centerSheetRef.current?.close();
+            try {
+                const updated = await markNotificationRead({id: notification.id});
+                if (updated) {
+                    setRefetchReadNotifications(true);
+                    setRefetchUnreadNotifications(true);
+                    const payload = await getNotifyMePayload();
+                    syncNotificationBadgeCounts(payload?.notifications);
+                }
+            } catch (e) {
+                console.error('markNotificationRead from center sheet', e);
+            }
+            await NotificationNavigation(notification, userID);
+        },
+        [
+            userID,
+            setRefetchReadNotifications,
+            setRefetchUnreadNotifications,
+            syncNotificationBadgeCounts,
+        ],
+    );
 
     const scheduleCenterCircleNavigation = useCallback(
         (action: 'invite' | 'purchase' | 'match' | 'solo', runNavigation: () => void) => {
@@ -511,8 +599,13 @@ export default function ClientTabNavigator() {
                 backdropComponent={renderCenterSheetBackdrop}
                 backgroundStyle={styles.centerSheetBackground}
                 handleIndicatorStyle={styles.centerSheetIndicator}
-                style={styles.centerSheetContainer}>
-                <BottomSheetView style={styles.centerSheetContent}>
+                style={styles.centerSheetContainer}
+                onChange={onCenterSheetIndexChange}>
+                <BottomSheetScrollView
+                    style={styles.centerSheetScroll}
+                    contentContainerStyle={styles.centerSheetContent}
+                    showsVerticalScrollIndicator={true}
+                    keyboardShouldPersistTaps="handled">
                     <View style={styles.sheetHeaderWrap}>
                         <Text style={styles.sheetHeaderTitle}>What do you want to do?</Text>
                         <Pressable style={styles.sheetCloseButton} onPress={closeCenterHexSheet}>
@@ -608,7 +701,50 @@ export default function ClientTabNavigator() {
                             </Text>
                         </Pressable>
                     </View>
-                </BottomSheetView>
+
+                    {!isCenterSheetLatestNotificationLoading && centerSheetLatestNotification ? (
+                        <View style={styles.latestNotificationBlock}>
+                            <View style={styles.latestNotificationHeaderRow}>
+                                <Text style={styles.latestNotificationBlockTitle}>Latest notification</Text>
+                                <Pressable
+                                    onPress={handlePressSeeAllNotifications}
+                                    hitSlop={8}
+                                    style={({pressed}) => [
+                                        styles.latestNotificationSeeAll,
+                                        pressed && styles.latestNotificationSeeAllPressed,
+                                    ]}>
+                                    <Text style={styles.latestNotificationSeeAllText}>See all</Text>
+                                </Pressable>
+                            </View>
+                            <Pressable
+                                onPress={() => {
+                                    void handlePressCenterSheetNotification(centerSheetLatestNotification);
+                                }}
+                                style={({pressed}) => [
+                                    styles.latestNotificationRow,
+                                    !centerSheetLatestNotification.isRead && styles.latestNotificationRowUnread,
+                                    pressed && styles.latestNotificationRowPressed,
+                                ]}>
+                                <Icon
+                                    name="bell-outline"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    size={22}
+                                    style={styles.latestNotificationIcon}
+                                />
+                                <View style={styles.latestNotificationTextCol}>
+                                    <Text style={styles.latestNotificationPreview} numberOfLines={2}>
+                                        {getLatestNotificationPreview(centerSheetLatestNotification)}
+                                    </Text>
+                                    <Text style={styles.latestNotificationDate}>
+                                        {formatDatestamp(centerSheetLatestNotification.createdAt)}
+                                    </Text>
+                                </View>
+                                <Icon name="chevron-right" type="material-community" color="rgba(255,255,255,0.5)" size={22} />
+                            </Pressable>
+                        </View>
+                    ) : null}
+                </BottomSheetScrollView>
             </BottomSheet>
         </>
     );
@@ -687,9 +823,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(255,255,255,0.5)',
         width: 52,
     },
+    centerSheetScroll: {
+        flex: 1,
+    },
     centerSheetContent: {
         paddingHorizontal: 16,
-        paddingBottom: 26,
+        paddingTop: 4,
+        paddingBottom: 32,
         gap: 14,
     },
     sheetHeaderWrap: {
@@ -762,6 +902,69 @@ const styles = StyleSheet.create({
     },
     actionSubtitleSelected: {
         color: '#DAB5FF',
+    },
+    latestNotificationBlock: {
+        marginTop: 4,
+        gap: 8,
+    },
+    latestNotificationHeaderRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 12,
+    },
+    latestNotificationBlockTitle: {
+        flex: 1,
+        color: 'rgba(255,255,255,0.85)',
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    latestNotificationSeeAll: {
+        paddingVertical: 2,
+        paddingLeft: 8,
+    },
+    latestNotificationSeeAllPressed: {
+        opacity: 0.75,
+    },
+    latestNotificationSeeAllText: {
+        color: '#C78BFF',
+        fontSize: 13,
+        fontWeight: '600',
+    },
+    latestNotificationRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 10,
+        paddingHorizontal: 12,
+        borderRadius: 16,
+        backgroundColor: 'rgba(22, 16, 40, 0.95)',
+        borderWidth: 1,
+        borderColor: 'rgba(176, 132, 255, 0.3)',
+    },
+    latestNotificationRowUnread: {
+        borderLeftWidth: 3,
+        borderLeftColor: '#C78BFF',
+        paddingLeft: 9,
+    },
+    latestNotificationRowPressed: {
+        opacity: 0.9,
+    },
+    latestNotificationIcon: {
+        marginRight: 10,
+    },
+    latestNotificationTextCol: {
+        flex: 1,
+    },
+    latestNotificationPreview: {
+        color: COLORS.WHITE,
+        fontSize: 14,
+        fontWeight: '600',
+        lineHeight: 18,
+    },
+    latestNotificationDate: {
+        marginTop: 4,
+        color: 'rgba(255,255,255,0.55)',
+        fontSize: 11,
     },
     redDot: {
         position: 'absolute',

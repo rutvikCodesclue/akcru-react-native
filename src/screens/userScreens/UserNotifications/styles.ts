@@ -42,4 +42,15 @@ export default StyleSheet.create({
     chatListPanel: {
         backgroundColor: 'transparent',
     },
+    emptyStateContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+    },
+    emptyStateText: {
+        ...FONTS.Title2,
+        color: 'rgba(255,255,255,0.55)',
+        textAlign: 'center',
+    },
 });
