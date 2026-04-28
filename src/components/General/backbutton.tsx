@@ -11,9 +11,11 @@ type BackButtonProps = {
     onBack?: () => void;
     /** Merged with default wrapper (e.g. absolute overlay + marginTop: 0) */
     containerStyle?: StyleProp<ViewStyle>;
+    /** Whether to show the "Back" text label */
+    showLabel?: boolean;
 };
 
-const BackButton = ({navigation, onBack, containerStyle}: BackButtonProps) => {
+const BackButton = ({navigation, onBack, containerStyle, showLabel = true}: BackButtonProps) => {
     const [isNavigating, setIsNavigating] = useState(false);
 
     const handleBackPress = () => {
@@ -38,7 +40,7 @@ const BackButton = ({navigation, onBack, containerStyle}: BackButtonProps) => {
             <TouchableOpacity onPress={handleBackPress} style={styles.box}>
                 <View style={styles.flexCenter}>
                     <Icon name="chevron-back" type="ionicon" size={isTablet() ? 30 : 20} color={COLORS.LIGHTGREY} />
-                    <Text style={styles.fontstyle}>Back</Text>
+                    {showLabel ? <Text style={styles.fontstyle}>Back</Text> : null}
                 </View>
             </TouchableOpacity>
         </View>

@@ -142,7 +142,13 @@ export type NoBottomTabStackParams = {
         comment?: IComment;
         postId: number;
     };
-    ViewChat: {userId: string; mItInviteId: string; profilePicture: string; username: string};
+    ViewChat: {
+        userId: string;
+        mItInviteId: string;
+        profilePicture: string;
+        username: string;
+        initialMessage?: string;
+    };
     ViewGroupChat: {cru: ICru};
     NewPost: any;
     NewComment: any;

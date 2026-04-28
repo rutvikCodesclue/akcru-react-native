@@ -28,6 +28,7 @@ import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import UserMatchModesScreen from '../screens/userScreens/UserMatchModesScreen';
 import BestMatchScreen from '../screens/userScreens/BestMatchScreen';
+import {IMovie} from '../../types';
 
 
 export type UserProfileStackParams = {
@@ -59,7 +60,16 @@ export type UserProfileStackParams = {
     FlickFlirtScreen: any;
     ViewUserFollowList: any;
     ViewUserScreen: any;
-    ViewChat: {userId: string; mItInviteId: string; profilePicture: string; username: string};
+    ViewChat: {
+        userId: string;
+        mItInviteId: string;
+        profilePicture: string;
+        username: string;
+        initialMessage?: string;
+        movie?: IMovie;
+        schedule?: string;
+        timezone?: string;
+    };
     ChatList: any;
     AdminGrantADScreen: any;
     AdminWalletSearch: any;

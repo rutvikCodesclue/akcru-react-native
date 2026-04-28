@@ -44,6 +44,7 @@ const CruChatComponent = ({route}: any) => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [imageMessageText, setImageMessageText] = useState('');
     const [text, setText] = useState('');
+    const initialMessage: string = route.params?.initialMessage ?? '';
     const {user} = useAuthStore();
 
     const mItInviteId: string | undefined = route.params?.mItInviteId ?? null;
@@ -57,6 +58,12 @@ const CruChatComponent = ({route}: any) => {
             cleanupChannels();
         };
     }, []);
+
+    useEffect(() => {
+        if (initialMessage && initialMessage.trim().length > 0) {
+            setText(initialMessage);
+        }
+    }, [initialMessage]);
 
 
     const setupChannels = (cruId: string) => {

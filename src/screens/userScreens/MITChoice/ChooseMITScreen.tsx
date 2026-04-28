@@ -635,115 +635,115 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     </View>
                                 </View>
 
-                                <LinearGradient
-                                    colors={['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)']}
-                                    start={{x: 0, y: 0}}
-                                    end={{x: 1, y: 1}}
-                                    style={styles.inviteInfoCardBorder}>
-                                    <View style={styles.inviteInfoCard}>
-                                        <View style={styles.inviteAvatarWrap}>
-                                            <HexAvatar
-                                                source={{uri: counterpartUser?.profilePicture}}
-                                                size={54}
-                                                bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
-                                            />
-                                        </View>
-                                        <View style={styles.inviteInfoBody}>
-                                            <Text style={styles.inviteInfoUsername} numberOfLines={1}>
-                                                @{counterpartUser?.username ?? 'user'}
-                                            </Text>
-                                            <View style={styles.inviteInfoMetaRow}>
-                                                <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
-                                                <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
-                                            </View>
-                                            <View style={styles.inviteInfoMetaRow}>
-                                                <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
-                                                <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
-                                            </View>
-                                            <View style={styles.inviteInfoStatusRow}>
-                                                <View style={styles.inviteInfoStatusDot} />
-                                                <Text style={styles.inviteInfoStatusText}>Status: {inviteStatusDisplay}</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </LinearGradient>
-
-                                <LinearGradient
-                                    colors={['rgba(255, 166, 214, 0.96)', 'rgba(223, 128, 255, 0.96)', 'rgba(134, 220, 255, 0.96)']}
-                                    start={{x: 0, y: 0}}
-                                    end={{x: 1, y: 1}}
-                                    style={styles.inviteMovieCardBorder}>
-                                    <View style={styles.inviteMovieCard}>
-                                        <Image
-                                            source={{uri: movie?.portraitURL || movie?.landscapeURL}}
-                                            style={styles.inviteMoviePoster}
-                                            resizeMode="cover"
+                            <LinearGradient
+                                colors={['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)']}
+                                start={{x: 0, y: 0}}
+                                end={{x: 1, y: 1}}
+                                style={styles.inviteInfoCardBorder}>
+                                <View style={styles.inviteInfoCard}>
+                                    <View style={styles.inviteAvatarWrap}>
+                                        <HexAvatar
+                                            source={{uri: counterpartUser?.profilePicture}}
+                                            size={54}
+                                            bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
                                         />
-                                        <View style={styles.inviteMovieInfo}>
-                                            <Text style={styles.inviteMovieTitle} numberOfLines={2}>
-                                                {movie?.title}
-                                            </Text>
-                                            <Text style={styles.inviteMovieMeta}>
-                                                {movie?.year} • {formatMovieDuration(movie?.duration)}
-                                            </Text>
-                                            <View style={styles.inviteMovieTagRow}>
-                                                {movie?.rated ? (
-                                                    <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                        {movie.rated}
-                                                    </Text>
-                                                ) : null}
-                                                {movie?.genres?.[0] ? (
-                                                    <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                        {capitalizeFirstLetterOfString(movie.genres[0])}
-                                                    </Text>
-                                                ) : null}
-                                                {movie?.rating ? (
-                                                    <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                        {movie.rating}/10
-                                                    </Text>
-                                                ) : null}
-                                            </View>
+                                    </View>
+                                    <View style={styles.inviteInfoBody}>
+                                        <Text style={styles.inviteInfoUsername} numberOfLines={1}>
+                                            @{counterpartUser?.username ?? 'user'}
+                                        </Text>
+                                        <View style={styles.inviteInfoMetaRow}>
+                                            <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                                            <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
+                                        </View>
+                                        <View style={styles.inviteInfoMetaRow}>
+                                            <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                                            <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
+                                        </View>
+                                        <View style={styles.inviteInfoStatusRow}>
+                                            <View style={styles.inviteInfoStatusDot} />
+                                            <Text style={styles.inviteInfoStatusText}>Status: {inviteStatusDisplay}</Text>
                                         </View>
                                     </View>
-                                </LinearGradient>
+                                </View>
+                            </LinearGradient>
 
-                                {fromSentTab ? (
-                                    <View style={styles.pendingActionsWrap}>
-                                        <TouchableOpacity
-                                            style={styles.cancelInviteButton}
-                                            activeOpacity={0.85}
-                                            onPress={handleCancelInviteFromSent}
-                                            disabled={isLoading}>
-                                            <Icon
-                                                name="close"
-                                                type="ionicon"
-                                                size={16}
-                                                color="#FFD8DE"
-                                                style={styles.cancelInviteIcon}
-                                            />
-                                            <Text style={styles.cancelInviteButtonText}>
-                                                {isLoading ? 'Cancelling...' : 'Cancel Invite'}
-                                            </Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity
-                                            style={styles.secondaryActionButton}
-                                            activeOpacity={0.85}
-                                            onPress={handleChangeMovie}>
-                                            <Icon
-                                                name="film"
-                                                type="ionicon"
-                                                size={16}
-                                                color={COLORS.WHITE}
-                                                style={styles.secondaryActionIcon}
-                                            />
-                                            <Text style={styles.secondaryActionText}>Change Movie</Text>
-                                        </TouchableOpacity>
-                                        <TouchableOpacity activeOpacity={0.85} onPress={handleBackToFeed}>
-                                            <Text style={styles.backToFeedText}>Back to feed</Text>
-                                        </TouchableOpacity>
+                            <LinearGradient
+                                colors={['rgba(255, 166, 214, 0.96)', 'rgba(223, 128, 255, 0.96)', 'rgba(134, 220, 255, 0.96)']}
+                                start={{x: 0, y: 0}}
+                                end={{x: 1, y: 1}}
+                                style={styles.inviteMovieCardBorder}>
+                                <View style={styles.inviteMovieCard}>
+                                    <Image
+                                        source={{uri: movie?.portraitURL || movie?.landscapeURL}}
+                                        style={styles.inviteMoviePoster}
+                                        resizeMode="cover"
+                                    />
+                                    <View style={styles.inviteMovieInfo}>
+                                        <Text style={styles.inviteMovieTitle} numberOfLines={2}>
+                                            {movie?.title}
+                                        </Text>
+                                        <Text style={styles.inviteMovieMeta}>
+                                            {movie?.year} • {formatMovieDuration(movie?.duration)}
+                                        </Text>
+                                        <View style={styles.inviteMovieTagRow}>
+                                            {movie?.rated ? (
+                                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                    {movie.rated}
+                                                </Text>
+                                            ) : null}
+                                            {movie?.genres?.[0] ? (
+                                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                    {capitalizeFirstLetterOfString(movie.genres[0])}
+                                                </Text>
+                                            ) : null}
+                                            {movie?.rating ? (
+                                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                                    {movie.rating}/10
+                                                </Text>
+                                            ) : null}
+                                        </View>
                                     </View>
-                                ) : null}
-                            </View>
+                                </View>
+                            </LinearGradient>
+
+                            {fromSentTab ? (
+                                <View style={styles.pendingActionsWrap}>
+                                    <TouchableOpacity
+                                        style={styles.cancelInviteButton}
+                                        activeOpacity={0.85}
+                                        onPress={handleCancelInviteFromSent}
+                                        disabled={isLoading}>
+                                        <Icon
+                                            name="close"
+                                            type="ionicon"
+                                            size={16}
+                                            color="#FFD8DE"
+                                            style={styles.cancelInviteIcon}
+                                        />
+                                        <Text style={styles.cancelInviteButtonText}>
+                                            {isLoading ? 'Cancelling...' : 'Cancel Invite'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.secondaryActionButton}
+                                        activeOpacity={0.85}
+                                        onPress={handleChangeMovie}>
+                                        <Icon
+                                            name="film"
+                                            type="ionicon"
+                                            size={16}
+                                            color={COLORS.WHITE}
+                                            style={styles.secondaryActionIcon}
+                                        />
+                                        <Text style={styles.secondaryActionText}>Change Movie</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity activeOpacity={0.85} onPress={handleBackToFeed}>
+                                        <Text style={styles.backToFeedText}>Back to feed</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            ) : null}
+                        </View>
                         </ScrollView>
 
                         {showMITSwipe ? (

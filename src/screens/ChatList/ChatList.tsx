@@ -127,7 +127,6 @@ const ChatList = () => {
                       .toLocaleTimeString(undefined, {hour: 'numeric', minute: '2-digit', hour12: true})
                       .toLowerCase()
                 : '';
-
         return (
             <View style={[styles.chatPanelBody, isLastRow && styles.chatPanelBodyLast]}>
                 <BlurView
@@ -143,6 +142,9 @@ const ChatList = () => {
                             userId: receiverUserId,
                             profilePicture: receiverProfilePicture ?? '',
                             username: receiverUsername,
+                            movie: item.movie,
+                            schedule: item.startDate,
+                            timezone: item.timezone,
                         });
                     }}
                     style={styles.chatCardTouch}>
@@ -235,6 +237,9 @@ const ChatList = () => {
                                                         userId: receiverUserId,
                                                         profilePicture: receiver?.profilePicture ?? '',
                                                         username: receiverName,
+                                                        movie: item.movie,
+                                                        schedule: item.startDate,
+                                                        timezone: item.timezone,
                                                     })
                                                 }>
                                                 <HexAvatar
@@ -372,6 +377,7 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         overflow: 'hidden',
         position: 'relative',
+        paddingHorizontal: 10,
         borderLeftWidth: 1,
         borderRightWidth: 1,
         borderColor: 'rgba(255,255,255,0.28)',

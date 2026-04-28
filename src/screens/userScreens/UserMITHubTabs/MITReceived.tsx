@@ -76,7 +76,7 @@ const MITReceived = () => {
                     ) : (
                         <>
                             <Text style={styles.countLine}>
-                                You have {inviteCount} Movie Invites waiting for your response.
+                                You have {inviteCount} Movie Invites received.
                             </Text>
                             <View style={styles.searchWrap}>
                                 <View style={styles.searchRow}>
@@ -155,6 +155,7 @@ const MITReceived = () => {
                                                                 invitee: mit.invitee,
                                                                 expiresAt: mit.expiresAt,
                                                                 status: mit.status,
+                                                                fromReceivedTab: true,
                                                             })
                                                         }
                                                         style={styles.chatCardTouch}>
@@ -191,7 +192,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     listRoot: {
-        marginHorizontal: 8,
+        marginHorizontal: 10,
         minHeight: SIZES.ScreenHeight * 0.35,
     },
     inner: {
@@ -250,6 +251,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     listBlock: {
+        paddingHorizontal: 10,
         paddingBottom: 12,
     },
     chatPanelBody: {
