@@ -129,6 +129,8 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const previousRemainingSeconds = useRef<number>(initialRemainingSeconds);
 
     const fromSentTab = route.params?.fromSentTab === true;
+    const oneWayFromMITDateSchedule = route.params?.oneWayFromMITDateSchedule === true;
+    const hasHandledOneWayBackRef = useRef(false);
     const creatorIdStr = creator?.id != null ? String(creator.id) : null;
     /** Logged-in user sent this MIT (Sent tab or any path with matching creator id). */
     const isCurrentUserCreator = React.useMemo(
@@ -420,6 +422,42 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const handleBackToFeed = () => {
         navigateToCrummunityNoBack();
     };
+    const handleInScreenBackPress = () => {
+        if (oneWayFromMITDateSchedule) {
+            navigateToCrummunityNoBack();
+            return;
+        }
+        navigate('NoBottomStack', {
+            screen: 'UserMITHubScreen',
+        });
+    };
+
+    useEffect(() => {
+        if (!oneWayFromMITDateSchedule) {
+            return;
+        }
+
+        navigation.setOptions({gestureEnabled: false});
+        const unsubBeforeRemove = navigation.addListener('beforeRemove', e => {
+            const actionType = e.data.action?.type;
+            const isBackAction = actionType === 'GO_BACK' || actionType === 'POP' || actionType === 'POP_TO_TOP';
+            if (!isBackAction) {
+                return;
+            }
+            if (hasHandledOneWayBackRef.current) {
+                e.preventDefault();
+                return;
+            }
+            hasHandledOneWayBackRef.current = true;
+            e.preventDefault();
+            navigateToCrummunityNoBack();
+        });
+
+        return () => {
+            unsubBeforeRemove();
+            navigation.setOptions({gestureEnabled: true});
+        };
+    }, [navigation, oneWayFromMITDateSchedule]);
     const handleOpenMITChat = (initialMessage?: string) => {
         if (!counterpartUserId || MITID == null) {
             Alert.alert('Unable to open chat', 'Missing chat details.');
@@ -758,11 +796,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                 <TouchableOpacity
                                     style={styles.pendingBackButton}
                                     activeOpacity={0.85}
-                                    onPress={() =>
-                                        navigate('NoBottomStack', {
-                                            screen: 'UserMITHubScreen',
-                                        })
-                                    }>
+                                    onPress={handleInScreenBackPress}>
                                     <Icon name="chevron-back" type="ionicon" size={18} color={COLORS.LIGHTGREY} />
                                     <Text style={styles.pendingBackText}>Back</Text>
                                 </TouchableOpacity>
@@ -841,11 +875,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                 <TouchableOpacity
                                     style={styles.pendingBackButton}
                                     activeOpacity={0.85}
-                                    onPress={() =>
-                                        navigate('NoBottomStack', {
-                                            screen: 'UserMITHubScreen',
-                                        })
-                                    }>
+                                    onPress={handleInScreenBackPress}>
                                     <Icon name="chevron-back" type="ionicon" size={18} color={COLORS.LIGHTGREY} />
                                     <Text style={styles.pendingBackText}>Back</Text>
                                 </TouchableOpacity>
@@ -978,11 +1008,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                 <TouchableOpacity
                                     style={styles.pendingBackButton}
                                     activeOpacity={0.85}
-                                    onPress={() =>
-                                        navigate('NoBottomStack', {
-                                            screen: 'UserMITHubScreen',
-                                        })
-                                    }>
+                                    onPress={handleInScreenBackPress}>
                                     <Icon
                                         name="chevron-back"
                                         type="ionicon"
@@ -1179,11 +1205,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                             justifyContent: 'flex-start',
                                         }}>
                                         <TouchableOpacity
-                                            onPress={() =>
-                                                navigate('NoBottomStack', {
-                                                    screen: 'UserMITHubScreen',
-                                                })
-                                            }>
+                                            onPress={handleInScreenBackPress}>
                                             <View
                                                 style={{
                                                     flexDirection: 'row',
@@ -1471,11 +1493,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     <TouchableOpacity
                                         style={styles.pendingBackButton}
                                         activeOpacity={0.85}
-                                        onPress={() =>
-                                            navigate('NoBottomStack', {
-                                                screen: 'UserMITHubScreen',
-                                            })
-                                        }>
+                                        onPress={handleInScreenBackPress}>
                                         <Icon
                                             name="chevron-back"
                                             type="ionicon"

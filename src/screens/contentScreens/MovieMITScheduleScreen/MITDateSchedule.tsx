@@ -20,7 +20,7 @@ import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {CommonActions, RouteProp, useFocusEffect} from '@react-navigation/native';
 import {findAUser} from '../../../lib/api/user.lib';
 import {searchForUsers} from '../../../lib/api/user.lib';
 import {IMITInvite, IMovie, IUserProfile} from '../../../../types';
@@ -37,7 +37,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
-import {createAMITInvite} from '../../../lib/api/mit.lib';
+import {createAMITInvite, getMyMITs} from '../../../lib/api/mit.lib';
 import {getUnifiedMatches, UnifiedMatchUser} from '../../../lib/api/flickflirt.lib';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
@@ -113,8 +113,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 
         const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
 
-    const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
-    const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
     const lightTravelAnim = useRef(new Animated.Value(0)).current;
     const latestSentInviteRef = useRef<IMITInvite | null>(null);
 
@@ -144,16 +142,9 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setAdLoaded(true));
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
             setAdLoaded(false);
-
-            // ensure ticket is visible after the ad
-            setShowSendMIT(true);
-
-            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
-            ticketTimerRef.current = setTimeout(() => {
-                setShowSendMIT(false);
-                setIsSelectionDisabled(true);
-                navigateToChooseMITOneWay();
-            }, TICKET_DISPLAY_MS);
+            setIsSelectionDisabled(true);
+            setShowSendMIT(false);
+            void navigateToChooseMITOneWay();
 
             ad.load(); // preload next ad
         });
@@ -167,7 +158,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             offClosed();
             offError();
             interstitialRef.current = null;
-            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
         };
     }, [interstitialUnitId, navigation]);
 
@@ -577,8 +567,73 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         animationTimersRef.current.push(timeoutId);
     };
 
-    const navigateToChooseMITOneWay = () => {
-        navigation.replace('UserMITHubScreen', {index: 1});
+    const navigateToChooseMITOneWay = async () => {
+        let latestInvite = latestSentInviteRef.current;
+        try {
+            const myMITs = await getMyMITs();
+            const pendingMITs = (myMITs ?? []).filter(mit => mit.status === 'PENDING');
+            if (pendingMITs.length > 0) {
+                pendingMITs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                latestInvite = pendingMITs[0];
+            }
+        } catch (error) {
+            console.error('[MITDateSchedule] getMyMITs failed before ChooseMITScreen navigation:', error);
+        }
+        console.log('[MITDateSchedule] latestInvite ref before navigation:', latestInvite);
+        if (latestInvite) {
+            const fallbackSchedule = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone) ?? new Date().toISOString();
+            const safeSchedule =
+                latestInvite.startDate && !Number.isNaN(new Date(latestInvite.startDate).getTime())
+                    ? latestInvite.startDate
+                    : fallbackSchedule;
+            const safeExpiresAt =
+                latestInvite.expiresAt && !Number.isNaN(new Date(latestInvite.expiresAt).getTime())
+                    ? latestInvite.expiresAt
+                    : undefined;
+            const safeTimezone = latestInvite.timezone || selectedTimeZone || 'America/New_York';
+            console.log('[MITDateSchedule] ChooseMITScreen mapped payload:', {
+                MITID: latestInvite.id,
+                scheduleFromInvite: latestInvite.startDate,
+                safeSchedule,
+                timezoneFromInvite: latestInvite.timezone,
+                safeTimezone,
+                expiresAtFromInvite: latestInvite.expiresAt,
+                safeExpiresAt,
+                status: latestInvite.status,
+            });
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [
+                        {
+                            name: 'ChooseMITScreen',
+                            params: {
+                                MITID: latestInvite.id,
+                                movie: latestInvite.movie,
+                                creator: latestInvite.creator,
+                                invitee: latestInvite.invitee,
+                                inviteDate: latestInvite.createdAt,
+                                akcruBadge: latestInvite.invitee?.badge,
+                                schedule: safeSchedule,
+                                timezone: safeTimezone,
+                                expiresAt: safeExpiresAt,
+                                status: latestInvite.status,
+                                fromSentTab: true,
+                                oneWayFromMITDateSchedule: true,
+                            },
+                        },
+                    ],
+                }),
+            );
+            return;
+        }
+
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{name: 'UserMITHubScreen', params: {index: 1}}],
+            }),
+        );
     };
 
     const runCinematicAnimationPreview = (onComplete?: (() => void) | unknown) => {
@@ -661,18 +716,13 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const handleInviteSuccessFlow = () => {
         setIsSendingInvite(false);
         setIsDateTimeSelected(true);
-        setShowSendMIT(true);
 
         if (adLoaded && interstitialRef.current) {
             interstitialRef.current.show();
         } else {
-            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
-            ticketTimerRef.current = setTimeout(() => {
-                setShowSendMIT(false);
-                setIsSelectionDisabled(true);
-                navigateToChooseMITOneWay();
-            }, TICKET_DISPLAY_MS);
-
+            setIsSelectionDisabled(true);
+            setShowSendMIT(false);
+            void navigateToChooseMITOneWay();
             interstitialRef.current?.load?.();
         }
     };
@@ -738,6 +788,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 
             if (response.success) {
                 latestSentInviteRef.current = response.invite ?? null;
+                console.log('[MITDateSchedule] createAMITInvite success response.invite:', response.invite);
 //                runCinematicAnimationPreview(handleInviteSuccessFlow);
                 playSendMITVideoThen(handleInviteSuccessFlow);
             } else {
