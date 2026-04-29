@@ -5,7 +5,7 @@ import {COLORS} from '../../../assets/constants';
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: COLORS.BLACK,
     },
     fullScreen: {
         flex: 1,

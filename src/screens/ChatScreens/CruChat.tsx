@@ -93,7 +93,7 @@ const CruChat = ({route}: Props) => {
         : ['top', 'left', 'right'];
 
     return (
-        <SafeAreaView style={{flex: 1}} edges={safeAreaEdges}>
+        <SafeAreaView style={{flex: 1, backgroundColor: COLORS.BLACK}} edges={safeAreaEdges}>
             <View style={{zIndex: 20}}>
                 <Header />
             </View>
@@ -105,7 +105,7 @@ const CruChat = ({route}: Props) => {
                     <View style={styles.userRow}>
                         <HexAvatar
                             source={{uri: route.params?.profilePicture}}
-                            size={44}
+                            size={36}
                             bordercolor={selectAvatarBorderColor('AKCRUIT')}
                         />
                         <Text style={styles.usernameText} numberOfLines={1}>
@@ -199,7 +199,7 @@ const CruChat = ({route}: Props) => {
                     </LinearGradient>
                 ) : null}
             </View>
-            <View style={{flex: 1, minHeight: 0}}>
+            <View style={{flex: 1, minHeight: 0, backgroundColor: COLORS.BLACK}}>
                 <CruChatComponent route={route} />
             </View>
         </SafeAreaView>

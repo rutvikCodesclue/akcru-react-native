@@ -12,7 +12,7 @@ import {
     Platform,
     KeyboardAvoidingView,
 } from 'react-native';
-import {Bubble, GiftedChat, IMessage} from 'react-native-gifted-chat';
+import {GiftedChat, IMessage} from 'react-native-gifted-chat';
 import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -30,6 +30,7 @@ import playMessageSound from '../../util/playMessageSound';
 import { handleError } from '../../util/handleError';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {useKeyboardBottomInset} from '../../hooks/useKeyboardBottomInset';
+import LinearGradient from 'react-native-linear-gradient';
 
 const CruChatComponent = ({route}: any) => {
     const insets = useSafeAreaInsets();
@@ -312,7 +313,7 @@ const CruChatComponent = ({route}: any) => {
     };
 
     const screenContent = (
-            <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+            <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
                 {selectedMessages.length > 0 && (
                     <View
                         style={{
@@ -386,6 +387,11 @@ const CruChatComponent = ({route}: any) => {
                             messages={messages}
                             onSend={onSendText}
                             user={{_id: user?.id!, name: user?.username}}
+                            messagesContainerStyle={{backgroundColor: COLORS.BLACK}}
+                            listViewProps={{
+                                style: {backgroundColor: COLORS.BLACK},
+                                contentContainerStyle: {backgroundColor: COLORS.BLACK},
+                            }}
                             onPress={(context, message) => handleMessagePress(message)}
                             onLongPress={(context, message) => handleLongPress(message)}
                             renderActions={() => (
@@ -410,12 +416,12 @@ const CruChatComponent = ({route}: any) => {
                                     <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
                                 </TouchableOpacity>
                             )}
-                            renderUsernameOnMessage={true}
+                            renderUsernameOnMessage={false}
                             showUserAvatar={true}
                             renderAvatar={props => (
                                 <TouchableOpacity onPress={() => handleAvatarPress(props.currentMessage?.user)}>
                                     <HexAvatar
-                                        size={45}
+                                        size={38}
                                         bordercolor={selectAvatarBorderColor(
                                             props.currentMessage?.user?._id === user?.id
                                                 ? user?.badge ?? 'AKCRUIT'
@@ -432,23 +438,58 @@ const CruChatComponent = ({route}: any) => {
                                 </TouchableOpacity>
                             )}
                             renderBubble={props => (
-                                <Bubble
-                                    {...props}
-                                    wrapperStyle={{
-                                        right: {
-                                            backgroundColor: selectedMessages.includes(props.currentMessage._id)
-                                                ? COLORS.AKCRUBACKGROUND
-                                                : COLORS.AKCRUBLUE,
-                                        },
-                                        left: {
-                                            backgroundColor: COLORS.CATPURPDRK,
-                                        },
-                                    }}
-                                    textStyle={{
-                                        right: {color: COLORS.WHITE},
-                                        left: {color: COLORS.WHITE},
-                                    }}
-                                />
+                                <View
+                                    style={{
+                                        maxWidth: '84%',
+                                        alignSelf:
+                                            props.currentMessage?.user?._id === user?.id
+                                                ? 'flex-end'
+                                                : 'flex-start',
+                                        marginVertical: 2,
+                                    }}>
+                                    <LinearGradient
+                                        colors={
+                                            props.currentMessage?.user?._id === user?.id
+                                                ? ['#705D28', '#B57C3C', '#9763E0']
+                                                : ['#67D8FF', '#8F6DFF', '#D288FF']
+                                        }
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 1}}
+                                        style={{borderRadius: 18, padding: 1}}>
+                                        <View
+                                            style={{
+                                                borderRadius: 17,
+                                                backgroundColor: selectedMessages.includes(props.currentMessage._id)
+                                                    ? 'rgba(40,40,40,0.95)'
+                                                    : 'rgba(8, 6, 16, 0.92)',
+                                                overflow: 'hidden',
+                                                paddingHorizontal: 10,
+                                                paddingTop: 7,
+                                                paddingBottom: 5,
+                                            }}>
+                                            {props.currentMessage?.text ? (
+                                                <Text style={{color: COLORS.WHITE, fontSize: 15, lineHeight: 20}}>
+                                                    {props.currentMessage.text}
+                                                </Text>
+                                            ) : null}
+                                            <Text
+                                                style={{
+                                                    color: 'rgba(255,255,255,0.72)',
+                                                    fontSize: 11,
+                                                    marginTop: 2,
+                                                    textAlign:
+                                                        props.currentMessage?.user?._id === user?.id
+                                                            ? 'right'
+                                                            : 'left',
+                                                }}>
+                                                {new Date(props.currentMessage?.createdAt || Date.now()).toLocaleTimeString([], {
+                                                    hour: 'numeric',
+                                                    minute: '2-digit',
+                                                })}
+                                            </Text>
+                                        </View>
+                                    </LinearGradient>
+                                </View>
                             )}
                         />
                     )}
