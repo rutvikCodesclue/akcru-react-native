@@ -3,6 +3,11 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 const MIT_COMBINED_CARD_HEIGHT = 120;
 const MIT_COMBINED_CARD_RADIUS = 16;
+const COUNTDOWN_RING_SIZE = Math.min(Math.max(SIZES.ScreenWidth * 0.74, 252), 300);
+const COUNTDOWN_RING_RADIUS = COUNTDOWN_RING_SIZE / 2;
+const COUNTDOWN_RING_THICKNESS = 2;
+const COUNTDOWN_SPIN_RADIUS = COUNTDOWN_RING_RADIUS - COUNTDOWN_RING_THICKNESS;
+const COUNTDOWN_GLOW_SIZE = COUNTDOWN_RING_SIZE + 18;
 
 export default StyleSheet.create({
     acceptedScreenContainer: {
@@ -557,8 +562,8 @@ export default StyleSheet.create({
         textAlign: 'left',
     },
     countdownRingWrap: {
-        width: 265,
-        height: 265,
+        width: COUNTDOWN_RING_SIZE,
+        height: COUNTDOWN_RING_SIZE,
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
@@ -569,9 +574,9 @@ export default StyleSheet.create({
     },
     countdownOuterGlow: {
         position: 'absolute',
-        width: 300,
-        height: 300,
-        borderRadius: 150,
+        width: COUNTDOWN_GLOW_SIZE,
+        height: COUNTDOWN_GLOW_SIZE,
+        borderRadius: COUNTDOWN_GLOW_SIZE / 2,
         backgroundColor: 'rgba(151, 98, 255, 0.2)',
         shadowColor: '#B678FF',
         shadowOpacity: 0.7,
@@ -580,9 +585,9 @@ export default StyleSheet.create({
         elevation: 12,
     },
     countdownRingOuter: {
-        width: 265,
-        height: 265,
-        borderRadius: 132.5,
+        width: COUNTDOWN_RING_SIZE,
+        height: COUNTDOWN_RING_SIZE,
+        borderRadius: COUNTDOWN_RING_RADIUS,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(255,255,255,0.09)',
@@ -592,16 +597,16 @@ export default StyleSheet.create({
     },
     countdownRingSpin: {
         position: 'absolute',
-        top: 2,
-        left: 2,
-        right: 2,
-        bottom: 2,
-        borderRadius: 130.5,
+        top: COUNTDOWN_RING_THICKNESS,
+        left: COUNTDOWN_RING_THICKNESS,
+        right: COUNTDOWN_RING_THICKNESS,
+        bottom: COUNTDOWN_RING_THICKNESS,
+        borderRadius: COUNTDOWN_SPIN_RADIUS,
     },
     countdownRingInnerContent: {
         width: '100%',
         height: '100%',
-        borderRadius: 130.5,
+        borderRadius: COUNTDOWN_SPIN_RADIUS,
         alignItems: 'center',
         justifyContent: 'center',
         padding: 3,
@@ -609,11 +614,11 @@ export default StyleSheet.create({
         backgroundColor: 'transparent',
     },
     countdownDialCenter: {
-        width: '97%',
-        height: '97%',
-        borderRadius: 130,
+        width: '101%',
+        height: '101%',
+        borderRadius: COUNTDOWN_RING_RADIUS,
         backgroundColor: 'rgba(10, 4, 20, 0.94)',
-        borderWidth: 1,
+        borderWidth: 2,
         borderColor: 'rgba(255,255,255,0.1)',
         alignItems: 'center',
         justifyContent: 'center',

@@ -10,7 +10,10 @@ export default StyleSheet.create({
     },
     scheduleContent: {
         paddingHorizontal: 16,
-        paddingBottom: 40,
+        paddingBottom: 140,
+    },
+    scheduleScreenWrap: {
+        flex: 1,
     },
     scheduleTitle: {
         ...FONTS.Title1,
@@ -138,6 +141,18 @@ export default StyleSheet.create({
         marginTop: 20,
         alignItems: 'center',
     },
+    scheduleBottomDock: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        paddingHorizontal: 15,
+        paddingTop: 10,
+        paddingBottom: Platform.OS === 'ios' ? 26 : 14,
+        backgroundColor: 'rgba(5, 3, 20, 0.94)',
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(95, 123, 255, 0.25)',
+    },
     input: {
         flexDirection: 'row',
         borderWidth: 0.8,
@@ -215,19 +230,23 @@ export default StyleSheet.create({
     },
     datePickerContainer: {
         flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
         marginTop: 10,
         marginBottom: 10,
+        paddingHorizontal: 4,
     },
     dayButton: {
-        width: 60,
-        height: 60,
-        borderRadius: 12,
+        width: '13%',
+        height: 34,
+        borderRadius: 7,
         backgroundColor: 'rgba(21, 14, 52, 0.92)',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 8,
+        marginBottom: 8,
         borderWidth: 1,
         borderColor: 'rgba(170, 139, 255, 0.45)',
+        paddingVertical: 2,
     },
     dayButtonSelected: {
         backgroundColor: '#7D4DFF',
@@ -241,7 +260,8 @@ export default StyleSheet.create({
     },
     dayOfWeekText: {
         ...FONTS.Title2,
-        marginTop: 5,
+        fontSize: 9,
+        marginTop: 1,
     },
     timePickerContainer: {
         flexDirection: 'row',

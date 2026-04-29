@@ -113,14 +113,12 @@ const CruChat = ({route}: Props) => {
                         </Text>
                     </View>
                 </View>
-                {showMovieCard ? (
-                    <LinearGradient
-                        colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
-                        start={{x: 0, y: 0.5}}
-                        end={{x: 1, y: 0.5}}
-                        style={styles.headerDivider}
-                    />
-                ) : null}
+                <LinearGradient
+                    colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+                    start={{x: 0, y: 0.5}}
+                    end={{x: 1, y: 0.5}}
+                    style={styles.headerDivider}
+                />
                 {showMovieCard ? (
                     <LinearGradient
                         colors={['rgba(174, 125, 255, 0.95)', 'rgba(89, 237, 255, 0.95)']}
@@ -237,7 +235,7 @@ const styles = StyleSheet.create({
         height: 1,
         marginHorizontal: -12,
         marginTop: 10,
-        marginBottom: 10,
+        marginBottom: 4,
     },
     movieMetaBorder: {
         marginTop: 8,

@@ -5,14 +5,13 @@ import {
     TouchableOpacity,
     Image,
     TextInput,
-    TouchableWithoutFeedback,
     Alert,
     Text,
     ScrollView,
     Platform,
     KeyboardAvoidingView,
 } from 'react-native';
-import {GiftedChat, IMessage} from 'react-native-gifted-chat';
+import {GiftedChat, IMessage, InputToolbar} from 'react-native-gifted-chat';
 import {COLORS} from '../../../assets/constants';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {launchImageLibrary} from 'react-native-image-picker';
@@ -50,6 +49,25 @@ const CruChatComponent = ({route}: any) => {
 
     const mItInviteId: string | undefined = route.params?.mItInviteId ?? null;
     const [channel, setChannel] = useState<RealtimeChannel | null>(null);
+    const canSendTextMessage = text.trim().length > 0;
+    const canSendImageMessage = Boolean(selectedImage);
+    const getBlockedContentType = (value: string): 'link' | 'mobile' | null => {
+        const textValue = value.trim().toLowerCase();
+        if (!textValue) {
+            return null;
+        }
+
+        const linkPattern =
+            /(https?:\/\/|www\.|[a-z0-9-]+\.(com|in|net|org|io|co|me|ly|app|gg|ai|tv|xyz|info|biz|us|uk|ca|au|de|fr|jp|ru|cn|br|it|es)\b|instagram\.com|facebook\.com|x\.com|twitter\.com|t\.me|wa\.me|youtube\.com|youtu\.be|snapchat\.com|linkedin\.com)/i;
+        const phonePattern = /(?:\+?\d{1,3}[\s.-]?)?(?:\(?\d{3}\)?[\s.-]?)?\d{3}[\s.-]?\d{4}\b/;
+        if (phonePattern.test(textValue)) {
+            return 'mobile';
+        }
+        if (linkPattern.test(textValue)) {
+            return 'link';
+        }
+        return null;
+    };
 
     useEffect(() => {
         fetchMessages(mItInviteId!);
@@ -147,18 +165,37 @@ const CruChatComponent = ({route}: any) => {
     };
 
     const onSendImage = async () => {
-        if (!selectedImage && !imageMessageText) return;
+        if (!selectedImage) return;
 
         const msgId = uuid.v4();
+        const trimmedImageMessageText = imageMessageText.trim();
+        const blockedImageCaption = getBlockedContentType(trimmedImageMessageText);
+        if (blockedImageCaption === 'mobile') {
+            handleError('No phone numbers here, please.');
+            setImageMessageText('');
+            return;
+        }
+        if (blockedImageCaption === 'link') {
+            handleError('No links here, please.');
+            setImageMessageText('');
+            return;
+        }
 
         try {
             resetImageSelection();
-            const response = await saveTextMessage(mItInviteId, imageMessageText, userID!, 'false', msgId, selectedImage);
+            const response = await saveTextMessage(
+                mItInviteId,
+                trimmedImageMessageText,
+                userID!,
+                'false',
+                msgId,
+                selectedImage,
+            );
             const imageUrl = response.data.imageUrl;
 
             const message: IMessage = {
                 _id: msgId,
-                text: imageMessageText,
+                text: trimmedImageMessageText,
                 isCru: 'false',
                 image: imageUrl,
                 user: {_id: user.id, name: user.username},
@@ -171,7 +208,7 @@ const CruChatComponent = ({route}: any) => {
                     event: 'test',
                     payload: {
                         image: imageUrl,
-                        text: imageMessageText,
+                        text: trimmedImageMessageText,
                         senderId: user.id,
                         mItInviteId,
                         isCru: 'false',
@@ -190,7 +227,19 @@ const CruChatComponent = ({route}: any) => {
     };
 
     const handleSendMessage = () => {
-        if (text.trim().length > 0) {
+        const trimmedText = text.trim();
+        if (trimmedText.length > 0) {
+          const blockedText = getBlockedContentType(trimmedText);
+          if (blockedText === 'mobile') {
+              handleError('No phone numbers here, please.');
+              setText('');
+              return;
+          }
+          if (blockedText === 'link') {
+              handleError('No links here, please.');
+              setText('');
+              return;
+          }
           onSendText([{ text, user: { _id: user.id } }]);
           setText('');
         }
@@ -251,13 +300,6 @@ const CruChatComponent = ({route}: any) => {
         if (!isSelectionMode && message.user._id === user.id) {
             setIsSelectionMode(true);
             setSelectedMessages([message._id]);
-        }
-    };
-
-    const handleScreenPress = () => {
-        if (selectedMessages.length > 0) {
-            setSelectedMessages([]);
-            setIsSelectionMode(false);
         }
     };
 
@@ -367,17 +409,20 @@ const CruChatComponent = ({route}: any) => {
                                     width: '100%',
                                 }}>
                                 <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
-                                    <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
+                                    <Icon name="photo" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
                                 <TextInput
                                     placeholder="Type a message..."
                                     value={imageMessageText}
-                                    placeholderTextColor={'black'}
+                                    placeholderTextColor="rgba(226,205,252,0.92)"
                                     onChangeText={setImageMessageText}
                                     style={styles.textInput}
                                 />
-                                <TouchableOpacity onPress={onSendImage} style={styles.sendButton}>
-                                    <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
+                                <TouchableOpacity
+                                    onPress={onSendImage}
+                                    disabled={!canSendImageMessage}
+                                    style={[styles.sendButton, !canSendImageMessage && {opacity: 0.45}]}>
+                                    <Icon name="send" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
                             </View>
                         </View>
@@ -391,35 +436,60 @@ const CruChatComponent = ({route}: any) => {
                             listViewProps={{
                                 style: {backgroundColor: COLORS.BLACK},
                                 contentContainerStyle: {backgroundColor: COLORS.BLACK},
+                                keyboardShouldPersistTaps: 'handled',
+                                nestedScrollEnabled: true,
+                                bounces: false,
+                                overScrollMode: 'never',
                             }}
                             onPress={(context, message) => handleMessagePress(message)}
                             onLongPress={(context, message) => handleLongPress(message)}
                             renderActions={() => (
-                                <TouchableOpacity onPress={handleImagePick} style={{padding: Platform.OS=="android"?10:5}}>
-                                    <Icon name="photo" size={30} color={COLORS.AKCRUBLUE} />
+                                <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
+                                    <Icon name="photo" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
+                            )}
+                            renderInputToolbar={toolbarProps => (
+                                <InputToolbar
+                                    {...toolbarProps}
+                                    containerStyle={{
+                                        backgroundColor: 'rgba(24,20,36,0.95)',
+                                        borderTopColor: 'rgba(174,146,255,0.35)',
+                                        borderTopWidth: 1,
+                                    }}
+                                    primaryStyle={{
+                                        alignItems: 'center',
+                                    }}
+                                />
                             )}
                             textInputProps={{
                                 value: text,
                                 onChangeText: setText,
+                                placeholderTextColor: 'rgba(226,205,252,0.92)',
                                 style: {
-                                    color: COLORS.BLACK,
+                                    color: COLORS.WHITE,
                                     flex: 1,
                                     fontSize: 16,
                                     paddingVertical: 12,
                                     paddingHorizontal: 10,
+                                    backgroundColor: 'transparent',
                                 },
                             }}
                             alwaysShowSend
                             renderSend={props => (
-                                <TouchableOpacity onPress={handleSendMessage} style={{padding: Platform.OS=="android"?10:5}}>
-                                    <Icon name="send" size={30} color={COLORS.AKCRUBLUE} />
+                                <TouchableOpacity
+                                    onPress={handleSendMessage}
+                                    disabled={!canSendTextMessage}
+                                    style={[
+                                        styles.sendButton,
+                                        {alignSelf: 'center', marginRight: 6},
+                                        !canSendTextMessage && {opacity: 0.45},
+                                    ]}>
+                                    <Icon name="send" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
                             )}
                             renderUsernameOnMessage={false}
                             showUserAvatar={true}
                             renderAvatar={props => (
-                                <TouchableOpacity onPress={() => handleAvatarPress(props.currentMessage?.user)}>
                                     <HexAvatar
                                         size={38}
                                         bordercolor={selectAvatarBorderColor(
@@ -435,7 +505,7 @@ const CruChatComponent = ({route}: any) => {
                                         }}
                                         {...props}
                                     />
-                                </TouchableOpacity>
+
                             )}
                             renderBubble={props => (
                                 <View
@@ -472,6 +542,19 @@ const CruChatComponent = ({route}: any) => {
                                                     {props.currentMessage.text}
                                                 </Text>
                                             ) : null}
+                                            {props.currentMessage?.image ? (
+                                                <Image
+                                                    source={{uri: props.currentMessage.image}}
+                                                    style={{
+                                                        width: 220,
+                                                        height: 220,
+                                                        borderRadius: 12,
+                                                        marginTop: props.currentMessage?.text ? 8 : 0,
+                                                        backgroundColor: 'rgba(255,255,255,0.08)',
+                                                    }}
+                                                    resizeMode="cover"
+                                                />
+                                            ) : null}
                                             <Text
                                                 style={{
                                                     color: 'rgba(255,255,255,0.72)',
@@ -497,11 +580,7 @@ const CruChatComponent = ({route}: any) => {
             </View>
     );
 
-    return selectedImage ? (
-        screenContent
-    ) : (
-        <TouchableWithoutFeedback onPress={handleScreenPress}>{screenContent}</TouchableWithoutFeedback>
-    );
+    return screenContent;
 };
 
 export default CruChatComponent;

@@ -151,9 +151,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
     const showPendingInviteUi = showAcceptDeclineSection;
     const counterpartUser = isCurrentUserCreator ? invitee : creator;
     const counterpartUserId = counterpartUser?.id != null ? String(counterpartUser.id) : null;
-    const waitingForResponseText = counterpartUser?.username
-        ? `Waitng for @${counterpartUser.username} to response`
-        : 'Waitng for response';
 
     /** Expired (status or response window) or declined → ghosted content + fog overlay. */
     const isFogged = React.useMemo(() => {
@@ -232,7 +229,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         const loop = Animated.loop(
             Animated.timing(ringSpin, {
                 toValue: 1,
-                duration: 18000,
+                duration: 14000,
                 easing: Easing.linear,
                 useNativeDriver: true,
             }),
@@ -994,11 +991,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     />
                                     <Text style={styles.pendingBackText}>Back</Text>
                                 </TouchableOpacity>
-                                {isCurrentUserCreator ? (
-                                    <Text style={styles.pendingWaitingText} numberOfLines={1}>
-                                        {waitingForResponseText}
-                                    </Text>
-                                ) : null}
                             </View>
 
                             <View style={[styles.countdownContainer, styles.countdownContainerSticky]}>
@@ -1492,11 +1484,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         />
                                         <Text style={styles.pendingBackText}>Back</Text>
                                     </TouchableOpacity>
-                                    {isCurrentUserCreator ? (
-                                        <Text style={styles.pendingWaitingText} numberOfLines={1}>
-                                            {waitingForResponseText}
-                                        </Text>
-                                    ) : null}
                                 </View>
                             ) : null}
                             <View

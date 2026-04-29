@@ -391,11 +391,12 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const [selectedDate, setSelectedDate] = useState<Date>(() => getMinSelectableDate());
     const [selectedTime, setSelectedTime] = useState(new Date());
     const [selectedTimeZone, setSelectedTimeZone] = useState('');
+    const [hasSelectedTime, setHasSelectedTime] = useState(false);
+    const [hasSelectedTimeZone, setHasSelectedTimeZone] = useState(false);
     const [kickoffMessage, setKickoffMessage] = useState("Hey! Ready for our movie night? 🍿");
     const [isDateTimeSelected, setIsDateTimeSelected] = useState(false);
     const [isSelectionDisabled, setIsSelectionDisabled] = useState(false);
     const [isSendingInvite, setIsSendingInvite] = useState(false);
-    const [isScheduleVerticalScrollEnabled, setIsScheduleVerticalScrollEnabled] = useState(true);
     const months = [
         'January',
         'February',
@@ -441,18 +442,12 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         updatedTime.setHours(hours);
         updatedTime.setMinutes(minutes);
         setSelectedTime(updatedTime);
+        setHasSelectedTime(true);
     };
 
     const handleTimeZoneChange = (timeZone: string) => {
         setSelectedTimeZone(timeZone);
-    };
-
-    const lockScheduleVerticalScroll = () => {
-        setIsScheduleVerticalScrollEnabled(false);
-    };
-
-    const unlockScheduleVerticalScroll = () => {
-        setIsScheduleVerticalScrollEnabled(true);
+        setHasSelectedTimeZone(true);
     };
 
     const timeZones = [
@@ -716,7 +711,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 
     const handleSetDateTime = async () => {
         if (
-            !selectedDate ||
+            !hasSelectedTime ||
+            !hasSelectedTimeZone ||
             !selectedTime ||
             !selectedTimeZone?.trim() ||
             !movie?.id ||
@@ -1239,11 +1235,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                             <LinearGradient
                                 colors={['rgba(5,3,20,0.88)', 'rgba(14,8,34,0.78)', 'rgba(5,3,20,0.92)']}
                                 style={styles.scheduleOverlay}>
-                                <ScrollView
-                                    scrollEnabled={isScheduleVerticalScrollEnabled}
-                                    nestedScrollEnabled
-                                    keyboardShouldPersistTaps="handled"
-                                    contentContainerStyle={styles.scheduleContent}>
+                                <View style={styles.scheduleScreenWrap}>
+                                    <ScrollView
+                                        nestedScrollEnabled
+                                        keyboardShouldPersistTaps="handled"
+                                        contentContainerStyle={styles.scheduleContent}>
 
                                     <Text style={styles.scheduleTitle}>Schedule Invite...</Text>
                                     <LinearGradient
@@ -1361,45 +1357,34 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             <Icon name="chevron-forward" type="ionicon" color="#D7CBFF" size={18} />
                                         </TouchableOpacity>
                                     </View>
-                                    <ScrollView
-                                        horizontal
-                                        nestedScrollEnabled
-                                        directionalLockEnabled
-                                        showsHorizontalScrollIndicator={false}
-                                        keyboardShouldPersistTaps="handled"
-                                        onTouchStart={lockScheduleVerticalScroll}
-                                        onTouchEnd={unlockScheduleVerticalScroll}
-                                        onScrollEndDrag={unlockScheduleVerticalScroll}
-                                        onMomentumScrollEnd={unlockScheduleVerticalScroll}>
-                                        <View style={styles.datePickerContainer}>
-                                            {[...Array(daysInMonth)].map((_, index) => {
-                                                const day = index + 1;
-                                                const isSelected = selectedDate.getDate() === day;
-                                                const currentDay = new Date(currentYear, currentMonth, day);
-                                                const currentDayOfWeek = currentDay.getDay();
-                                                const isSelectable = currentDay >= minSelectableDate;
-                                                if (!isSelectable) {
-                                                    return null;
-                                                }
-                                                return (
-                                                    <TouchableOpacity
-                                                        key={day}
-                                                        onPress={() => handleDateChange(day)}
-                                                        style={[
-                                                            styles.dayButton,
-                                                            isSelected && styles.dayButtonSelected,
-                                                            (isSelectionDisabled || !isSelectable) && styles.disabledButton,
-                                                        ]}
-                                                        disabled={isSelectionDisabled || !isSelectable}>
-                                                        <Text style={styles.dayOfWeekText}>{daysOfWeek[currentDayOfWeek]}</Text>
-                                                        <Text style={[styles.dayText, isSelected && styles.dayTextSelected]}>
-                                                            {day}
-                                                        </Text>
-                                                    </TouchableOpacity>
-                                                );
-                                            })}
-                                        </View>
-                                    </ScrollView>
+                                    <View style={styles.datePickerContainer}>
+                                        {[...Array(daysInMonth)].map((_, index) => {
+                                            const day = index + 1;
+                                            const isSelected = selectedDate.getDate() === day;
+                                            const currentDay = new Date(currentYear, currentMonth, day);
+                                            const currentDayOfWeek = currentDay.getDay();
+                                            const isSelectable = currentDay >= minSelectableDate;
+                                            if (!isSelectable) {
+                                                return null;
+                                            }
+                                            return (
+                                                <TouchableOpacity
+                                                    key={day}
+                                                    onPress={() => handleDateChange(day)}
+                                                    style={[
+                                                        styles.dayButton,
+                                                        isSelected && styles.dayButtonSelected,
+                                                        (isSelectionDisabled || !isSelectable) && styles.disabledButton,
+                                                    ]}
+                                                    disabled={isSelectionDisabled || !isSelectable}>
+                                                    <Text style={styles.dayOfWeekText}>{daysOfWeek[currentDayOfWeek]}</Text>
+                                                    <Text style={[styles.dayText, isSelected && styles.dayTextSelected]}>
+                                                        {day}
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            );
+                                        })}
+                                    </View>
 
                                     <Text style={styles.scheduleFieldLabel}>Choose a Time & Zone...</Text>
                                     <View style={styles.scheduleSplitPickerRow}>
@@ -1413,11 +1398,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 contentContainerStyle={styles.scheduleSplitPickerListContent}
                                                 showsVerticalScrollIndicator={true}
                                                 keyboardShouldPersistTaps="handled"
-                                                onTouchStart={lockScheduleVerticalScroll}
-                                                onTouchEnd={unlockScheduleVerticalScroll}
-                                                onTouchCancel={unlockScheduleVerticalScroll}
-                                                onScrollEndDrag={unlockScheduleVerticalScroll}
-                                                onMomentumScrollEnd={unlockScheduleVerticalScroll}
                                                 renderItem={({item}) => {
                                                     const hours = Math.floor(item / 4);
                                                     const minutes = (item % 4) * 15;
@@ -1465,11 +1445,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 contentContainerStyle={styles.scheduleSplitPickerListContent}
                                                 showsVerticalScrollIndicator={true}
                                                 keyboardShouldPersistTaps="handled"
-                                                onTouchStart={lockScheduleVerticalScroll}
-                                                onTouchEnd={unlockScheduleVerticalScroll}
-                                                onTouchCancel={unlockScheduleVerticalScroll}
-                                                onScrollEndDrag={unlockScheduleVerticalScroll}
-                                                onMomentumScrollEnd={unlockScheduleVerticalScroll}
                                                 renderItem={({item}) => {
                                                     const isSelected = selectedTimeZone === item;
                                                     return (
@@ -1495,46 +1470,29 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                             />
                                         </View>
                                     </View>
-
-                                    <Text style={styles.scheduleFieldLabel}>Say something to kick things off...</Text>
-                                    <LinearGradient
-                                        colors={['#6DE5FF', '#8A56FF', '#FF75E4']}
-                                        start={{x: 0, y: 0}}
-                                        end={{x: 1, y: 1}}
-                                        style={styles.kickoffOuter}>
-                                        <View style={styles.kickoffInner}>
-                                            <TextInput
-                                                value={kickoffMessage}
-                                                onChangeText={setKickoffMessage}
-                                                style={styles.kickoffInput}
-                                                placeholder="Hey! Ready for our movie night?"
-                                                placeholderTextColor="#AFA1DD"
-                                                multiline
-                                            />
-                                        </View>
-                                    </LinearGradient>
-
-                                    <View style={styles.scheduleSendWrap}>
-                                        <AkcruButtons.SmallButton
-                                            variant="auth"
-                                            btnname={'Send Invite'}
-                                            color={COLORS.AKCRUBLUE}
-                                            onPress={handleSetDateTime}
-                                            loading={isSendingInvite}
-                                            authButtonWidth={SIZES.ScreenWidth - 80}
-                                            authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
-                                            authImagePosition="right"
-                                            disabled={
-                                                !selectedDate ||
-                                                !selectedTime ||
-                                                !selectedTimeZone?.trim() ||
-                                                !movie?.id ||
-                                                !selectedUserName?.trim() ||
-                                                isSelectionDisabled
-                                            }
-                                        />
-                                    </View>
                                 </ScrollView>
+                                <View style={styles.scheduleBottomDock}>
+                                    <AkcruButtons.SmallButton
+                                        variant="auth"
+                                        btnname={'Send Invite'}
+                                        color={COLORS.AKCRUBLUE}
+                                        onPress={handleSetDateTime}
+                                        loading={isSendingInvite}
+                                        authButtonWidth={SIZES.ScreenWidth - 30}
+                                        authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
+                                        authImagePosition="right"
+                                        disabled={
+                                            !hasSelectedTime ||
+                                            !hasSelectedTimeZone ||
+                                            !selectedTime ||
+                                            !selectedTimeZone?.trim() ||
+                                            !movie?.id ||
+                                            !selectedUserName?.trim() ||
+                                            isSelectionDisabled
+                                        }
+                                    />
+                                </View>
+                                </View>
                             </LinearGradient>
                         </ImageBackground>
                     )}

@@ -134,8 +134,12 @@ const ChatList = () => {
                     blurType="light"
                     blurAmount={5}
                     reducedTransparencyFallbackColor="rgba(28,30,72,0.55)"
+                    pointerEvents="none"
                 />
                 <TouchableOpacity
+                    activeOpacity={0.85}
+                    delayPressIn={120}
+                    pressRetentionOffset={{top: 12, left: 12, right: 12, bottom: 12}}
                     onPress={() => {
                         navigation.navigate('ViewChat', {
                             mItInviteId: item.id,
@@ -201,6 +205,7 @@ const ChatList = () => {
                                         blurType="light"
                                         blurAmount={10}
                                         reducedTransparencyFallbackColor={COLORS.TRANSDARKGREY}
+                                        pointerEvents="none"
                                     />
                                     <View style={styles.searchRow}>
                                         <Icon
@@ -263,6 +268,7 @@ const ChatList = () => {
                                         blurType="light"
                                         blurAmount={5}
                                         reducedTransparencyFallbackColor="rgba(28,30,72,0.55)"
+                                        pointerEvents="none"
                                     />
                                     <Text style={styles.chatPanelTitle}>MIT Chats</Text>
                                 </View>
@@ -280,10 +286,15 @@ const ChatList = () => {
                                         data={filteredChatUsers}
                                         keyExtractor={item => item.id}
                                         renderItem={renderItem}
+                                        scrollEnabled
                                         showsVerticalScrollIndicator={false}
+                                        keyboardShouldPersistTaps="handled"
+                                        keyboardDismissMode="on-drag"
+                                        removeClippedSubviews={false}
+                                        onStartShouldSetResponderCapture={() => true}
                                         bounces={false}
                                         overScrollMode="never"
-                                        nestedScrollEnabled
+                                        nestedScrollEnabled={false}
                                     />
                                 )}
                             </View>
@@ -308,9 +319,11 @@ const ChatList = () => {
 const styles = StyleSheet.create({
     screenContainer: {
         flex: 1,
+        overflow: 'hidden',
     },
     headerContainer: {
         paddingHorizontal: 10,
+        flexShrink: 0,
     },
     searchWrap: {
         height: 50,
@@ -370,7 +383,8 @@ const styles = StyleSheet.create({
         minHeight: 0,
     },
     chatListContent: {
-        paddingBottom: SIZES.ScreenHeight * 0.16,
+        paddingBottom: 16,
+        flexGrow: 1,
     },
     chatPanelBody: {
         width: '100%',
