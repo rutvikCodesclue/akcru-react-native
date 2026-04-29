@@ -5,6 +5,7 @@ import {
     ScrollView,
     ImageBackground,
     Image,
+    TextInput,
     TouchableOpacity,
     Alert,
     Animated,
@@ -43,6 +44,7 @@ import {
 } from '../../../util/util';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {getFollowers} from '../../../lib/api/user.lib';
+import {getMatches} from '../../../lib/api/flickflirt.lib';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type ChooseMITScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'ChooseMITScreen'>;
@@ -155,7 +157,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
 
     /** Expired (status or response window) or declined → ghosted content + fog overlay. */
     const isFogged = React.useMemo(() => {
-        if (inviteStatusCode === 'DECLINED' || inviteStatusCode === 'EXPIRED') {
+        if (inviteStatusCode === 'DECLINED' || inviteStatusCode === 'EXPIRED' || inviteStatusCode === 'CANCELED' || inviteStatusCode === 'CANCELLED') {
             return true;
         }
         if (inviteStatusCode === 'ACCEPTED') {
@@ -173,6 +175,29 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                 outputRange: ['0deg', '360deg'],
             }),
         [ringSpin],
+    );
+    const fogOrbs = useMemo(
+        () => [
+            {
+                size: 200,
+                top: -30,
+                left: SIZES.ScreenWidth - 200 * 0.9, // ~10% cut on right side
+                opacity: 0.28,
+            },
+            {
+                size: 145,
+                top: 80,
+                left: 12,
+                opacity: 0.24,
+            },
+            {
+                size: 170,
+                top: SIZES.ScreenHeight - 170 * 0.72,
+                left: -20, // bottom-left with slight cut
+                opacity: 0.22,
+            },
+        ],
+        [],
     );
 
     useEffect(() => {
@@ -378,9 +403,42 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         navigation.goBack();
     };
 
+    const navigateToCrummunityNoBack = () => {
+        reset({
+            index: 0,
+            routes: [
+                {
+                    name: 'ClientTabNavigator',
+                    params: {
+                        screen: 'CrummunityStack',
+                        params: {
+                            screen: 'CrummunityScreen',
+                        },
+                    },
+                },
+            ],
+        });
+    };
+
     const handleBackToFeed = () => {
-        navigate('ClientTabNavigator', {
-            screen: 'ClientTabScreen',
+        navigateToCrummunityNoBack();
+    };
+    const handleOpenMITChat = (initialMessage?: string) => {
+        if (!counterpartUserId || MITID == null) {
+            Alert.alert('Unable to open chat', 'Missing chat details.');
+            return;
+        }
+
+        navigate('NoBottomStack', {
+            screen: 'ViewChat',
+            params: {
+                userId: counterpartUserId,
+                mItInviteId: String(MITID),
+                movie: movie,
+                profilePicture: counterpartUser?.profilePicture ?? '',
+                username: counterpartUser?.username ?? '',
+                initialMessage: initialMessage ?? '',
+            },
         });
     };
 
@@ -497,9 +555,143 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                   .tz(timezone)
                   .format('h:mm A')} ${getShortenedTimezone(timezone)}`
             : '';
+    const isMovieTimePassed =
+        schedule && timezone ? moment().tz(timezone).isAfter(moment(schedule).tz(timezone)) : false;
     const inviteStatusDisplay = inviteStatusCode === 'PENDING' ? 'Awaiting Response' : inviteStatusCode;
+    const declinedHeaderTitle =
+        inviteStatusCode === 'DECLINED'
+            ? 'Invite Declined'
+            : inviteStatusCode === 'EXPIRED'
+              ? 'Invite Expired'
+              : inviteStatusCode === 'CANCELED' || inviteStatusCode === 'CANCELLED'
+                ? 'Invite Canceled'
+                : 'Invite Update';
+    const declinedHeaderSubtitle = inviteStatusExplanation || 'Please try again with a different invite.';
     const safeBottomInset = Math.max(insets.bottom, 10);
-    const pendingContentBottomPadding = showMITSwipe ? safeBottomInset + 180 : safeBottomInset + 24;
+    const showPinnedSentActions = fromSentTab && inviteStatusCode === 'PENDING' && !showMITSwipe;
+    const pendingContentBottomPadding = showMITSwipe
+        ? safeBottomInset + 180
+        : showPinnedSentActions
+          ? safeBottomInset + 220
+          : safeBottomInset + 24;
+    const combinedCardGradients: [string, string, string][] = [
+        ['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)'],
+    ];
+    const renderPendingInviteCombinedCard = (colors: [string, string, string], index: number) => (
+        <LinearGradient
+            key={`pending-card-${index}`}
+            colors={colors}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={styles.inviteInfoCardBorder}>
+            <View style={{backgroundColor: 'rgba(0,0,0,0.82)', borderRadius: 16, padding: 8}}>
+                <View
+                    style={[
+                        styles.inviteInfoCard,
+                        {backgroundColor: 'transparent', paddingHorizontal: 0, paddingVertical: 0},
+                    ]}>
+                    <View style={styles.inviteAvatarWrap}>
+                        <HexAvatar
+                            source={{uri: counterpartUser?.profilePicture}}
+                            size={54}
+                            bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
+                        />
+                    </View>
+                    <View style={styles.inviteInfoBody}>
+                        <Text style={styles.inviteInfoUsername} numberOfLines={1}>
+                            @{counterpartUser?.username ?? 'user'}
+                        </Text>
+                        <View style={styles.inviteInfoMetaRow}>
+                            <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                            <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
+                        </View>
+                        <View style={styles.inviteInfoMetaRow}>
+                            <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
+                            <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
+                        </View>
+                    <View style={styles.inviteInfoStatusRow}>
+                        <View style={[styles.inviteInfoStatusDot, {backgroundColor: inviteStatusColor}]} />
+                        <Text
+                            style={[
+                                styles.inviteInfoStatusText,
+                                {
+                                    color: COLORS.WHITE,
+                                    textDecorationLine: 'underline',
+                                    textDecorationColor: COLORS.WHITE,
+                                },
+                            ]}>
+                            {inviteStatusDisplay}
+                        </Text>
+                    </View>
+                </View>
+                <View style={styles.inviteFollowerWrap}>
+                    <Text style={styles.inviteFollowerCount}>{formatNumber(data.length)}</Text>
+                    <Text style={styles.inviteFollowerLabel}>Followers</Text>
+                </View>
+            </View>
+                <View style={{height: 1, backgroundColor: 'rgba(255,255,255,0.12)', marginVertical: 8}} />
+                <View
+                    style={[
+                        styles.inviteMovieCard,
+                        {marginTop: 0, backgroundColor: 'transparent', paddingHorizontal: 0},
+                    ]}>
+                    <Image
+                        source={{uri: movie?.portraitURL || movie?.landscapeURL}}
+                        style={styles.inviteMoviePoster}
+                        resizeMode="cover"
+                    />
+                    <View style={styles.inviteMovieInfo}>
+                        <Text style={styles.inviteMovieTitle} numberOfLines={2}>
+                            {movie?.title}
+                        </Text>
+                        <Text style={styles.inviteMovieMeta}>
+                            {movie?.year} • {formatMovieDuration(movie?.duration)}
+                        </Text>
+                        <View style={styles.inviteMovieTagRow}>
+                            {movie?.rated ? (
+                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                    {movie.rated}
+                                </Text>
+                            ) : null}
+                            {movie?.genres?.[0] ? (
+                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                    {capitalizeFirstLetterOfString(movie.genres[0])}
+                                </Text>
+                            ) : null}
+                            {movie?.rating ? (
+                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
+                                    {movie.rating}/10
+                                </Text>
+                            ) : null}
+                        </View>
+                    </View>
+                    {movie?.trailerURL ? (
+                        <View style={styles.inviteTrailerWrap}>
+                            <LinearGradient
+                                colors={['#00E5FF', '#7C4DFF', '#FF4FD8']}
+                                start={{x: 0, y: 0}}
+                                end={{x: 1, y: 1}}
+                                style={styles.inviteTrailerGradient}>
+                                <TouchableOpacity
+                                    style={styles.inviteTrailerSideButton}
+                                    activeOpacity={0.85}
+                                    onPress={() =>
+                                        navigation.navigate('TrailerPlayer', {
+                                            id: movie?.id,
+                                            trailerURL: movie?.trailerURL,
+                                            landscapeURL: movie?.landscapeURL,
+                                        })
+                                    }>
+                                    <Icon name="play" type="ionicon" size={12} color={COLORS.WHITE} style={styles.inviteTrailerIcon} />
+                                    <Text style={styles.inviteTrailerButtonText}>Movie Trailer</Text>
+                                </TouchableOpacity>
+                            </LinearGradient>
+                        </View>
+                    ) : null}
+                </View>
+            </View>
+        </LinearGradient>
+    );
     const getFoldDigitStyle = (animValue: Animated.Value) => ({
         transform: [
             {perspective: 1000},
@@ -515,6 +707,258 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             outputRange: [0.7, 1],
         }),
     });
+
+    const acceptedQuickPrompts = [
+        'Good pick 👀 you ready?',
+        "Had a feeling you'd say yes 😉",
+        'You bringing snacks or am I ordering Cru Chew?',
+        'Wanna keep it casual or make this a vibe?',
+    ];
+    const [acceptedDraftMessage, setAcceptedDraftMessage] = useState('');
+    const isDeclinedStatus = inviteStatusCode === 'DECLINED';
+    const isCancelledStatus = inviteStatusCode === 'CANCELED' || inviteStatusCode === 'CANCELLED';
+    const isExpiredStatus = inviteStatusCode === 'EXPIRED';
+    const showDeclinedPinnedActions = isDeclinedStatus;
+    const [showUnlockBestMatchesCard, setShowUnlockBestMatchesCard] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+        (async () => {
+            try {
+                const data = await getMatches();
+                if (!active || !data?.success) {
+                    return;
+                }
+                const isUnlocked = !!data.unlocked;
+                const hiddenCount = data.hiddenCount ?? 0;
+                const additionalLockedCount = isUnlocked ? 0 : Math.max((data.matches?.length ?? 0) - 2, 0);
+                const totalLockedCards = isUnlocked ? 0 : hiddenCount + additionalLockedCount;
+                setShowUnlockBestMatchesCard(!isUnlocked && totalLockedCards > 0);
+            } catch (e) {
+                if (active) {
+                    setShowUnlockBestMatchesCard(false);
+                }
+            }
+        })();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    if (inviteStatusCode === 'ACCEPTED') {
+        return (
+            <TabContainer>
+                <View style={styles.acceptedScreenContainer}>
+                    <ScrollView
+                        style={styles.chooseMitScroll}
+                        contentContainerStyle={[styles.acceptedScrollContent, {paddingBottom: safeBottomInset + 130}]}
+                        keyboardShouldPersistTaps="handled"
+                        showsVerticalScrollIndicator={false}>
+                        <Header />
+                        <View style={styles.acceptedInnerContent}>
+                            <View style={styles.acceptedTopArea}>
+                                <TouchableOpacity
+                                    style={styles.pendingBackButton}
+                                    activeOpacity={0.85}
+                                    onPress={() =>
+                                        navigate('NoBottomStack', {
+                                            screen: 'UserMITHubScreen',
+                                        })
+                                    }>
+                                    <Icon name="chevron-back" type="ionicon" size={18} color={COLORS.LIGHTGREY} />
+                                    <Text style={styles.pendingBackText}>Back</Text>
+                                </TouchableOpacity>
+                                <Image source={imageindex.accept_mit_image} style={styles.acceptedHeaderImage} resizeMode="contain" />
+                                <Text style={styles.acceptedTitle}>Invite Accepted</Text>
+                                <Text style={styles.acceptedSubtitle}>You're in. Your MIT chat is now unlocked.</Text>
+                            </View>
+
+                            {renderPendingInviteCombinedCard(combinedCardGradients[0], 0)}
+                            {!isMovieTimePassed ? (
+                                <>
+                                    <TouchableOpacity
+                                        style={styles.acceptedChatButton}
+                                        activeOpacity={0.9}
+                                        onPress={() => handleOpenMITChat('')}>
+                                        <Text style={styles.acceptedChatButtonText}>Open MIT Chat</Text>
+                                        <Text style={styles.acceptedChatHint}>Break the ice before the movie starts</Text>
+                                    </TouchableOpacity>
+
+                                    <Text style={styles.acceptedSmoothText}>Say something smooth...</Text>
+                                    <View style={styles.acceptedPromptList}>
+                                        {acceptedQuickPrompts.map(prompt => (
+                                            <TouchableOpacity
+                                                key={prompt}
+                                                style={styles.acceptedPromptChip}
+                                                activeOpacity={0.85}
+                                                onPress={() => handleOpenMITChat(prompt)}>
+                                                <Text style={styles.acceptedPromptText}>{prompt}</Text>
+                                            </TouchableOpacity>
+                                        ))}
+                                    </View>
+                                </>
+                            ) : null}
+                        </View>
+                    </ScrollView>
+
+                    {!isMovieTimePassed ? (
+                        <View style={[styles.acceptedBottomComposer, {paddingBottom: safeBottomInset}]}>
+                            <View style={styles.acceptedComposerInputRow}>
+                                <TextInput
+                                    style={styles.acceptedComposerInput}
+                                    value={acceptedDraftMessage}
+                                    onChangeText={setAcceptedDraftMessage}
+                                    placeholder="Message your MIT match..."
+                                    placeholderTextColor="rgba(226,205,252,0.92)"
+                                />
+                                <TouchableOpacity
+                                    style={styles.acceptedComposerSend}
+                                    activeOpacity={0.9}
+                                    onPress={() => handleOpenMITChat(acceptedDraftMessage)}>
+                                    <Icon name="send" type="ionicon" color={COLORS.WHITE} size={16} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    ) : null}
+                </View>
+            </TabContainer>
+        );
+    }
+
+    if (isDeclinedStatus || isCancelledStatus || isExpiredStatus) {
+        return (
+            <TabContainer>
+                <View style={styles.acceptedScreenContainer}>
+                    <Animated.View style={[styles.sheetcontainer, isFogged ? ghostContentStyle : null]}>
+                        <ScrollView
+                            style={styles.chooseMitScroll}
+                            contentContainerStyle={[
+                                styles.acceptedScrollContent,
+                                {paddingBottom: safeBottomInset + (showDeclinedPinnedActions ? 310 : 24)},
+                            ]}
+                            keyboardShouldPersistTaps="handled"
+                            showsVerticalScrollIndicator={false}>
+                            <Header />
+                            <View style={styles.acceptedInnerContent}>
+                                <TouchableOpacity
+                                    style={styles.pendingBackButton}
+                                    activeOpacity={0.85}
+                                    onPress={() =>
+                                        navigate('NoBottomStack', {
+                                            screen: 'UserMITHubScreen',
+                                        })
+                                    }>
+                                    <Icon name="chevron-back" type="ionicon" size={18} color={COLORS.LIGHTGREY} />
+                                    <Text style={styles.pendingBackText}>Back</Text>
+                                </TouchableOpacity>
+                                <View style={styles.acceptedTopArea}>
+                                    <Image source={imageindex.accept_mit_image} style={styles.acceptedHeaderImage} resizeMode="contain" />
+                                    <Text style={styles.declinedTitle}>{declinedHeaderTitle}</Text>
+                                    <Text style={styles.declinedSubtitle}>{declinedHeaderSubtitle}</Text>
+                                </View>
+                                {renderPendingInviteCombinedCard(combinedCardGradients[0], 0)}
+                            </View>
+                        </ScrollView>
+                        {showDeclinedPinnedActions ? (
+                            <View style={[styles.declinedPinnedActionsWrap, {paddingBottom: safeBottomInset}]}>
+                                <TouchableOpacity
+                                    style={styles.declinedSecondaryCta}
+                                    activeOpacity={0.9}
+                                    onPress={navigateToCrummunityNoBack}>
+                                    <Text style={styles.declinedSecondaryTitle}>👥 Send This Invite to Someone Else</Text>
+                                    <Text style={styles.declinedSecondarySub}>Your Cru might be down for this one</Text>
+                                </TouchableOpacity>
+
+                                {showUnlockBestMatchesCard ? (
+                                    <LinearGradient
+                                        colors={['#8D4CFF', 'rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)', '#B8860B']}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 1}}
+                                        style={styles.declinedUnlockCardBorder}>
+                                        <View style={styles.declinedUnlockCard}>
+                                            <Text style={styles.declinedUnlockTitle}>🔒 Unlock Your Best Matches</Text>
+                                            <Text style={styles.declinedUnlockSub}>
+                                                Higher match = higher chance they accept your invite
+                                            </Text>
+                                            <TouchableOpacity
+                                                style={styles.declinedUnlockButton}
+                                                activeOpacity={0.9}
+                                                onPress={() =>
+                                                    reset({
+                                                        index: 0,
+                                                        routes: [
+                                                            {
+                                                                name: 'NoBottomStack',
+                                                                params: {
+                                                                    screen: 'FlickFlirtMatches',
+                                                                },
+                                                            },
+                                                        ],
+                                                    })
+                                                }>
+                                                <Text style={styles.declinedUnlockButtonText}>Unlock Matches</Text>
+                                            </TouchableOpacity>
+                                        </View>
+                                    </LinearGradient>
+                                ) : null}
+                                <TouchableOpacity style={styles.declinedBackToFeedWrap} activeOpacity={0.85} onPress={handleBackToFeed}>
+                                    <View style={styles.declinedBackDividerRow}>
+                                        <View style={styles.declinedBackDividerLine} />
+                                        <Text style={styles.declinedBackToFeed}>Or jump back into your feed.</Text>
+                                        <View style={styles.declinedBackDividerLine} />
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
+                        ) : null}
+                        {isFogged ? (
+                            <Animated.View
+                                pointerEvents="none"
+                                style={[
+                                    StyleSheet.absoluteFill,
+                                    {zIndex: 6},
+                                    {
+                                        opacity: fogFadeProgress.interpolate({
+                                            inputRange: [0, 1],
+                                            outputRange: [0, 0.82],
+                                        }),
+                                    },
+                                ]}>
+                                <LinearGradient
+                                    colors={[
+                                        'rgba(255,255,255,0.22)',
+                                        'rgba(160,150,200,0.55)',
+                                        'rgba(90,85,120,0.5)',
+                                        'rgba(255,255,255,0.18)',
+                                    ]}
+                                    locations={[0, 0.35, 0.65, 1]}
+                                    start={{x: 0.2, y: 0}}
+                                    end={{x: 0.85, y: 1}}
+                                    style={StyleSheet.absoluteFill}
+                                />
+                                {fogOrbs.map((orb, idx) => (
+                                    <View
+                                        key={`declined-fog-orb-${idx}`}
+                                        style={[
+                                            styles.fogOrb,
+                                            {
+                                                width: orb.size,
+                                                height: orb.size,
+                                                borderRadius: orb.size / 2,
+                                                top: orb.top,
+                                                left: orb.left,
+                                                opacity: orb.opacity,
+                                            },
+                                        ]}
+                                    />
+                                ))}
+                            </Animated.View>
+                        ) : null}
+                    </Animated.View>
+                </View>
+            </TabContainer>
+        );
+    }
 
     if (isPendingInvite) {
         return (
@@ -635,79 +1079,23 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                     </View>
                                 </View>
 
-                            <LinearGradient
-                                colors={['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)']}
-                                start={{x: 0, y: 0}}
-                                end={{x: 1, y: 1}}
-                                style={styles.inviteInfoCardBorder}>
-                                <View style={styles.inviteInfoCard}>
-                                    <View style={styles.inviteAvatarWrap}>
-                                        <HexAvatar
-                                            source={{uri: counterpartUser?.profilePicture}}
-                                            size={54}
-                                            bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
-                                        />
-                                    </View>
-                                    <View style={styles.inviteInfoBody}>
-                                        <Text style={styles.inviteInfoUsername} numberOfLines={1}>
-                                            @{counterpartUser?.username ?? 'user'}
-                                        </Text>
-                                        <View style={styles.inviteInfoMetaRow}>
-                                            <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
-                                            <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
-                                        </View>
-                                        <View style={styles.inviteInfoMetaRow}>
-                                            <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
-                                            <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
-                                        </View>
-                                        <View style={styles.inviteInfoStatusRow}>
-                                            <View style={styles.inviteInfoStatusDot} />
-                                            <Text style={styles.inviteInfoStatusText}>Status: {inviteStatusDisplay}</Text>
-                                        </View>
-                                    </View>
-                                </View>
-                            </LinearGradient>
+                            {combinedCardGradients.map((gradientColors, index) =>
+                                renderPendingInviteCombinedCard(gradientColors, index),
+                            )}
 
-                            <LinearGradient
-                                colors={['rgba(255, 166, 214, 0.96)', 'rgba(223, 128, 255, 0.96)', 'rgba(134, 220, 255, 0.96)']}
-                                start={{x: 0, y: 0}}
-                                end={{x: 1, y: 1}}
-                                style={styles.inviteMovieCardBorder}>
-                                <View style={styles.inviteMovieCard}>
-                                    <Image
-                                        source={{uri: movie?.portraitURL || movie?.landscapeURL}}
-                                        style={styles.inviteMoviePoster}
-                                        resizeMode="cover"
-                                    />
-                                    <View style={styles.inviteMovieInfo}>
-                                        <Text style={styles.inviteMovieTitle} numberOfLines={2}>
-                                            {movie?.title}
-                                        </Text>
-                                        <Text style={styles.inviteMovieMeta}>
-                                            {movie?.year} • {formatMovieDuration(movie?.duration)}
-                                        </Text>
-                                        <View style={styles.inviteMovieTagRow}>
-                                            {movie?.rated ? (
-                                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                    {movie.rated}
-                                                </Text>
-                                            ) : null}
-                                            {movie?.genres?.[0] ? (
-                                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                    {capitalizeFirstLetterOfString(movie.genres[0])}
-                                                </Text>
-                                            ) : null}
-                                            {movie?.rating ? (
-                                                <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                    {movie.rating}/10
-                                                </Text>
-                                            ) : null}
-                                        </View>
-                                    </View>
-                                </View>
-                            </LinearGradient>
+                        </View>
+                        </ScrollView>
 
-                            {fromSentTab ? (
+                        {showMITSwipe ? (
+                            <View style={[styles.pendingSwipeBottomArea, {paddingBottom: safeBottomInset}]}>
+                                <View style={[styles.mitSwipeWrap, styles.pendingHorizontalInset]}>
+                                    <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
+                                </View>
+                                <Text style={styles.pendingSwipeHintText}>SWIPE BUTTON LEFT OR RIGHT.</Text>
+                            </View>
+                        ) : null}
+                        {showPinnedSentActions ? (
+                            <View style={[styles.pendingSentPinnedContainer, {paddingBottom: safeBottomInset}]}>
                                 <View style={styles.pendingActionsWrap}>
                                     <TouchableOpacity
                                         style={styles.cancelInviteButton}
@@ -742,16 +1130,6 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                         <Text style={styles.backToFeedText}>Back to feed</Text>
                                     </TouchableOpacity>
                                 </View>
-                            ) : null}
-                        </View>
-                        </ScrollView>
-
-                        {showMITSwipe ? (
-                            <View style={[styles.pendingSwipeBottomArea, {paddingBottom: safeBottomInset}]}>
-                                <View style={styles.mitSwipeWrap}>
-                                    <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
-                                </View>
-                                <Text style={styles.pendingSwipeHintText}>SWIPE BUTTON LEFT OR RIGHT.</Text>
                             </View>
                         ) : null}
                     </Animated.View>
@@ -1205,76 +1583,9 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                 </View>
                                             </View>
                                         </View>
-                                        <LinearGradient
-                                            colors={['rgba(104, 214, 255, 0.96)', 'rgba(154, 132, 255, 0.96)', 'rgba(210, 136, 255, 0.96)']}
-                                            start={{x: 0, y: 0}}
-                                            end={{x: 1, y: 1}}
-                                            style={styles.inviteInfoCardBorder}>
-                                            <View style={styles.inviteInfoCard}>
-                                                <View style={styles.inviteAvatarWrap}>
-                                                    <HexAvatar
-                                                        source={{uri: counterpartUser?.profilePicture}}
-                                                        size={54}
-                                                        bordercolor={selectAvatarBorderColor(counterpartUser?.badge ?? 'AKCRUIT')}
-                                                    />
-                                                </View>
-                                                <View style={styles.inviteInfoBody}>
-                                                    <Text style={styles.inviteInfoUsername} numberOfLines={1}>
-                                                        @{counterpartUser?.username ?? 'user'}
-                                                    </Text>
-                                                    <View style={styles.inviteInfoMetaRow}>
-                                                        <Icon name="calendar-outline" type="ionicon" size={14} color={COLORS.WHITE} />
-                                                        <Text style={styles.inviteInfoMetaText}>{inviteDayLabel}</Text>
-                                                    </View>
-                                                    <View style={styles.inviteInfoMetaRow}>
-                                                        <Icon name="time-outline" type="ionicon" size={14} color={COLORS.WHITE} />
-                                                        <Text style={styles.inviteInfoMetaText}>{inviteDateTimeLabel}</Text>
-                                                    </View>
-                                                    <View style={styles.inviteInfoStatusRow}>
-                                                        <View style={styles.inviteInfoStatusDot} />
-                                                        <Text style={styles.inviteInfoStatusText}>Status: {inviteStatusDisplay}</Text>
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        </LinearGradient>
-                                        <LinearGradient
-                                            colors={['rgba(255, 166, 214, 0.96)', 'rgba(223, 128, 255, 0.96)', 'rgba(134, 220, 255, 0.96)']}
-                                            start={{x: 0, y: 0}}
-                                            end={{x: 1, y: 1}}
-                                            style={styles.inviteMovieCardBorder}>
-                                            <View style={styles.inviteMovieCard}>
-                                                <Image
-                                                    source={{uri: movie?.portraitURL || movie?.landscapeURL}}
-                                                    style={styles.inviteMoviePoster}
-                                                    resizeMode="cover"
-                                                />
-                                                <View style={styles.inviteMovieInfo}>
-                                                    <Text style={styles.inviteMovieTitle} numberOfLines={2}>
-                                                        {movie?.title}
-                                                    </Text>
-                                                    <Text style={styles.inviteMovieMeta}>
-                                                        {movie?.year} • {formatMovieDuration(movie?.duration)}
-                                                    </Text>
-                                                    <View style={styles.inviteMovieTagRow}>
-                                                        {movie?.rated ? (
-                                                            <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                                {movie.rated}
-                                                            </Text>
-                                                        ) : null}
-                                                        {movie?.genres?.[0] ? (
-                                                            <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                                {capitalizeFirstLetterOfString(movie.genres[0])}
-                                                            </Text>
-                                                        ) : null}
-                                                        {movie?.rating ? (
-                                                            <Text style={styles.inviteMovieTag} numberOfLines={1}>
-                                                                {movie.rating}/10
-                                                            </Text>
-                                                        ) : null}
-                                                    </View>
-                                                </View>
-                                            </View>
-                                        </LinearGradient>
+                                        {combinedCardGradients.map((gradientColors, index) =>
+                                            renderPendingInviteCombinedCard(gradientColors, index),
+                                        )}
                                     </>
                                 ) : null}
                                 {showMITSwipe ? (
@@ -1359,6 +1670,22 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                             end={{x: 0.85, y: 1}}
                             style={StyleSheet.absoluteFill}
                         />
+                        {fogOrbs.map((orb, idx) => (
+                            <View
+                                key={`pending-fog-orb-${idx}`}
+                                style={[
+                                    styles.fogOrb,
+                                    {
+                                        width: orb.size,
+                                        height: orb.size,
+                                        borderRadius: orb.size / 2,
+                                        top: orb.top,
+                                        left: orb.left,
+                                        opacity: orb.opacity,
+                                    },
+                                ]}
+                            />
+                        ))}
                     </Animated.View>
                 ) : null}
             </View>

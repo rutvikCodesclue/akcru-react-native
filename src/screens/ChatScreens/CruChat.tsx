@@ -132,7 +132,13 @@ const CruChat = ({route}: Props) => {
                                 activeOpacity={0.8}
                                 style={styles.movieCloseButton}
                                 onPress={() => setShowMovieCard(false)}>
-                                <Icon name="close" type="ionicon" size={15} color="rgba(236,220,255,0.95)" />
+                                <LinearGradient
+                                    colors={['#050505', '#171717', '#050505']}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 1}}
+                                    style={styles.movieCloseButtonGradient}>
+                                    <Icon name="close" type="ionicon" size={15} color="#FF3B30" />
+                                </LinearGradient>
                             </TouchableOpacity>
                             {movieImage ? <Image source={{uri: movieImage}} style={styles.movieThumb} resizeMode="cover" /> : null}
                             <View style={styles.movieMetaTextWrap}>
@@ -160,22 +166,28 @@ const CruChat = ({route}: Props) => {
                                 </View>
                             </View>
                             <View style={styles.movieActionWrap}>
-                                <TouchableOpacity
-                                    activeOpacity={0.9}
-                                    style={styles.movieTrailerButton}
-                                    onPress={() => {
-                                        if (!movieMeta?.trailerURL) {
-                                            return;
-                                        }
-                                        navigation.navigate('TrailerPlayer' as never, {
-                                            id: movieMeta?.id,
-                                            trailerURL: movieMeta?.trailerURL,
-                                            landscapeURL: movieMeta?.landscapeURL,
-                                        } as never);
-                                    }}>
-                                    <Icon name="play" type="ionicon" size={12} color={COLORS.WHITE} />
-                                    <Text style={styles.movieTrailerText}>Play Trailer</Text>
-                                </TouchableOpacity>
+                                <LinearGradient
+                                    colors={['#00E5FF', '#7C4DFF', '#FF4FD8']}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 1}}
+                                    style={styles.movieTrailerGradient}>
+                                    <TouchableOpacity
+                                        activeOpacity={0.9}
+                                        style={styles.movieTrailerButton}
+                                        onPress={() => {
+                                            if (!movieMeta?.trailerURL) {
+                                                return;
+                                            }
+                                            navigation.navigate('TrailerPlayer' as never, {
+                                                id: movieMeta?.id,
+                                                trailerURL: movieMeta?.trailerURL,
+                                                landscapeURL: movieMeta?.landscapeURL,
+                                            } as never);
+                                        }}>
+                                        <Icon name="play" type="ionicon" size={12} color={COLORS.WHITE} />
+                                        <Text style={styles.movieTrailerText}>Movie Trailer</Text>
+                                    </TouchableOpacity>
+                                </LinearGradient>
                                 <View style={styles.movieDurationRow}>
                                     <Icon name="time-outline" type="ionicon" size={12} color="rgba(236,220,255,0.9)" />
                                     <Text style={styles.movieDurationRightText} numberOfLines={1}>
@@ -246,13 +258,18 @@ const styles = StyleSheet.create({
     },
     movieCloseButton: {
         position: 'absolute',
-        top: 8,
-        right: 8,
+        top: -6,
+        right: -6,
         zIndex: 5,
         width: 22,
         height: 22,
         borderRadius: 11,
-        backgroundColor: 'rgba(255,255,255,0.12)',
+        borderWidth: 1,
+        borderColor: '#FFFFFF',
+        overflow: 'hidden',
+    },
+    movieCloseButtonGradient: {
+        flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -302,20 +319,24 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     movieTrailerButton: {
-        borderWidth: 1,
-        borderColor: 'rgba(174, 125, 255, 0.75)',
-        backgroundColor: 'rgba(76, 25, 130, 0.55)',
+        backgroundColor: 'rgba(20, 10, 34, 0.9)',
         borderRadius: 8,
+        minHeight: 52,
         paddingVertical: 8,
         paddingHorizontal: 8,
         alignItems: 'center',
         justifyContent: 'center',
         minWidth: 74,
-        gap: 3,
+        flexDirection: 'column',
+    },
+    movieTrailerGradient: {
+        borderRadius: 9,
+        padding: 1,
     },
     movieTrailerText: {
         ...FONTS.paragraph6,
         color: COLORS.WHITE,
+        textAlign: 'center',
     },
     movieDurationRightText: {
         ...FONTS.paragraph6,

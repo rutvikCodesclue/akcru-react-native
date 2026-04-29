@@ -39,6 +39,7 @@ const AkcruHexBlank = require('./AkcruHexBlank.png');
 const FLickFlirt = require('./FlickFlirt.jpg');
 const FLickFlirtBG = require('./blurred_ff_background.png');
 const CrummunitySendMITHero = require('./CrummunitySendMITHero.png');
+const accept_mit_image = require('./accept_mit_image.png');
 const UnlockingCards = require('./unlocking_cards.png');
 const Akcrunetwork = require('./akcrunetwork.jpg');
 const Akcrunetwork2 = require('./akcru_network_fix.jpg');
@@ -89,5 +90,6 @@ export default {
     barcode,
     FLickFlirtBG,
     CrummunitySendMITHero,
+    accept_mit_image,
     UnlockingCards,
 };
