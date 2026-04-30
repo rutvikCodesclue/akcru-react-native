@@ -3,15 +3,17 @@ import {
     Text,
     ScrollView,
     TouchableOpacity,
+    FlatList,
     ImageBackground,
     SafeAreaView,
     Image,
     ActivityIndicator,
     Platform,
     Modal,
+    StyleSheet,
+    BackHandler,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import AkcruLevels from '../../../components/akcruBadges';
 import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -20,7 +22,7 @@ import AkcruButtons from '../../../components/akcruButtons';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../../assets/images/imageindex';
-import styles from './styles';
+import styles from '../../contentScreens/MovieMITScheduleScreen/styles';
 import {IMITInvite, IMovie, IUserProfile} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {useRoute} from '@react-navigation/native';
@@ -29,22 +31,113 @@ import {
     capitalizeFirstLetterOfString,
     combineDateAndTime,
     formatMovieDuration,
-    selectAvatarBorderColor,
 } from '../../../util/util';
 import {findAUser} from '../../../lib/api/user.lib';
-import {changeMITInviteMovie, createAMITInvite} from '../../../lib/api/mit.lib';
+import {changeMITInviteMovie, createAMITInvite, getMyMITs} from '../../../lib/api/mit.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {ROOM_VALIDATION_CHECK_TIME} from '../../../util/config';
-import HexAvatar from '../../../components/HexAvatar';
-import {MULTISIZES} from '../../../../assets/constants/theme';
 import BackButton from '../../../components/General/backbutton';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {reset} from '../../../util/RootNavigation';
+import useAuthStore from '../../../stores/auth.store';
+import MITInvitePairAnimation from '../../../components/MITInvitePairAnimation';
+import {Icon} from '@rneui/base';
 
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
+import Video from 'react-native-video';
+
+const MIT_SEND_INVITE_TICKET_ICON_URL = 'https://img.icons8.com/fluency/96/movie.png';
+const chooseMitCardStyles = StyleSheet.create({
+    inviteMovieCardBorder: {
+        width: '100%',
+        borderRadius: 16,
+        padding: 1,
+        marginTop: 2,
+    },
+    inviteMovieCard: {
+        width: '100%',
+        borderRadius: 16,
+        borderWidth: 0,
+        borderColor: 'transparent',
+        backgroundColor: 'rgba(0, 0, 0, 0.72)',
+        paddingHorizontal: 8,
+        paddingVertical: 10,
+        minHeight: 98,
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    inviteMoviePoster: {
+        width: 58,
+        height: 78,
+        borderRadius: 8,
+        marginRight: 10,
+        backgroundColor: 'rgba(255,255,255,0.08)',
+    },
+    inviteMovieInfo: {
+        flex: 1,
+        minWidth: 0,
+        paddingRight: 8,
+    },
+    inviteMovieTitle: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+    },
+    inviteMovieMeta: {
+        ...FONTS.paragraph2,
+        color: 'rgba(236,220,255,0.9)',
+        marginTop: 3,
+    },
+    inviteMovieTagRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+        marginTop: 6,
+    },
+    inviteMovieTag: {
+        ...FONTS.paragraph2,
+        color: '#1A0C2A',
+        backgroundColor: '#DDB3FF',
+        paddingHorizontal: 6,
+        paddingVertical: 2,
+        borderRadius: 10,
+        marginRight: 6,
+        marginBottom: 4,
+    },
+    inviteTrailerWrap: {
+        minWidth: 76,
+        borderLeftWidth: 1,
+        borderLeftColor: 'rgba(255,255,255,0.2)',
+        paddingLeft: 8,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    inviteTrailerGradient: {
+        borderRadius: 10,
+        padding: 1,
+    },
+    inviteTrailerSideButton: {
+        borderRadius: 10,
+        backgroundColor: 'rgba(20, 10, 34, 0.9)',
+        paddingHorizontal: 8,
+        minHeight: 52,
+        paddingVertical: 8,
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        alignSelf: 'center',
+    },
+    inviteTrailerIcon: {
+        marginBottom: 2,
+    },
+    inviteTrailerButtonText: {
+        ...FONTS.paragraph2,
+        color: COLORS.WHITE,
+        textAlign: 'center',
+    },
+});
 
 type SendMITScheduleNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITSchedule'>;
 
@@ -59,6 +152,7 @@ export default function SendMITSchedule({route}: Props) {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const insets = useSafeAreaInsets();
     const routeParams = useRoute<RouteProp<CrummunityStackParams, 'SendMITSchedule'>>();
+    const loggedInUser = useAuthStore(state => state.user);
 
     const userID: string | undefined = route.params?.userID ?? null;
     const rawIsFromChangeMovie = route.params?.isFromChangeMovie ?? routeParams.params?.isFromChangeMovie;
@@ -79,6 +173,8 @@ export default function SendMITSchedule({route}: Props) {
     const interstitialRef = useRef<InterstitialAd | null>(null);
     const [adLoaded, setAdLoaded] = useState(false);
     const latestSentInviteRef = useRef<IMITInvite | null>(null);
+    const [showSendMITVideoOverlay, setShowSendMITVideoOverlay] = useState(false);
+    const pendingInviteSuccessFlowRef = useRef<(() => void) | null>(null);
 
     const PROD_IDS = Platform.select({
             android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
@@ -86,9 +182,6 @@ export default function SendMITSchedule({route}: Props) {
         });
 
         const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
-
-    const TICKET_DISPLAY_MS = 2000; // show ticket 2s after ad closes
-    const ticketTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     useEffect(() => {
         if (!interstitialUnitId) return; // guard if iOS id not set yet
@@ -100,16 +193,9 @@ export default function SendMITSchedule({route}: Props) {
         const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => setAdLoaded(true));
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
             setAdLoaded(false);
-
-            // ensure ticket is visible after the ad
-            setShowSendMIT(true);
-
-            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
-            ticketTimerRef.current = setTimeout(() => {
-                setShowSendMIT(false);
-                setIsSelectionDisabled(true);
-                navigateAfterInviteSent();
-            }, TICKET_DISPLAY_MS);
+            setShowSendMIT(false);
+            setIsSelectionDisabled(true);
+            navigateAfterInviteSent();
 
             ad.load(); // preload next ad
         });
@@ -123,7 +209,6 @@ export default function SendMITSchedule({route}: Props) {
             offClosed();
             offError();
             interstitialRef.current = null;
-            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
         };
     }, [interstitialUnitId, navigateAfterInviteSent]);
 
@@ -281,24 +366,9 @@ export default function SendMITSchedule({route}: Props) {
 
                     if (response.success) {
                         latestSentInviteRef.current = response.invite ?? null;
-                        // Show the success ticket immediately
                         setIsDateTimeSelected(true);
-                        setShowSendMIT(true);
-
-                        // Show ad if it's ready, otherwise fall back to a short delay
-                        if (adLoaded && interstitialRef.current) {
-                            interstitialRef.current.show();
-                        } else {
-                            if (ticketTimerRef.current) clearTimeout(ticketTimerRef.current);
-                            ticketTimerRef.current = setTimeout(() => {
-                                setShowSendMIT(false);
-                                setIsSelectionDisabled(true);
-                                navigateAfterInviteSent();
-                            }, TICKET_DISPLAY_MS);
-
-                            // try to have the next ad ready
-                            interstitialRef.current?.load?.();
-                        }
+                        setShowSendMIT(false);
+                        playSendMITVideoThen(handleInviteSuccessFlow);
                     } else {
                         const msg = response.message?.trim();
                         setInviteFailedMessage(msg ? msg : 'Failed to send Movie Invite Ticket. Please try again.');
@@ -335,6 +405,8 @@ export default function SendMITSchedule({route}: Props) {
     const [showSendMIT, setShowSendMIT] = useState(false);
     const [showInviteFailedModal, setShowInviteFailedModal] = useState(false);
     const [inviteFailedMessage, setInviteFailedMessage] = useState('');
+    const showMITAnimationCard = false;
+    const contentHorizontalPadding = 10;
     const fixedActionBottom = Math.max(insets.bottom, 12);
     const fixedActionReservedSpace = 96 + fixedActionBottom;
     const isPrimaryActionDisabled = isFromChangeMovie
@@ -349,9 +421,32 @@ export default function SendMITSchedule({route}: Props) {
         setSelectedTimeZone(detectedTimeZone || timeZones[0]);
     }, [isFromChangeMovie, selectedTimeZone, timeZones]);
 
-    const navigateAfterInviteSent = React.useCallback(() => {
-        const latestInvite = latestSentInviteRef.current;
+    const navigateAfterInviteSent = React.useCallback(async () => {
+        let latestInvite = latestSentInviteRef.current;
+        try {
+            const myMITs = await getMyMITs();
+            const pendingMITs = (myMITs ?? []).filter(mit => mit.status === 'PENDING');
+            if (pendingMITs.length > 0) {
+                pendingMITs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+                latestInvite = pendingMITs[0];
+            }
+        } catch (error) {
+            console.error('[SendMITSchedule] getMyMITs failed before ChooseMITScreen navigation:', error);
+        }
+
         if (latestInvite) {
+            const fallbackSchedule =
+                combineDateAndTime(selectedDate, selectedTime, selectedTimeZone) ?? new Date().toISOString();
+            const safeSchedule =
+                latestInvite.startDate && !Number.isNaN(new Date(latestInvite.startDate).getTime())
+                    ? latestInvite.startDate
+                    : fallbackSchedule;
+            const safeExpiresAt =
+                latestInvite.expiresAt && !Number.isNaN(new Date(latestInvite.expiresAt).getTime())
+                    ? latestInvite.expiresAt
+                    : undefined;
+            const safeTimezone = latestInvite.timezone || selectedTimeZone || 'America/New_York';
+
             navigation.replace('ChooseMITScreen', {
                 MITID: latestInvite.id,
                 movie: latestInvite.movie,
@@ -359,9 +454,9 @@ export default function SendMITSchedule({route}: Props) {
                 invitee: latestInvite.invitee,
                 inviteDate: latestInvite.createdAt,
                 akcruBadge: latestInvite.invitee,
-                schedule: latestInvite.startDate,
-                timezone: latestInvite.timezone,
-                expiresAt: latestInvite.expiresAt,
+                schedule: safeSchedule,
+                timezone: safeTimezone,
+                expiresAt: safeExpiresAt,
                 status: latestInvite.status,
                 fromSentTab: true,
             });
@@ -375,7 +470,44 @@ export default function SendMITSchedule({route}: Props) {
             return;
         }
         navigation.navigate('UserMITHubScreen', {index: 0});
-    }, [navigation, user?.profilePicture, userID]);
+    }, [navigation, selectedDate, selectedTime, selectedTimeZone, user?.profilePicture, userID]);
+
+    const handleInviteSuccessFlow = React.useCallback(() => {
+        if (adLoaded && interstitialRef.current) {
+            interstitialRef.current.show();
+        } else {
+            setIsSelectionDisabled(true);
+            setShowSendMIT(false);
+            navigateAfterInviteSent();
+            interstitialRef.current?.load?.();
+        }
+    }, [adLoaded, navigateAfterInviteSent]);
+
+    const completeSendMITVideoAndContinue = React.useCallback(() => {
+        setShowSendMITVideoOverlay(false);
+        const onComplete = pendingInviteSuccessFlowRef.current;
+        pendingInviteSuccessFlowRef.current = null;
+        if (onComplete) {
+            onComplete();
+        }
+    }, []);
+
+    const playSendMITVideoThen = React.useCallback((onComplete: () => void) => {
+        pendingInviteSuccessFlowRef.current = onComplete;
+        setShowSendMITVideoOverlay(true);
+    }, []);
+
+    useEffect(() => {
+        navigation.setOptions({gestureEnabled: !showSendMITVideoOverlay});
+        if (!showSendMITVideoOverlay) {
+            return;
+        }
+        const backHandlerSubscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+        return () => {
+            backHandlerSubscription.remove();
+            navigation.setOptions({gestureEnabled: true});
+        };
+    }, [navigation, showSendMITVideoOverlay]);
 
     const handleCloseInviteFailedModal = () => {
         setShowInviteFailedModal(false);
@@ -384,17 +516,32 @@ export default function SendMITSchedule({route}: Props) {
 
     return (
         <TabContainer>
-            <SafeAreaView>
+            <SafeAreaView style={{flex: 1, backgroundColor: COLORS.BLACK}}>
+                {!showSendMIT && isMovieDataLoaded ? (
+                    <View
+                        style={{
+                            backgroundColor: COLORS.BLACK,
+                            paddingBottom: 4,
+                        }}>
+                        <Header />
+                        <View style={{marginHorizontal: 15, marginTop: 0}}>
+                            <BackButton navigation={navigation} />
+                        </View>
+                    </View>
+                ) : null}
                 <ScrollView
-                    stickyHeaderIndices={[1]}
-                    contentContainerStyle={{paddingBottom: showSendMIT ? 20 : fixedActionReservedSpace}}>
+                    style={{backgroundColor: COLORS.BLACK}}
+                    contentContainerStyle={{
+                        paddingBottom: showSendMIT ? 20 : fixedActionReservedSpace,
+                        paddingHorizontal: contentHorizontalPadding,
+                    }}>
                     {showSendMIT ? (
                         <View
                             style={{
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                backgroundColor: COLORS.BLACK,
                             }}>
                             <Text
                                 style={{
@@ -479,239 +626,193 @@ export default function SendMITSchedule({route}: Props) {
                         <View>
                             {isMovieDataLoaded ? (
                                 <View>
-                                    <View
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                                            paddingBottom: 20,
-                                        }}>
-                                        <Header />
-                                        <View style={styles.topcontainer}>
-                                            <BackButton navigation={navigation} />
-                                        </View>
-                                    </View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Text style={styles.choosedate}>Schedule Movie Invite Ticket</Text>
-                                        <Image source={imageindex.MITticket} />
-                                    </View>
-                                    <View style={{marginHorizontal: 15, marginTop: 10}}>
-                                        <View style={{flexDirection: 'row'}}>
-                                            <Image
-                                                source={{uri: portraitURL}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 2.5,
-                                                    height: SIZES.ScreenWidth / 1.7,
-                                                    borderRadius: 5,
-                                                }}
-                                            />
-                                            <View style={{width: SIZES.ScreenWidth / 2, marginLeft: 10}}>
-                                                <Text style={{...FONTS.paragraph1}}>{description}</Text>
-                                                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.Title2AkcruBlue,
-
-                                                            marginVertical: 10,
-                                                        }}>
-                                                        <Text style={{color: COLORS.DARKGREY}}>Cast:</Text>{' '}
-                                                        {actors && actors.map(actor => actor.name).join(', ')}
+                                    <View style={{marginTop: 0}}>
+                                        <LinearGradient
+                                            colors={['#00E5FF', '#7C4DFF', '#FF4FD8']}
+                                            start={{x: 0, y: 0}}
+                                            end={{x: 1, y: 1}}
+                                            style={chooseMitCardStyles.inviteMovieCardBorder}>
+                                            <View style={chooseMitCardStyles.inviteMovieCard}>
+                                                <Image
+                                                    source={{uri: movie?.portraitURL || movie?.landscapeURL}}
+                                                    style={chooseMitCardStyles.inviteMoviePoster}
+                                                    resizeMode="cover"
+                                                />
+                                                <View style={chooseMitCardStyles.inviteMovieInfo}>
+                                                    <Text style={chooseMitCardStyles.inviteMovieTitle} numberOfLines={2}>
+                                                        {title}
                                                     </Text>
-                                                </View>
-
-                                                <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.Title2AkcruBlue,
-                                                            color: COLORS.AKCRUBLUE,
-                                                        }}>
-                                                        <Text style={{color: COLORS.DARKGREY}}>Directors:</Text>{' '}
-                                                        {director && director.map(director => director.name).join(', ')}
+                                                    <Text style={chooseMitCardStyles.inviteMovieMeta}>
+                                                        {year} • {formatMovieDuration(duration)}
                                                     </Text>
+                                                    <View style={chooseMitCardStyles.inviteMovieTagRow}>
+                                                        {rated ? (
+                                                            <Text style={chooseMitCardStyles.inviteMovieTag} numberOfLines={1}>
+                                                                {rated}
+                                                            </Text>
+                                                        ) : null}
+                                                        {genres?.[0] ? (
+                                                            <Text style={chooseMitCardStyles.inviteMovieTag} numberOfLines={1}>
+                                                                {capitalizeFirstLetterOfString(genres[0])}
+                                                            </Text>
+                                                        ) : null}
+                                                        {rating ? (
+                                                            <Text style={chooseMitCardStyles.inviteMovieTag} numberOfLines={1}>
+                                                                {rating}/10
+                                                            </Text>
+                                                        ) : null}
+                                                    </View>
                                                 </View>
+                                                {movie?.trailerURL ? (
+                                                    <View style={chooseMitCardStyles.inviteTrailerWrap}>
+                                                        <LinearGradient
+                                                            colors={['#FF4FD8', '#7C4DFF', '#00E5FF']}
+                                                            start={{x: 0, y: 0}}
+                                                            end={{x: 1, y: 1}}
+                                                            style={chooseMitCardStyles.inviteTrailerGradient}>
+                                                            <TouchableOpacity
+                                                                style={chooseMitCardStyles.inviteTrailerSideButton}
+                                                                activeOpacity={0.85}
+                                                                onPress={() =>
+                                                                    navigation.navigate('TrailerPlayer', {
+                                                                        id: movie?.id,
+                                                                        trailerURL: movie?.trailerURL,
+                                                                        landscapeURL: movie?.landscapeURL,
+                                                                    })
+                                                                }>
+                                                                <Icon
+                                                                    name="play"
+                                                                    type="ionicon"
+                                                                    size={12}
+                                                                    color={COLORS.WHITE}
+                                                                    style={chooseMitCardStyles.inviteTrailerIcon}
+                                                                />
+                                                                <Text style={chooseMitCardStyles.inviteTrailerButtonText}>
+                                                                    Movie Trailer
+                                                                </Text>
+                                                            </TouchableOpacity>
+                                                        </LinearGradient>
+                                                    </View>
+                                                ) : null}
                                             </View>
-                                        </View>
-                                        <View style={{marginTop: 10}}>
-                                            <Text style={{...FONTS.Title3}}>{title}</Text>
-                                            <View
-                                                style={{
-                                                    flexDirection: 'row',
-                                                    marginVertical: 5,
-                                                }}>
-                                                <View
-                                                    style={{
-                                                        flexDirection: 'row',
-                                                        alignSelf: 'center',
-                                                        marginRight: 20,
-                                                    }}>
-                                                    <Text
-                                                        style={{
-                                                            ...FONTS.paragraph1,
-                                                            color: COLORS.LIGHTGREY,
-                                                            marginRight: 10,
-                                                        }}>
-                                                        {year}
-                                                    </Text>
-                                                    <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
-                                                        {formatMovieDuration(duration)}
-                                                    </Text>
-                                                </View>
-                                                <View
-                                                    style={{
-                                                        flexDirection: 'row',
-                                                    }}>
-                                                    <Text style={styles.drawfonttag}>{rated}</Text>
-                                                    <Text style={styles.drawfonttag}>
-                                                        {capitalizeFirstLetterOfString(genres[0])}
-                                                    </Text>
-                                                    <Text style={styles.drawfonttag}>
-                                                        {capitalizeFirstLetterOfString(genres[1])}
-                                                    </Text>
+                                        </LinearGradient>
 
-                                                    <Text style={styles.drawfonttag}>{rating}/10</Text>
-                                                </View>
-                                            </View>
+                                        <View style={{marginTop: 12}}>
+                                            <Text style={{...FONTS.Title2, color: '#E8C5FF', marginBottom: 6}}>
+                                                Movie Details
+                                            </Text>
+                                            <Text style={{...FONTS.paragraph1, color: COLORS.WHITE}}>
+                                                {description || 'No description available.'}
+                                            </Text>
+                                            <Text style={{...FONTS.Title2AkcruBlue, marginTop: 10}}>
+                                                <Text style={{color: COLORS.DARKGREY}}>Cast:</Text>{' '}
+                                                {actors && actors.length > 0
+                                                    ? actors.map(actor => actor.name).join(', ')
+                                                    : 'N/A'}
+                                            </Text>
+                                            <Text style={{...FONTS.Title2AkcruBlue, marginTop: 6}}>
+                                                <Text style={{color: COLORS.DARKGREY}}>Directors:</Text>{' '}
+                                                {director && director.length > 0
+                                                    ? director.map(d => d.name).join(', ')
+                                                    : 'N/A'}
+                                            </Text>
                                         </View>
                                     </View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            marginTop: 35,
-                                        }}>
-                                        <View
-                                            style={{
-                                                borderRadius: 5,
-                                                backgroundColor: COLORS.TAGCOLOR,
-                                                width: SIZES.ScreenWidth / 1.8,
-                                                height: SIZES.ScreenHeight / 11.5,
-                                                padding: 10,
-                                            }}>
-                                            <LinearGradient
-                                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                                                style={{
-                                                    position: 'absolute',
-                                                    left: 0,
-                                                    right: 0,
-                                                    top: 0,
-                                                    width: SIZES.ScreenWidth / 1.8,
-                                                    borderRadius: 5,
-                                                    height: SIZES.ScreenHeight / 11.5,
-                                                }}
-                                            />
-                                            <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                                                <View>
-                                                    <HexAvatar
-                                                        source={{uri: user?.profilePicture}}
-                                                        size={MULTISIZES.Xlarge43}
-                                                        bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                                    />
-                                                </View>
-                                                <View style={{marginLeft: 10}}>
-                                                    <Text style={{...FONTS.Title2}}>{user?.username}</Text>
-                                                    {user?.badge === 'AKCRUIT' && (
-                                                        <View>
-                                                            <AkcruLevels.AkcruBadgeAkcruit />
-                                                        </View>
-                                                    )}
-                                                    {user?.badge === 'GUARDIAN' && (
-                                                        <View>
-                                                            <AkcruLevels.AkcruBadgeGuardian />
-                                                        </View>
-                                                    )}
-                                                    {user?.badge === 'HERO' && (
-                                                        <View>
-                                                            <AkcruLevels.AkcruBadgeHero />
-                                                        </View>
-                                                    )}
-                                                    {user?.badge === 'SUPERHERO' && (
-                                                        <View>
-                                                            <AkcruLevels.AkcruBadgeSuperHero />
-                                                        </View>
-                                                    )}
-                                                </View>
-                                            </View>
-                                        </View>
-                                        <View style={{marginLeft: 10}}>
-                                            <Image source={imageindex.MITticket} />
-                                        </View>
-                                    </View>
+                                    {showMITAnimationCard ? (
+                                        <MITInvitePairAnimation
+                                            containerStyle={{marginTop: 24, width: '100%', alignSelf: 'center'}}
+                                            compact
+                                            sender={{
+                                                username: loggedInUser?.username,
+                                                profilePicture: loggedInUser?.profilePicture,
+                                                badge: loggedInUser?.badge,
+                                            }}
+                                            receiver={{
+                                                username: user?.username,
+                                                profilePicture: user?.profilePicture,
+                                                badge: user?.badge,
+                                            }}
+                                        />
+                                    ) : null}
                                     <View style={{marginTop: 20, marginBottom: 75}}>
                                         {!isFromChangeMovie ? (
                                             <>
-                                                <Text style={styles.choosedate}>Choose date</Text>
+                                                <Text style={styles.scheduleFieldLabel}>Select Date...</Text>
                                                 <View style={styles.container}>
-                                                    <View style={styles.monthContainer}>
+                                                    <View style={styles.schedulePickerRow}>
                                                         <TouchableOpacity
                                                             onPress={handlePreviousMonth}
-                                                            style={styles.arrowButton}>
-                                                            <Text style={styles.arrowbuttonstyle}>{'<'}</Text>
+                                                            style={styles.scheduleArrowButton}>
+                                                            <Icon
+                                                                name="chevron-back"
+                                                                type="ionicon"
+                                                                color={COLORS.WHITE}
+                                                                size={18}
+                                                            />
                                                         </TouchableOpacity>
-                                                        <Text style={styles.monthText}>
+                                                        <Text style={styles.scheduleMonthText}>
                                                             {months[currentMonth]} {currentYear}
                                                         </Text>
-                                                        <TouchableOpacity onPress={handleNextMonth} style={styles.arrowButton}>
-                                                            <Text style={styles.arrowbuttonstyle}>{'>'}</Text>
+                                                        <TouchableOpacity onPress={handleNextMonth} style={styles.scheduleArrowButton}>
+                                                            <Icon
+                                                                name="chevron-forward"
+                                                                type="ionicon"
+                                                                color={COLORS.WHITE}
+                                                                size={18}
+                                                            />
                                                         </TouchableOpacity>
                                                     </View>
 
-                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                                        <View style={styles.datePickerContainer}>
-                                                            {[...Array(daysInMonth)].map((_, index) => {
-                                                                const day = index + 1;
-                                                                const isSelected = selectedDate.getDate() === day;
-                                                                const currentDate = new Date();
-                                                                const currentDay = new Date(currentYear, currentMonth, day);
-                                                                const currentDayOfWeek = currentDay.getDay();
-
-                                                                const isSelectable = currentDay >= currentDate;
-                                                                return (
-                                                                    <TouchableOpacity
-                                                                        key={day}
-                                                                        onPress={() => handleDateChange(day)}
-                                                                        style={[
-                                                                            styles.dayButton,
-                                                                            isSelected && styles.dayButtonSelected,
-                                                                            (isSelectionDisabled || !isSelectable) &&
-                                                                                styles.disabledButton,
-                                                                        ]}
-                                                                        disabled={isSelectionDisabled || !isSelectable}>
-                                                                        <Text style={styles.dayOfWeekText}>
-                                                                            {daysOfWeek[currentDayOfWeek]}
-                                                                        </Text>
-                                                                        <Text
-                                                                            style={[
-                                                                                styles.dayText,
-                                                                                isSelected && styles.dayTextSelected,
-                                                                            ]}>
-                                                                            {day}
-                                                                        </Text>
-                                                                    </TouchableOpacity>
-                                                                );
-                                                            })}
-                                                        </View>
-                                                    </ScrollView>
-                                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                                        <Text style={{...FONTS.Title2}}>Choose Date: </Text>
-                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                            {' '}
-                                                            {selectedDate.toLocaleDateString()}
-                                                        </Text>
+                                                    <View style={styles.datePickerContainer}>
+                                                        {[...Array(daysInMonth)].map((_, index) => {
+                                                            const day = index + 1;
+                                                            const isSelected = selectedDate.getDate() === day;
+                                                            const currentDate = new Date();
+                                                            currentDate.setHours(0, 0, 0, 0);
+                                                            const currentDay = new Date(currentYear, currentMonth, day);
+                                                            const currentDayOfWeek = currentDay.getDay();
+                                                            const isSelectable = currentDay >= currentDate;
+                                                            return (
+                                                                <TouchableOpacity
+                                                                    key={day}
+                                                                    onPress={() => handleDateChange(day)}
+                                                                    style={[
+                                                                        styles.dayButton,
+                                                                        isSelected && styles.dayButtonSelected,
+                                                                        (isSelectionDisabled || !isSelectable) &&
+                                                                            styles.disabledButton,
+                                                                    ]}
+                                                                    disabled={isSelectionDisabled || !isSelectable}>
+                                                                    <Text style={styles.dayOfWeekText}>
+                                                                        {daysOfWeek[currentDayOfWeek]}
+                                                                    </Text>
+                                                                    <Text
+                                                                        style={[styles.dayText, isSelected && styles.dayTextSelected]}>
+                                                                        {day}
+                                                                    </Text>
+                                                                </TouchableOpacity>
+                                                            );
+                                                        })}
                                                     </View>
-
-                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                                        <View style={styles.timePickerContainer}>
-                                                            {[...Array(24 * 4)].map((_, index) => {
+                                                </View>
+                                                <Text style={styles.scheduleFieldLabel}>Choose a Time & Zone...</Text>
+                                                <View style={styles.scheduleSplitPickerRow}>
+                                                    <View style={styles.scheduleSplitPickerColumn}>
+                                                        <Text style={styles.scheduleSplitPickerTitle}>Time</Text>
+                                                        <FlatList
+                                                            nestedScrollEnabled
+                                                            data={[...Array(24 * 4)].map((_, index) => index)}
+                                                            keyExtractor={item => `time-${item}`}
+                                                            style={styles.scheduleSplitPickerList}
+                                                            contentContainerStyle={styles.scheduleSplitPickerListContent}
+                                                            showsVerticalScrollIndicator={true}
+                                                            keyboardShouldPersistTaps="handled"
+                                                            renderItem={({item: index}) => {
                                                                 const hours = Math.floor(index / 4);
                                                                 const minutes = (index % 4) * 15;
                                                                 const isSelected =
                                                                     selectedTime.getHours() === hours &&
                                                                     selectedTime.getMinutes() === minutes;
-
                                                                 const currentTime = new Date();
                                                                 const selectedDateTime = new Date(
                                                                     selectedDate.getFullYear(),
@@ -720,18 +821,16 @@ export default function SendMITSchedule({route}: Props) {
                                                                     hours,
                                                                     minutes,
                                                                 );
-
                                                                 const isPastTime = selectedDateTime < currentTime;
-
                                                                 const ampmHours =
                                                                     hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
                                                                 const ampmSuffix = hours >= 12 ? 'PM' : 'AM';
                                                                 return (
                                                                     <TouchableOpacity
-                                                                        key={index}
                                                                         onPress={() => handleTimeChange(hours, minutes)}
                                                                         style={[
                                                                             styles.timeButton,
+                                                                            styles.timeButtonBlock,
                                                                             isSelected && styles.timeButtonSelected,
                                                                             (isSelectionDisabled || isPastTime) &&
                                                                                 styles.disabledButton,
@@ -747,29 +846,27 @@ export default function SendMITSchedule({route}: Props) {
                                                                         </Text>
                                                                     </TouchableOpacity>
                                                                 );
-                                                            })}
-                                                        </View>
-                                                    </ScrollView>
-                                                    <View style={{flexDirection: 'row', marginBottom: 10}}>
-                                                        <Text style={{...FONTS.Title2}}>Choose Time: </Text>
-                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                            {' '}
-                                                            {selectedTime.toLocaleTimeString([], {
-                                                                hour: '2-digit',
-                                                                minute: '2-digit',
-                                                            })}
-                                                        </Text>
+                                                            }}
+                                                        />
                                                     </View>
-                                                    <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                                        <View style={styles.timeZonePickerContainer}>
-                                                            {timeZones.map(timeZone => {
+                                                    <View style={styles.scheduleSplitPickerColumn}>
+                                                        <Text style={styles.scheduleSplitPickerTitle}>Timezone</Text>
+                                                        <FlatList
+                                                            nestedScrollEnabled
+                                                            data={timeZones}
+                                                            keyExtractor={item => item}
+                                                            style={styles.scheduleSplitPickerList}
+                                                            contentContainerStyle={styles.scheduleSplitPickerListContent}
+                                                            showsVerticalScrollIndicator={true}
+                                                            keyboardShouldPersistTaps="handled"
+                                                            renderItem={({item: timeZone}) => {
                                                                 const isSelected = selectedTimeZone === timeZone;
                                                                 return (
                                                                     <TouchableOpacity
-                                                                        key={timeZone}
                                                                         onPress={() => handleTimeZoneChange(timeZone)}
                                                                         style={[
                                                                             styles.timeZoneButton,
+                                                                            styles.timeZoneButtonBlock,
                                                                             isSelected && styles.timeZoneButtonSelected,
                                                                             isSelectionDisabled && styles.disabledButton,
                                                                         ]}
@@ -783,14 +880,8 @@ export default function SendMITSchedule({route}: Props) {
                                                                         </Text>
                                                                     </TouchableOpacity>
                                                                 );
-                                                            })}
-                                                        </View>
-                                                    </ScrollView>
-                                                    <View style={{flexDirection: 'row', marginBottom: 30}}>
-                                                        <Text style={{...FONTS.Title2}}>Choose Time Zone:{'  '}</Text>
-                                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>
-                                                            {selectedTimeZone}
-                                                        </Text>
+                                                            }}
+                                                        />
                                                     </View>
                                                 </View>
                                             </>
@@ -885,29 +976,37 @@ export default function SendMITSchedule({route}: Props) {
                     {!loading && <Text style={{...FONTS.Title1, textAlign: 'center'}}>Loading...</Text>}
                 </ScrollView>
                 {!showSendMIT && isMovieDataLoaded ? (
-                    <View
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                            paddingHorizontal: 15,
-                            paddingTop: 10,
-                            paddingBottom: fixedActionBottom,
-                        }}>
+                    <View style={[styles.scheduleBottomDock, {paddingBottom: fixedActionBottom}]}>
                         <AkcruButtons.SmallButton
                             btnname={primaryMitActionLabel}
                             variant="auth"
                             authButtonWidth={SIZES.ScreenWidth - 30}
                             color={COLORS.AKCRUBLUE}
+                            authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
+                            authImagePosition="right"
                             onPress={handleSetDateTime}
                             disabled={isPrimaryActionDisabled}
                         />
                     </View>
                 ) : null}
+                <Modal
+                    animationType="fade"
+                    transparent={false}
+                    visible={showSendMITVideoOverlay}
+                    onRequestClose={() => {}}>
+                    <View style={styles.sendMITVideoOverlay}>
+                        <Video
+                            source={require('../../../../assets/video/send_mit_animation.mp4')}
+                            style={styles.sendMITVideo}
+                            resizeMode="cover"
+                            repeat={false}
+                            controls={false}
+                            paused={!showSendMITVideoOverlay}
+                            onEnd={completeSendMITVideoAndContinue}
+                            onError={completeSendMITVideoAndContinue}
+                        />
+                    </View>
+                </Modal>
                 <Modal transparent visible={showInviteFailedModal} animationType="fade">
                     <OTPResultModal
                         closeModal={handleCloseInviteFailedModal}
