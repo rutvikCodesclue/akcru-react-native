@@ -447,18 +447,29 @@ export default function SendMITSchedule({route}: Props) {
                     : undefined;
             const safeTimezone = latestInvite.timezone || selectedTimeZone || 'America/New_York';
 
-            navigation.replace('ChooseMITScreen', {
-                MITID: latestInvite.id,
-                movie: latestInvite.movie,
-                creator: latestInvite.creator,
-                invitee: latestInvite.invitee,
-                inviteDate: latestInvite.createdAt,
-                akcruBadge: latestInvite.invitee,
-                schedule: safeSchedule,
-                timezone: safeTimezone,
-                expiresAt: safeExpiresAt,
-                status: latestInvite.status,
-                fromSentTab: true,
+            reset({
+                index: 0,
+                routes: [
+                    {
+                        name: 'NoBottomStack',
+                        params: {
+                            screen: 'ChooseMITScreen',
+                            params: {
+                                MITID: latestInvite.id,
+                                movie: latestInvite.movie,
+                                creator: latestInvite.creator,
+                                invitee: latestInvite.invitee,
+                                inviteDate: latestInvite.createdAt,
+                                akcruBadge: latestInvite.invitee,
+                                schedule: safeSchedule,
+                                timezone: safeTimezone,
+                                expiresAt: safeExpiresAt,
+                                status: latestInvite.status,
+                                fromSentTab: true,
+                            },
+                        },
+                    },
+                ],
             });
             return;
         }
