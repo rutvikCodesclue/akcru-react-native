@@ -29,6 +29,8 @@ interface BtnProps {
     authLeftImage?: ImageSourcePropType;
     /** Auth variant only: side for `authLeftImage` (default left) */
     authImagePosition?: 'left' | 'right';
+    /** Auth variant only: icon size for `authLeftImage` */
+    authImageSize?: number;
 }
 
 interface IconBtnProps {
@@ -55,6 +57,7 @@ const SmallButton: React.FC<BtnProps> = ({
     authButtonWidth,
     authLeftImage,
     authImagePosition = 'left',
+    authImageSize = 22,
 }) => {
     if (variant === 'auth') {
         const authW = authButtonWidth ?? SIZES.ScreenWidth / 2.2;
@@ -63,8 +66,8 @@ const SmallButton: React.FC<BtnProps> = ({
                 <Image
                     source={authLeftImage}
                     style={{
-                        width: 22,
-                        height: 22,
+                        width: authImageSize,
+                        height: authImageSize,
                         marginRight: authImagePosition === 'left' ? 8 : 0,
                         marginLeft: authImagePosition === 'right' ? 8 : 0,
                     }}

@@ -15,9 +15,8 @@ import {
 } from 'react-native';
 import styles from './styles';
 import React, {useEffect, useRef, useState} from 'react';
-import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
+import {FONTS, COLORS, SIZES, AKCRUBADGES} from '../../../../assets/constants';
 import Header from '../../../components/header';
-import AkcruLevels from '../../../components/akcruBadges';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
@@ -34,23 +33,18 @@ import {
     unblockUser,
     unfollowUser,
 } from '../../../lib/api/user.lib';
-import {IMovie, IPoll, IPost, IUserProfile} from '../../../../types';
-import {capitalizeFirstLetterOfString, formatNumber, selectAvatarBorderColor} from '../../../util/util';
+import {IPoll, IPost, IUserProfile} from '../../../../types';
+import {formatNumber, selectAvatarBorderColor} from '../../../util/util';
 import {checkUserMembership, createACRUInvite, getCruInviteStatus} from '../../../lib/api/cru.lib';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import useAuthStore from '../../../stores/auth.store';
-import {getViewedUserWatchlist} from '../../../lib/api/movies.lib';
-import ViewUserWatchListCategory from '../../../components/ViewUserWatchlist';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import AkcruButtons from '../../../components/akcruButtons';
 import BlockUserResultModal from '../../../components/BlockUserResultModal/BlockUserResultModal';
-import CustomIcon from '../../../components/CustomIcon/CustomIcon';
-import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
+import {isTablet} from '../../../../assets/constants/theme';
 import GalleryPic from '../../../components/GalleryPic';
 import BackButton from '../../../components/General/backbutton';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
@@ -74,6 +68,10 @@ import {
 } from '../../../lib/api/poll.lib';
 import PollCard from '../../../components/CrummunityPoll';
 import {navigateToNewComment, navigateToPostScreen} from '../../../util/RootNavigation';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
+import AkcruButtons from '../../../components/akcruButtons';
+import ProfileMetricChip from '../../../components/ProfileMetricChip';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
@@ -87,6 +85,12 @@ type Props = {
 
 export default function ViewUserScreen({route, navigation}: Props) {
     const [follow, setFollow] = useState(false);
+    const [badgeScore] = useState(() => Math.floor(Math.random() * 100) + 1);
+    const badgeScoreColors = {
+        mainCharacter: '#FFC83D',
+        showStopper: '#B06CFF',
+        offGrid: '#7A8A9C',
+    };
 
     const currentuser = useAuthStore(state => state.user);
     const {hydrateUser} = useAuthStore();
@@ -94,6 +98,35 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
+    const archetypeTags = React.useMemo(() => {
+        if (!archetype) return [];
+
+        if (Array.isArray(archetype?.tags)) {
+            return archetype.tags.filter(Boolean).slice(0, 3);
+        }
+
+        if (Array.isArray(archetype?.genres)) {
+            return archetype.genres.filter(Boolean).slice(0, 3);
+        }
+
+        if (typeof archetype?.genrePair === 'string' && archetype.genrePair.includes(',')) {
+            return archetype.genrePair
+                .split(',')
+                .map((t: string) => t.trim())
+                .filter(Boolean)
+                .slice(0, 3);
+        }
+
+        if (typeof archetype?.key === 'string' && archetype.key.includes(',')) {
+            return archetype.key
+                .split(',')
+                .map((t: string) => t.trim())
+                .filter(Boolean)
+                .slice(0, 3);
+        }
+
+        return [];
+    }, [archetype]);
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const layout = useWindowDimensions();
 
@@ -105,31 +138,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }, []),
     );
 
-    const [cruInviteStatus, setCruInviteStatus] = useState('');
-
-    const [watchlist, setWatchlist] = useState<IMovie[]>([]);
-
-    useFocusEffect(
-        React.useCallback(() => {
-            const fetchWatchlist = async () => {
-                if (userID) {
-                    try {
-                        const watchlistMovies = await getViewedUserWatchlist(userID);
-                        setWatchlist(watchlistMovies);
-                    } catch (error) {
-                        console.error('Error fetching watchlist:', error);
-                    }
-                }
-            };
-
-            fetchWatchlist();
-        }, [userID]),
-    );
-
     useEffect(() => {
         const fetchCruInviteStatus = async () => {
             const status = await getCruInviteStatus(userID);
-            setCruInviteStatus(status);
             if (status === 'PENDING') {
                 setbtnName('PENDING');
                 setbtnDisabled(true);
@@ -167,8 +178,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            findAUser({id: userID}).then(user => {
-                setUser(user);
+            findAUser({id: userID}).then(responseUser => {
+                const normalizedUser = ((responseUser as any)?.user ?? responseUser) as IUserProfile | undefined;
+                setUser(normalizedUser);
             });
 
             getUserFollowing(currentuser?.id).then(response => {
@@ -185,6 +197,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
     );
 
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
+    const [followingCount, setFollowingCount] = useState(0);
+    const isOwnProfile = !!currentuser?.id && !!userID && currentuser.id === userID;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -198,13 +212,109 @@ export default function ViewUserScreen({route, navigation}: Props) {
         fetchData();
     }, [userID]);
 
+    useEffect(() => {
+        const fetchFollowingData = async () => {
+            if (!userID) return;
+            const result: any = await getUserFollowing(userID);
+            if (result?.following && Array.isArray(result.following)) {
+                setFollowingCount(result.following.length);
+            } else {
+                setFollowingCount(0);
+            }
+        };
+
+        fetchFollowingData();
+    }, [userID]);
+
     const followersCount = followersData.length;
-
-    const [isModalVisible, setModalVisible] = useState(false);
-
-    const toggleModal = () => {
-        setModalVisible(!isModalVisible);
+    const galleryImagesCount = (user as any)?.userGallery?.length ?? (user as any)?.gallery?.length ?? 0;
+    const getAge = (dob?: string) => {
+        if (!dob) return null;
+        const dobPart = dob.includes('T') ? dob.split('T')[0] : dob;
+        const parts = dobPart.split('-').map(Number);
+        if (parts.length !== 3 || parts.some(Number.isNaN)) return null;
+        const [year, month, day] = parts;
+        const today = new Date();
+        let age = today.getFullYear() - year;
+        const monthDiff = today.getMonth() + 1 - month;
+        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < day)) age -= 1;
+        return age > 0 ? age : null;
     };
+    const userAgeFromApiRaw = (user as any)?.age;
+    const userAgeFromApi =
+        typeof userAgeFromApiRaw === 'number'
+            ? userAgeFromApiRaw
+            : typeof userAgeFromApiRaw === 'string'
+              ? Number(userAgeFromApiRaw)
+              : NaN;
+    const userAge = Number.isFinite(userAgeFromApi) && userAgeFromApi > 0 ? userAgeFromApi : getAge(user?.dateOfBirth);
+    const nameBadgeIconSize = isTablet() ? 14 : 12;
+    const colorToRgba = (hexColor: string, alpha: number) => {
+        if (!hexColor?.startsWith('#')) return `rgba(255,255,255,${alpha})`;
+        const hex = hexColor.replace('#', '');
+        const normalized = hex.length === 3 ? hex.split('').map(ch => ch + ch).join('') : hex;
+        const bigint = parseInt(normalized, 16);
+        const r = (bigint >> 16) & 255;
+        const g = (bigint >> 8) & 255;
+        const b = bigint & 255;
+        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    };
+    const badgeScoreStatus =
+        badgeScore >= 80
+            ? {text: 'Main Character', emojiIcon: '🔥', color: badgeScoreColors.mainCharacter}
+            : badgeScore >= 50
+              ? {text: 'Show Stopper', emojiIcon: '✨', color: badgeScoreColors.showStopper}
+              : {text: 'Off Grid', emojiIcon: '🌙', color: badgeScoreColors.offGrid};
+    const metricItems = [
+        {
+                 key: 'gallery',
+                 iconName: 'images-outline',
+                 iconType: 'ionicon',
+                 iconColor: '#CFADFF',
+                 label: 'Gallery',
+                 value: formatNumber(galleryImagesCount),
+                 gradientColors: ['rgba(46, 28, 107, 0.9)', 'rgba(101, 62, 199, 0.9)'],
+             },   {
+            key: 'followers',
+            iconName: 'heart',
+            iconType: 'ionicon',
+            iconColor: '#FF4DA6',
+            label: 'Followers',
+            value: formatNumber(followersCount),
+            gradientColors: ['rgba(102, 23, 72, 0.9)', 'rgba(179, 40, 122, 0.9)'],
+            onPress: () => navigation.navigate('ViewUserFollowList', {userID, tabKey: 'first'}),
+        },
+        {
+            key: 'following',
+            iconName: 'people-outline',
+            iconType: 'ionicon',
+            iconColor: '#FFD24D',
+            label: 'Following',
+            value: formatNumber(followingCount),
+            gradientColors: ['rgba(88, 56, 10, 0.9)', 'rgba(167, 105, 15, 0.9)'],
+            onPress: () => navigation.navigate('ViewUserFollowList', {userID, tabKey: 'second'}),
+        },
+        {
+            key: 'watch-time',
+            iconName: 'time-outline',
+            iconType: 'ionicon',
+            iconColor: '#6DE5FF',
+            label: 'Watch Time',
+            value: formatNumber((user as any)?.totalWatchTime ?? 0),
+            gradientColors: ['rgba(14, 61, 79, 0.9)', 'rgba(26, 112, 145, 0.9)'],
+        },
+    ];
+    const usernameFontSize = Number((FONTS.Title1 as any)?.fontSize) || 20;
+    const badgeConfig =
+        user?.badge === 'AKCRUIT'
+            ? AKCRUBADGES.Akcruit
+            : user?.badge === 'GUARDIAN'
+              ? AKCRUBADGES.Guardian
+              : user?.badge === 'HERO'
+                ? AKCRUBADGES.Hero
+                : user?.badge === 'SUPERHERO'
+                  ? AKCRUBADGES.SuperHero
+                  : null;
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showCruInviteSent, setShowCruInviteSent] = useState(false);
@@ -283,11 +393,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }
     };
 
-    const isValidImageUrl = (url: string) => {
-        return url && url.trim() !== '';
-    };
-
     const [selectedPhotoUri, setSelectedPhotoUri] = useState(route.params?.imageURL || null);
+    const cruName =
+        (user as any)?.Cru?.name ||
+        (user as any)?.user?.Cru?.name ||
+        (user as any)?.cru?.name ||
+        (user as any)?.user?.cru?.name ||
+        (user as any)?.cruName ||
+        (user as any)?.cru_name ||
+        (user as any)?.CruName ||
+        '';
     const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
 
     const openPhoto = (photoItem: any) => {
@@ -526,155 +641,301 @@ export default function ViewUserScreen({route, navigation}: Props) {
     }, [actHasMore, actLoadingMore, loadMoreActivity]);
 
     const FirstRoute = () => (
-        <View>
+        <View style={{flex: 1}}>
             {user?.private ? (
                 <View style={{marginHorizontal: 15, marginTop: SIZES.ScreenHeight / 7}}>
-                    <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>
-                        This account is private
-                    </Text>
+                    <Text style={{...FONTS.Title3, textAlign: 'center', marginBottom: 20}}>This account is private</Text>
                     <Icon name="lock" type="material-community" color={COLORS.LIGHTGREY} size={65} />
                 </View>
             ) : (
-                <ScrollView contentContainerStyle={{paddingBottom: 24}} showsVerticalScrollIndicator={false}>
-                    <View>
-                        <Text style={styles.desctext}>ARCHETYPE</Text>
+                <ScrollView
+                    contentContainerStyle={[styles.refCardScroll, styles.refCardScrollWithPinnedFooter]}
+                    showsVerticalScrollIndicator={false}>
+                    <LinearGradient colors={['#000000', '#000000', '#000000']} style={styles.refCard}>
+                        <View style={styles.refTopRow}>
+                            {!isOwnProfile && (
+                                <TouchableOpacity onPress={handleFollowPress} style={styles.refFollowPill}>
+                                    <Text style={styles.refFollowText}>{follow ? 'Following' : 'Follow'}</Text>
+                                </TouchableOpacity>
+                            )}
+                        </View>
+
+                        <View style={styles.refAvatarWrap}>
+                            <Pressable onPress={toggleAvatarModal}>
+                                <HexAvatar
+                                    source={{uri: user?.profilePicture}}
+                                    size={112}
+                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                    rotateFrameDegrees={90}
+                                />
+                            </Pressable>
+                        </View>
 
                         <View
                             style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
                                 justifyContent: 'center',
-                                paddingHorizontal: 10,
+                                marginBottom: badgeConfig ? 0 : 10,
                             }}>
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    paddingBottom: 5,
-                                    textAlign: 'center',
-                                    color: COLORS.PURPLE,
-                                }}>
-                                {archetype ? archetype.name : 'No Archetype Selected'}
+                            <Icon name="heart" type="ionicon" color="#FF4DA6" size={usernameFontSize} style={{marginRight: 8}} />
+                            <Text style={[styles.refName, {marginBottom: 0, fontSize: usernameFontSize}]}>
+                                {user?.username || user?.firstName}
+                                {user?.showAge && userAge ? `, ${userAge}` : ''}
                             </Text>
-                            <View style={{paddingBottom: 10, paddingRight: 10, alignItems: 'center'}}>
-                                {archetype && isValidImageUrl(archetype.image) && (
-                                    <Pressable onPress={toggleModal}>
-                                        <Image
-                                            source={{uri: archetype ? archetype.image : ''}}
-                                            style={{
-                                                width: SIZES.ScreenWidth / 2.2,
-                                                height: SIZES.ScreenWidth / 2.2,
-                                                borderRadius: 5,
-                                            }}
-                                        />
-                                    </Pressable>
-                                )}
-                            </View>
-                            {archetype && (
-                                <View>
-                                    <View
-                                        style={{
-                                            flexDirection: 'row',
-                                            paddingBottom: 5,
-                                            justifyContent: 'center',
-                                        }}>
-                                        <Text style={styles.drawfonttag}>
-                                            {capitalizeFirstLetterOfString(archetype ? archetype.genres[0] : '')}
-                                        </Text>
-                                        <Text style={styles.drawfonttag}>
-                                            {' '}
-                                            {capitalizeFirstLetterOfString(archetype ? archetype.genres[1] : '')}
-                                        </Text>
-                                    </View>
-                                    <Text style={{...FONTS.paragraph1, textAlign: 'center'}}>
-                                        {archetype ? archetype.description : ''}
-                                    </Text>
-                                </View>
+                        </View>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexWrap: 'wrap',
+                                marginTop: 4,
+                                marginBottom: 6,
+                            }}>
+                            {(user?.influencerStatus || user?.ownerStatus) && (
+                                <Icon
+                                    name="checkmark-circle"
+                                    type="ionicon"
+                                    color="#3498db"
+                                    size={nameBadgeIconSize + 2}
+                                    style={{marginHorizontal: 2}}
+                                />
+                            )}
+                            {user?.ownerStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.STARGOLD}
+                                    baseSize={nameBadgeIconSize}
+                                    style={{marginHorizontal: 2}}
+                                />
+                            )}
+                            {user?.companyStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.WHITE}
+                                    baseSize={nameBadgeIconSize}
+                                    style={{marginHorizontal: 2}}
+                                />
+                            )}
+                            {user?.influencerStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.AKCRUBLUE}
+                                    baseSize={nameBadgeIconSize}
+                                    style={{marginHorizontal: 2}}
+                                />
+                            )}
+                            {user?.blackCloakStatus && (
+                                <CustomIcon
+                                    name="ribbon"
+                                    type="ionicon"
+                                    color={COLORS.BLACKCLOAK}
+                                    baseSize={nameBadgeIconSize}
+                                    style={{marginHorizontal: 2}}
+                                />
+                            )}
+                            {user?.isAdmin && (
+                                <CustomIcon
+                                    name="police-badge"
+                                    type="material-community"
+                                    color={COLORS.STARGOLD}
+                                    baseSize={nameBadgeIconSize}
+                                    style={{marginHorizontal: 2}}
+                                />
+                            )}
+                            {user?.visionaryStatus && (
+                                <CustomIcon
+                                    name="diamond-stone"
+                                    type="material-community"
+                                    color={COLORS.WHITE}
+                                    baseSize={nameBadgeIconSize}
+                                    style={{marginHorizontal: 2}}
+                                />
                             )}
                         </View>
-                        {user?.Cru?.name !== 'My Cru' && user?.Cru?.name !== null && (
-                            <View style={{flexDirection: 'row', alignSelf: 'center', marginTop: 10}}>
-                                <Text style={{...FONTS.Title2, color: COLORS.PINK}}>CRU Name: </Text>
-                                <Text style={{...FONTS.Title2}}>{user?.Cru?.name}</Text>
-                            </View>
-                        )}
-
-                        <Modal visible={isModalVisible} animationType="fade" transparent={true}>
-                            <Pressable
-                                onPress={toggleModal}
-                                style={{
-                                    flex: 1,
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                }}>
-                                <TouchableWithoutFeedback>
-                                    <Image
-                                        source={{uri: archetype ? archetype.image : ''}}
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                marginVertical: 10,
+                            }}>
+                            {badgeConfig && (
+                                <LinearGradient
+                                    colors={[colorToRgba(badgeConfig.color, 0.14), colorToRgba(badgeConfig.color, 0.28)]}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 1}}
+                                    style={{
+                                        borderWidth: 1,
+                                        borderColor: badgeConfig.color,
+                                        borderRadius: 7,
+                                        paddingHorizontal: 8,
+                                        paddingVertical: 6,
+                                        marginRight: 8,
+                                    }}>
+                                    <Text
                                         style={{
-                                            width: '100%',
-                                            height: '50%',
-                                            borderRadius: 5,
-                                        }}
-                                    />
-                                </TouchableWithoutFeedback>
-                            </Pressable>
-                        </Modal>
-                        {watchlist.length > 0 && (
-                            <>
-                                <View style={styles.seperator} />
-                                <View style={styles.watchlistcontainer}>
-                                    <Text style={styles.watchlisttext}>{user?.username}'s Watchlist</Text>
-                                    <View>
-                                        <ViewUserWatchListCategory
-                                            Akcru_Content={{
-                                                id: 'YourFavourite',
-                                                title: '',
-                                                movies: watchlist,
-                                            }}
-                                            updateWatchlist={() => ''}
-                                        />
-                                    </View>
-                                </View>
-                            </>
-                        )}
-                        {user?.userGallery && user.userGallery.length > 0 && (
-                            <>
-                                <View style={styles.seperator} />
+                                            ...FONTS.Akcrubadges,
+                                            fontSize: (Number((FONTS.Title2 as any)?.fontSize) || 14) - 1,
+                                            color: badgeConfig.color,
+                                        }}>
+                                        {badgeConfig.label}
+                                    </Text>
+                                </LinearGradient>
+                            )}
+                            {/* badgeScoreStatus UI temporarily disabled */}
+                            {/*
+                            <LinearGradient
+                                colors={[badgeScoreStatus.color, '#FFFFFF']}
+                                start={{x: 0, y: 0}}
+                                end={{x: 1, y: 1}}
+                                style={{borderRadius: 7, padding: 1}}>
                                 <View
                                     style={{
                                         flexDirection: 'row',
+                                        alignItems: 'center',
                                         justifyContent: 'center',
-                                        marginTop: 10,
+                                        borderRadius: 7,
+                                        paddingHorizontal: 8,
+                                        paddingVertical: 4,
+                                        backgroundColor: 'rgba(14,14,14,0.92)',
                                     }}>
-                                    <Text style={{...FONTS.Title3}}>GALLERY</Text>
-                                    <Icon
-                                        name="images"
-                                        type="ionicon"
-                                        color={COLORS.LIGHTGREY}
-                                        size={20}
-                                        style={{marginLeft: 5}}
-                                    />
+                                    <Text
+                                        style={{
+                                            fontSize: isTablet() ? 18 : 16,
+                                            marginRight: 4,
+                                            textShadowColor: 'rgba(255,255,255,0.75)',
+                                            textShadowOffset: {width: 0, height: 0},
+                                            textShadowRadius: 6,
+                                        }}>
+                                        {badgeScoreStatus.emojiIcon}
+                                    </Text>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title2,
+                                            fontSize: (Number((FONTS.Title2 as any)?.fontSize) || 14) - 1,
+                                            color: badgeScoreStatus.color,
+                                            textAlign: 'center',
+                                        }}>
+                                        {badgeScoreStatus.text}
+                                    </Text>
                                 </View>
-                                <View style={styles.gallerycontainer}>
-                                    <View style={styles.galleryImagesContainer}>
-                                        {user?.userGallery &&
-                                            user.userGallery.map((item, index) => {
-                                                return (
-                                                    <TouchableOpacity
-                                                        key={index.toString()}
-                                                        onPress={() => openPhoto(item)}
-                                                        activeOpacity={0.8}>
-                                                        <Image
-                                                            source={{uri: item.imageURL}}
-                                                            style={styles.galleryImage}
-                                                        />
-                                                    </TouchableOpacity>
-                                                );
-                                            })}
-                                    </View>
+                            </LinearGradient>
+                            */}
+                        </View>
+
+                        <View style={styles.refMetrics}>
+                            {metricItems.map(item => (
+                                <ProfileMetricChip
+                                    key={item.key}
+                                    iconName={item.iconName}
+                                    iconType={item.iconType}
+                                    iconColor={item.iconColor}
+                                    emojiIcon={item.emojiIcon}
+                                    label={item.label}
+                                    value={item.value}
+                                    gradientColors={item.gradientColors}
+                                    onPress={item.onPress}
+                                    style={{
+                                        column: styles.refMetricColumn,
+                                        label: styles.refMetricLabel,
+                                        count: styles.refMetricCount,
+                                    }}
+                                />
+                            ))}
+                        </View>
+
+                        {/* <View style={styles.refActionRow}>
+                            <View style={styles.refTag}>
+                                <Icon name="flame" type="ionicon" color="#FF8B2D" size={12} />
+                                <Text style={styles.refTagText}>Hot Invite</Text>
+                            </View>
+                            <View style={styles.refTag}>
+                                <Icon name="tv-outline" type="ionicon" color="#CFADFF" size={12} />
+                                <Text style={styles.refTagText}>Active Watcher</Text>
+                            </View>
+                        </View> */}
+
+                        <View style={styles.refMitButton}>
+                            <AkcruButtons.SmallButton
+                                variant="auth"
+                                btnname="Send MIT"
+                                color={COLORS.AKCRUBLUE}
+                                onPress={() => navigation.navigate('SendMITViewUser', {userID})}
+                                authButtonWidth={SIZES.ScreenWidth - 84}
+                                authLeftImage={require('../../../../assets/images/mit_ticket_image.png')}
+                                authImagePosition="left"
+                                authImageSize={80}
+                            />
+                        </View>
+
+                        <View style={styles.refSection}>
+                            <ArchetypeHorizontalDivider />
+                            <Text style={styles.refSectionValue}>{archetype ? archetype.name : 'No Archetype Selected'}</Text>
+                            {archetype?.image ? (
+                                <TouchableOpacity onPress={() => openPhoto({imageURL: archetype.image})} activeOpacity={0.85}>
+                                    <Image source={{uri: archetype.image}} style={styles.refArchetypeImage} />
+                                </TouchableOpacity>
+                            ) : null}
+                            {archetypeTags.length > 0 && (
+                                <View style={styles.refArchetypeTagRow}>
+                                    {archetypeTags.map((tag: string, idx: number) => (
+                                        <Text key={`arch-tag-${idx.toString()}`} style={styles.refArchetypeTag}>
+                                            {tag}
+                                        </Text>
+                                    ))}
                                 </View>
-                            </>
+                            )}
+                            {!!archetype?.description && (
+                                <Text style={styles.refArchetypeDescription}>{archetype.description}</Text>
+                            )}
+                            <Text style={styles.refCruNameText}>
+                                <Text style={styles.refCruNameLabel}>CRU Name: </Text>
+                                {cruName || 'Not Available'}
+                            </Text>
+                        </View>
+
+                        {user?.userGallery && user.userGallery.length > 0 && (
+                            <View style={styles.refGalleryWrap}>
+                                <ArchetypeHorizontalDivider
+                                    title="Photo Gallery"
+                                    titleStyle={styles.refSectionLabel}
+                                    containerStyle={{marginBottom: 8}}
+                                />
+                                <View style={styles.refGalleryGridThreeCol}>
+                                    {user.userGallery.map((item, idx) => (
+                                        <TouchableOpacity
+                                            key={`gallery-${idx.toString()}`}
+                                            onPress={() => openPhoto(item)}
+                                            activeOpacity={0.8}
+                                            style={styles.refGalleryGridThreeColItem}>
+                                            <Image source={{uri: item.imageURL}} style={styles.refGalleryGridThreeColImage} />
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
                         )}
-                    </View>
+
+                    </LinearGradient>
                 </ScrollView>
+            )}
+            {!isOwnProfile && (
+                <View style={styles.refPinnedFooterContainer}>
+                    <View style={styles.refFooterActions}>
+                        <TouchableOpacity style={styles.refFooterBtn} onPress={handleBlockUserPress}>
+                            <Icon name="ban" type="font-awesome-5" color="#FF7698" size={12} />
+                            <Text style={styles.refFooterBtnText}>{isUserBlocked ? 'Unblock User' : 'Block User'}</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.refFooterBtn} onPress={handleReportUser}>
+                            <Icon name="warning" type="antdesign" color="#FFD24D" size={12} />
+                            <Text style={styles.refFooterBtnText}>Report User</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
             )}
         </View>
     );
@@ -843,7 +1104,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
             tabStyle={{width: SIZES.ScreenWidth / 2}}
             labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
             style={{
-                backgroundColor: COLORS.AKCRUBACKGROUND,
+                backgroundColor: '#000000',
                 justifyContent: 'space-between',
             }}
             contentContainerStyle={{
@@ -895,333 +1156,24 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 <View style={{zIndex: 20}}>
                     <Header />
                 </View>
-                <View style={{marginBottom: 15}}>
-                    <View style={{marginTop: -60}}>
-                        <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: SIZES.ScreenHeight / 2.3,
-                            }}
-                        />
-                        <View
-                            style={{
-                                marginTop: 55,
-                                marginHorizontal: 15,
-                                marginBottom: 10,
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                            }}>
-                            <BackButton navigation={navigation} />
-                            <TouchableOpacity onPress={() => setUserOptionModal(true)}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon
-                                        name="ellipsis-vertical"
-                                        type="ionicon"
-                                        size={isTablet() ? 32 : 20}
-                                        color={COLORS.LIGHTGREY}
-                                    />
-                                </View>
-                            </TouchableOpacity>
-                        </View>
-
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                marginHorizontal: 15,
-                            }}>
-                            <View style={{flexDirection: 'row'}}>
-                                <View style={{marginRight: 8}}>
-                                    <Pressable onPress={toggleAvatarModal}>
-                                        <HexAvatar
-                                            source={{uri: user?.profilePicture}}
-                                            size={MULTISIZES.Xlarge80}
-                                            bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                        />
-                                    </Pressable>
-                                    <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
-                                        <Pressable
-                                            onPress={toggleAvatarModal}
-                                            style={{
-                                                flex: 1,
-                                                justifyContent: 'center',
-                                                alignItems: 'center',
-                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                            }}>
-                                            <TouchableWithoutFeedback>
-                                                <Image
-                                                    source={
-                                                        user?.profilePicture
-                                                            ? {uri: user?.profilePicture}
-                                                            : imageindex.Akcruplaceholder
-                                                    }
-                                                    style={{width: '95%', height: '50%'}}
-                                                    resizeMode="contain"
-                                                />
-                                            </TouchableWithoutFeedback>
-                                        </Pressable>
-                                    </Modal>
-                                </View>
-                            </View>
-                            <View
-                                style={{
-                                    borderColor: COLORS.TRANSPURPLE,
-                                    width: 100,
-                                    height: 60,
-                                    justifyContent: 'center',
-
-                                    alignItems: 'center',
-                                }}>
-                                <TouchableOpacity
-                                    onPress={() =>
-                                        navigation.navigate('ViewUserFollowList', {
-                                            userID: userID,
-                                        })
-                                    }
-                                    style={{
-                                        alignItems: 'center',
-                                    }}>
-                                    <Text style={{...FONTS.Title1, color: COLORS.AKCRUBLUE}}>
-                                        {formatNumber(followersCount)}
-                                    </Text>
-                                    <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View
-                                style={{
-                                    height: 50,
-                                    justifyContent: 'center',
-                                    alignItems: 'flex-end',
-                                }}>
-                                <View
-                                    style={{
-                                        alignItems: 'center',
-                                    }}>
-                                    <TouchableOpacity
-                                        style={{alignItems: 'center'}}
-                                        onPress={() => {
-                                            navigation.navigate('SendMITViewUser', {
-                                                userID,
-                                            });
-                                        }}>
-                                        <Image
-                                            source={imageindex.MITticket}
-                                            style={{height: isTablet() ? 75 : 40, width: isTablet() ? 85 : 40}}
-                                        />
-                                        <Text style={{color: 'white', ...FONTS.chart}}>Send User a MIT</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </View>
-                        </View>
-                        <View style={{width: SIZES.ScreenWidth, marginHorizontal: 15}}>
-                            <View style={{flexDirection: 'row'}}>
-                                <Text style={{...FONTS.Title2, marginRight: 2}}>{user?.username}</Text>
-                                {user?.ownerStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.STARGOLD}
-                                        baseSize={MULTISIZES.small11}
-                                        style={{marginRight: 0}}
-                                    />
-                                )}
-                                {user?.companyStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.WHITE}
-                                        baseSize={MULTISIZES.small11}
-                                        style={{marginRight: 0}}
-                                    />
-                                )}
-                                {user?.influencerStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.AKCRUBLUE}
-                                        baseSize={MULTISIZES.small11}
-                                        style={{marginRight: 0}}
-                                    />
-                                )}
-                                {user?.blackCloakStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.BLACKCLOAK}
-                                        baseSize={MULTISIZES.small11}
-                                        style={{marginRight: 0}}
-                                    />
-                                )}
-                                {user?.isAdmin && (
-                                    <CustomIcon
-                                        name="police-badge"
-                                        type="material-community"
-                                        color={COLORS.STARGOLD}
-                                        baseSize={MULTISIZES.small11}
-                                        style={{marginRight: 0}}
-                                    />
-                                )}
-                                {user?.visionaryStatus && (
-                                    <CustomIcon
-                                        name="diamond-stone"
-                                        type="material-community"
-                                        color={COLORS.WHITE}
-                                        baseSize={MULTISIZES.small11}
-                                        style={{marginRight: 0}}
-                                    />
-                                )}
-                            </View>
-
-                            {user?.firstName && (
-                                <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
-                                    {user?.firstName ? user.firstName : ''}
-                                </Text>
-                            )}
-                            <View style={{flexDirection: 'row'}}>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
-                            </View>
-                        </View>
-                        <View style={{marginHorizontal: 15, paddingTop: '2%'}}>
-                            <Text
-                                style={{
-                                    ...FONTS.paragraph1,
-                                    color: COLORS.LIGHTGREY,
-                                }}>
-                                {user?.description}
-                            </Text>
-                        </View>
-                    </View>
-                    <View>
-                        {user?.isArchetypeMatch && (
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    textAlign: 'center',
-                                    color: COLORS.AKCRUPINK,
-                                    marginTop: 10,
-                                }}>
-                                ARCHETYPE MATCH!!!
-                            </Text>
-                        )}
-                    </View>
-
-                    <View
-                        style={{
-                            marginTop: 10,
-                            marginHorizontal: 15,
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                        }}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                justifyContent: 'space-between',
-                                width: SIZES.ScreenWidth * 0.95,
-                                alignItems: 'center',
-                            }}>
-                            <AkcruButtons.FollowButton
-                                btnname={btnName}
-                                onPress={() => !btnDisabled && setShowConfirmationModal(true)}
-                                color={btnColor}
-                                disabled={btnDisabled}
-                            />
-
-                            <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
-                                <ComfirmationModal
-                                    confirmationText={`Are you sure you want to send "${user?.username}" a Cru invite?`}
-                                    onPressYes={handleSendCruInvite}
-                                    onPressNo={() => setShowConfirmationModal(false)}
-                                />
-                            </Modal>
-
-                            <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
-                                <View
-                                    style={{
-                                        flex: 1,
-                                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                    }}>
-                                    <View
-                                        style={{
-                                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                                            padding: 20,
-                                            borderRadius: 10,
-                                            alignItems: 'center',
-                                            marginHorizontal: 15,
-                                        }}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title3,
-                                                marginBottom: 10,
-                                                textAlign: 'center',
-                                            }}>
-                                            {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
-                                        </Text>
-                                    </View>
-                                </View>
-                            </Modal>
-
-                            <Modal visible={userOptionModal} transparent={true} animationType="fade">
-                                <ViewUserOptionModal
-                                    username={user?.username}
-                                    closeModal={() => setUserOptionModal(false)}
-                                    blockUser={() => {
-                                        handleBlockUserPress();
-                                        setUserOptionModal(false);
-                                    }}
-                                    reportUser={handleReportUser}
-                                    followUser={() => {
-                                        handleFollowPress();
-                                        setUserOptionModal(false);
-                                    }}
-                                    followToggleIcon={follow ? 'person-subtract' : 'person-add'}
-                                    followIconType={'ionicon'}
-                                    followToggleText={follow ? 'Unfollow' : 'Follow'}
-                                    cruInviteUser={() => setShowConfirmationModal(true)}
-                                    blockToggleText={isUserBlocked ? 'Unblock' : 'Block'}
-                                />
-                            </Modal>
-
-                            <AkcruButtons.FollowButton
-                                btnname={follow ? 'UNFOLLOW' : 'FOLLOW'}
-                                onPress={handleFollowPress}
-                                color={follow ? COLORS.CATPURPDRK : COLORS.PURPLE}
-                                disabled={false}
-                            />
-                        </View>
-                    </View>
+                <View style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: '#000000'}} />
+                <View
+                    style={{
+                        marginTop: 2,
+                        marginHorizontal: 14,
+                        marginBottom: 4,
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                    }}>
+                    <BackButton navigation={navigation} />
+                    {/* <TouchableOpacity onPress={() => setUserOptionModal(true)}>
+                        <Icon name="ellipsis-vertical" type="ionicon" size={isTablet() ? 32 : 20} color={COLORS.LIGHTGREY} />
+                    </TouchableOpacity> */}
                 </View>
                 <TabView
                     style={{flex: 1}}
+                    sceneContainerStyle={{backgroundColor: '#000000'}}
                     initialLayout={{width: layout.width}}
                     navigationState={{index, routes}}
                     renderScene={renderScene}
@@ -1229,6 +1181,73 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     swipeEnabled={true}
                     renderTabBar={renderTabBar}
                 />
+                <Modal visible={isAvatarModalVisible} animationType="fade" transparent={true}>
+                    <Pressable
+                        onPress={toggleAvatarModal}
+                        style={{
+                            flex: 1,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                        }}>
+                        <TouchableWithoutFeedback>
+                            <Image
+                                source={user?.profilePicture ? {uri: user?.profilePicture} : imageindex.Akcruplaceholder}
+                                style={{width: '95%', height: '50%'}}
+                                resizeMode="contain"
+                            />
+                        </TouchableWithoutFeedback>
+                    </Pressable>
+                </Modal>
+                <Modal animationType="fade" transparent={true} visible={showConfirmationModal}>
+                    <ComfirmationModal
+                        confirmationText={`Are you sure you want to send "${user?.username}" a Cru invite?`}
+                        onPressYes={handleSendCruInvite}
+                        onPressNo={() => setShowConfirmationModal(false)}
+                    />
+                </Modal>
+                <Modal animationType="fade" transparent={true} visible={showCruInviteSent}>
+                    <View
+                        style={{
+                            flex: 1,
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}>
+                        <View
+                            style={{
+                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                padding: 20,
+                                borderRadius: 10,
+                                alignItems: 'center',
+                                marginHorizontal: 15,
+                            }}>
+                            <Text style={{...FONTS.Title3, marginBottom: 10, textAlign: 'center'}}>
+                                {`You have sent "${user?.username}" a Cru invite! You will be notified if they ACCEPT or DECLINE the invite`}
+                            </Text>
+                        </View>
+                    </View>
+                </Modal>
+                {/* <Modal visible={userOptionModal} transparent={true} animationType="fade">
+                    <ViewUserOptionModal
+                        username={user?.username}
+                        closeModal={() => setUserOptionModal(false)}
+                        blockUser={() => {
+                            handleBlockUserPress();
+                            setUserOptionModal(false);
+                        }}
+                        reportUser={handleReportUser}
+                        followUser={() => {
+                            handleFollowPress();
+                            setUserOptionModal(false);
+                        }}
+                        followToggleIcon={follow ? 'person-subtract' : 'person-add'}
+                        followIconType={'ionicon'}
+                        followToggleText={follow ? 'Unfollow' : 'Follow'}
+                        cruInviteUser={() => setShowConfirmationModal(true)}
+                        blockToggleText={isUserBlocked ? 'Unblock' : 'Block'}
+                    />
+                </Modal> */}
                 {selectedPhotoUri && (
                     <TouchableOpacity style={styles.selectedPhotoContainer} activeOpacity={1}>
                         <GalleryPic image={selectedPhotoUri} />

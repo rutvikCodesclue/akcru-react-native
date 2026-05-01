@@ -41,6 +41,7 @@ const SecondRoute = ({userID}) => (
 const ViewUserFollowList = ({route}: Props) => {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
     const userID: string | undefined = route.params?.userID ?? null;
+    const tabKey = route.params?.tabKey ?? 'first';
 
     const renderTabBar = (
         props: JSX.IntrinsicAttributes &
@@ -103,7 +104,7 @@ const ViewUserFollowList = ({route}: Props) => {
 
     const [followingData, setFollowingData] = useState<IUserProfile[]>([]);
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
-    const [index, setIndex] = useState(0);
+    const [index, setIndex] = useState(tabKey === 'second' ? 1 : 0);
     const [routes, setRoutes] = useState([
         {key: 'first', title: 'Followers (0)'},
         {key: 'second', title: 'Following (0)'},
