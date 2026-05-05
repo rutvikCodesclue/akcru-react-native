@@ -20,6 +20,7 @@ import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
 import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
 import UserProfileWalletTab from '../screens/userScreens/UserProfileTabs/UserProfileWalletTab';
+import UserProfileHubTabScreen from '../screens/userScreens/UserProfileHubTabScreen';
 import ViewUserFollowList from '../screens/userScreens/ViewUserFollowList';
 import {ChatList} from '../screens/ChatList';
 import {CruChat} from '../screens/ChatScreens';
@@ -54,6 +55,7 @@ export type UserProfileStackParams = {
     ViewUserDetailScreen: any;
     UserWalletSearch: any;
     UserProfileWalletTab: any;
+    UserProfileHubTabScreen: {hubTab: 'details' | 'dates' | 'cru' | 'wallet'};
     AkcruButtonStack: any;
     AkcruNetworkScreen: any;
     PurchaseMITScreen: any;
@@ -92,6 +94,7 @@ export function UserProfileStack() {
                 component={UserProfileScreen}
                 options={() => ({
                     headerShown: false,
+                    cardStyle: {backgroundColor: COLORS.BLACK},
                 })}
             />
             {/* <UserProfile.Screen
@@ -240,6 +243,14 @@ export function UserProfileStack() {
                 component={UserProfileWalletTab}
                 options={() => ({
                     headerShown: false,
+                })}
+            />
+            <UserProfile.Screen
+                name="UserProfileHubTabScreen"
+                component={UserProfileHubTabScreen}
+                options={() => ({
+                    headerShown: false,
+                    cardStyle: {backgroundColor: COLORS.BLACK},
                 })}
             />
             <UserProfile.Screen

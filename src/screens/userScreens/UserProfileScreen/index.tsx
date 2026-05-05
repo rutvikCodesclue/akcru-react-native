@@ -1,35 +1,14 @@
 import * as React from 'react';
 import { navigate } from '../../../util/RootNavigation';
 
-import {
-    View,
-    useWindowDimensions,
-    Text,
-    TouchableOpacity,
-    Image,
-    SafeAreaView,
-    Modal,
-    ActivityIndicator,
-} from 'react-native';
-import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
-import {
-    UserProfileCruInvites,
-    UserProfileDatesTab,
-    UserProfileDetailsTab,
-    UserProfileWalletTab,
-} from '../UserProfileTabs';
+import {View, Text, TouchableOpacity, Image, SafeAreaView, Modal, ActivityIndicator, Pressable, StyleSheet} from 'react-native';
+import {UserProfileDetailsTab} from '../UserProfileTabs';
+import {hubTabFromProfileRouteParams} from '../UserProfileHubTabScreen';
 import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/header';
-import AkcruLevels from '../../../components/akcruBadges';
 import imageindex from '../../../../assets/images/imageindex';
-import {PressableAndroidRippleConfig} from 'react-native';
-import {StyleProp} from 'react-native';
-import {ViewStyle} from 'react-native';
-import {TextStyle} from 'react-native';
-import {Route} from 'react-native';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -44,10 +23,13 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import {getFollowers, upgradeCRUView} from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
+import ProfileAdWalletBar from '../../../components/ProfileAdWalletBar';
+import {Icon} from '@rneui/base';
 import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
-import AkcruButtons from '../../../components/akcruButtons';
 import {newVisitUserProfile, newVisitUserProfileUpdate} from '../../../lib/api/userProfile.lib';
 import Video from 'react-native-video';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 type UserProfileScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserProfileScreen'>;
 
@@ -58,39 +40,23 @@ type Props = {
     route: UserProfileScreenRouteProp;
 };
 
-const FirstRoute = () => (
-    <View>
-        <UserProfileDetailsTab />
-    </View>
-);
-
-const SecondRoute = () => <UserProfileDatesTab />;
-
-const ThirdRoute = () => (
-    <View>
-        <UserProfileCruInvites />
-    </View>
-);
-
-const FourthRoute = () => <UserProfileWalletTab />;
-
-const renderScene = SceneMap({
-    first: FirstRoute,
-    second: SecondRoute,
-    third: ThirdRoute,
-    fourth: FourthRoute,
-});
-
 export default function UserProfileScreen({navigation, route}: Props) {
-    const {user, hydrateUser} = useAuthStore();
+    const insets = useSafeAreaInsets();
+    const {user, hydrateUser, walletBalance} = useAuthStore();
+    /** Wallet API (`/v1/wallet/me`) is hydrated with the user; prefer it over `user.adAmount` for the bar. */
+    const profileWalletAdAmount = React.useMemo(() => {
+        const parsed = parseFloat(walletBalance ?? '');
+        if (Number.isFinite(parsed)) {
+            return Math.max(0, Math.floor(parsed));
+        }
+        if (user?.adAmount != null && Number.isFinite(user.adAmount)) {
+            return Math.max(0, Math.floor(user.adAmount));
+        }
+        return undefined;
+    }, [walletBalance, user?.adAmount]);
     const [showMITEntryErr, setshowMITEntryErr] = useState(false);
     const [invites, setInvites] = React.useState<(ICruInvite | IMITInvite)[] | []>([]);
     const [isLoaded, setIsLoaded] = React.useState<boolean>(false);
-    const {tabKey = 'first'} = route.params || {};
-    const [index, setIndex] = React.useState(
-        tabKey === 'first' ? 0 : tabKey === 'second' ? 1 : tabKey === 'third' ? 2 : 3,
-    );
-
     const [inviteCount, setInviteCount] = React.useState<number>(0);
     const [myEvents, setMyEvents] = React.useState<(ICruView | IMITInvite)[]>([]);
     const [loading, setLoading] = useState(true); // Loading state
@@ -98,6 +64,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const [loadingUpgrade, setLoadingUpgrade] = useState(false);
     const [showResultModal, setShowResultModal] = useState(false);
     const [upgradeResult, setUpgradeResult] = useState<'success' | 'error' | null>(null);
+    const [profileMenuVisible, setProfileMenuVisible] = useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -213,79 +180,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
     const datesIndicatorCount = eventCount;
     const cruInvitesIndicatorCount = pendingCRUInviteCount;
 
-    const renderTabBar = (
-        props: JSX.IntrinsicAttributes &
-            SceneRendererProps & {
-                navigationState: NavigationState<Route>;
-                scrollEnabled?: boolean | undefined;
-                bounces?: boolean | undefined;
-                activeColor?: string | undefined;
-                inactiveColor?: string | undefined;
-                pressColor?: string | undefined;
-                pressOpacity?: number | undefined;
-                getLabelText?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                getAccessible?: ((scene: Scene<Route>) => boolean | undefined) | undefined;
-                getAccessibilityLabel?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                renderLabel?:
-                    | ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode)
-                    | undefined;
-                renderIcon?: ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode) | undefined;
-                renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined;
-                renderIndicator?: ((props: TabBarIndicatorProps<Route>) => React.ReactNode) | undefined;
-                renderTabBarItem?:
-                    | ((
-                          props: TabBarItemProps<Route> & {key: string},
-                      ) => React.ReactElement<any, string | React.JSXElementConstructor<any>>)
-                    | undefined;
-                onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined;
-                onTabLongPress?: ((scene: Scene<Route>) => void) | undefined;
-                tabStyle?: StyleProp<ViewStyle>;
-                indicatorStyle?: StyleProp<ViewStyle>;
-                indicatorContainerStyle?: StyleProp<ViewStyle>;
-                labelStyle?: StyleProp<TextStyle>;
-                contentContainerStyle?: StyleProp<ViewStyle>;
-                style?: StyleProp<ViewStyle>;
-                gap?: number | undefined;
-                testID?: string | undefined;
-                android_ripple?: PressableAndroidRippleConfig | undefined;
-            },
-    ) => (
-        <TabBar
-            {...props}
-            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
-            scrollEnabled={false}
-            tabStyle={{width: SIZES.ScreenWidth / 4}}
-            labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
-            style={{
-                backgroundColor: COLORS.AKCRUBACKGROUND,
-                justifyContent: 'space-between',
-            }}
-            contentContainerStyle={{
-                alignItems: 'center',
-                alignContent: 'center',
-                justifyContent: 'center',
-            }}
-            activeColor={COLORS.PURPLE}
-            renderBadge={({route}) => {
-                if (route.key === 'second' && datesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.AKCRUBLUE}} />;
-                } else if (route.key === 'third' && cruInvitesIndicatorCount > 0) {
-                    return <View style={{width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.AKCRUBLUE}} />;
-                }
-                return null;
-            }}
-        />
-    );
-
-    const layout = useWindowDimensions();
-
-    const [routes] = React.useState([
-        {key: 'first', title: 'Details'},
-        {key: 'second', title: 'Dates'},
-        {key: 'third', title: 'Cru Inv'},
-        {key: 'fourth', title: 'Wallet'},
-    ]);
+    React.useLayoutEffect(() => {
+        const hub = hubTabFromProfileRouteParams(route.params as Record<string, unknown> | undefined);
+        if (!hub) {
+            return;
+        }
+        navigation.navigate('UserProfileHubTabScreen', {hubTab: hub});
+        navigation.setParams({tabKey: 'first', index: undefined} as UserProfileScreenRouteProp['params']);
+    }, [navigation, route.params]);
 
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
     const [skipped, setSkipped] = useState(false); // ⬅️ moved above returns
@@ -419,7 +321,11 @@ export default function UserProfileScreen({navigation, route}: Props) {
         }
     };
 
-    const iconSize = isTablet() ? 18 : 12;
+    const avatarSize = MULTISIZES.Xlarge80;
+    const profileHandleRaw = (user?.username ?? 'Guest').trim() || 'Guest';
+    const profileHandleDisplay = profileHandleRaw.startsWith('@')
+        ? profileHandleRaw
+        : `@${profileHandleRaw}`;
 
     return (
         <TabContainer>
@@ -431,7 +337,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 <Header />
                             </View>
                             <LinearGradient
-                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
+                                colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.BLACK]}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -440,231 +346,370 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     height: SIZES.ScreenHeight / 2.9,
                                 }}
                             />
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    justifyContent: 'space-between',
-                                    alignItems: 'flex-start',
-
-                                    marginHorizontal: 15,
-                                }}>
-                                {/* user profile pic, name, badges, */}
-                                <View style={{flex: 1, maxWidth: '33%'}}>
-                                    <View style={{marginRight: 8}}>
-                                        <TouchableOpacity
-                                            onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>
-                                            <HexAvatar
-                                                source={{uri: user?.profilePicture}}
-                                                size={MULTISIZES.Xlarge80}
-                                                bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                            />
-                                        </TouchableOpacity>
-                                    </View>
-                                    <View>
-                                        <View
-                                            style={{
-                                                flexDirection: 'row',
-                                                flexWrap: 'wrap',
-                                                alignItems: 'center',
-                                                maxWidth: '100%',
-                                            }}>
-                                            <Text
-                                                style={{...FONTS.Title1, flexShrink: 1}}
-                                                numberOfLines={2}
-                                                ellipsizeMode="tail">
-                                                {user ? user?.username : 'Guest'}
-                                            </Text>
-                                            {user?.ownerStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.STARGOLD}
-                                                    baseSize={iconSize}
-                                                    style={{marginRight: 0}}
-                                                />
-                                            )}
-                                            {user?.companyStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.WHITE}
-                                                    baseSize={iconSize}
-                                                    style={{marginRight: 0}}
-                                                />
-                                            )}
-                                            {user?.influencerStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.AKCRUBLUE}
-                                                    baseSize={iconSize}
-                                                    style={{marginRight: 0}}
-                                                />
-                                            )}
-                                            {user?.blackCloakStatus && (
-                                                <CustomIcon
-                                                    name="ribbon"
-                                                    type="ionicon"
-                                                    color={COLORS.BLACKCLOAK}
-                                                    baseSize={iconSize}
-                                                    style={{marginRight: 0}}
-                                                />
-                                            )}
-                                            {user?.isAdmin && (
-                                                <CustomIcon
-                                                    name="police-badge"
-                                                    type="material-community"
-                                                    color={COLORS.STARGOLD}
-                                                    baseSize={iconSize}
-                                                    style={{marginRight: 0}}
-                                                />
-                                            )}
-                                            {user?.visionaryStatus && (
-                                                <CustomIcon
-                                                    name="diamond-stone"
-                                                    type="material-community"
-                                                    color={COLORS.WHITE}
-                                                    baseSize={iconSize}
-                                                    style={{marginRight: 0}}
-                                                />
-                                            )}
-                                        </View>
-                                        {user?.firstName && (
-                                            <Text
-                                                style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}
-                                                numberOfLines={1}
-                                                ellipsizeMode="tail">
-                                                {user.firstName}
-                                            </Text>
-                                        )}
-                                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                            {user?.badge === 'AKCRUIT' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeAkcruit />
-                                                </View>
-                                            )}
-                                            {user?.badge === 'GUARDIAN' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeGuardian />
-                                                </View>
-                                            )}
-                                            {user?.badge === 'HERO' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeHero />
-                                                </View>
-                                            )}
-                                            {user?.badge === 'SUPERHERO' && (
-                                                <View>
-                                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                                </View>
-                                            )}
-                                        </View>
-                                    </View>
-                                </View>
-
+                            <View style={{marginHorizontal: 15}}>
                                 <View
                                     style={{
-                                        marginTop: '2%',
-                                        justifyContent: 'center',
-
+                                        flexDirection: 'row',
                                         alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        width: '100%',
                                     }}>
+                                    <TouchableOpacity
+                                        onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>
+                                        <HexAvatar
+                                            source={{uri: user?.profilePicture}}
+                                            size={avatarSize}
+                                            bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                            rotateFrameDegrees={90}
+                                        />
+                                    </TouchableOpacity>
                                     <TouchableOpacity
                                         onPress={() => navigation.navigate('FollowList')}
                                         style={{
                                             alignItems: 'center',
+                                            paddingHorizontal: 4,
                                         }}>
                                         <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{followersCount}</Text>
                                         <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
                                     </TouchableOpacity>
+                                    <TouchableOpacity
+                                        onPress={() => setProfileMenuVisible(true)}
+                                        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                                        accessibilityLabel="Open profile actions menu"
+                                        style={{
+                                            width: isTablet() ? 44 : 36,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                        }}>
+                                        <CustomIcon
+                                            name="ellipsis-vertical"
+                                            type="ionicon"
+                                            color={COLORS.AKCRUBLUE}
+                                            baseSize={isTablet() ? 22 : 18}
+                                        />
+                                    </TouchableOpacity>
                                 </View>
                                 <View
                                     style={{
-                                        marginTop: '2%',
-                                        justifyContent: 'flex-end',
-                                        alignItems: 'flex-end',
+                                        marginTop: 8,
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        flexWrap: 'wrap',
+                                        justifyContent: 'flex-start',
+                                        alignSelf: 'stretch',
                                     }}>
-                                    <TouchableOpacity
-                                        onPress={() =>
-                                            navigate('NoBottomStack', {
-                                                screen: 'UserMITHubScreen',
-                                                params: {index: 0},
-                                            })
-                                        } //Navigate to MITHub
-                                        style={{marginRight: '5%'}}>
-                                        <View>
-                                            <Image
-                                                source={imageindex.LrgMIT}
-                                                style={{width: isTablet() ? 85 : 55, height: isTablet() ? 42 : 25}}
-                                            />
-                                        </View>
-                                        <View style={{position: 'absolute', right: 0, bottom: isTablet() ? 20 : 10}}>
-                                            <View
-                                                style={{
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    backgroundColor: COLORS.PURPLE,
-                                                    width: 20,
-                                                    height: 20,
-                                                    borderRadius: 15,
-                                                }}>
-                                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>
-                                                    {inviteCount}
-                                                </Text>
-                                            </View>
-                                        </View>
-                                    </TouchableOpacity>
-
-                                    <View style={{marginTop: '30%'}}>
-                                        <AkcruButtons.XSmallButton
-                                            btnname="Edit Profile"
-                                            onPress={() => navigate('NoBottomStack', {screen: 'EditProfile'})}
-                                            color={COLORS.PINK}
-                                            disabled={false}
-                                        />
-                                        <View style={{marginTop: 10}}>
-                                            <AkcruButtons.XSmallButton
-                                                btnname="Match modes"
-                                                onPress={() => navigation.navigate('UserMatchModesScreen')}
-                                                color={COLORS.AKCRUBLUE}
-                                                disabled={false}
-                                            />
-                                        </View>
-                                        <View style={{marginTop: 10}}>
-                                            <AkcruButtons.XSmallButton
-                                                btnname="Archetype Standalone"
-                                                onPress={() =>
-                                                    navigate('OnboardArchetypeStandalone', {
-                                                        fromOnboardArchetypeStandalone: true,
-                                                    })
-                                                }
-                                                color={COLORS.PURPLE}
-                                                disabled={false}
-                                            />
-                                        </View>
-                                    </View>
+                                    <Text
+                                        style={{
+                                            ...FONTS.Title1,
+                                            flexShrink: 1,
+                                            minWidth: 0,
+                                            marginRight: 6,
+                                            textAlign: 'left',
+                                        }}
+                                        numberOfLines={1}
+                                        ellipsizeMode="tail">
+                                        {profileHandleDisplay}
+                                    </Text>
+                                    <ProfileUserBadges user={user} variant="inline" style={{flexShrink: 0}} />
                                 </View>
                             </View>
+                            {/* User description (bio)
                             <View style={{marginTop: '3%', marginHorizontal: 15}}>
-                                <Text style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}>
+                                <Text
+                                    style={{...FONTS.paragraph1, color: COLORS.LIGHTGREY}}
+                                    numberOfLines={2}
+                                    ellipsizeMode="tail">
                                     {user?.description ??
                                         (user
                                             ? 'Click Edit Profile to add a description'
                                             : 'Create an account and get started today')}
                                 </Text>
                             </View>
+                            */}
+                            <View style={profileScreenStyles.adWalletSection}>
+                                <View style={profileScreenStyles.adWalletBarWrap}>
+                                    <ProfileAdWalletBar
+                                        adAmount={profileWalletAdAmount}
+                                        onPressPurchase={() =>
+                                            navigate('NoBottomStack', {
+                                                screen: 'PurchaseAdScreen',
+                                            })
+                                        }
+                                    />
+                                </View>
+                                {/*
+                                <View style={profileScreenStyles.editProfileGlow}>
+                                    <TouchableOpacity
+                                        activeOpacity={0.9}
+                                        onPress={() => navigate('NoBottomStack', {screen: 'EditProfile'})}
+                                        accessibilityRole="button"
+                                        accessibilityLabel="Edit profile"
+                                        style={profileScreenStyles.editProfileTouchable}>
+                                        <LinearGradient
+                                            colors={['#172554', '#3730a3', '#7c3aed', '#c026d3']}
+                                            start={{x: 0, y: 0.5}}
+                                            end={{x: 1, y: 0.5}}
+                                            style={profileScreenStyles.editProfileGradient}>
+                                            <Icon
+                                                name="brush-outline"
+                                                type="ionicon"
+                                                color="#c4b5fd"
+                                                size={isTablet() ? 22 : 19}
+                                                style={profileScreenStyles.editProfileIcon}
+                                            />
+                                            <Text style={profileScreenStyles.editProfileLabel}>Edit Profile</Text>
+                                        </LinearGradient>
+                                    </TouchableOpacity>
+                                </View>
+                                */}
+                            </View>
                         </View>
                     </View>
                     <View style={{marginTop: '2%'}} />
-                    <TabView
-                        navigationState={{index, routes}}
-                        renderScene={renderScene}
-                        onIndexChange={setIndex}
-                        initialLayout={{width: layout.width}}
-                        swipeEnabled={true}
-                        renderTabBar={renderTabBar}
-                    />
+                    <View style={{flex: 1, minHeight: 0}}>
+                        <UserProfileDetailsTab hideProfileDetailsSection hideCruAffiliationsSection />
+                    </View>
                 </SafeAreaView>
+
+                <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={profileMenuVisible}
+                    onRequestClose={() => setProfileMenuVisible(false)}>
+                    <View style={{flex: 1}}>
+                        <Pressable
+                            style={[StyleSheet.absoluteFillObject, {backgroundColor: 'rgba(0, 0, 0, 0.45)'}]}
+                            onPress={() => setProfileMenuVisible(false)}
+                        />
+                        <View
+                            style={{
+                                position: 'absolute',
+                                top: insets.top + 52,
+                                right: 12,
+                                backgroundColor: COLORS.BLACK,
+                                borderRadius: 12,
+                                paddingVertical: 6,
+                                minWidth: 216,
+                                borderWidth: 1,
+                                borderColor: COLORS.LIGHTGREY,
+                            }}>
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 12,
+                                }}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigate('NoBottomStack', {
+                                        screen: 'UserMITHubScreen',
+                                        params: {index: 0},
+                                    });
+                                }}>
+                                <View style={{position: 'relative'}}>
+                                    <Image
+                                        source={imageindex.LrgMIT}
+                                        style={{width: isTablet() ? 56 : 44, height: isTablet() ? 28 : 22}}
+                                        resizeMode="contain"
+                                    />
+                                    <View
+                                        style={{
+                                            position: 'absolute',
+                                            right: -6,
+                                            top: -6,
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            backgroundColor: COLORS.PURPLE,
+                                            width: 20,
+                                            height: 20,
+                                            borderRadius: 10,
+                                        }}>
+                                        <Text style={{...FONTS.Title2, color: COLORS.WHITE, fontSize: 11}}>
+                                            {inviteCount}
+                                        </Text>
+                                    </View>
+                                </View>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE, marginLeft: 10}}>MIT Hub</Text>
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            {/*
+                            <TouchableOpacity
+                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigate('NoBottomStack', {screen: 'EditProfile'});
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.PINK}}>Edit Profile</Text>
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigation.navigate('UserMatchModesScreen');
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Match modes</Text>
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigate('OnboardArchetypeStandalone', {
+                                        fromOnboardArchetypeStandalone: true,
+                                    });
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.PURPLE}}>Archetype Standalone</Text>
+                            </TouchableOpacity>
+                            */}
+                            {/*
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    marginTop: 4,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 12,
+                                }}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigation.navigate('UserProfileHubTabScreen', {hubTab: 'details'});
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Details</Text>
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 12,
+                                }}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigation.navigate('UserProfileHubTabScreen', {hubTab: 'dates'});
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Dates</Text>
+                                {datesIndicatorCount > 0 ? (
+                                    <View
+                                        style={{
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: 4,
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                        }}
+                                    />
+                                ) : null}
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{
+                                    flexDirection: 'row',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    paddingHorizontal: 14,
+                                    paddingVertical: 12,
+                                }}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigation.navigate('UserProfileHubTabScreen', {hubTab: 'cru'});
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Cru Inv</Text>
+                                {cruInvitesIndicatorCount > 0 ? (
+                                    <View
+                                        style={{
+                                            width: 8,
+                                            height: 8,
+                                            borderRadius: 4,
+                                            backgroundColor: COLORS.AKCRUBLUE,
+                                        }}
+                                    />
+                                ) : null}
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    navigation.navigate('UserProfileHubTabScreen', {hubTab: 'wallet'});
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Wallet</Text>
+                            </TouchableOpacity>
+                            */}
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
+                                    if (user?.id) {
+                                        navigation.navigate('ViewUserScreen', {userID: user.id, tabKey: 'second'});
+                                    }
+                                }}>
+                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>My activity</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </Modal>
 
                 <Modal animationType="fade" transparent={true} visible={showMITEntryErr}>
                     <View
@@ -676,7 +721,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         }}>
                         <View
                             style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                backgroundColor: COLORS.BLACK,
                                 padding: 20,
                                 borderRadius: 10,
                                 alignItems: 'center',
@@ -719,7 +764,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         }}>
                         <View
                             style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                backgroundColor: COLORS.BLACK,
                                 padding: 20,
                                 borderRadius: 10,
                                 alignItems: 'center',
@@ -772,7 +817,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                         }}>
                         <View
                             style={{
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                backgroundColor: COLORS.BLACK,
                                 padding: 20,
                                 borderRadius: 10,
                                 alignItems: 'center',
@@ -790,3 +835,42 @@ export default function UserProfileScreen({navigation, route}: Props) {
         </TabContainer>
     );
 }
+
+const profileScreenStyles = StyleSheet.create({
+    adWalletSection: {
+        marginTop: '3%',
+        marginHorizontal: 15,
+        alignItems: 'center',
+    },
+    adWalletBarWrap: {
+        width: '100%',
+        alignSelf: 'stretch',
+    },
+    editProfileGlow: {
+        marginTop: 16,
+        alignSelf: 'center',
+        width: '64%',
+        maxWidth: 320,
+        borderRadius: 14,
+    },
+    editProfileTouchable: {
+        width: '100%',
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
+    editProfileGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderRadius: 12,
+        paddingVertical: 13,
+        paddingHorizontal: 18,
+    },
+    editProfileIcon: {
+        marginRight: 10,
+    },
+    editProfileLabel: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+    },
+});

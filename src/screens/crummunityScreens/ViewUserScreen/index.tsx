@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import styles from './styles';
 import React, {useEffect, useRef, useState} from 'react';
-import {FONTS, COLORS, SIZES, AKCRUBADGES} from '../../../../assets/constants';
+import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
@@ -71,7 +71,7 @@ import {navigateToNewComment, navigateToPostScreen} from '../../../util/RootNavi
 import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 import AkcruButtons from '../../../components/akcruButtons';
 import ProfileMetricChip from '../../../components/ProfileMetricChip';
-import CustomIcon from '../../../components/CustomIcon/CustomIcon';
+import ProfileUserBadges, {resolveAkcruBadgeConfig} from '../../../components/ProfileUserBadges';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
@@ -85,12 +85,6 @@ type Props = {
 
 export default function ViewUserScreen({route, navigation}: Props) {
     const [follow, setFollow] = useState(false);
-    const [badgeScore] = useState(() => Math.floor(Math.random() * 100) + 1);
-    const badgeScoreColors = {
-        mainCharacter: '#FFC83D',
-        showStopper: '#B06CFF',
-        offGrid: '#7A8A9C',
-    };
 
     const currentuser = useAuthStore(state => state.user);
     const {hydrateUser} = useAuthStore();
@@ -248,23 +242,6 @@ export default function ViewUserScreen({route, navigation}: Props) {
               ? Number(userAgeFromApiRaw)
               : NaN;
     const userAge = Number.isFinite(userAgeFromApi) && userAgeFromApi > 0 ? userAgeFromApi : getAge(user?.dateOfBirth);
-    const nameBadgeIconSize = isTablet() ? 14 : 12;
-    const colorToRgba = (hexColor: string, alpha: number) => {
-        if (!hexColor?.startsWith('#')) return `rgba(255,255,255,${alpha})`;
-        const hex = hexColor.replace('#', '');
-        const normalized = hex.length === 3 ? hex.split('').map(ch => ch + ch).join('') : hex;
-        const bigint = parseInt(normalized, 16);
-        const r = (bigint >> 16) & 255;
-        const g = (bigint >> 8) & 255;
-        const b = bigint & 255;
-        return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    };
-    const badgeScoreStatus =
-        badgeScore >= 80
-            ? {text: 'Main Character', emojiIcon: '🔥', color: badgeScoreColors.mainCharacter}
-            : badgeScore >= 50
-              ? {text: 'Show Stopper', emojiIcon: '✨', color: badgeScoreColors.showStopper}
-              : {text: 'Off Grid', emojiIcon: '🌙', color: badgeScoreColors.offGrid};
     const metricItems = [
         {
                  key: 'gallery',
@@ -305,16 +282,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
         },
     ];
     const usernameFontSize = Number((FONTS.Title1 as any)?.fontSize) || 20;
-    const badgeConfig =
-        user?.badge === 'AKCRUIT'
-            ? AKCRUBADGES.Akcruit
-            : user?.badge === 'GUARDIAN'
-              ? AKCRUBADGES.Guardian
-              : user?.badge === 'HERO'
-                ? AKCRUBADGES.Hero
-                : user?.badge === 'SUPERHERO'
-                  ? AKCRUBADGES.SuperHero
-                  : null;
+    const badgeConfig = resolveAkcruBadgeConfig(user?.badge);
 
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [showCruInviteSent, setShowCruInviteSent] = useState(false);
@@ -676,156 +644,19 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                 flexDirection: 'row',
                                 alignItems: 'center',
                                 justifyContent: 'center',
+                                flexWrap: 'wrap',
                                 marginBottom: badgeConfig ? 0 : 10,
                             }}>
                             <Icon name="heart" type="ionicon" color="#FF4DA6" size={usernameFontSize} style={{marginRight: 8}} />
-                            <Text style={[styles.refName, {marginBottom: 0, fontSize: usernameFontSize}]}>
+                            <Text
+                                style={[
+                                    styles.refName,
+                                    {marginBottom: 0, fontSize: usernameFontSize, flexShrink: 1, minWidth: 0},
+                                ]}>
                                 {user?.username || user?.firstName}
                                 {user?.showAge && userAge ? `, ${userAge}` : ''}
                             </Text>
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexWrap: 'wrap',
-                                marginTop: 4,
-                                marginBottom: 6,
-                            }}>
-                            {(user?.influencerStatus || user?.ownerStatus) && (
-                                <Icon
-                                    name="checkmark-circle"
-                                    type="ionicon"
-                                    color="#3498db"
-                                    size={nameBadgeIconSize + 2}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                            {user?.ownerStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.STARGOLD}
-                                    baseSize={nameBadgeIconSize}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                            {user?.companyStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.WHITE}
-                                    baseSize={nameBadgeIconSize}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                            {user?.influencerStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.AKCRUBLUE}
-                                    baseSize={nameBadgeIconSize}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                            {user?.blackCloakStatus && (
-                                <CustomIcon
-                                    name="ribbon"
-                                    type="ionicon"
-                                    color={COLORS.BLACKCLOAK}
-                                    baseSize={nameBadgeIconSize}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                            {user?.isAdmin && (
-                                <CustomIcon
-                                    name="police-badge"
-                                    type="material-community"
-                                    color={COLORS.STARGOLD}
-                                    baseSize={nameBadgeIconSize}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                            {user?.visionaryStatus && (
-                                <CustomIcon
-                                    name="diamond-stone"
-                                    type="material-community"
-                                    color={COLORS.WHITE}
-                                    baseSize={nameBadgeIconSize}
-                                    style={{marginHorizontal: 2}}
-                                />
-                            )}
-                        </View>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                marginVertical: 10,
-                            }}>
-                            {badgeConfig && (
-                                <LinearGradient
-                                    colors={[colorToRgba(badgeConfig.color, 0.14), colorToRgba(badgeConfig.color, 0.28)]}
-                                    start={{x: 0, y: 0}}
-                                    end={{x: 1, y: 1}}
-                                    style={{
-                                        borderWidth: 1,
-                                        borderColor: badgeConfig.color,
-                                        borderRadius: 7,
-                                        paddingHorizontal: 8,
-                                        paddingVertical: 6,
-                                        marginRight: 8,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Akcrubadges,
-                                            fontSize: (Number((FONTS.Title2 as any)?.fontSize) || 14) - 1,
-                                            color: badgeConfig.color,
-                                        }}>
-                                        {badgeConfig.label}
-                                    </Text>
-                                </LinearGradient>
-                            )}
-                            {/* badgeScoreStatus UI temporarily disabled */}
-                            {/*
-                            <LinearGradient
-                                colors={[badgeScoreStatus.color, '#FFFFFF']}
-                                start={{x: 0, y: 0}}
-                                end={{x: 1, y: 1}}
-                                style={{borderRadius: 7, padding: 1}}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        borderRadius: 7,
-                                        paddingHorizontal: 8,
-                                        paddingVertical: 4,
-                                        backgroundColor: 'rgba(14,14,14,0.92)',
-                                    }}>
-                                    <Text
-                                        style={{
-                                            fontSize: isTablet() ? 18 : 16,
-                                            marginRight: 4,
-                                            textShadowColor: 'rgba(255,255,255,0.75)',
-                                            textShadowOffset: {width: 0, height: 0},
-                                            textShadowRadius: 6,
-                                        }}>
-                                        {badgeScoreStatus.emojiIcon}
-                                    </Text>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            fontSize: (Number((FONTS.Title2 as any)?.fontSize) || 14) - 1,
-                                            color: badgeScoreStatus.color,
-                                            textAlign: 'center',
-                                        }}>
-                                        {badgeScoreStatus.text}
-                                    </Text>
-                                </View>
-                            </LinearGradient>
-                            */}
+                            <ProfileUserBadges user={user} variant="inline" style={{marginLeft: 6, flexShrink: 0}} />
                         </View>
 
                         <View style={styles.refMetrics}>
@@ -860,18 +691,20 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             </View>
                         </View> */}
 
-                        <View style={styles.refMitButton}>
-                            <AkcruButtons.SmallButton
-                                variant="auth"
-                                btnname="Send MIT"
-                                color={COLORS.AKCRUBLUE}
-                                onPress={() => navigation.navigate('SendMITViewUser', {userID})}
-                                authButtonWidth={SIZES.ScreenWidth - 84}
-                                authLeftImage={require('../../../../assets/images/mit_ticket_image.png')}
-                                authImagePosition="left"
-                                authImageSize={80}
-                            />
-                        </View>
+                        {!isOwnProfile && (
+                            <View style={styles.refMitButton}>
+                                <AkcruButtons.SmallButton
+                                    variant="auth"
+                                    btnname="Send MIT"
+                                    color={COLORS.AKCRUBLUE}
+                                    onPress={() => navigation.navigate('SendMITViewUser', {userID})}
+                                    authButtonWidth={SIZES.ScreenWidth - 84}
+                                    authLeftImage={require('../../../../assets/images/mit_ticket_image.png')}
+                                    authImagePosition="left"
+                                    authImageSize={80}
+                                />
+                            </View>
+                        )}
 
                         <View style={styles.refSection}>
                             <ArchetypeHorizontalDivider />

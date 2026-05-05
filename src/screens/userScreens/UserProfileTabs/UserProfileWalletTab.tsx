@@ -1,4 +1,5 @@
 import {View, Text, ScrollView, Image, TextInput, Pressable, Modal, Alert, Platform} from 'react-native';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import React, {useEffect, useState} from 'react';
 import styles from './styles';
@@ -44,12 +45,12 @@ const UserProfileWalletTab = () => {
     const [walletAds, setWalletAds] = useState<IAd[]>([]);
         // const AD_HEIGHT = isTablet() ? Math.round((SIZES.ScreenWidth * 9) / 16) : Math.round((SIZES.ScreenWidth * 9) / 16);
         const AD_HEIGHT = SIZES.ScreenWidth / 2.4;
-    
+
         useEffect(() => {
             (async () => {
                 try {
                     const res = await getAds('WALLET_BILLBOARD'); // { ads: IAd[] }
-    
+
                     // ✅ filter by start/end dates + active flag (client-side guard)
                     const now = Date.now();
                     const filtered = (res.ads ?? []).filter(a => {
@@ -57,7 +58,7 @@ const UserProfileWalletTab = () => {
                         const e = a.endAt ? Date.parse(a.endAt) : Infinity;
                         return s <= now && now <= e && a.isActive;
                     });
-    
+
                     setWalletAds(filtered);
                 } catch (e) {
                     console.log('Failed to load ads', e);
@@ -136,7 +137,7 @@ const UserProfileWalletTab = () => {
         <View style={{marginHorizontal: SIZES.marginhorizontal}}>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View>
-                    <Text style={styles.titleText1}>WALLET</Text>
+                    <ArchetypeHorizontalDivider title="WALLET" containerStyle={{marginBottom: 14}} />
                 </View>
                 <View
                     style={{

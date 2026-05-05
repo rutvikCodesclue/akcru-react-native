@@ -63,6 +63,8 @@ export default StyleSheet.create({
         justifyContent: 'center',
         flexWrap: 'wrap',
         gap: 8,
+        marginTop: 4,
+        paddingTop: 4,
         marginBottom: 10,
     },
     refMetricChip: {

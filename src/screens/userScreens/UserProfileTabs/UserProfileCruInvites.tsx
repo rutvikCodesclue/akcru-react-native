@@ -1,11 +1,11 @@
-import {View, Text, FlatList} from 'react-native';
+import {View, FlatList, ActivityIndicator} from 'react-native';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 import React, {useState} from 'react';
-import styles from './styles';
 import CruInviteCard from '../../../components/CruInviteCard';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import {acceptACRUInvite, declineACRUInvite, getCRUInvites} from '../../../lib/api/cru.lib';
 import {ICruInvite, IMITInvite} from '../../../../types';
-import {COLORS, FONTS} from '../../../../assets/constants';
+import {COLORS} from '../../../../assets/constants';
 import {getMyMITInvites} from '../../../lib/api/mit.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../../navigation/ClientStack';
@@ -105,15 +105,19 @@ const UserProfileCruInvites = () => {
         navigation.navigate('ViewUserScreen', {userID: creatorId});
     };
 
+    if (isLoaded && cruInvites.length === 0) {
+        return null;
+    }
+
     return (
         <View>
             <View>
-                <Text style={styles.titleText1}>CRU INVITES</Text>
+                <ArchetypeHorizontalDivider title="CRU INVITES" containerStyle={{marginBottom: 14}} />
             </View>
             {!isLoaded ? (
-                <Text style={{...FONTS.Title1, textAlign: 'center'}}>
-                    {invites.length === 0 ? 'No Invites' : 'Loading...'}
-                </Text>
+                <View style={{alignItems: 'center', paddingVertical: 28}}>
+                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                </View>
             ) : (
                 <FlatList
                     data={cruInvites}
@@ -134,9 +138,6 @@ const UserProfileCruInvites = () => {
                             />
                         </View>
                     )}
-                    ListEmptyComponent={
-                        <Text style={{...FONTS.Title2, textAlign: 'center', color: COLORS.DARKGREY}}>No Invites</Text>
-                    }
                 />
             )}
         </View>

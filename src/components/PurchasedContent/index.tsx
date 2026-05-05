@@ -1,11 +1,12 @@
-import React, {useState, useCallback} from 'react';
-import {ScrollView, View, Text, Image, FlatList, Pressable, StyleSheet} from 'react-native';
+import React, {useState, useCallback, useEffect} from 'react';
+import {ScrollView, View, Image, FlatList, Pressable, StyleSheet} from 'react-native';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import useAuthStore from '../../stores/auth.store';
 import {getPurchasedMovies} from '../../lib/api/movies.lib';
 import {getPurchasedSeries} from '../../lib/api/series.lib';
 import {FONTS, SIZES} from '../../../assets/constants';
+import ArchetypeHorizontalDivider from '../ArchetypeHorizontalDivider';
 import {ClientStackParams} from '../../navigation/ClientStack';
 import { isTablet } from '../../../assets/constants/theme';
 
@@ -34,7 +35,7 @@ const PurchasedCategory = ({title, items, type}: PurchasedCategoryProps) => {
 
     return (
         <View style={styles.category}>
-            <Text style={styles.heading}>{title}</Text>
+            <ArchetypeHorizontalDivider title={title} containerStyle={{marginBottom: 12}} />
             <FlatList
                 data={items}
                 horizontal
@@ -53,7 +54,11 @@ const PurchasedCategory = ({title, items, type}: PurchasedCategoryProps) => {
     );
 };
 
-export default function PurchasedContent() {
+type PurchasedContentProps = {
+    onAvailabilityChange?: (hasContent: boolean) => void;
+};
+
+export default function PurchasedContent({onAvailabilityChange}: PurchasedContentProps) {
     const userId = useAuthStore(s => s.user?.id);
     const [movies, setMovies] = useState<Purchasable[]>([]);
     const [series, setSeries] = useState<Purchasable[]>([]);
@@ -83,15 +88,20 @@ export default function PurchasedContent() {
         }, [load]),
     );
 
+    const hasContent = movies.length > 0 || series.length > 0;
+
+    useEffect(() => {
+        onAvailabilityChange?.(hasContent);
+    }, [hasContent, onAvailabilityChange]);
+
+    if (!hasContent) {
+        return null;
+    }
+
     return (
         <ScrollView contentContainerStyle={styles.container}>
             {movies.length > 0 && <PurchasedCategory title="Your Purchased Movies" items={movies} type="movie" />}
             {series.length > 0 && <PurchasedCategory title="Your Purchased Series" items={series} type="series" />}
-            {movies.length + series.length === 0 && (
-                <View style={styles.empty}>
-                    <Text style={styles.emptyText}>You haven’t purchased anything yet.</Text>
-                </View>
-            )}
         </ScrollView>
     );
 }
@@ -102,10 +112,6 @@ const styles = StyleSheet.create({
     },
     category: {
         marginBottom: 30,
-    },
-    heading: {
-        ...FONTS.Title2,
-        marginBottom: 12,
     },
     item: {
         marginRight: 12,
@@ -122,11 +128,5 @@ const styles = StyleSheet.create({
         ...FONTS.paragraph1,
         marginTop: 6,
         width: 120,
-    },
-    empty: {
-        alignItems: 'center',
-    },
-    emptyText: {
-        ...FONTS.paragraph1,
     },
 });

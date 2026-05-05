@@ -1,9 +1,10 @@
 import {View, Text, Image, TouchableOpacity, ScrollView, Modal, FlatList, Pressable, Alert} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 
+import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import useAuthStore from '../../../stores/auth.store';
@@ -18,6 +19,7 @@ import {
     deleteUserGalleryImage,
     updateUserGallery,
     fetchUserGallery,
+    reorderUserGallery,
     getGalleryLikeCount,
     getGalleryLikesList,
     upgradeCRUView,
@@ -26,6 +28,7 @@ import {
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 import WatchListCategory from '../../../components/WatchlistCategory';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 import AkcruButtons from '../../../components/akcruButtons';
 import {listCrusForUser} from '../../../lib/api/cru.lib';
 import {UseTabMenu} from '../../../context/TabContext';
@@ -45,8 +48,30 @@ import {isTablet} from '../../../../assets/constants/theme';
 import imageindex from '../../../../assets/images/imageindex';
 import { getUserWallet } from '../../../lib/api/wallet.lib';
 import {navigate} from '../../../util/RootNavigation';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {getFloatingClientTabBarBottomInsetPx} from '../../../navigation/clientTabBarStyle';
+import UpcomingDatesSection from '../../../components/UpcomingDatesSection';
 
-const UserProfileDetailsTab = () => {
+export type UserProfileDetailsTabProps = {
+    /** When true, hides the "PROFILE DETAILS" divider and primary CRU controls (used on main profile hub). */
+    hideProfileDetailsSection?: boolean;
+    /** When true, hides the "CRU AFFILIATIONS" carousel (used on main profile hub). */
+    hideCruAffiliationsSection?: boolean;
+};
+
+const UserProfileDetailsTab = ({
+    hideProfileDetailsSection = false,
+    hideCruAffiliationsSection = false,
+}: UserProfileDetailsTabProps) => {
+    const tabBarHeight = useBottomTabBarHeight();
+    const insets = useSafeAreaInsets();
+    /** Absolute-position tab bar: include pill `bottom` + height (hook alone is often too small). */
+    const galleryListBottomPadding = Math.max(
+        48,
+        getFloatingClientTabBarBottomInsetPx(20) + insets.bottom,
+        tabBarHeight + insets.bottom + 28,
+    );
+
     const [channelll, setChannel] = useState<RealtimeChannel | null>(null);
 
     const [crus, setCrus] = useState<ICru[]>([]);
@@ -283,6 +308,29 @@ const UserProfileDetailsTab = () => {
         }
     };
 
+    const [galleryReorderBusy, setGalleryReorderBusy] = useState(false);
+
+    const moveGalleryItem = async (fromIndex: number, direction: -1 | 1) => {
+        const toIndex = fromIndex + direction;
+        if (toIndex < 0 || toIndex >= userPics.length || galleryReorderBusy) {
+            return;
+        }
+        const previous = [...userPics];
+        const next = [...userPics];
+        [next[fromIndex], next[toIndex]] = [next[toIndex], next[fromIndex]];
+        setUserPics(next);
+        setGalleryReorderBusy(true);
+        const saved = await reorderUserGallery(next);
+        setGalleryReorderBusy(false);
+        if (!saved) {
+            setUserPics(previous);
+            Alert.alert('Reorder failed', 'Could not save the new order. Please try again.');
+            return;
+        }
+        setUserPics(saved);
+        hydrateUser();
+    };
+
     const [selectedImage, setSelectedImage] = useState(null);
 
     const handleImageEnlarge = imageUri => {
@@ -468,21 +516,91 @@ const UserProfileDetailsTab = () => {
     // 4) computed flag
     const canAfford = price != null && walletBalance >= price;
 
+    const cruMemberList = cruMembers();
+    const hasCruMemberRow = cruMemberList.length > 0;
+    const hasPrimaryCru = Boolean(CRU);
+    const hasCrusList = crus.length > 0;
+    const hasFavorites = watchlist.length > 0;
+    const [hasPurchasedRow, setHasPurchasedRow] = useState(false);
+    const onPurchasedAvailabilityChange = useCallback((visible: boolean) => {
+        setHasPurchasedRow(visible);
+    }, []);
+
+    useEffect(() => {
+        setHasPurchasedRow(false);
+    }, [user?.id]);
+    const cruAffiliationsVisible = hasCrusList && !hideCruAffiliationsSection;
+    const hasMidTailSection = cruAffiliationsVisible || hasPurchasedRow;
+    const showDividerAffiliationsToTail = cruAffiliationsVisible && hasPurchasedRow;
+    const showDividerBeforeGallery = hasMidTailSection;
+
     return (
-        <View>
-            <View style={{marginHorizontal: SIZES.marginhorizontal}}>
-                <View style={styles.gallerycontainer}>
+        <View style={{flex: 1, minHeight: 0}}>
+            <View style={{marginHorizontal: SIZES.marginhorizontal, flex: 1, minHeight: 0}}>
+                <View style={[styles.gallerycontainer, {flex: 1, minHeight: 0}]}>
                     <FlatList
+                        style={{flex: 1}}
                         data={userPics}
+                        extraData={{userPics, watchlist}}
                         numColumns={3}
                         showsHorizontalScrollIndicator={false}
                         showsVerticalScrollIndicator={false}
-                        keyExtractor={(item, index) => index.toString()}
-                        renderItem={({item}) => (
+                        contentContainerStyle={{paddingBottom: galleryListBottomPadding}}
+                        keyExtractor={item => item}
+                        renderItem={({item, index}) => (
                             <View>
                                 <Pressable onPress={() => handleImageEnlarge(item)}>
                                     <Image source={{uri: item}} style={styles.galleryImage} />
                                 </Pressable>
+                                {userPics.length > 1 ? (
+                                    <View
+                                        style={{
+                                            position: 'absolute',
+                                            top: 6,
+                                            left: 4,
+                                            flexDirection: 'row',
+                                        }}>
+                                        {index > 0 ? (
+                                            <TouchableOpacity
+                                                onPress={() => moveGalleryItem(index, -1)}
+                                                disabled={galleryReorderBusy}
+                                                accessibilityLabel="Move photo earlier in gallery"
+                                                hitSlop={{top: 6, bottom: 6, left: 6, right: 6}}
+                                                style={{
+                                                    marginRight: 4,
+                                                    backgroundColor: 'rgba(0,0,0,0.55)',
+                                                    borderRadius: 12,
+                                                    padding: 4,
+                                                }}>
+                                                <Icon
+                                                    name="chevron-back"
+                                                    type="ionicon"
+                                                    size={isTablet() ? 18 : 16}
+                                                    color={COLORS.WHITE}
+                                                />
+                                            </TouchableOpacity>
+                                        ) : null}
+                                        {index < userPics.length - 1 ? (
+                                            <TouchableOpacity
+                                                onPress={() => moveGalleryItem(index, 1)}
+                                                disabled={galleryReorderBusy}
+                                                accessibilityLabel="Move photo later in gallery"
+                                                hitSlop={{top: 6, bottom: 6, left: 6, right: 6}}
+                                                style={{
+                                                    backgroundColor: 'rgba(0,0,0,0.55)',
+                                                    borderRadius: 12,
+                                                    padding: 4,
+                                                }}>
+                                                <Icon
+                                                    name="chevron-forward"
+                                                    type="ionicon"
+                                                    size={isTablet() ? 18 : 16}
+                                                    color={COLORS.WHITE}
+                                                />
+                                            </TouchableOpacity>
+                                        ) : null}
+                                    </View>
+                                ) : null}
                                 {/* only render once we've loaded likes for this URL */}
                                 {likesData[item] && (
                                     <TouchableOpacity
@@ -516,134 +634,135 @@ const UserProfileDetailsTab = () => {
                         )}
                         ListHeaderComponent={
                             <View>
-                                <View>
-
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title2,
-                                                marginTop: 10,
-                                                marginBottom: 20,
-                                                textAlign: 'center',
-
-                                                textDecorationLine: 'underline',
-                                            }}>
-                                            PROFILE DETAILS
-                                        </Text>
-
-                                </View>
-                                <View style={{alignItems: 'center', marginBottom: 15}}>
-                                    <FlatList
-                                        data={cruMembers()}
-                                        horizontal={true}
-                                        showsHorizontalScrollIndicator={false}
-                                        scrollEnabled={false}
-                                        keyExtractor={item => item.id}
-                                        renderItem={({item, index}) => (
-                                            <TouchableOpacity
-                                                onPress={() =>
-                                                    navigation.navigate('ViewUserScreen', {userID: item.id})
-                                                }>
-                                                <View
-                                                    style={{
-                                                        marginRight: index < cruMembers().length - 1 ? -16 : 0,
-                                                    }}>
-                                                    <CruMemberPic
-                                                        userPicture={item.profilePicture}
-                                                        akcruBadge={item.badge}
-                                                    />
-                                                </View>
-                                            </TouchableOpacity>
-                                        )}
-                                    />
-                                </View>
-                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                                    <View>
-                                        {CRU && unreadcruIds && unreadcruIds.includes(CRU.id) && (
-                                            <View
-                                                style={{
-                                                    width: 10,
-                                                    height: 10,
-                                                    borderRadius: 5,
-                                                    backgroundColor: COLORS.PINK,
-                                                    position: 'absolute',
-                                                    zIndex: 100,
-                                                    left: '63%',
-                                                    top: -3,
-                                                }}
-                                            />
-                                        )}
-
-                                        <AkcruButtons.IconMedButton
-                                            icon="chatbox-ellipses"
-                                            type="ionicon"
-                                            disabled={false}
-                                            color={COLORS.PURPLE}
-                                            btnname="CRU Chat"
-                                            onPress={() => {
-                                                const updatedCruids = unreadcruIds.filter(id => id !== CRU.id);
-                                                setUnreadCruIds(updatedCruids);
-                                                navigation.navigate('ViewGroupChat', {
-                                                    isMyCruChat: true,
-                                                });
-                                            }}
-                                        />
-                                    </View>
-                                    <View style={{marginBottom: 10}}>
-                                        <AkcruButtons.IconMedButton
-                                            icon="calendar-sharp"
-                                            type="ionicon"
-                                            disabled={false}
-                                            color={COLORS.AKCRUBLUE}
-                                            btnname="CRU Sched."
-                                            onPress={() => navigation.navigate('CruViewSearchMovieScreen')}
-                                        />
-                                    </View>
-                                </View>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 10,
-                                    }}>
-                                    <View>
-                                        <AkcruButtons.IconMedButton
-                                            icon="square-edit-outline"
-                                            type="material-community"
-                                            disabled={false}
-                                            color={COLORS.PINK}
-                                            btnname="Edit CRU"
-                                            onPress={() => navigation.navigate('EditCru')}
-                                        />
-                                    </View>
-                                    {!user?.hasVideoPrivileges ? (
+                                {!hideProfileDetailsSection ? (
+                                    <>
                                         <View>
-                                            <AkcruButtons.IconMedButton
-                                                icon="videocam"
-                                                type="ionicon"
-                                                disabled={false}
-                                                color={COLORS.CATPURPLGT}
-                                                btnname="CRU Video"
-                                                onPress={() => setShowUpgradeModal(true)}
+                                            <ArchetypeHorizontalDivider
+                                                title="PROFILE DETAILS"
+                                                containerStyle={{marginTop: 10, marginBottom: 20}}
                                             />
                                         </View>
-                                    ) : (
-                                        <View />
-                                    )}
-                                </View>
-                                <View style={{marginTop: 10}}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title2,
-                                            marginTop: 10,
-                                            marginBottom: 15,
-                                            textAlign: 'center',
+                                        {hasCruMemberRow ? (
+                                            <View style={{alignItems: 'center', marginBottom: 15}}>
+                                                <FlatList
+                                                    data={cruMemberList}
+                                                    horizontal={true}
+                                                    showsHorizontalScrollIndicator={false}
+                                                    scrollEnabled={false}
+                                                    keyExtractor={item => item.id}
+                                                    renderItem={({item, index}) => (
+                                                        <TouchableOpacity
+                                                            onPress={() =>
+                                                                navigation.navigate('ViewUserScreen', {
+                                                                    userID: item.id,
+                                                                })
+                                                            }>
+                                                            <View
+                                                                style={{
+                                                                    marginRight:
+                                                                        index < cruMemberList.length - 1 ? -16 : 0,
+                                                                }}>
+                                                                <CruMemberPic
+                                                                    userPicture={item.profilePicture}
+                                                                    akcruBadge={item.badge}
+                                                                />
+                                                            </View>
+                                                        </TouchableOpacity>
+                                                    )}
+                                                />
+                                            </View>
+                                        ) : null}
+                                        {hasPrimaryCru ? (
+                                            <>
+                                                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                                                    <View>
+                                                        {CRU && unreadcruIds && unreadcruIds.includes(CRU.id) && (
+                                                            <View
+                                                                style={{
+                                                                    width: 10,
+                                                                    height: 10,
+                                                                    borderRadius: 5,
+                                                                    backgroundColor: COLORS.PINK,
+                                                                    position: 'absolute',
+                                                                    zIndex: 100,
+                                                                    left: '63%',
+                                                                    top: -3,
+                                                                }}
+                                                            />
+                                                        )}
 
-                                            textDecorationLine: 'underline',
-                                        }}>
-                                        CRU AFFILIATIONS
-                                    </Text>
-                                </View>
-                                <View style={{flex: 1}}>
+                                                        <AkcruButtons.IconMedButton
+                                                            icon="chatbox-ellipses"
+                                                            type="ionicon"
+                                                            disabled={false}
+                                                            color={COLORS.PURPLE}
+                                                            btnname="CRU Chat"
+                                                            onPress={() => {
+                                                                const updatedCruids = unreadcruIds.filter(
+                                                                    id => id !== CRU.id,
+                                                                );
+                                                                setUnreadCruIds(updatedCruids);
+                                                                navigation.navigate('ViewGroupChat', {
+                                                                    isMyCruChat: true,
+                                                                });
+                                                            }}
+                                                        />
+                                                    </View>
+                                                    <View style={{marginBottom: 10}}>
+                                                        <AkcruButtons.IconMedButton
+                                                            icon="calendar-sharp"
+                                                            type="ionicon"
+                                                            disabled={false}
+                                                            color={COLORS.AKCRUBLUE}
+                                                            btnname="CRU Sched."
+                                                            onPress={() =>
+                                                                navigation.navigate('CruViewSearchMovieScreen')
+                                                            }
+                                                        />
+                                                    </View>
+                                                </View>
+                                                <View
+                                                    style={{
+                                                        flexDirection: 'row',
+                                                        justifyContent: 'space-between',
+                                                        marginBottom: 10,
+                                                    }}>
+                                                    <View>
+                                                        <AkcruButtons.IconMedButton
+                                                            icon="square-edit-outline"
+                                                            type="material-community"
+                                                            disabled={false}
+                                                            color={COLORS.PINK}
+                                                            btnname="Edit CRU"
+                                                            onPress={() => navigation.navigate('EditCru')}
+                                                        />
+                                                    </View>
+                                                    {!user?.hasVideoPrivileges ? (
+                                                        <View>
+                                                            <AkcruButtons.IconMedButton
+                                                                icon="videocam"
+                                                                type="ionicon"
+                                                                disabled={false}
+                                                                color={COLORS.CATPURPLGT}
+                                                                btnname="CRU Video"
+                                                                onPress={() => setShowUpgradeModal(true)}
+                                                            />
+                                                        </View>
+                                                    ) : (
+                                                        <View />
+                                                    )}
+                                                </View>
+                                            </>
+                                        ) : null}
+                                    </>
+                                ) : null}
+                                {cruAffiliationsVisible ? (
+                                    <>
+                                        <ArchetypeHorizontalDivider
+                                            title="CRU AFFILIATIONS"
+                                            containerStyle={{marginTop: 20, marginBottom: 15}}
+                                        />
+                                        <View style={{flex: 1}}>
                                     <FlatList
                                         data={crus}
                                         keyExtractor={item => item.id}
@@ -788,9 +907,41 @@ const UserProfileDetailsTab = () => {
                                             );
                                         }}
                                     />
+                                        </View>
+                                    </>
+                                ) : null}
+                                {showDividerAffiliationsToTail ? <View style={styles.lineDivider} /> : null}
+                                <PurchasedContent onAvailabilityChange={onPurchasedAvailabilityChange} />
+                                {showDividerBeforeGallery ? <View style={styles.lineDivider} /> : null}
+                                <UpcomingDatesSection embeddedInParentScroll dividerContainerStyle={{marginTop: 10}} />
+                                {/* Hide the Gallery section header until there is at least one image; Add to Gallery is in the list footer below the grid. */}
+                                {userPics.length > 0 ? (
+                                    <ArchetypeHorizontalDivider
+                                        title="GALLERY"
+                                        containerStyle={{marginTop: 10, marginBottom: 20}}
+                                    />
+                                ) : null}
+                            </View>
+                        }
+                        ListFooterComponent={
+                            <View>
+                                <View
+                                    style={{
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        marginVertical: 10,
+                                        marginRight: isTablet() ? 25 : 0,
+                                    }}>
+                                    <AkcruButtons.LrgButton
+                                        variant="auth"
+                                        btnname={'Add to Gallery'}
+                                        onPress={selectGalleryImage}
+                                        color={COLORS.PINK}
+                                        disabled={false}
+                                        authButtonWidth={SIZES.ScreenWidth - SIZES.marginhorizontal * 2}
+                                    />
                                 </View>
-                                <View style={styles.lineDivider} />
-                                {watchlist.length > 0 ? (
+                                {hasFavorites ? (
                                     <View>
                                         <WatchListCategory
                                             Akcru_Content={{
@@ -801,33 +952,7 @@ const UserProfileDetailsTab = () => {
                                             updateWatchlist={updateWatchlist}
                                         />
                                     </View>
-                                ) : (
-                                    <View style={{alignItems: 'center', justifyContent: 'center', marginVertical: 10}}>
-                                        <Text style={{color: 'gray'}}>Your Favorites will appear here</Text>
-                                    </View>
-                                )}
-                                <View style={styles.lineDivider} />
-                                <PurchasedContent />
-                                <View style={styles.lineDivider} />
-                                <View
-                                    style={{
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        marginVertical: 10,
-                                        marginRight: isTablet() ? 25 : 0,
-                                    }}>
-                                    <AkcruButtons.LrgButton
-                                        btnname={'Add to Gallery'}
-                                        onPress={selectGalleryImage}
-                                        color={COLORS.PINK}
-                                        disabled={false}
-                                    />
-                                </View>
-                            </View>
-                        }
-                        ListFooterComponent={
-                            <View>
-                                <View style={{marginBottom: 75}} />
+                                ) : null}
                                 <Modal animationType="fade" transparent={true} visible={!!showImageCountErrorModal}>
                                     <ErrorModal
                                         closeModal={() => setShowImageCountErrorModal(false)}
@@ -907,7 +1032,7 @@ const UserProfileDetailsTab = () => {
                                         <View
                                             style={{
                                                 width: '80%',
-                                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                                backgroundColor: COLORS.BLACK,
                                                 borderRadius: 8,
                                                 padding: 20,
                                             }}>
@@ -979,7 +1104,7 @@ const UserProfileDetailsTab = () => {
                                         <View
                                             style={{
                                                 width: '80%',
-                                                backgroundColor: COLORS.AKCRUBACKGROUND,
+                                                backgroundColor: COLORS.BLACK,
                                                 borderRadius: 8,
                                                 padding: 20,
                                             }}>

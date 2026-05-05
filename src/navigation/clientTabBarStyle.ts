@@ -34,3 +34,12 @@ export const clientTabBarStyle = {
     marginHorizontal: '3%' as const,
     alignSelf: 'center' as const,
 };
+
+/**
+ * Vertical space the floating tab pill occupies from the physical bottom of the screen.
+ * Use for `contentContainerStyle.paddingBottom` so scrollable content clears the bar
+ * (`useBottomTabBarHeight()` often only reflects bar height, not `bottom` offset).
+ */
+export function getFloatingClientTabBarBottomInsetPx(extraGap = 18): number {
+    return clientTabBarStyle.height + clientTabBarStyle.bottom + clientTabBarStyle.paddingBottom + extraGap;
+}

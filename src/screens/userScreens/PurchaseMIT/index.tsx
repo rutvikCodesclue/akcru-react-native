@@ -1,5 +1,5 @@
 import {Text, View, ImageBackground, Image, TouchableOpacity, SafeAreaView, Modal} from 'react-native';
-import React, {useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import styles from './styles';
 import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
 import Header from '../../../components/header';
@@ -8,10 +8,23 @@ import imageindex from '../../../../assets/images/imageindex';
 import {Icon} from '@rneui/base';
 import useAuthStore from '../../../stores/auth.store';
 import {purchaseMIT} from '../../../lib/api/wallet.lib';
+import {getMitTiers, type MitTier} from '../../../lib/api/mit.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
+
+function unitPriceAdFromTiers(tiers: MitTier[]): number | null {
+    if (!tiers.length) {
+        return null;
+    }
+    const single = tiers.find(t => t.quantity === 1);
+    if (single) {
+        return single.cost;
+    }
+    return Math.min(...tiers.map(t => t.cost / t.quantity));
+}
 
 const PurchaseMITScreen = () => {
     const {user} = useAuthStore();
+    const [mitTiers, setMitTiers] = useState<MitTier[]>([]);
     const [countMIT, setCountMIT] = useState(0);
     const [countMITError, setCountMITError] = useState(false);
     const [purchaseModalVisible, setPurchaseModalVisible] = useState(false);
@@ -19,7 +32,23 @@ const PurchaseMITScreen = () => {
     const [insufficientADError, setInsufficientADError] = useState(false);
     const [purchaseCompleteModalVisible, setPurchaseCompleteModalVisible] = useState(false);
 
-    const maxMITs = Math.floor(user?.adAmount ? user?.adAmount / 500 : 0);
+    useEffect(() => {
+        getMitTiers().then(setMitTiers);
+    }, []);
+
+    const pricePerMitAd = useMemo(() => unitPriceAdFromTiers(mitTiers), [mitTiers]);
+
+    const maxMITs = useMemo(() => {
+        if (pricePerMitAd == null || pricePerMitAd <= 0 || user?.adAmount == null) {
+            return 0;
+        }
+        return Math.floor(user.adAmount / pricePerMitAd);
+    }, [pricePerMitAd, user?.adAmount]);
+
+    const totalCostAd = useMemo(
+        () => (pricePerMitAd != null && pricePerMitAd > 0 ? countMIT * pricePerMitAd : 0),
+        [countMIT, pricePerMitAd],
+    );
 
     const handlePurchaseModalOpen = () => {
         setPurchaseModalVisible(true);
@@ -35,8 +64,10 @@ const PurchaseMITScreen = () => {
     };
 
     const confirmPurchase = async () => {
-        const totalCost = countMIT * 500;
-        if (user?.adAmount && user.adAmount >= totalCost) {
+        if (pricePerMitAd == null || pricePerMitAd <= 0) {
+            return;
+        }
+        if (user?.adAmount && user.adAmount >= totalCostAd) {
             purchaseMIT({
                 amount: countMIT,
             });
@@ -97,7 +128,10 @@ const PurchaseMITScreen = () => {
                                     </View>
 
                                     <Text style={styles.mitprice}>
-                                        500 AD /<Text style={{color: COLORS.MIDORANGE}}> pc.</Text>
+                                        {pricePerMitAd != null && pricePerMitAd > 0
+                                            ? `${pricePerMitAd.toLocaleString('en-US')} AD /`
+                                            : '— AD /'}
+                                        <Text style={{color: COLORS.MIDORANGE}}> pc.</Text>
                                     </Text>
                                     <View style={{marginBottom: 10}}>
                                         <View style={{flexDirection: 'row'}}>
@@ -145,7 +179,7 @@ const PurchaseMITScreen = () => {
                                         btnname="PURCHASE"
                                         color={COLORS.CATPURPDRK}
                                         onPress={handlePurchaseModalOpen}
-                                        disabled={false}
+                                        disabled={pricePerMitAd == null || pricePerMitAd <= 0}
                                     />
                                 </View>
                             </View>
@@ -164,7 +198,9 @@ const PurchaseMITScreen = () => {
                                             borderRadius: 10,
                                         }}>
                                         <Text style={{...FONTS.Title1}}>You are purchasing '{countMIT}' MIT(s).</Text>
-                                        <Text style={{...FONTS.Title1}}>Total Cost: {countMIT * 500} AD</Text>
+                                        <Text style={{...FONTS.Title1}}>
+                                            Total Cost: {totalCostAd.toLocaleString('en-US')} AD
+                                        </Text>
                                         <View style={{flexDirection: 'row', marginTop: 10}}>
                                             <TouchableOpacity
                                                 onPress={() => setPurchaseModalVisible(false)}
@@ -223,7 +259,7 @@ const PurchaseMITScreen = () => {
                                         }}>
                                         <Text style={{...FONTS.Title1, textAlign: 'center'}}>
                                             Congratulations, you have purchased '{countMIT}' MIT(s) for a total cost of{' '}
-                                            {countMIT * 500} AD.
+                                            {totalCostAd.toLocaleString('en-US')} AD.
                                         </Text>
                                     </View>
                                 </View>

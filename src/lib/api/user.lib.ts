@@ -214,6 +214,33 @@ export const fetchUserGallery = async (id: IUserProfile) => {
     }
 };
 
+/** Persist gallery order (matches `PUT /v1/user/profileGallery/reorder` with `{ orderedImageUrls }`). */
+export const reorderUserGallery = async (orderedImageUrls: string[]): Promise<string[] | undefined> => {
+    try {
+        const {data} = await API.put<{
+            success: boolean;
+            gallery?: string[];
+            orderedImageUrls?: string[];
+            message?: string;
+        }>('/v1/user/profileGallery/reorder', {orderedImageUrls});
+
+        if (data.success === false) {
+            console.error('reorderUserGallery:', data.message);
+            return undefined;
+        }
+        if (Array.isArray(data.gallery)) {
+            return data.gallery;
+        }
+        if (Array.isArray(data.orderedImageUrls)) {
+            return data.orderedImageUrls;
+        }
+        return orderedImageUrls;
+    } catch (error) {
+        console.error('Error reordering gallery:', error);
+        return undefined;
+    }
+};
+
 export const updateUserWatchTime = async (params: {
     watchTime?: number;
     movieId?: string;

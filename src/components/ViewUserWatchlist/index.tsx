@@ -1,6 +1,6 @@
-import {View, Text, Image, FlatList, Pressable} from 'react-native';
+import {View, Image, FlatList, Pressable} from 'react-native';
+import ArchetypeHorizontalDivider from '../ArchetypeHorizontalDivider';
 import styles from './styles';
-import {FONTS} from '../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ClientStackParams} from '../../navigation/ClientStack';
@@ -21,7 +21,7 @@ const ViewUserWatchListCategory = ({Akcru_Content}: ViewUserWatchListCategoryPro
 
     return (
         <>
-            <Text style={{...FONTS.Title2, marginTop: 10}}>{Akcru_Content.title}</Text>
+            <ArchetypeHorizontalDivider title={Akcru_Content.title} containerStyle={{marginTop: 10}} />
             <FlatList
                 data={Akcru_Content.movies}
                 horizontal={true}

@@ -144,7 +144,7 @@ export default StyleSheet.create({
     container: {
         width: '80%',
         maxHeight: '70%',
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: COLORS.BLACK,
         borderRadius: 12,
         padding: 16,
     },

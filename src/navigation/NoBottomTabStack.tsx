@@ -48,6 +48,7 @@ import SizzleDetailScreen from '../screens/contentScreens/SizzleDetailScreen';
 import SizzlePlayer from '../screens/contentScreens/PlaySizzle';
 import EpisodeDetailScreen from '../screens/contentScreens/EpisodeDetailScreen';
 import UserProfileScreen from '../screens/userScreens/UserProfileScreen';
+import UserProfileHubTabScreen from '../screens/userScreens/UserProfileHubTabScreen';
 import ChooseMITScreen from '../screens/userScreens/MITChoice/ChooseMITScreen';
 import AcceptMITScreen from '../screens/userScreens/MITAccept';
 import DeclineMITScreen from '../screens/userScreens/MITDecline';
@@ -199,6 +200,7 @@ export type NoBottomTabStackParams = {
     AdPurchaseSuccessScreen: any;
     StripeWebCheckout: any;
     UserProfileStack: any;
+    UserProfileHubTabScreen: {hubTab: 'details' | 'dates' | 'cru' | 'wallet'};
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -600,6 +602,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="UserProfileScreen"
                 component={UserProfileScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="UserProfileHubTabScreen"
+                component={UserProfileHubTabScreen}
                 options={() => ({
                     headerShown: false,
                 })}
