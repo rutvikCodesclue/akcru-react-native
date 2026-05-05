@@ -437,7 +437,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         }
                                     />
                                 </View>
-                                {/*
                                 <View style={profileScreenStyles.editProfileGlow}>
                                     <TouchableOpacity
                                         activeOpacity={0.9}
@@ -461,7 +460,6 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
-                                */}
                             </View>
                         </View>
                     </View>
