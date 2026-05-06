@@ -63,12 +63,12 @@ export default Accordian;
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: COLORS.CATPURPDRK,
+        backgroundColor: COLORS.BLACK,
         marginHorizontal: '4%',
         marginVertical: 5,
-        borderRadius: 5,
+        borderRadius: 10,
         borderWidth: 1,
-        borderColor: COLORS.CATPURPDRK,
+        borderColor: 'rgba(255,255,255,0.2)',
         overflow: 'hidden',
     },
     contentContainer: {
@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
     },
     faqtitle: {
         ...FONTS.Title2,
+        color: COLORS.LIGHTGREY,
     },
     titlecontainer: {
         padding: 15,
@@ -87,6 +88,6 @@ const styles = StyleSheet.create({
     },
     paragraphcontainer: {
         padding: 15,
-        backgroundColor: COLORS.CATPURPLGT,
+        backgroundColor: 'rgba(255,255,255,0.05)',
     },
 });

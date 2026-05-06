@@ -5,6 +5,7 @@ import {IHelpVideo} from '../../../types';
 import HexAvatar from '../HexAvatar';
 import {COLORS, MULTISIZES, SIZES} from '../../../assets/constants/theme';
 import Video from 'react-native-video';
+import {Icon} from '@rneui/base';
 
 interface HelpVideoListProps {
     Help_Video: {
@@ -16,6 +17,8 @@ interface HelpVideoListProps {
 
 const HelpVideoList = (props: HelpVideoListProps) => {
     const {Help_Video} = props;
+    const ITEM_WIDTH = SIZES.ScreenWidth * 0.43;
+    const HEX_SIZE = Math.min(MULTISIZES.Xlarge150, ITEM_WIDTH - 8);
 
     const modalVideoRef = useRef(null);
 
@@ -45,9 +48,12 @@ const HelpVideoList = (props: HelpVideoListProps) => {
                 horizontal={false}
                 showsHorizontalScrollIndicator={false}
                 showsVerticalScrollIndicator={false}
+                columnWrapperStyle={{justifyContent: 'space-between'}}
+                contentContainerStyle={{paddingHorizontal: 4}}
                 renderItem={({item, index}) => (
-                    <View style={{alignItems: 'center', width: SIZES.ScreenWidth * 0.45, margin: 10}}>
+                    <View style={{alignItems: 'center', width: ITEM_WIDTH, marginBottom: 14}}>
                         <TouchableOpacity
+                            style={{position: 'relative'}}
                             onPress={() => {
                                 setSelectedVideoURL(item.videoURL);
                                 setVideoModalVisible(true);
@@ -55,11 +61,31 @@ const HelpVideoList = (props: HelpVideoListProps) => {
                             }}>
                             <HexAvatar
                                 source={{uri: item?.imageURL}}
-                                size={MULTISIZES.Xlarge150}
+                                size={HEX_SIZE}
                                 bordercolor={COLORS.PURPLE}
+                                rotateFrameDegrees={90}
                             />
+                            <View
+                                style={{
+                                    position: 'absolute',
+                                    top: 0,
+                                    right: 0,
+                                    bottom: 0,
+                                    left: 0,
+                                    backgroundColor: 'rgba(0,0,0,0.38)',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                <Icon
+                                    name="play"
+                                    type="ionicon"
+                                    size={34}
+                                    color="rgba(255,255,255,0.72)"
+                                    style={{marginLeft: 2}}
+                                />
+                            </View>
                         </TouchableOpacity>
-                        <View>
+                        <View style={{marginTop: 6}}>
                             <Text style={{...FONTS.paragraph2, textAlign: 'center'}}>{item.title}</Text>
                         </View>
                     </View>

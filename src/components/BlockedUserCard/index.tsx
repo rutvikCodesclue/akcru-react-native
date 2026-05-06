@@ -1,12 +1,9 @@
-import {Text, View, TouchableOpacity} from 'react-native';
+import {Text, View, TouchableOpacity, StyleSheet} from 'react-native';
 import React from 'react';
-import {Icon} from '@rneui/base';
 import {SIZES, FONTS, COLORS} from '../../../assets/constants';
-import LinearGradient from 'react-native-linear-gradient';
 import {selectAvatarBorderColor} from '../../util/util';
 import HexAvatar from '../HexAvatar';
-import DisplayBadge from '../General/akcrubadge';
-import CustomIcon from '../CustomIcon/CustomIcon';
+import ProfileUserBadges from '../ProfileUserBadges';
 
 const MAX_USERDESC_LENGTH = 50;
 
@@ -42,90 +39,114 @@ const BlockedUserCard = ({
         userDesc && userDesc.length > MAX_USERDESC_LENGTH ? userDesc.slice(0, MAX_USERDESC_LENGTH) + '...' : userDesc;
 
     return (
-        <View
-            style={{
-                borderRadius: 5,
-                backgroundColor: COLORS.TAGCOLOR,
-                width: SIZES.ScreenWidth * 0.93,
-            }}>
-            <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    width: '100%',
-                    borderRadius: 5,
-                    height: '100%',
-                }}
-            />
-            <View style={{padding: 10}}>
-                <View style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <View style={{flexDirection: 'row'}}>
-                        <View style={{marginRight: 8}}>
+        <View style={styles.card}>
+            <View style={styles.inner}>
+                <View style={styles.headerRow}>
+                    <View style={styles.leftRow}>
+                        <View style={styles.avatarWrap}>
                             <TouchableOpacity onPress={onPress}>
                                 <HexAvatar
                                     source={{uri: userPicture}}
-                                    size={58}
+                                    size={62}
                                     bordercolor={selectAvatarBorderColor(akcruBadge ?? 'AKCRUIT')}
+                                    rotateFrameDegrees={90}
                                 />
                             </TouchableOpacity>
                         </View>
                         <View>
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <Text style={{...FONTS.Title3, fontSize: 12}}>{userName}</Text>
-                                {ownerStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.STARGOLD}
-                                        baseSize={12}
-                                        style={{marginRight: 5}}
-                                    />
-                                )}
-                                {companyStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.WHITE}
-                                        baseSize={12}
-                                        style={{marginRight: 5}}
-                                    />
-                                )}
-                                {influencerStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.AKCRUBLUE}
-                                        baseSize={12}
-                                        style={{marginRight: 5}}
-                                    />
-                                )}
-                                {blackCloakStatus && (
-                                    <CustomIcon
-                                        name="ribbon"
-                                        type="ionicon"
-                                        color={COLORS.BLACKCLOAK}
-                                        baseSize={12}
-                                        style={{marginRight: 5}}
-                                    />
-                                )}
+                            <View style={styles.userRow}>
+                                <Text style={styles.userName}>{userName}</Text>
                             </View>
-                            <Text style={{...FONTS.paragraph1, fontSize: 12}}>{firstName}</Text>
-                            <DisplayBadge akcruBadge={akcruBadge} />
+                            <Text style={styles.firstName}>{firstName}</Text>
+                            <ProfileUserBadges
+                                variant="inline"
+                                user={{
+                                    badge: akcruBadge,
+                                    influencerStatus,
+                                    ownerStatus,
+                                    companyStatus,
+                                    blackCloakStatus,
+                                }}
+                                style={styles.badgeWrap}
+                            />
                         </View>
                     </View>
-                    <TouchableOpacity onPress={unblock}>
-                        <Text style={{...FONTS.Title2, fontSize: 12, color: COLORS.PINK}}>UNBLOCK</Text>
+                    <TouchableOpacity onPress={unblock} style={styles.unblockBtn}>
+                        <Text style={styles.unblockText}>UNBLOCK</Text>
                     </TouchableOpacity>
                 </View>
-                <View>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12}}>{truncateduserDesc}</Text>
+                <View style={styles.descWrap}>
+                    <Text style={styles.description}>{truncateduserDesc}</Text>
                 </View>
             </View>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    card: {
+        borderRadius: 12,
+        backgroundColor: 'rgba(211,211,211,0.07)',
+        borderWidth: 1,
+        borderColor: 'rgba(211,211,211,0.2)',
+        width: SIZES.ScreenWidth * 0.9,
+    },
+    inner: {
+        padding: 10,
+    },
+    headerRow: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+    },
+    leftRow: {
+        flexDirection: 'row',
+        flex: 1,
+        paddingRight: 8,
+    },
+    avatarWrap: {
+        marginRight: 8,
+    },
+    userRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+    },
+    userName: {
+        ...FONTS.Title3,
+        fontSize: 12,
+        marginRight: 4,
+    },
+    firstName: {
+        ...FONTS.paragraph1,
+        fontSize: 12,
+    },
+    badgeWrap: {
+        marginTop: 6,
+    },
+    unblockBtn: {
+        alignSelf: 'center',
+        marginLeft: 10,
+        paddingVertical: 8,
+        paddingHorizontal: 14,
+        borderRadius: 10,
+        backgroundColor: 'rgba(34,197,94,0.1)',
+        borderWidth: 1,
+        borderColor: 'rgba(34,197,94,0.45)',
+    },
+    unblockText: {
+        ...FONTS.Title2,
+        fontSize: 13,
+        color: '#22C55E',
+    },
+    descWrap: {
+        marginTop: 6,
+    },
+    description: {
+        ...FONTS.paragraph1,
+        fontSize: 12,
+        color: COLORS.LIGHTGREY,
+    },
+});
 
 export default BlockedUserCard;

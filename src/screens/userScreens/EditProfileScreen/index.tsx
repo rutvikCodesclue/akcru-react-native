@@ -11,6 +11,7 @@ import {
     Modal,
     Pressable,
     Platform,
+    Switch,
     TouchableWithoutFeedback,
     Keyboard,
     ActivityIndicator,
@@ -45,6 +46,11 @@ import {Image as CompressorImage} from 'react-native-compressor';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import PreferenceChip from '../../../components/PreferenceChip';
 import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
+import ConfirmationModal from '../../../components/ConfirmationModal';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
+import LinearGradient from 'react-native-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
+import {MITInvitePolicy} from '../../../util/mitInvitePolicy';
 
 export default function EditProfile({session}: {session: Session}) {
     const navigation = useNavigation<NativeStackNavigationProp<UserProfileStackParams>>();
@@ -66,6 +72,12 @@ export default function EditProfile({session}: {session: Session}) {
     const [usernameModalVisible, setUsernameModalVisible] = useState(false);
     const [unlockModalVisible, setUnlockModalVisible] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
+    const [showAge, setShowAge] = useState<boolean>(Boolean(user?.showAge));
+    const [allowFollowersToSendMIT, setAllowFollowersToSendMIT] = useState<boolean>(
+        (user as any)?.mitInvitePolicy === MITInvitePolicy.FOLLOWERS_ONLY,
+    );
+    const [showActiveStatus, setShowActiveStatus] = useState<boolean>(Boolean((user as any)?.showActiveStatus));
 
     const [description, setDescription] = useState('');
     const [, setModifiedDescription] = useState('');
@@ -125,9 +137,64 @@ export default function EditProfile({session}: {session: Session}) {
             if (u?.phoneNumber !== undefined) setPhoneNumber(u.phoneNumber ?? '');
             if (u?.description !== undefined) setDescription(u.description ?? '');
             if (u?.username !== undefined) setUserName(u.username ?? '');
+            setShowAge(Boolean(u?.showAge));
+            setAllowFollowersToSendMIT((u as any)?.mitInvitePolicy === MITInvitePolicy.FOLLOWERS_ONLY);
+            setShowActiveStatus(Boolean((u as any)?.showActiveStatus));
             return () => {};
         }, []),
     );
+
+    const handleToggleShowAge = async (value: boolean) => {
+        setShowAge(value);
+        try {
+            const updatedUser = await updateUser({showAge: value});
+            if (updatedUser) {
+                const currentUser = useAuthStore.getState().user;
+                if (currentUser) {
+                    currentUser.showAge = value;
+                    useAuthStore.setState({user: currentUser});
+                }
+            }
+        } catch (error) {
+            setShowAge(prev => !prev);
+            Alert.alert('Error', 'Failed to update age visibility setting.');
+        }
+    };
+
+    const handleToggleFollowersCanSendMIT = async (value: boolean) => {
+        setAllowFollowersToSendMIT(value);
+        try {
+            const policy = value ? MITInvitePolicy.FOLLOWERS_ONLY : MITInvitePolicy.EVERYONE;
+            const updatedUser = await updateUser({mitInvitePolicy: policy});
+            if (updatedUser) {
+                const currentUser = useAuthStore.getState().user;
+                if (currentUser) {
+                    (currentUser as any).mitInvitePolicy = policy;
+                    useAuthStore.setState({user: currentUser});
+                }
+            }
+        } catch (error) {
+            setAllowFollowersToSendMIT(prev => !prev);
+            Alert.alert('Error', 'Failed to update MIT permission setting.');
+        }
+    };
+
+    const handleToggleShowActiveStatus = async (value: boolean) => {
+        setShowActiveStatus(value);
+        try {
+            const updatedUser = await updateUser({showActiveStatus: value});
+            if (updatedUser) {
+                const currentUser = useAuthStore.getState().user;
+                if (currentUser) {
+                    (currentUser as any).showActiveStatus = value;
+                    useAuthStore.setState({user: currentUser});
+                }
+            }
+        } catch (error) {
+            setShowActiveStatus(prev => !prev);
+            Alert.alert('Error', 'Failed to update active status visibility setting.');
+        }
+    };
 
     const confirmDescriptionUpdate = async () => {
         try {
@@ -408,14 +475,24 @@ export default function EditProfile({session}: {session: Session}) {
 
     return (
         <TabContainer>
-            <View>
-                <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
+            <View style={styles.screenRoot}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    style={styles.backbutton}
+                    contentContainerStyle={styles.scrollContent}>
                     <View style={{zIndex: 20}}>
                         <Header />
                     </View>
 
                     <View style={styles.container}>
-                        <BackButton navigation={navigation} />
+                        <BackButton
+                            navigation={navigation2}
+                            onBack={() => {
+                                navigation2.navigate('ClientTabNavigator', {
+                                    screen: 'UserProfileStack',
+                                });
+                            }}
+                        />
                         <View>
                             <Text style={styles.title}>EDIT PROFILE</Text>
                             <View style={{alignItems: 'center'}}>
@@ -531,7 +608,8 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </Modal>
 
-                        <View style={{alignItems: 'center', marginTop: 20}}>
+                        <View style={styles.profileCard}>
+                        <View style={styles.fieldGroup}>
                             <Text style={styles.inputlabel}>Username</Text>
                             <View style={styles.input}>
                                 {Platform.OS == 'ios' ? (
@@ -710,7 +788,7 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </Modal>
 
-                        <View style={{alignItems: 'center', marginTop: 20}}>
+                        {/* <View style={styles.fieldGroup}>
                             <Text style={styles.inputlabel}>Phone number</Text>
                             <View style={styles.input}>
                                 {Platform.OS == 'ios' ? (
@@ -737,7 +815,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     </Pressable>
                                 )}
                             </View>
-                        </View>
+                        </View> */}
 
                         <Modal animationType="fade" transparent={false} visible={phoneModalVisible}>
                             <SafeAreaView
@@ -882,7 +960,7 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </Modal>
 
-                        <View style={{alignItems: 'center'}}>
+                        <View style={styles.fieldGroup}>
                             <Text style={styles.inputlabel}>Bio</Text>
                             <View style={styles.bioinput}>
                                 {Platform.OS == 'ios' ? (
@@ -1069,7 +1147,7 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
                         </Modal>
 
-                        <View style={{alignItems: 'center'}}>
+                        <View style={styles.fieldGroup}>
                             <Text style={styles.inputlabel}>Email</Text>
                             <View style={styles.input}>
                                 <Pressable>
@@ -1084,15 +1162,45 @@ export default function EditProfile({session}: {session: Session}) {
                                 </Pressable>
                             </View>
                         </View>
+                        <View style={styles.switchRow}>
+                            <Text style={styles.switchLabel}>Show age to other users?</Text>
+                            <Switch
+                                value={showAge}
+                                onValueChange={handleToggleShowAge}
+                                trackColor={{false: 'rgba(255,255,255,0.2)', true: 'rgba(52,152,219,0.45)'}}
+                                thumbColor={showAge ? COLORS.AKCRUBLUE : COLORS.LIGHTGREY}
+                            />
+                        </View>
+                        <View style={styles.switchRow}>
+                            <Text style={styles.switchLabel}>Allow followers to send MIT?</Text>
+                            <Switch
+                                value={allowFollowersToSendMIT}
+                                onValueChange={handleToggleFollowersCanSendMIT}
+                                trackColor={{false: 'rgba(255,255,255,0.2)', true: 'rgba(52,152,219,0.45)'}}
+                                thumbColor={allowFollowersToSendMIT ? COLORS.AKCRUBLUE : COLORS.LIGHTGREY}
+                            />
+                        </View>
+                        <View style={styles.switchRow}>
+                            <Text style={styles.switchLabel}>Is shows active status to other user ?</Text>
+                            <Switch
+                                value={showActiveStatus}
+                                onValueChange={handleToggleShowActiveStatus}
+                                trackColor={{false: 'rgba(255,255,255,0.2)', true: 'rgba(52,152,219,0.45)'}}
+                                thumbColor={showActiveStatus ? COLORS.AKCRUBLUE : COLORS.LIGHTGREY}
+                            />
+                        </View>
+                        </View>
 
-                        <Text style={{...FONTS.paragraph2, textAlign: 'center'}}>
+                        <View style={styles.archetypeSection}>
+                        <ArchetypeHorizontalDivider />
+                        <Text style={styles.bodyCopy}>
                             At Akcru, your movie-watching preferences shape your unique archetype. This personalized
                             "Archetype" guides us in curating the finest movie recommendations for you, as well as
                             connecting you with like-minded users who share similar tastes. At Akcru, we go beyond being
                             a simple streaming platform; we are a multifaceted streaming experience that caters to your
                             individuality.
                         </Text>
-                        <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center', marginTop: 20}}>
+                        <Text style={styles.headingCopy}>
                             Please choose 2 genres to then press "FINISH":
                         </Text>
                         <View style={{flex: 1}}>
@@ -1108,15 +1216,23 @@ export default function EditProfile({session}: {session: Session}) {
                             </View>
 
                             {archetype && (
-                                <Text
-                                    style={{
-                                        ...FONTS.Title3,
-                                        textAlign: 'center',
-                                        marginVertical: 10,
-                                        color: COLORS.LIGHTGREY,
-                                    }}>
-                                    "{archetype ? archetype.name : 'No Archetype Selected'}"
-                                </Text>
+                                <MaskedView
+                                    style={styles.archetypeNameMask}
+                                    maskElement={
+                                        <Text style={styles.archetypeNameText}>
+                                            {archetype ? archetype.name : 'No Archetype Selected'}
+                                        </Text>
+                                    }>
+                                    <LinearGradient
+                                        colors={['#FFF59D', COLORS.AKCRUBLUE, COLORS.PINK, '#C026D3']}
+                                        locations={[0, 0.32, 0.68, 1]}
+                                        start={{x: 0, y: 0}}
+                                        end={{x: 1, y: 1}}>
+                                        <Text style={[styles.archetypeNameText, {opacity: 0}]}>
+                                            {archetype ? archetype.name : 'No Archetype Selected'}
+                                        </Text>
+                                    </LinearGradient>
+                                </MaskedView>
                             )}
                             <Pressable
                                 onPress={() => {
@@ -1125,18 +1241,13 @@ export default function EditProfile({session}: {session: Session}) {
                                 {archetype && (
                                     <Image
                                         source={{uri: archetype ? archetype.image : ''}}
-                                        style={{
-                                            width: SIZES.ScreenWidth / 2.2,
-                                            height: SIZES.ScreenWidth / 2.2,
-                                            borderRadius: 5,
-                                            alignSelf: 'center',
-                                        }}
+                                        style={styles.archetypePreview}
                                     />
                                 )}
                             </Pressable>
 
                             {archetype && (
-                                <Text style={{...FONTS.paragraph2, textAlign: 'center', marginVertical: 10}}>
+                                <Text style={styles.archetypeDescription}>
                                     {archetype ? archetype.description : 'No Archetype Selected'}
                                 </Text>
                             )}
@@ -1205,61 +1316,49 @@ export default function EditProfile({session}: {session: Session}) {
                             />
                         </Modal>
 
-                        <View style={{alignItems: 'center', marginVertical: 20}}>
-                            <TouchableOpacity onPress={() => navigation2.navigate('AccountSettings')}>
-                                <Text style={styles.settingslabel}>Account Settings</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => setHelpModalVisible(true)}>
-                                <View style={{flexDirection: 'row', marginTop: 5}}>
-                                    <Text style={styles.settingslabel}>Help</Text>
-                                    <View style={{marginLeft: 5}}>
-                                        <Icon
-                                            name="help-rhombus"
-                                            type="material-community"
-                                            color={COLORS.PINK}
-                                            size={20}
-                                        />
+                        </View>
+
+                        <View style={styles.settingsSection}>
+                            <View style={styles.settingsRow}>
+                                <TouchableOpacity
+                                    style={styles.settingsItem}
+                                    onPress={() => navigation2.navigate('AccountSettings')}>
+                                    <View style={styles.settingsLabelGroup}>
+                                        <Icon name="cog-outline" type="material-community" color={COLORS.PINK} size={20} />
+                                        <Text style={styles.settingslabel}>Account Settings</Text>
                                     </View>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={() => navigation2.navigate('BlockedUsers')}>
-                                <View style={{flexDirection: 'row', marginTop: 5}}>
-                                    <Text style={styles.settingslabel}>Blocked Users</Text>
-                                    <View style={{marginLeft: 5}}>
-                                        <Icon
-                                            name="account-cancel"
-                                            type="material-community"
-                                            color={COLORS.PINK}
-                                            size={20}
-                                        />
+                                    <Text style={styles.settingsChevron}>{'>'}</Text>
+                                </TouchableOpacity>
+                                <View style={styles.settingsSeparator} />
+                                <TouchableOpacity style={styles.settingsItem} onPress={() => setHelpModalVisible(true)}>
+                                    <View style={styles.settingsLabelGroup}>
+                                        <Icon name="help-circle-outline" type="material-community" color={COLORS.PINK} size={20} />
+                                        <Text style={styles.settingslabel}>Help</Text>
                                     </View>
-                                </View>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    Alert.alert(
-                                        'Sign Out',
-                                        'Are you sure you want to sign out?',
-                                        [
-                                            {text: 'Cancel', style: 'cancel'},
-                                            {
-                                                text: 'Sign Out',
-                                                style: 'destructive',
-                                                onPress: async () => {
-                                                    setIsLoggingOut(true);
-                                                    try {
-                                                        await handleLogout();
-                                                        resetNavigation({index: 0, routes: [{name: 'Welcome', params: {fromLogout: true}}]});
-                                                    } finally {
-                                                        setIsLoggingOut(false);
-                                                    }
-                                                },
-                                            },
-                                        ],
-                                    );
-                                }}>
-                                <Text style={[styles.settingslabel, styles.mt20]}>Sign Out</Text>
-                            </TouchableOpacity>
+                                    <Text style={styles.settingsChevron}>{'>'}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.settingsSeparator} />
+                            <View style={styles.settingsRow}>
+                                <TouchableOpacity
+                                    style={styles.settingsItem}
+                                    onPress={() => navigation2.navigate('BlockedUsers')}>
+                                    <View style={styles.settingsLabelGroup}>
+                                        <Icon name="account-cancel-outline" type="material-community" color={COLORS.PINK} size={20} />
+                                        <Text style={styles.settingslabel}>Blocked Users</Text>
+                                    </View>
+                                    <Text style={styles.settingsChevron}>{'>'}</Text>
+                                </TouchableOpacity>
+                                <View style={styles.settingsDangerSeparator} />
+                                <TouchableOpacity
+                                    style={[styles.settingsItem, styles.settingsDangerItem]}
+                                    onPress={() => setShowSignOutConfirmation(true)}>
+                                    <View style={styles.settingsLabelGroup}>
+                                        <Icon name="logout" type="material-community" color="#FF4D4F" size={20} />
+                                        <Text style={styles.settingsDangerLabel}>Sign Out</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            </View>
                             {canGrantAD && (
                                 <TouchableOpacity onPress={() => navigation2.navigate('AdminGrantADScreen')}>
                                     <Text style={[styles.settingslabel, styles.mt20]}>System Wallet</Text>
@@ -1288,6 +1387,25 @@ export default function EditProfile({session}: {session: Session}) {
                                     setHelpModalVisible(false);
                                     navigation2.navigate('Questions');
                                 }}
+                            />
+                        </Modal>
+                        <Modal animationType="fade" transparent visible={showSignOutConfirmation}>
+                            <ConfirmationModal
+                                onPressYes={async () => {
+                                    setShowSignOutConfirmation(false);
+                                    setIsLoggingOut(true);
+                                    try {
+                                        await handleLogout();
+                                        resetNavigation({index: 0, routes: [{name: 'Welcome', params: {fromLogout: true}}]});
+                                    } finally {
+                                        setIsLoggingOut(false);
+                                    }
+                                }}
+                                onPressNo={() => setShowSignOutConfirmation(false)}
+                                variant="continueWatching"
+                                yesLabel="Sign Out"
+                                noLabel="Cancel"
+                                confirmationText="Are you sure you want to sign out?"
                             />
                         </Modal>
                     </View>

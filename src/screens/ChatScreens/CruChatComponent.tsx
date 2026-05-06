@@ -408,7 +408,9 @@ const CruChatComponent = ({route}: any) => {
                                     paddingBottom: 8,
                                     width: '100%',
                                 }}>
-                                <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
+                                <TouchableOpacity
+                                    onPress={handleImagePick}
+                                    style={[styles.imagePickerButton, {marginLeft: 6}]}>
                                     <Icon name="photo" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
                                 <TextInput
@@ -421,7 +423,11 @@ const CruChatComponent = ({route}: any) => {
                                 <TouchableOpacity
                                     onPress={onSendImage}
                                     disabled={!canSendImageMessage}
-                                    style={[styles.sendButton, !canSendImageMessage && {opacity: 0.45}]}>
+                                    style={[
+                                        styles.sendButton,
+                                        {marginRight: 6},
+                                        !canSendImageMessage && {opacity: 0.45},
+                                    ]}>
                                     <Icon name="send" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
                             </View>
@@ -444,7 +450,9 @@ const CruChatComponent = ({route}: any) => {
                             onPress={(context, message) => handleMessagePress(message)}
                             onLongPress={(context, message) => handleLongPress(message)}
                             renderActions={() => (
-                                <TouchableOpacity onPress={handleImagePick} style={styles.imagePickerButton}>
+                                <TouchableOpacity
+                                    onPress={handleImagePick}
+                                    style={[styles.imagePickerButton, {alignSelf: 'center', marginLeft: 6}]}>
                                     <Icon name="photo" size={18} color={COLORS.WHITE} />
                                 </TouchableOpacity>
                             )}

@@ -839,6 +839,7 @@ const profileScreenStyles = StyleSheet.create({
         marginTop: '3%',
         marginHorizontal: 15,
         alignItems: 'center',
+        marginBottom: 28,
     },
     adWalletBarWrap: {
         width: '100%',
@@ -846,6 +847,7 @@ const profileScreenStyles = StyleSheet.create({
     },
     editProfileGlow: {
         marginTop: 16,
+        marginBottom: 24,
         alignSelf: 'center',
         width: '64%',
         maxWidth: 320,

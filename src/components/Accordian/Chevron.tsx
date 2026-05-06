@@ -13,7 +13,7 @@ const Chevron = ({progress}: Props) => {
     }));
     return (
         <Animated.View style={iconStyle}>
-            <Icon name="chevron-right-circle" type="material-community" color={COLORS.PURPLE} size={28} />
+            <Icon name="chevron-right-circle" type="material-community" color={COLORS.LIGHTGREY} size={26} />
         </Animated.View>
     );
 };

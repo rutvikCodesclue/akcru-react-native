@@ -419,17 +419,28 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
         });
     };
 
+    const navigateToUserProfileNoBack = () => {
+        reset({
+            index: 0,
+            routes: [
+                {
+                    name: 'ClientTabNavigator',
+                    params: {
+                        screen: 'UserProfileStack',
+                        params: {
+                            screen: 'UserProfileScreen',
+                        },
+                    },
+                },
+            ],
+        });
+    };
+
     const handleBackToFeed = () => {
         navigateToCrummunityNoBack();
     };
     const handleInScreenBackPress = () => {
-        if (oneWayFromMITDateSchedule) {
-            navigateToCrummunityNoBack();
-            return;
-        }
-        navigate('NoBottomStack', {
-            screen: 'UserMITHubScreen',
-        });
+        navigateToUserProfileNoBack();
     };
 
     useEffect(() => {
@@ -450,7 +461,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
             }
             hasHandledOneWayBackRef.current = true;
             e.preventDefault();
-            navigateToCrummunityNoBack();
+            navigateToUserProfileNoBack();
         });
 
         return () => {
@@ -1105,7 +1116,12 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                         </ScrollView>
 
                         {showMITSwipe ? (
-                            <View style={[styles.pendingSwipeBottomArea, {paddingBottom: safeBottomInset}]}>
+                            <View
+                                style={[
+                                    styles.pendingSwipeBottomArea,
+                                    styles.pendingPinnedSharedBg,
+                                    {paddingBottom: safeBottomInset},
+                                ]}>
                                 <View style={[styles.mitSwipeWrap, styles.pendingHorizontalInset]}>
                                     <MITSwipe decline={handleDeclineNavigation} accept={handleAcceptNavigation} />
                                 </View>
@@ -1113,7 +1129,12 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                             </View>
                         ) : null}
                         {showPinnedSentActions ? (
-                            <View style={[styles.pendingSentPinnedContainer, {paddingBottom: safeBottomInset}]}>
+                            <View
+                                style={[
+                                    styles.pendingSentPinnedContainer,
+                                    styles.pendingPinnedSharedBg,
+                                    {paddingBottom: safeBottomInset},
+                                ]}>
                                 <View style={styles.pendingActionsWrap}>
                                     <TouchableOpacity
                                         style={styles.cancelInviteButton}
@@ -1485,6 +1506,9 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                         <View
                             style={[
                                 styles.chooseMitBottomBar,
+                                showMITSwipe || (fromSentTab && inviteStatusCode === 'PENDING')
+                                    ? styles.pendingPinnedSharedBg
+                                    : null,
                                 showMITSwipe ? styles.swipeSectionRaised : null,
                                 {paddingBottom: Math.max(insets.bottom, 10)},
                             ]}>

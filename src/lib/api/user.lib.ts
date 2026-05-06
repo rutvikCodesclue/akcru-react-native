@@ -1,6 +1,7 @@
 import {IMovie, IUserProfile} from '../../../types';
 import {API} from '../../clients/api.client';
 import useAuthStore from '../../stores/auth.store';
+import {MITInvitePolicy} from '../../util/mitInvitePolicy';
 export const getMe = async (): Promise<IUserProfile | undefined> => {
     try {
         const {data} = await API.get('/v1/auth/me');
@@ -80,9 +81,26 @@ export const updateUser = async (params: {
     dob?: string;
     archetype?: string;
     gender?: string;
+    showAge?: boolean;
+    mitInvitePolicy?: MITInvitePolicy;
+    showActiveStatus?: boolean;
 }): Promise<IUserProfile | undefined> => {
     try {
-        const {username, firstName, lastName, email, description, phone, password, dob, archetype, gender} = params;
+        const {
+            username,
+            firstName,
+            lastName,
+            email,
+            description,
+            phone,
+            password,
+            dob,
+            archetype,
+            gender,
+            showAge,
+            mitInvitePolicy,
+            showActiveStatus,
+        } = params;
 
         const updateUserObj = {
             ...(username && {username}),
@@ -95,6 +113,9 @@ export const updateUser = async (params: {
             ...(dob && {dateOfBirth: dob}),
             ...(archetype && {archetype}),
             ...(gender && {gender}),
+            ...(typeof showAge === 'boolean' && {showAge}),
+            ...(mitInvitePolicy && {mitInvitePolicy}),
+            ...(typeof showActiveStatus === 'boolean' && {showActiveStatus}),
         };
 
         //console.log('Update User Object:', updateUserObj);

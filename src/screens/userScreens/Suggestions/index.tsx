@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
-import {View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Modal, Alert} from 'react-native';
-import {Icon} from '@rneui/base';
+import {View, Text, TextInput, ScrollView, StyleSheet, Modal, Alert} from 'react-native';
 import {COLORS, FONTS} from '../../../../assets/constants';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
@@ -54,22 +53,19 @@ const Suggestions = () => {
 
     return (
         <TabContainer>
-            <View style={{flex: 1}}>
-                <ScrollView style={{flex: 1}} stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND, paddingBottom: 10}}>
+            <View style={styles.screenRoot}>
+                <ScrollView style={styles.scrollRoot} contentContainerStyle={styles.scrollContent} stickyHeaderIndices={[0]}>
+                    <View style={styles.headerWrap}>
                         <Header />
                         <BackButton navigation={navigation} />
                     </View>
-                    <View>
-                        <View style={{alignItems: 'center'}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.MIDORANGE, textAlign: 'center'}}>
-                                SUGGESTIONS
-                            </Text>
-                            <View style={{width: '90%'}}>
-                                <Text style={styles.instructionText}>
-                                    Let us know what you think of the app and any suggestions you have for us.
-                                </Text>
-                            </View>
+                    <View style={styles.container}>
+                        <Text style={styles.title}>SUGGESTIONS</Text>
+                        <Text style={styles.instructionText}>
+                            Let us know what you think of the app and any suggestions you have for us.
+                        </Text>
+                        <View style={styles.sectionCard}>
+                            <Text style={styles.sectionTitle}>Your suggestion</Text>
                             <TextInput
                                 style={styles.input}
                                 placeholder="Let your voice be heard"
@@ -79,6 +75,7 @@ const Suggestions = () => {
                                 onChangeText={setDescription}
                                 value={description}
                             />
+                            <Text style={styles.charCount}>{description.length}/500</Text>
                         </View>
                     </View>
                 </ScrollView>
@@ -86,6 +83,7 @@ const Suggestions = () => {
                     <AkcruButtons.LrgButton
                         btnname="Send Suggestion"
                         onPress={() => handleSubmitReport()}
+                        variant="auth"
                         color={description.length >= 3 ? COLORS.PURPLE : COLORS.DARKERGREY}
                         disabled={description.length < 3}
                     />
@@ -105,25 +103,72 @@ const Suggestions = () => {
 };
 
 const styles = StyleSheet.create({
+    screenRoot: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollRoot: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollContent: {
+        paddingBottom: 16,
+    },
+    headerWrap: {
+        zIndex: 20,
+        backgroundColor: COLORS.BLACK,
+        paddingBottom: 10,
+    },
+    container: {
+        marginHorizontal: '3%',
+    },
+    title: {
+        ...FONTS.Title2,
+        color: COLORS.AKCRUBLUE,
+        textAlign: 'center',
+        textDecorationLine: 'underline',
+        marginTop: 6,
+        marginBottom: 6,
+    },
     instructionText: {
         ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
         textAlign: 'center',
         fontSize: 12,
-        marginTop: 10,
+        marginTop: 6,
         paddingBottom: 10,
+    },
+    sectionCard: {
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: 12,
+        marginTop: 10,
+    },
+    sectionTitle: {
+        ...FONTS.Title2,
+        color: COLORS.PINK,
+        marginBottom: 8,
     },
     input: {
         borderWidth: 1,
-        borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
+        borderColor: 'rgba(211,211,211,0.35)',
+        borderRadius: 10,
         padding: 10,
-        marginTop: 10,
-        marginBottom: 20,
+        marginTop: 4,
+        marginBottom: 8,
         minHeight: 100,
         textAlignVertical: 'top',
         color: COLORS.LIGHTGREY,
-        width: '85%',
+        width: '100%',
+        textAlign: 'left',
+        backgroundColor: 'rgba(0,0,0,0.35)',
+    },
+    charCount: {
+        ...FONTS.paragraph2,
+        color: COLORS.DARKGREY,
+        textAlign: 'right',
     },
     imagePickerButton: {
         alignSelf: 'center',
@@ -131,7 +176,9 @@ const styles = StyleSheet.create({
     },
     sendReportButtonContainer: {
         alignItems: 'center',
-        paddingBottom: 20,
+        paddingBottom: 16,
+        paddingTop: 8,
+        backgroundColor: COLORS.BLACK,
         width: '100%',
     },
 });

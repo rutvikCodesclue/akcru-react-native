@@ -1,8 +1,7 @@
-import {View, Text, Pressable} from 'react-native';
+import {View, Text, Pressable, StyleSheet} from 'react-native';
 import React from 'react';
 import {COLORS, FONTS} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
-import AkcruButtons from '../akcruButtons';
 import {TouchableWithoutFeedback} from 'react-native';
 
 type HelpModalProps = {
@@ -14,87 +13,143 @@ type HelpModalProps = {
 };
 
 const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModalProps) => {
+    const items = [
+        {
+            key: 'faq',
+            title: 'FAQ',
+            subtitle: "Frequently asked questions and Trinity help",
+            onPress: faq,
+        },
+        {
+            key: 'bug',
+            title: 'Bug Report',
+            subtitle: 'Report issues you found',
+            onPress: bugReport,
+        },
+        {
+            key: 'suggestion',
+            title: 'Suggestions',
+            subtitle: 'Share features you want on Akcru',
+            onPress: suggestion,
+        },
+        {
+            key: 'question',
+            title: 'Questions',
+            subtitle: "Ask anything not covered in FAQ's",
+            onPress: question,
+        },
+    ];
+
     return (
-        <Pressable
-            onPress={closeModal}
-            style={{
-                flex: 1,
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                justifyContent: 'center',
-                alignItems: 'center',
-            }}>
+        <Pressable onPress={closeModal} style={styles.overlay}>
             <TouchableWithoutFeedback>
-                <View
-                    style={{
-                        backgroundColor: COLORS.AKCRUBACKGROUND,
-                        padding: 20,
-                        borderRadius: 10,
-                        alignItems: 'center',
-                        marginHorizontal: 15,
-                        width: '95%',
-                    }}>
-                    <View>
-                        <Icon name="help-rhombus" type="material-community" size={80} color={COLORS.TRANSPINK} />
-                    </View>
-                    <Text
-                        style={{
-                            ...FONTS.Title3,
-                            marginBottom: 5,
-                            textAlign: 'center',
-                            fontSize: 20,
-                            color: COLORS.PINK,
-                        }}>
-                        Help
-                    </Text>
-                    <View style={{paddingVertical: 10, alignItems: 'center'}}>
-                        <View style={{paddingBottom: 10}}>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
-                                Here's our frequently ask questions. Also ask Trinity
-                            </Text>
+                <View style={styles.card}>
+                    <View style={styles.headerRow}>
+                        <View style={styles.headerLeft}>
+                            <Icon name="help-rhombus" type="material-community" size={28} color={COLORS.PINK} />
+                            <Text style={styles.title}>Help</Text>
                         </View>
-                        <AkcruButtons.XlLrgButton btnname="FAQ" onPress={faq} color={COLORS.PINK} disabled={false} />
+                        <Pressable onPress={closeModal} style={styles.closeBtn}>
+                            <Icon name="close" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                        </Pressable>
                     </View>
-                    <View style={{paddingVertical: 10, alignItems: 'center'}}>
-                        <View style={{paddingBottom: 10}}>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>Report all bugs here</Text>
-                        </View>
-                        <AkcruButtons.XlLrgButton
-                            btnname="Bug Report"
-                            onPress={bugReport}
-                            color={COLORS.PINK}
-                            disabled={false}
-                        />
-                    </View>
-                    <View style={{paddingVertical: 10, alignItems: 'center'}}>
-                        <View style={{paddingBottom: 10}}>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
-                                Have a suggestion or feature you would like to see on Akcru?
-                            </Text>
-                        </View>
-                        <AkcruButtons.XlLrgButton
-                            btnname="Suggestions"
-                            onPress={suggestion}
-                            color={COLORS.PINK}
-                            disabled={false}
-                        />
-                    </View>
-                    <View style={{paddingVertical: 10, alignItems: 'center'}}>
-                        <View style={{paddingBottom: 10}}>
-                            <Text style={{...FONTS.Title2, textAlign: 'center'}}>
-                                Have a question we haven't answered in our FAQ's? Ask here.
-                            </Text>
-                        </View>
-                        <AkcruButtons.XlLrgButton
-                            btnname="Questions"
-                            onPress={question}
-                            color={COLORS.PINK}
-                            disabled={false}
-                        />
+                    <Text style={styles.subtitle}>Choose an option to continue</Text>
+
+                    <View style={styles.listWrap}>
+                        {items.map((item, index) => (
+                            <View key={item.key}>
+                                <Pressable style={styles.tile} onPress={item.onPress}>
+                                    <View style={styles.tileTextWrap}>
+                                        <Text style={styles.tileTitle}>{item.title}</Text>
+                                        <Text style={styles.tileSubtitle}>{item.subtitle}</Text>
+                                    </View>
+                                    <Text style={styles.chevron}>{'>'}</Text>
+                                </Pressable>
+                                {index < items.length - 1 ? <View style={styles.separator} /> : null}
+                            </View>
+                        ))}
                     </View>
                 </View>
             </TouchableWithoutFeedback>
         </Pressable>
     );
 };
+
+const styles = StyleSheet.create({
+    overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 14,
+    },
+    card: {
+        backgroundColor: COLORS.BLACK,
+        padding: 16,
+        borderRadius: 14,
+        width: '100%',
+        maxWidth: 540,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 4,
+    },
+    headerLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    title: {
+        ...FONTS.Title2,
+        color: COLORS.PINK,
+        marginLeft: 8,
+    },
+    closeBtn: {
+        padding: 4,
+    },
+    subtitle: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+        marginBottom: 14,
+    },
+    listWrap: {
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.16)',
+        borderRadius: 12,
+        overflow: 'hidden',
+        backgroundColor: 'rgba(211,211,211,0.08)',
+    },
+    tile: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        paddingVertical: 12,
+        paddingHorizontal: 12,
+    },
+    tileTextWrap: {
+        flex: 1,
+        paddingRight: 10,
+    },
+    tileTitle: {
+        ...FONTS.paragraph1,
+        color: COLORS.PINK,
+    },
+    tileSubtitle: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+        marginTop: 2,
+    },
+    chevron: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+    },
+    separator: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+    },
+});
 
 export default HelpModal;

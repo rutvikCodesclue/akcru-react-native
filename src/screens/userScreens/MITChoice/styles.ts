@@ -874,6 +874,11 @@ export default StyleSheet.create({
         right: 0,
         bottom: 0,
     },
+    pendingPinnedSharedBg: {
+        backgroundColor: 'rgba(8, 2, 18, 0.92)',
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(177, 145, 255, 0.35)',
+    },
     pendingSentPinnedContainer: {
         position: 'absolute',
         left: 0,
@@ -881,9 +886,6 @@ export default StyleSheet.create({
         bottom: 0,
         paddingHorizontal: '4%',
         paddingTop: 8,
-        backgroundColor: 'rgba(8, 2, 18, 0.92)',
-        borderTopWidth: 1,
-        borderTopColor: 'rgba(177, 145, 255, 0.35)',
         zIndex: 20,
     },
     pendingSwipeHintText: {

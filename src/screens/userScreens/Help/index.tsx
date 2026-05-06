@@ -30,33 +30,41 @@ const Help = () => {
 
     return (
         <TabContainer>
-            <View>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND}}>
+            <View style={styles.screenRoot}>
+                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.contentContainer}>
+                    <View style={styles.headerWrap}>
                         <Header />
                         <View style={styles.container}>
-                            <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, paddingBottom: 5}}>
+                            <View style={{backgroundColor: COLORS.BLACK, paddingBottom: 5}}>
                                 <BackButton navigation={navigation} />
                             </View>
                         </View>
                     </View>
 
-                    <View style={{marginBottom: 10}}>
+                    <View style={styles.container}>
                         <Text style={styles.title}>FAQ</Text>
-                        {helpData.map((value, index) => {
-                            return <Accordian value={value} key={index} />;
-                        })}
+                        <Text style={styles.subtitle}>Find quick answers to common questions</Text>
+                        <View style={styles.sectionCard}>
+                            {helpData.map((value, index) => {
+                                return <Accordian value={value} key={index} />;
+                            })}
+                        </View>
                     </View>
-                    <Text style={styles.title}>TUTORIALS BY TRINITY</Text>
 
-                    <View style={{}}>
-                        <HelpVideoList
-                            Help_Video={{
-                                id: 'helpvideo',
-                                title: '',
-                                helpvideo: helpVideos,
-                            }}
-                        />
+                    <View style={styles.container}>
+                        <Text style={styles.title}>TUTORIALS BY TRINITY</Text>
+                        <Text style={styles.subtitle}>Watch step-by-step guides</Text>
+                        <View style={styles.sectionCard}>
+                            <View style={styles.tutorialWrap}>
+                                <HelpVideoList
+                                    Help_Video={{
+                                        id: 'helpvideo',
+                                        title: '',
+                                        helpvideo: helpVideos,
+                                    }}
+                                />
+                            </View>
+                        </View>
                     </View>
                 </ScrollView>
             </View>

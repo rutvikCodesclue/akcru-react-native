@@ -1,7 +1,6 @@
-import {View, Text, TouchableOpacity, FlatList, ActivityIndicator, Alert} from 'react-native';
+import {View, Text, FlatList, ActivityIndicator, Alert, StyleSheet, Platform} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
-import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/header';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -41,93 +40,117 @@ const BlockedUsers = () => {
 
     if (loading) {
         return (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={styles.loaderWrap}>
                 <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
             </View>
         );
     }
 
     return (
-        <View style={{flex: 1}}>
-            <View>
-                <View>
-                    <View style={{zIndex: 100}}>
-                        <Header />
-                    </View>
-                    <View
-                        style={{
-                            height: SIZES.ScreenHeight / 5,
-                            marginTop: -60,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                        }}>
-                        <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: SIZES.ScreenHeight / 5,
-                            }}
-                        />
-                        <View>
-                            <BackButton navigation={navigation} />
-                            <Text
-                                style={{
-                                    ...FONTS.Title2,
-                                    marginTop: 10,
-
-                                    textAlign: 'center',
-                                    fontSize: 13,
-                                    textDecorationLine: 'underline',
-                                }}>
-                                BLOCKED USERS
-                            </Text>
+        <View style={styles.screenRoot}>
+            <View style={{zIndex: 100}}>
+                <Header />
+            </View>
+            <View style={styles.container}>
+                <BackButton navigation={navigation} />
+                <Text style={styles.title}>BLOCKED USERS</Text>
+                <Text style={styles.subtitle}>Manage users you have blocked</Text>
+                <View style={styles.listCard}>
+                    {blockedUsers.length === 0 ? (
+                        <View style={styles.emptyWrap}>
+                            <Text style={styles.emptyText}>You have not blocked any users</Text>
                         </View>
-                    </View>
+                    ) : (
+                        <FlatList
+                            data={blockedUsers}
+                            horizontal={false}
+                            showsVerticalScrollIndicator={false}
+                            scrollEnabled={true}
+                            keyExtractor={item => item.id.toString()}
+                            contentContainerStyle={styles.listContent}
+                            renderItem={({item}) => (
+                                <View style={styles.listItemWrap}>
+                                    <BlockedUserCard
+                                        userPicture={item.profilePicture}
+                                        userName={item.username}
+                                        onPress={() => {
+                                            navigation.navigate('ViewUserScreen', {
+                                                userID: item.id,
+                                            });
+                                        }}
+                                        influencerStatus={item.influencerStatus}
+                                        ownerStatus={item.ownerStatus}
+                                        companyStatus={item.companyStatus}
+                                        blackCloakStatus={item.blackCloakStatus}
+                                        userID={item.id}
+                                        akcruBadge={item.badge}
+                                        userDesc={item.description}
+                                        firstName={item.firstName}
+                                        unblock={() => handleUnblockUser(item.id)}
+                                    />
+                                </View>
+                            )}
+                        />
+                    )}
                 </View>
             </View>
-            {blockedUsers.length === 0 ? (
-                <View>
-                    <Text style={{...FONTS.Title2, marginTop: '10%', color: COLORS.DARKGREY, textAlign: 'center'}}>
-                        You have no blocked any users
-                    </Text>
-                </View>
-            ) : (
-                <View style={{marginHorizontal: 15}}>
-                    <FlatList
-                        data={blockedUsers}
-                        horizontal={false}
-                        showsVerticalScrollIndicator={false}
-                        scrollEnabled={true}
-                        keyExtractor={item => item.id.toString()}
-                        renderItem={({item}) => (
-                            <View style={{marginVertical: 5}}>
-                                <BlockedUserCard
-                                    userPicture={item.profilePicture}
-                                    userName={item.username}
-                                    onPress={() => {
-                                        navigation.navigate('ViewUserScreen', {
-                                            userID: item.id,
-                                        });
-                                    }}
-                                    influencerStatus={item.influencerStatus}
-                                    ownerStatus={item.ownerStatus}
-                                    companyStatus={item.companyStatus}
-                                    blackCloakStatus={item.blackCloakStatus}
-                                    userID={item.id}
-                                    akcruBadge={item.badge}
-                                    userDesc={item.description}
-                                    firstName={item.firstName}
-                                    unblock={() => handleUnblockUser(item.id)}
-                                />
-                            </View>
-                        )}
-                    />
-                </View>
-            )}
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    screenRoot: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    loaderWrap: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.BLACK,
+    },
+    container: {
+        marginHorizontal: SIZES.ScreenWidth * 0.03,
+        marginTop: Platform.OS === 'ios' ? '-2%' : '-1%',
+        paddingBottom: 16,
+    },
+    title: {
+        ...FONTS.Title2,
+        marginTop: 10,
+        textAlign: 'center',
+        color: COLORS.AKCRUBLUE,
+        textDecorationLine: 'underline',
+    },
+    subtitle: {
+        ...FONTS.paragraph2,
+        marginTop: 8,
+        textAlign: 'center',
+        color: COLORS.LIGHTGREY,
+    },
+    listCard: {
+        marginTop: 14,
+        borderRadius: 14,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        padding: 10,
+    },
+    listContent: {
+        paddingBottom: 8,
+    },
+    listItemWrap: {
+        marginVertical: 6,
+    },
+    emptyWrap: {
+        paddingVertical: 22,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        ...FONTS.Title2,
+        color: COLORS.DARKGREY,
+        textAlign: 'center',
+    },
+});
 
 export default BlockedUsers;

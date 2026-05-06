@@ -2,14 +2,23 @@ import {StyleSheet, Platform} from 'react-native';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
+    screenRoot: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollContent: {
+        paddingBottom: 24,
+    },
     input: {
         width: SIZES.ScreenWidth * 0.92,
-
         borderBottomWidth: 1,
-        borderColor: COLORS.LIGHTGREY,
+        borderColor: 'rgba(211,211,211,0.45)',
         marginBottom: 20,
         alignSelf: 'center',
-        height: 40,
+        minHeight: 44,
+        justifyContent: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     cancelButton: {
         ...FONTS.paragraph1,
@@ -19,14 +28,18 @@ export default StyleSheet.create({
         borderRadius: 5,
     },
     textinput: {
-        ...FONTS.paragraph1,
+        ...FONTS.paragraph2,
         color: COLORS.WHITE,
         width: '100%',
+        textAlign: 'left',
     },
     inputlabel: {
         ...FONTS.paragraph1,
-        marginLeft: 5,
+        marginBottom: 6,
         color: COLORS.AKCRUBLUE,
+        alignSelf: 'flex-start',
+        width: '100%',
+        textAlign: 'left',
     },
     title: {
         ...FONTS.Title2,
@@ -37,8 +50,66 @@ export default StyleSheet.create({
         textDecorationLine: 'underline',
     },
     container: {
-        marginBottom: 75,
+        marginBottom: 24,
         marginHorizontal: SIZES.ScreenWidth * 0.03,
+        marginTop: Platform.OS === 'ios' ? '-2%' : '-1%',
+    },
+    profileCard: {
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 14,
+        paddingHorizontal: 12,
+        paddingVertical: 14,
+        marginTop: 12,
+    },
+    fieldGroup: {
+        alignItems: 'center',
+        marginTop: 6,
+    },
+    fieldPressArea: {
+        width: '100%',
+    },
+    privacyNote: {
+        ...FONTS.paragraph1,
+        marginBottom: 10,
+        color: COLORS.PINK,
+        textAlign: 'center',
+    },
+    sectionDivider: {
+        borderBottomWidth: 0.8,
+        borderColor: COLORS.LIGHTGREY,
+        marginTop: 20,
+        marginBottom: 24,
+        width: SIZES.ScreenWidth / 4,
+        alignSelf: 'center',
+    },
+    dangerCard: {
+        backgroundColor: 'rgba(255, 0, 0, 0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 0, 0, 0.24)',
+        borderRadius: 14,
+        paddingHorizontal: 12,
+        paddingVertical: 14,
+    },
+    dangerTitle: {
+        ...FONTS.Title2,
+        color: COLORS.PINK,
+        marginBottom: 8,
+    },
+    dangerText: {
+        ...FONTS.Title2,
+        color: COLORS.LIGHTGREY,
+        marginBottom: 12,
+    },
+    dangerButton: {
+        padding: 12,
+        borderRadius: 12,
+        alignSelf: 'flex-start',
+    },
+    dangerButtonText: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
     },
     bgimage: {
         height: SIZES.ScreenHeight,
@@ -64,7 +135,7 @@ export default StyleSheet.create({
         color: 'red',
     },
     backbutton: {
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: COLORS.BLACK,
         marginTop: Platform.OS === 'ios' ? '10%' : 0,
     },
     datepickios: {
@@ -114,5 +185,86 @@ export default StyleSheet.create({
         backgroundColor: COLORS.AKCRUBACKGROUND,
         borderRadius: 8,
         padding: 20,
+    },
+    editModalRoot: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+        justifyContent: 'center',
+        paddingHorizontal: SIZES.ScreenWidth * 0.04,
+    },
+    editModalCard: {
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 14,
+        paddingHorizontal: 14,
+        paddingVertical: 16,
+    },
+    editModalTitle: {
+        ...FONTS.Title2,
+        color: COLORS.AKCRUBLUE,
+        textAlign: 'center',
+        marginBottom: 14,
+    },
+    editModalActions: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    editModalCancelBtn: {
+        backgroundColor: COLORS.DARKAKCRUBLUE,
+        minWidth: 120,
+        minHeight: 46,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    editModalUpdateBtn: {
+        backgroundColor: COLORS.PURPLE,
+        minWidth: 120,
+        minHeight: 46,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    editModalBtnText: {
+        ...FONTS.Title3,
+        color: COLORS.WHITE,
+        fontSize: 16,
+    },
+    passwordTextInput: {
+        ...FONTS.paragraph2,
+        color: COLORS.WHITE,
+        flex: 1,
+        textAlign: 'left',
+    },
+    eyeButton: {
+        paddingHorizontal: 6,
+        paddingVertical: 4,
+    },
+    switchRow: {
+        marginTop: 10,
+        width: SIZES.ScreenWidth * 0.92,
+        alignSelf: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.14)',
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+    },
+    switchLabel: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+        flex: 1,
+        paddingRight: 10,
     },
 });

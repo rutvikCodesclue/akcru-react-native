@@ -92,6 +92,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
 
     const [user, setUser] = useState<IUserProfile | undefined>(undefined);
     const archetype = user?.archetype ? JSON.parse(user.archetype) : null;
+    const isPresenceVisible = (user as any)?.presence?.visibility === 'VISIBLE';
+    const isPresenceActive = isPresenceVisible && (user as any)?.presence?.state === 'ACTIVE';
     const archetypeTags = React.useMemo(() => {
         if (!archetype) return [];
 
@@ -629,14 +631,26 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         </View>
 
                         <View style={styles.refAvatarWrap}>
-                            <Pressable onPress={toggleAvatarModal}>
-                                <HexAvatar
-                                    source={{uri: user?.profilePicture}}
-                                    size={112}
-                                    bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
-                                    rotateFrameDegrees={90}
-                                />
-                            </Pressable>
+                            <View style={styles.refAvatarBadgeWrap}>
+                                <Pressable onPress={toggleAvatarModal}>
+                                    <HexAvatar
+                                        source={{uri: user?.profilePicture}}
+                                        size={112}
+                                        bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        rotateFrameDegrees={90}
+                                    />
+                                </Pressable>
+                                {user && isPresenceVisible ? (
+                                    <View style={styles.activeStatusBadge}>
+                                        <View
+                                            style={[
+                                                styles.activeStatusDot,
+                                                {backgroundColor: isPresenceActive ? '#22C55E' : '#EF4444'},
+                                            ]}
+                                        />
+                                    </View>
+                                ) : null}
+                            </View>
                         </View>
 
                         <View

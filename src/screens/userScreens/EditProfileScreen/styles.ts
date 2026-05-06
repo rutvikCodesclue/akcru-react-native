@@ -6,6 +6,13 @@ const isIOS = Platform.OS === 'ios';
 const containerMargin = isIOS ? '-2%' : '-1%';
 
 export default StyleSheet.create({
+    screenRoot: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollContent: {
+        paddingBottom: 24,
+    },
     gallerycontainer: {
         marginBottom: 20,
     },
@@ -23,7 +30,20 @@ export default StyleSheet.create({
     container: {
         marginBottom: '5%',
         marginHorizontal: SIZES.ScreenWidth * 0.03,
-        marginTop:containerMargin
+        marginTop: containerMargin,
+    },
+    profileCard: {
+        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        borderRadius: 14,
+        paddingHorizontal: 12,
+        paddingVertical: 14,
+        marginTop: 12,
+    },
+    fieldGroup: {
+        alignItems: 'center',
+        marginTop: 18,
     },
     verticallySpaced: {
         paddingTop: 4,
@@ -73,14 +93,20 @@ export default StyleSheet.create({
     },
     inputlabel: {
         ...FONTS.paragraph1,
-        marginLeft: 5,
+        marginBottom: 6,
         color: COLORS.AKCRUBLUE,
-        alignSelf: 'flex-start',
+        alignSelf: 'center',
+        width: SIZES.ScreenWidth * 0.92,
+        textAlign: 'left',
     },
     settingslabel: {
         ...FONTS.paragraph2,
-        marginLeft: 5,
+        marginLeft: 8,
         color: COLORS.PINK,
+    },
+    settingsLabelGroup: {
+        flexDirection: 'row',
+        alignItems: 'center',
     },
     descinput: {
         width: SIZES.ScreenWidth * 0.8,
@@ -122,9 +148,139 @@ export default StyleSheet.create({
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'center',
-        marginHorizontal: 15,
+        marginHorizontal: 8,
         marginTop: 10,
         gap: 10,
+    },
+    archetypeSection: {
+        marginTop: 18,
+        paddingTop: 14,
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.08)',
+    },
+    bodyCopy: {
+        ...FONTS.paragraph2,
+        textAlign: 'center',
+        color: COLORS.LIGHTGREY,
+        marginTop: 16,
+        lineHeight: isTablet() ? 26 : 20,
+    },
+    headingCopy: {
+        ...FONTS.Title2,
+        color: COLORS.PINK,
+        textAlign: 'center',
+        marginTop: 20,
+    },
+    centeredMutedTitle: {
+        ...FONTS.Title3,
+        textAlign: 'center',
+        marginVertical: 10,
+        color: COLORS.LIGHTGREY,
+    },
+    archetypePreview: {
+        width: '84%',
+        aspectRatio: 1,
+        borderRadius: 10,
+        alignSelf: 'center',
+        marginTop: 10,
+    },
+    archetypeValue: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        textAlign: 'center',
+        marginTop: 6,
+    },
+    archetypeNameMask: {
+        alignSelf: 'center',
+        marginTop: 6,
+    },
+    archetypeNameText: {
+        ...FONTS.Title2,
+        color: 'black',
+        textAlign: 'center',
+        fontSize: 24,
+    },
+    archetypeDescription: {
+        ...FONTS.Title2,
+        textAlign: 'center',
+        marginTop: 10,
+        lineHeight: 20,
+        paddingHorizontal: 8,
+        color: COLORS.LIGHTGREY,
+    },
+    settingsSection: {
+        alignItems: 'center',
+        marginTop: 10,
+        marginBottom: 20,
+        width: '100%',
+    },
+    switchRow: {
+        marginTop: 8,
+        marginBottom: 6,
+        width: SIZES.ScreenWidth * 0.9,
+        alignSelf: 'center',
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.14)',
+        borderRadius: 12,
+        backgroundColor: 'rgba(255,255,255,0.04)',
+        paddingHorizontal: 12,
+        paddingVertical: 10,
+    },
+    switchLabel: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+        flex: 1,
+        paddingRight: 10,
+    },
+    settingsRow: {
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: '100%',
+        marginTop: 0,
+    },
+    settingsItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        width: SIZES.ScreenWidth * 0.9,
+        paddingVertical: 14,
+        paddingHorizontal: 10,
+        backgroundColor: 'rgba(211,211,211,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(211,211,211,0.28)',
+        borderRadius: 12,
+        marginVertical: 6,
+    },
+    settingsSeparator: {
+        width: SIZES.ScreenWidth * 0.9,
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: 'rgba(255,255,255,0.22)',
+        marginVertical: 2,
+    },
+    settingsDangerSeparator: {
+        width: SIZES.ScreenWidth * 0.9,
+        height: 2,
+        backgroundColor: 'rgba(211,211,211,0.45)',
+        marginVertical: 4,
+    },
+    settingsChevron: {
+        ...FONTS.paragraph2,
+        color: COLORS.LIGHTGREY,
+    },
+    settingsDangerItem: {
+        backgroundColor: 'rgba(255,0,0,0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255,0,0,0.28)',
+        borderRadius: 12,
+    },
+    settingsDangerLabel: {
+        ...FONTS.paragraph2,
+        marginLeft: 8,
+        color: '#FF4D4F',
     },
     bgimage: {
         height: SIZES.ScreenHeight,
@@ -136,7 +292,7 @@ export default StyleSheet.create({
         paddingHorizontal: 15,
     },
     backbutton: {
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: COLORS.BLACK,
         marginTop: Platform.OS === 'ios' ? '10%' : 0,
     },
 });

@@ -1,4 +1,14 @@
-import {View, Text, TextInput, Modal, SafeAreaView, Alert, Platform, Pressable, ActivityIndicator} from 'react-native';
+import {
+    View,
+    Text,
+    TextInput,
+    Modal,
+    SafeAreaView,
+    Alert,
+    Platform,
+    Pressable,
+    ActivityIndicator,
+} from 'react-native';
 import React, {useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -14,6 +24,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {TouchableOpacity} from 'react-native-gesture-handler';
 import BackButton from '../../../components/General/backbutton';
 import {deleteMyAccount} from '../../../lib/api/userDelete.lib';
+import ConfirmationModal from '../../../components/ConfirmationModal';
 const date = new Date('2000-01-07');
 date.setHours(0, 0, 0, 0);
 
@@ -48,28 +59,32 @@ const AccountSettings = () => {
     useFocusEffect(
         React.useCallback(() => {
             hydrateUser();
-
             return () => {};
         }, []),
     );
 
     const handleFirstNameModalOpen = () => {
         setFirstNameModified(firstName);
+        setFirstName(user?.firstName ?? '');
         setFirstNameModalVisible(true);
     };
 
     const handleLastNameModalOpen = () => {
         setLastNameModified(lastName);
+        setLastName(user?.lastName ?? '');
         setLastNameModalVisible(true);
     };
 
     const handlePhoneModalOpen = () => {
         setPhoneModified(phone);
+        setPhone(user?.phoneNumber ?? '');
         setPhoneModalVisible(true);
     };
 
     const handlePasswordModalOpen = () => {
         setPasswordModified(password);
+        setShowPassword(false);
+        setShowConfirmPassword(false);
         setPasswordModalVisible(true);
     };
 
@@ -281,6 +296,8 @@ const AccountSettings = () => {
     const [showPasswordFormatError, setShowPasswordFormatError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleChangePassword = () => {
         if (password.length >= 8) {
@@ -347,7 +364,7 @@ const AccountSettings = () => {
     };
 
     return (
-        <View>
+        <View style={styles.screenRoot}>
             <ScrollView stickyHeaderIndices={[0]} style={styles.backbutton}>
                 <View style={{zIndex: 20}}>
                     <Header />
@@ -357,15 +374,16 @@ const AccountSettings = () => {
                         <BackButton navigation={navigation} />
                     </View>
                     <Text style={styles.title}>ACCOUNT SETTINGS</Text>
-                    <Text style={{...FONTS.paragraph1, marginBottom: 10, color: COLORS.PINK}}>
+                    <Text style={styles.privacyNote}>
                         ( This information will not be shared publicly )
                     </Text>
 
-                    <View>
+                    <View style={styles.profileCard}>
+                    <View style={styles.fieldGroup}>
                         <Text style={styles.inputlabel}>First name</Text>
                         <View style={styles.input}>
                             {Platform.OS === 'ios' ? (
-                                <TouchableOpacity onPress={handleFirstNameModalOpen}>
+                                <TouchableOpacity style={styles.fieldPressArea} onPress={handleFirstNameModalOpen}>
                                     <TextInput
                                         placeholder={user?.firstName}
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -377,7 +395,7 @@ const AccountSettings = () => {
                                     />
                                 </TouchableOpacity>
                             ) : (
-                                <Pressable onPress={handleFirstNameModalOpen}>
+                                <Pressable style={styles.fieldPressArea} onPress={handleFirstNameModalOpen}>
                                     <TextInput
                                         placeholder={user?.firstName}
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -393,65 +411,31 @@ const AccountSettings = () => {
                     </View>
 
                     <Modal animationType="fade" transparent={false} visible={firstNameModalVisible}>
-                        <SafeAreaView
-                            style={{
-                                flex: 1,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                                paddingTop: 20,
-                            }}>
-                            {Platform.OS === 'ios' ? (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <TouchableOpacity onPress={handleChangeFirstName}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setFirstNameModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
-                                    </TouchableOpacity>
+                        <SafeAreaView style={styles.editModalRoot}>
+                            <View style={styles.editModalCard}>
+                                <Text style={styles.editModalTitle}>Change First Name</Text>
+                                <Text style={styles.inputlabel}>First name</Text>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={user?.firstName}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => setFirstName(text)}
+                                        value={firstName}
+                                        editable={true}
+                                    />
                                 </View>
-                            ) : (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <Pressable onPress={() => setFirstNameModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
+                                <View style={styles.editModalActions}>
+                                    <Pressable
+                                        style={styles.editModalCancelBtn}
+                                        onPress={() => setFirstNameModalVisible(false)}>
+                                        <Text style={styles.editModalBtnText}>Cancel</Text>
                                     </Pressable>
-
-                                    <Pressable onPress={handleChangeFirstName}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                    <Pressable style={styles.editModalUpdateBtn} onPress={handleChangeFirstName}>
+                                        <Text style={styles.editModalBtnText}>Update</Text>
                                     </Pressable>
                                 </View>
-                            )}
-
-                            <Text style={styles.inputlabel}>Change Firstname</Text>
-                            <View style={styles.input}>
-                                <TextInput
-                                    placeholder={user?.firstName}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => setFirstName(text)}
-                                    value={firstName}
-                                    editable={true}
-                                />
                             </View>
                         </SafeAreaView>
                     </Modal>
@@ -489,7 +473,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={confirmFirstNameUpdate}
@@ -498,7 +482,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </TouchableOpacity>
                                     </View>
                                 ) : (
@@ -514,7 +498,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
                                             onPress={confirmFirstNameUpdate}
@@ -523,7 +507,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </Pressable>
                                     </View>
                                 )}
@@ -531,11 +515,11 @@ const AccountSettings = () => {
                         </View>
                     </Modal>
 
-                    <View>
+                    <View style={styles.fieldGroup}>
                         <Text style={styles.inputlabel}>Last name</Text>
                         <View style={styles.input}>
                             {Platform.OS === 'ios' ? (
-                                <TouchableOpacity onPress={handleLastNameModalOpen}>
+                                <TouchableOpacity style={styles.fieldPressArea} onPress={handleLastNameModalOpen}>
                                     <TextInput
                                         placeholder={user?.lastName}
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -547,7 +531,7 @@ const AccountSettings = () => {
                                     />
                                 </TouchableOpacity>
                             ) : (
-                                <Pressable onPress={handleLastNameModalOpen}>
+                                <Pressable style={styles.fieldPressArea} onPress={handleLastNameModalOpen}>
                                     <TextInput
                                         placeholder={user?.lastName}
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -563,64 +547,31 @@ const AccountSettings = () => {
                     </View>
 
                     <Modal animationType="fade" transparent={false} visible={lastNameModalVisible}>
-                        <SafeAreaView
-                            style={{
-                                flex: 1,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                                paddingTop: 20,
-                            }}>
-                            {Platform.OS === 'ios' ? (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <TouchableOpacity onPress={handleChangeLastName}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setLastNameModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
-                                    </TouchableOpacity>
+                        <SafeAreaView style={styles.editModalRoot}>
+                            <View style={styles.editModalCard}>
+                                <Text style={styles.editModalTitle}>Change Last Name</Text>
+                                <Text style={styles.inputlabel}>Last name</Text>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={user?.lastName}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => setLastName(text)}
+                                        value={lastName}
+                                        editable={true}
+                                    />
                                 </View>
-                            ) : (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <Pressable onPress={() => setLastNameModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
+                                <View style={styles.editModalActions}>
+                                    <Pressable
+                                        style={styles.editModalCancelBtn}
+                                        onPress={() => setLastNameModalVisible(false)}>
+                                        <Text style={styles.editModalBtnText}>Cancel</Text>
                                     </Pressable>
-                                    <Pressable onPress={handleChangeLastName}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                    <Pressable style={styles.editModalUpdateBtn} onPress={handleChangeLastName}>
+                                        <Text style={styles.editModalBtnText}>Update</Text>
                                     </Pressable>
                                 </View>
-                            )}
-
-                            <Text style={styles.inputlabel}>Change Lastname</Text>
-                            <View style={styles.input}>
-                                <TextInput
-                                    placeholder={user?.lastName}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => setLastName(text)}
-                                    value={lastName}
-                                    editable={true}
-                                />
                             </View>
                         </SafeAreaView>
                     </Modal>
@@ -658,7 +609,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={confirmLastNameUpdate}
@@ -667,7 +618,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </TouchableOpacity>
                                     </View>
                                 ) : (
@@ -683,7 +634,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
                                             onPress={confirmLastNameUpdate}
@@ -692,18 +643,18 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </Pressable>
                                     </View>
                                 )}
                             </View>
                         </View>
                     </Modal>
-                    <View>
+                    <View style={styles.fieldGroup}>
                         <Text style={styles.inputlabel}>Phone number</Text>
                         <View style={styles.input}>
                             {Platform.OS === 'ios' ? (
-                                <TouchableOpacity onPress={handlePhoneModalOpen}>
+                                <TouchableOpacity style={styles.fieldPressArea} onPress={handlePhoneModalOpen}>
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                         <Text style={{color: COLORS.DARKGREY}}>+1</Text>
                                         <TextInput
@@ -722,7 +673,7 @@ const AccountSettings = () => {
                                     </View>
                                 </TouchableOpacity>
                             ) : (
-                                <Pressable onPress={handlePhoneModalOpen}>
+                                <Pressable style={styles.fieldPressArea} onPress={handlePhoneModalOpen}>
                                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                                         <Text style={{color: COLORS.DARKGREY}}>+1</Text>
                                         <TextInput
@@ -745,70 +696,36 @@ const AccountSettings = () => {
                     </View>
 
                     <Modal animationType="fade" transparent={false} visible={phoneModalVisible}>
-                        <SafeAreaView
-                            style={{
-                                flex: 1,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                                paddingTop: 20,
-                            }}>
-                            {Platform.OS === 'ios' ? (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <TouchableOpacity onPress={handleChangePhone}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setPhoneModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
-                                    </TouchableOpacity>
+                        <SafeAreaView style={styles.editModalRoot}>
+                            <View style={styles.editModalCard}>
+                                <Text style={styles.editModalTitle}>Change Phone Number</Text>
+                                <Text style={styles.inputlabel}>Phone number</Text>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={user?.phoneNumber}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.textinput}
+                                        secureTextEntry={false}
+                                        onChangeText={text => {
+                                            const numericText = text.replace(/[^0-9]/g, '');
+                                            const limitedText = numericText.substring(0, 10);
+                                            setPhone(limitedText);
+                                        }}
+                                        value={phone}
+                                        keyboardType="phone-pad"
+                                        editable={true}
+                                    />
                                 </View>
-                            ) : (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <Pressable onPress={() => setPhoneModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
+                                <View style={styles.editModalActions}>
+                                    <Pressable
+                                        style={styles.editModalCancelBtn}
+                                        onPress={() => setPhoneModalVisible(false)}>
+                                        <Text style={styles.editModalBtnText}>Cancel</Text>
                                     </Pressable>
-                                    <Pressable onPress={handleChangePhone}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                    <Pressable style={styles.editModalUpdateBtn} onPress={handleChangePhone}>
+                                        <Text style={styles.editModalBtnText}>Update</Text>
                                     </Pressable>
                                 </View>
-                            )}
-                            <Text style={styles.inputlabel}>Change Phonenumber</Text>
-                            <View style={styles.input}>
-                                <TextInput
-                                    placeholder={user?.phoneNumber}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={false}
-                                    onChangeText={text => {
-                                        const numericText = text.replace(/[^0-9]/g, '');
-
-                                        const limitedText = numericText.substring(0, 10);
-
-                                        setPhone(limitedText);
-                                    }}
-                                    value={phone}
-                                    keyboardType="phone-pad"
-                                    editable={true}
-                                />
                             </View>
                         </SafeAreaView>
                     </Modal>
@@ -846,7 +763,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={confirmPhoneUpdate}
@@ -855,7 +772,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </TouchableOpacity>
                                     </View>
                                 ) : (
@@ -871,7 +788,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
                                             onPress={confirmPhoneUpdate}
@@ -880,7 +797,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </Pressable>
                                     </View>
                                 )}
@@ -959,11 +876,11 @@ const AccountSettings = () => {
                         </SafeAreaView>
                     </Modal>
 
-                    <View>
+                    <View style={styles.fieldGroup}>
                         <Text style={styles.inputlabel}>Change Password</Text>
                         <View style={styles.input}>
                             {Platform.OS === 'ios' ? (
-                                <TouchableOpacity onPress={handlePasswordModalOpen}>
+                                <TouchableOpacity style={styles.fieldPressArea} onPress={handlePasswordModalOpen}>
                                     <TextInput
                                         placeholder={'**********'}
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -975,7 +892,7 @@ const AccountSettings = () => {
                                     />
                                 </TouchableOpacity>
                             ) : (
-                                <Pressable onPress={handlePasswordModalOpen}>
+                                <Pressable style={styles.fieldPressArea} onPress={handlePasswordModalOpen}>
                                     <TextInput
                                         placeholder={'**********'}
                                         placeholderTextColor={COLORS.DARKGREY}
@@ -991,88 +908,74 @@ const AccountSettings = () => {
                     </View>
 
                     <Modal animationType="fade" transparent={false} visible={passwordModalVisible}>
-                        <SafeAreaView
-                            style={{
-                                flex: 1,
-                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                paddingHorizontal: SIZES.ScreenWidth * 0.03,
-                                paddingTop: 20,
-                            }}>
-                            {Platform.OS === 'ios' ? (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <TouchableOpacity onPress={handleChangePassword}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
-                                    </TouchableOpacity>
-                                    <TouchableOpacity onPress={() => setPasswordModalVisible(false)}>
+                        <SafeAreaView style={styles.editModalRoot}>
+                            <View style={styles.editModalCard}>
+                                <Text style={styles.editModalTitle}>Change Password</Text>
+                                <Text style={styles.inputlabel}>
+                                    New Password <Text style={{color: COLORS.MIDORANGE}}>(Min 8 characters)</Text>
+                                </Text>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={user?.password}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.passwordTextInput}
+                                        secureTextEntry={!showPassword}
+                                        onChangeText={text => setPassword(text)}
+                                        value={password}
+                                        editable={true}
+                                    />
+                                    <Pressable
+                                        style={styles.eyeButton}
+                                        onPress={() => setShowPassword(prev => !prev)}>
                                         <Icon
-                                            name="close-circle"
+                                            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
                                             type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
-                                        />
-                                    </TouchableOpacity>
-                                </View>
-                            ) : (
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        justifyContent: 'space-between',
-                                        marginBottom: 20,
-                                    }}>
-                                    <Pressable onPress={() => setPasswordModalVisible(false)}>
-                                        <Icon
-                                            name="close-circle"
-                                            type="ionicon"
-                                            size={25}
-                                            color={COLORS.DARKAKCRUBLUE}
+                                            size={20}
+                                            color={COLORS.AKCRUBLUE}
                                         />
                                     </Pressable>
-                                    <Pressable onPress={handleChangePassword}>
-                                        <Icon name="checkmark-circle" type="ionicon" size={25} color={COLORS.PURPLE} />
+                                </View>
+                                <Text style={styles.inputlabel}>Confirm New Password</Text>
+                                <View style={styles.input}>
+                                    <TextInput
+                                        placeholder={user?.password}
+                                        placeholderTextColor={COLORS.DARKGREY}
+                                        style={styles.passwordTextInput}
+                                        secureTextEntry={!showConfirmPassword}
+                                        onChangeText={text => {
+                                            setConfirmPassword(text);
+
+                                            if (password === text) {
+                                                setPasswordError(false);
+                                            } else {
+                                                setPasswordError(true);
+                                            }
+                                        }}
+                                        value={confirmPassword}
+                                        editable={true}
+                                    />
+                                    <Pressable
+                                        style={styles.eyeButton}
+                                        onPress={() => setShowConfirmPassword(prev => !prev)}>
+                                        <Icon
+                                            name={showConfirmPassword ? 'eye-off-outline' : 'eye-outline'}
+                                            type="ionicon"
+                                            size={20}
+                                            color={COLORS.AKCRUBLUE}
+                                        />
+                                    </Pressable>
+                                    {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
+                                </View>
+                                <View style={styles.editModalActions}>
+                                    <Pressable
+                                        style={styles.editModalCancelBtn}
+                                        onPress={() => setPasswordModalVisible(false)}>
+                                        <Text style={styles.editModalBtnText}>Cancel</Text>
+                                    </Pressable>
+                                    <Pressable style={styles.editModalUpdateBtn} onPress={handleChangePassword}>
+                                        <Text style={styles.editModalBtnText}>Update</Text>
                                     </Pressable>
                                 </View>
-                            )}
-
-                            <Text style={styles.inputlabel}>
-                                Change Password{' '}
-                                <Text style={{color: COLORS.MIDORANGE}}>(Must be atleast 8 characters)</Text>
-                            </Text>
-                            <View style={styles.input}>
-                                <TextInput
-                                    placeholder={user?.password}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={true}
-                                    onChangeText={text => setPassword(text)}
-                                    value={password}
-                                    editable={true}
-                                />
-                            </View>
-                            <Text style={styles.inputlabel}>Confirm New Password </Text>
-                            <View style={styles.input}>
-                                <TextInput
-                                    placeholder={user?.password}
-                                    placeholderTextColor={COLORS.DARKGREY}
-                                    style={styles.textinput}
-                                    secureTextEntry={true}
-                                    onChangeText={text => {
-                                        setConfirmPassword(text);
-
-                                        if (password === text) {
-                                            setPasswordError(false);
-                                        } else {
-                                            setPasswordError(true);
-                                        }
-                                    }}
-                                    value={confirmPassword}
-                                    editable={true}
-                                />
-                                {passwordError && <Text style={styles.warningText}>Passwords do not match.</Text>}
                             </View>
                         </SafeAreaView>
                     </Modal>
@@ -1110,7 +1013,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </TouchableOpacity>
                                         <TouchableOpacity
                                             onPress={confirmPasswordUpdate}
@@ -1119,7 +1022,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </TouchableOpacity>
                                     </View>
                                 ) : (
@@ -1135,7 +1038,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Cancel</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Cancel</Text>
                                         </Pressable>
                                         <Pressable
                                             onPress={confirmPasswordUpdate}
@@ -1144,7 +1047,7 @@ const AccountSettings = () => {
                                                 padding: 10,
                                                 borderRadius: 5,
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Update</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Update</Text>
                                         </Pressable>
                                     </View>
                                 )}
@@ -1183,7 +1086,7 @@ const AccountSettings = () => {
                                                 borderRadius: 5,
                                                 alignSelf: 'center',
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Close</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Close</Text>
                                         </TouchableOpacity>
                                     ) : (
                                         <Pressable
@@ -1194,42 +1097,31 @@ const AccountSettings = () => {
                                                 borderRadius: 5,
                                                 alignSelf: 'center',
                                             }}>
-                                            <Text style={{...FONTS.Title3}}>Close</Text>
+                                            <Text style={{...FONTS.Title3, color: COLORS.WHITE}}>Close</Text>
                                         </Pressable>
                                     )}
                                 </View>
                             </View>
                         </View>
                     </Modal>
-
-                    <View
-                        style={{
-                            borderBottomWidth: 0.8,
-                            borderColor: COLORS.LIGHTGREY,
-                            marginTop: 20,
-                            marginBottom: 40,
-                            width: SIZES.ScreenWidth / 4,
-                            alignSelf: 'center',
-                        }}
-                    />
-                    <View>
-                        <Text style={{...FONTS.Title2, color: COLORS.PINK, marginBottom: 8}}>Delete Account</Text>
-                        <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY, marginBottom: 12}}>
+                    </View>
+                    <View style={styles.sectionDivider} />
+                    <View style={styles.dangerCard}>
+                        <Text style={styles.dangerTitle}>Delete Account</Text>
+                        <Text style={styles.dangerText}>
                             Permanently removes your account and can not be recovered.
                         </Text>
                         <TouchableOpacity
                             onPress={() => setConfirmationModalVisible(true)}
                             disabled={busy}
-                            style={{
-                                backgroundColor: busy ? COLORS.DARKGREY : COLORS.CATREDLGT,
-                                padding: 12,
-                                borderRadius: 5,
-                                alignSelf: 'flex-start',
-                            }}>
+                            style={[
+                                styles.dangerButton,
+                                {backgroundColor: busy ? COLORS.DARKGREY : COLORS.CATREDLGT},
+                            ]}>
                             {busy ? (
                                 <ActivityIndicator />
                             ) : (
-                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Delete my account</Text>
+                                <Text style={styles.dangerButtonText}>Delete my account</Text>
                             )}
                         </TouchableOpacity>
                     </View>
@@ -1241,40 +1133,16 @@ const AccountSettings = () => {
                     presentationStyle="overFullScreen"
                     animationType="fade"
                     onRequestClose={() => setConfirmationModalVisible(false)}>
-                    <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent}>
-                            <Text
-                                style={[
-                                    FONTS.Title2,
-                                    {marginBottom: 12, textAlign: 'center', color: COLORS.LIGHTGREY},
-                                ]}>
-                                Confirm Account Deletion?
-                            </Text>
-                            <Text
-                                style={[
-                                    FONTS.Title3,
-                                    {marginBottom: 20, textAlign: 'center', color: COLORS.LIGHTGREY},
-                                ]}>
-                                This will delete your account. Are you sure you want to proceed?
-                            </Text>
-
-                            <View style={styles.modalButtonsRow}>
-                                 <Pressable
-                                        style={styles.cancelBtn}
-                                        onPress={() => setConfirmationModalVisible(false)}>
-                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Cancel</Text>
-                                    </Pressable>
-                                    <Pressable
-                                        style={styles.confirmBtn}
-                                        onPress={onDelete}
-                                        >
-                                        <Text style={[FONTS.Title3, {color: COLORS.WHITE}]}>Confirm</Text>
-                                    </Pressable>
-                            
-                                
-                            </View>
-                        </View>
-                    </View>
+                    <ConfirmationModal
+                        onPressYes={onDelete}
+                        onPressNo={() => setConfirmationModalVisible(false)}
+                        variant="continueWatching"
+                        yesLabel={busy ? 'Deleting...' : 'Delete'}
+                        noLabel="Cancel"
+                        confirmationText={
+                            'Confirm Account Deletion?\n\nThis will delete your account. Are you sure you want to proceed?'
+                        }
+                    />
                 </Modal>
             </ScrollView>
         </View>
