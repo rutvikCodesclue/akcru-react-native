@@ -4,6 +4,7 @@ import {
     StyleSheet,
     Pressable,
     Platform,
+    BackHandler,
     type PressableStateCallbackType,
     type StyleProp,
     type ViewStyle,
@@ -39,6 +40,9 @@ import {NotificationNavigation} from '../screens/userScreens/UserNotificationTab
 import useAuthStore from '../stores/auth.store';
 import type {INotification} from '../../types';
 import {formatDatestamp} from '../util/util';
+import SoloVibeSheetContent, {type SoloVibeOption} from './SoloVibeSheetContent';
+import {setSoloSessionVibe} from '../lib/api/soloSession.lib';
+import {resolveSoloSessionVibe} from '../types/SoloSessionVibe';
 
 /** Selected tab only: gradient disk + glow; inactive tabs show icon only (no circle) */
 const ICON_FOCUSED_GRADIENT = ['rgba(232,205,255,0.96)', 'rgba(255,200,232,0.88)', 'rgba(118,95,145,1)'];
@@ -94,6 +98,7 @@ export type ClientTabsParams = {
 const ClientTabs = createBottomTabNavigator<ClientTabsParams>();
 
 type TabBarProps = React.ComponentProps<typeof BottomTabBar>;
+type CenterSheetStep = 'main' | 'soloVibe';
 
 /**
  * Center hex: one press target for the whole tab slot (avoids nested Pressable vs inner Touchable fighting).
@@ -224,8 +229,20 @@ export default function ClientTabNavigator() {
         return centerSheetLatestNotification ? ['90%'] : ['70%'];
     }, [isCenterSheetLatestNotificationLoading, centerSheetLatestNotification]);
     const [selectedCenterAction, setSelectedCenterAction] = useState<'invite' | 'purchase' | 'match' | 'solo' | null>(null);
+    const [centerSheetStep, setCenterSheetStep] = useState<CenterSheetStep>('main');
+    const [selectedSoloVibeId, setSelectedSoloVibeId] = useState<string | null>(null);
     const centerActionNavTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const CENTER_ACTION_NAV_DELAY_MS = 500;
+    const SOLO_VIBE_OPTIONS: SoloVibeOption[] = useMemo(
+        () => [
+            {id: 'browsing', emoji: '🍿', title: 'Just browsing'},
+            {id: 'chill', emoji: '😌', title: 'Chill & relax'},
+            {id: 'vibes', emoji: '🔥', title: 'Late night vibes'},
+            {id: 'something', emoji: '🎬', title: 'Something good'},
+            {id: 'invite', emoji: '💞', title: 'Might invite someone'},
+        ],
+        [],
+    );
 
     const fetchMatches = useCallback(() => {
         API.get('/v1/flickflirt/matches')
@@ -308,6 +325,9 @@ export default function ClientTabNavigator() {
     };
 
     const closeCenterHexSheet = () => {
+        setCenterSheetStep('main');
+        setSelectedSoloVibeId(null);
+        setSelectedCenterAction(null);
         centerSheetRef.current?.close();
     };
 
@@ -392,11 +412,34 @@ export default function ClientTabNavigator() {
     };
 
     const handlePressSoloSession = () => {
+        setSelectedCenterAction('solo');
+        setCenterSheetStep('soloVibe');
+    };
+
+    const handlePressSoloSessionBack = useCallback(() => {
+        setCenterSheetStep('main');
+        setSelectedSoloVibeId(null);
+    }, []);
+
+    const handlePressStartSoloSession = (selectedVibeId: string) => {
+        // Persist the selected vibe in parallel with the navigation animation so the
+        // user is never blocked on the network. Failures are surfaced via console only;
+        // the screen still opens so the experience is not interrupted.
+        const apiVibe = resolveSoloSessionVibe(selectedVibeId);
+        if (apiVibe) {
+            void setSoloSessionVibe(apiVibe);
+        } else {
+            console.warn('handlePressStartSoloSession: unknown vibe id', selectedVibeId);
+        }
+
         scheduleCenterCircleNavigation('solo', () => {
             navigate('NoBottomStack', {
                 screen: 'ClientStack',
                 params: {
-                    screen: 'HomeScreen',
+                    screen: 'SoloSessionScreen',
+                    params: {
+                        vibeId: selectedVibeId,
+                    },
                 },
             });
         });
@@ -414,6 +457,17 @@ export default function ClientTabNavigator() {
         ),
         [],
     );
+
+    useEffect(() => {
+        if (centerSheetStep !== 'soloVibe') {
+            return;
+        }
+        const backSubscription = BackHandler.addEventListener('hardwareBackPress', () => {
+            handlePressSoloSessionBack();
+            return true;
+        });
+        return () => backSubscription.remove();
+    }, [centerSheetStep, handlePressSoloSessionBack]);
 
     return (
         <>
@@ -606,144 +660,157 @@ export default function ClientTabNavigator() {
                     contentContainerStyle={styles.centerSheetContent}
                     showsVerticalScrollIndicator={true}
                     keyboardShouldPersistTaps="handled">
-                    <View style={styles.sheetHeaderWrap}>
-                        <Text style={styles.sheetHeaderTitle}>What do you want to do?</Text>
-                        <Pressable style={styles.sheetCloseButton} onPress={closeCenterHexSheet}>
-                            <Icon name="close" type="material-community" color={COLORS.WHITE} size={18} />
-                        </Pressable>
-                    </View>
-
-                    <View style={styles.actionsGrid}>
-                        <Pressable
-                            style={[
-                                styles.actionCard,
-                                selectedCenterAction === 'invite' ? styles.actionCardSelected : undefined,
-                            ]}
-                            onPress={handlePressSendInvite}>
-                            <Icon
-                                name="ticket-confirmation-outline"
-                                type="material-community"
-                                color={COLORS.WHITE}
-                                size={34}
-                            />
-                            <Text style={[styles.actionTitle, selectedCenterAction === 'invite' ? styles.actionTitleSelected : undefined]}>
-                                Send an Invite
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.actionSubtitle,
-                                    selectedCenterAction === 'invite' ? styles.actionSubtitleSelected : undefined,
-                                ]}>
-                                Pick a movie to send a match
-                            </Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={[
-                                styles.actionCard,
-                                selectedCenterAction === 'purchase' ? styles.actionCardSelected : undefined,
-                            ]}
-                            onPress={handlePressPurchaseCrewDollars}>
-                            <Icon name="wallet-outline" type="material-community" color={COLORS.WHITE} size={34} />
-                            <Text
-                                style={[
-                                    styles.actionTitle,
-                                    selectedCenterAction === 'purchase' ? styles.actionTitleSelected : undefined,
-                                ]}>
-                                Purchase Crew Dollars
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.actionSubtitle,
-                                    selectedCenterAction === 'purchase' ? styles.actionSubtitleSelected : undefined,
-                                ]}>
-                                Buy credits and unlock new perks
-                            </Text>
-                        </Pressable>
-                    </View>
-
-                    <View style={styles.actionsGrid}>
-                        <Pressable
-                            style={[
-                                styles.actionCard,
-                                selectedCenterAction === 'match' ? styles.actionCardSelected : undefined,
-                            ]}
-                            onPress={handlePressFindMatch}>
-                            <Icon name="magnify" type="material-community" color={COLORS.WHITE} size={34} />
-                            <Text style={[styles.actionTitle, selectedCenterAction === 'match' ? styles.actionTitleSelected : undefined]}>
-                                Find a Match
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.actionSubtitle,
-                                    selectedCenterAction === 'match' ? styles.actionSubtitleSelected : undefined,
-                                ]}>
-                                Jump into FlickFlirt
-                            </Text>
-                        </Pressable>
-
-                        <Pressable
-                            style={[
-                                styles.actionCard,
-                                selectedCenterAction === 'solo' ? styles.actionCardSelected : undefined,
-                            ]}
-                            onPress={handlePressSoloSession}>
-                            <Icon name="play-circle-outline" type="material-community" color={COLORS.WHITE} size={34} />
-                            <Text style={[styles.actionTitle, selectedCenterAction === 'solo' ? styles.actionTitleSelected : undefined]}>
-                                Solo Session
-                            </Text>
-                            <Text
-                                style={[
-                                    styles.actionSubtitle,
-                                    selectedCenterAction === 'solo' ? styles.actionSubtitleSelected : undefined,
-                                ]}>
-                                Watch something on your own
-                            </Text>
-                        </Pressable>
-                    </View>
-
-                    {!isCenterSheetLatestNotificationLoading && centerSheetLatestNotification ? (
-                        <View style={styles.latestNotificationBlock}>
-                            <View style={styles.latestNotificationHeaderRow}>
-                                <Text style={styles.latestNotificationBlockTitle}>Latest notification</Text>
-                                <Pressable
-                                    onPress={handlePressSeeAllNotifications}
-                                    hitSlop={8}
-                                    style={({pressed}) => [
-                                        styles.latestNotificationSeeAll,
-                                        pressed && styles.latestNotificationSeeAllPressed,
-                                    ]}>
-                                    <Text style={styles.latestNotificationSeeAllText}>See all</Text>
+                    {centerSheetStep === 'main' ? (
+                        <>
+                            <View style={styles.sheetHeaderWrap}>
+                                <Text style={styles.sheetHeaderTitle}>What do you want to do?</Text>
+                                <Pressable style={styles.sheetCloseButton} onPress={closeCenterHexSheet}>
+                                    <Icon name="close" type="material-community" color={COLORS.WHITE} size={18} />
                                 </Pressable>
                             </View>
-                            <Pressable
-                                onPress={() => {
-                                    void handlePressCenterSheetNotification(centerSheetLatestNotification);
-                                }}
-                                style={({pressed}) => [
-                                    styles.latestNotificationRow,
-                                    !centerSheetLatestNotification.isRead && styles.latestNotificationRowUnread,
-                                    pressed && styles.latestNotificationRowPressed,
-                                ]}>
-                                <Icon
-                                    name="bell-outline"
-                                    type="material-community"
-                                    color={COLORS.WHITE}
-                                    size={22}
-                                    style={styles.latestNotificationIcon}
-                                />
-                                <View style={styles.latestNotificationTextCol}>
-                                    <Text style={styles.latestNotificationPreview} numberOfLines={2}>
-                                        {getLatestNotificationPreview(centerSheetLatestNotification)}
+
+                            <View style={styles.actionsGrid}>
+                                <Pressable
+                                    style={[
+                                        styles.actionCard,
+                                        selectedCenterAction === 'invite' ? styles.actionCardSelected : undefined,
+                                    ]}
+                                    onPress={handlePressSendInvite}>
+                                    <Icon
+                                        name="ticket-confirmation-outline"
+                                        type="material-community"
+                                        color={COLORS.WHITE}
+                                        size={34}
+                                    />
+                                    <Text style={[styles.actionTitle, selectedCenterAction === 'invite' ? styles.actionTitleSelected : undefined]}>
+                                        Send an Invite
                                     </Text>
-                                    <Text style={styles.latestNotificationDate}>
-                                        {formatDatestamp(centerSheetLatestNotification.createdAt)}
+                                    <Text
+                                        style={[
+                                            styles.actionSubtitle,
+                                            selectedCenterAction === 'invite' ? styles.actionSubtitleSelected : undefined,
+                                        ]}>
+                                        Pick a movie to send a match
                                     </Text>
+                                </Pressable>
+
+                                <Pressable
+                                    style={[
+                                        styles.actionCard,
+                                        selectedCenterAction === 'purchase' ? styles.actionCardSelected : undefined,
+                                    ]}
+                                    onPress={handlePressPurchaseCrewDollars}>
+                                    <Icon name="wallet-outline" type="material-community" color={COLORS.WHITE} size={34} />
+                                    <Text
+                                        style={[
+                                            styles.actionTitle,
+                                            selectedCenterAction === 'purchase' ? styles.actionTitleSelected : undefined,
+                                        ]}>
+                                        Purchase Crew Dollars
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.actionSubtitle,
+                                            selectedCenterAction === 'purchase' ? styles.actionSubtitleSelected : undefined,
+                                        ]}>
+                                        Buy credits and unlock new perks
+                                    </Text>
+                                </Pressable>
+                            </View>
+
+                            <View style={styles.actionsGrid}>
+                                <Pressable
+                                    style={[
+                                        styles.actionCard,
+                                        selectedCenterAction === 'match' ? styles.actionCardSelected : undefined,
+                                    ]}
+                                    onPress={handlePressFindMatch}>
+                                    <Icon name="magnify" type="material-community" color={COLORS.WHITE} size={34} />
+                                    <Text style={[styles.actionTitle, selectedCenterAction === 'match' ? styles.actionTitleSelected : undefined]}>
+                                        Find a Match
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.actionSubtitle,
+                                            selectedCenterAction === 'match' ? styles.actionSubtitleSelected : undefined,
+                                        ]}>
+                                        Jump into FlickFlirt
+                                    </Text>
+                                </Pressable>
+
+                                <Pressable
+                                    style={[
+                                        styles.actionCard,
+                                        selectedCenterAction === 'solo' ? styles.actionCardSelected : undefined,
+                                    ]}
+                                    onPress={handlePressSoloSession}>
+                                    <Icon name="play-circle-outline" type="material-community" color={COLORS.WHITE} size={34} />
+                                    <Text style={[styles.actionTitle, selectedCenterAction === 'solo' ? styles.actionTitleSelected : undefined]}>
+                                        Solo Session
+                                    </Text>
+                                    <Text
+                                        style={[
+                                            styles.actionSubtitle,
+                                            selectedCenterAction === 'solo' ? styles.actionSubtitleSelected : undefined,
+                                        ]}>
+                                        Watch something on your own
+                                    </Text>
+                                </Pressable>
+                            </View>
+
+                            {!isCenterSheetLatestNotificationLoading && centerSheetLatestNotification ? (
+                                <View style={styles.latestNotificationBlock}>
+                                    <View style={styles.latestNotificationHeaderRow}>
+                                        <Text style={styles.latestNotificationBlockTitle}>Latest notification</Text>
+                                        <Pressable
+                                            onPress={handlePressSeeAllNotifications}
+                                            hitSlop={8}
+                                            style={({pressed}) => [
+                                                styles.latestNotificationSeeAll,
+                                                pressed && styles.latestNotificationSeeAllPressed,
+                                            ]}>
+                                            <Text style={styles.latestNotificationSeeAllText}>See all</Text>
+                                        </Pressable>
+                                    </View>
+                                    <Pressable
+                                        onPress={() => {
+                                            void handlePressCenterSheetNotification(centerSheetLatestNotification);
+                                        }}
+                                        style={({pressed}) => [
+                                            styles.latestNotificationRow,
+                                            !centerSheetLatestNotification.isRead && styles.latestNotificationRowUnread,
+                                            pressed && styles.latestNotificationRowPressed,
+                                        ]}>
+                                        <Icon
+                                            name="bell-outline"
+                                            type="material-community"
+                                            color={COLORS.WHITE}
+                                            size={22}
+                                            style={styles.latestNotificationIcon}
+                                        />
+                                        <View style={styles.latestNotificationTextCol}>
+                                            <Text style={styles.latestNotificationPreview} numberOfLines={2}>
+                                                {getLatestNotificationPreview(centerSheetLatestNotification)}
+                                            </Text>
+                                            <Text style={styles.latestNotificationDate}>
+                                                {formatDatestamp(centerSheetLatestNotification.createdAt)}
+                                            </Text>
+                                        </View>
+                                        <Icon name="chevron-right" type="material-community" color="rgba(255,255,255,0.5)" size={22} />
+                                    </Pressable>
                                 </View>
-                                <Icon name="chevron-right" type="material-community" color="rgba(255,255,255,0.5)" size={22} />
-                            </Pressable>
-                        </View>
-                    ) : null}
+                            ) : null}
+                        </>
+                    ) : (
+                        <SoloVibeSheetContent
+                            selectedSoloVibeId={selectedSoloVibeId}
+                            soloVibeOptions={SOLO_VIBE_OPTIONS}
+                            onSelectSoloVibe={setSelectedSoloVibeId}
+                            onBack={handlePressSoloSessionBack}
+                            onClose={closeCenterHexSheet}
+                            onStartSession={handlePressStartSoloSession}
+                        />
+                    )}
                 </BottomSheetScrollView>
             </BottomSheet>
         </>

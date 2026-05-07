@@ -24,6 +24,7 @@ import PurchaseAdScreen from '../screens/CenterButtonScreens/PurchaseAD';
 import UnlockingMatchesScreen from '../screens/CenterButtonScreens/FlickFlirt/UnlockingMatches';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ClientEntryDecider from '../screens/ClientDeciderScreen';
+import SoloSessionScreen from '../screens/contentScreens/SoloSessionScreen';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -50,6 +51,7 @@ export type ClientStackParams = {
     UnlockingMatches: {durationDays?: number} | undefined;
     ContentDetailScreen: any;
     ClientEntryDecider: any;
+    SoloSessionScreen: {vibeId?: string} | undefined;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -204,6 +206,13 @@ export function ClientStack() {
             <ClientSearch.Screen
                 name="ContentDetailScreen"
                 component={ContentDetailScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ClientSearch.Screen
+                name="SoloSessionScreen"
+                component={SoloSessionScreen}
                 options={{
                     headerShown: false,
                 }}
