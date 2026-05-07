@@ -332,19 +332,13 @@ export default function UserProfileScreen({navigation, route}: Props) {
             <View style={{flex: 1}}>
                 <SafeAreaView style={{flex: 1}}>
                     <View>
-                        <View style={{height: SIZES.ScreenHeight / 2.9}}>
+                        <View style={profileScreenStyles.profileTopSection}>
                             <View style={{zIndex: 20}}>
                                 <Header />
                             </View>
                             <LinearGradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.BLACK]}
-                                style={{
-                                    position: 'absolute',
-                                    left: 0,
-                                    right: 0,
-                                    top: 0,
-                                    height: SIZES.ScreenHeight / 2.9,
-                                }}
+                                style={profileScreenStyles.profileTopGradient}
                             />
                             <View style={{marginHorizontal: 15}}>
                                 <View
@@ -463,7 +457,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                             </View>
                         </View>
                     </View>
-                    <View style={{marginTop: '2%'}} />
+                    <View style={{marginTop: 4}} />
                     <View style={{flex: 1, minHeight: 0}}>
                         <UserProfileDetailsTab hideProfileDetailsSection hideCruAffiliationsSection />
                     </View>
@@ -835,19 +829,26 @@ export default function UserProfileScreen({navigation, route}: Props) {
 }
 
 const profileScreenStyles = StyleSheet.create({
+    profileTopSection: {
+        minHeight: SIZES.ScreenHeight / 3.02,
+        paddingBottom: 3,
+    },
+    profileTopGradient: {
+        ...StyleSheet.absoluteFillObject,
+    },
     adWalletSection: {
         marginTop: '3%',
         marginHorizontal: 15,
         alignItems: 'center',
-        marginBottom: 28,
+        marginBottom: 8,
     },
     adWalletBarWrap: {
         width: '100%',
         alignSelf: 'stretch',
     },
     editProfileGlow: {
-        marginTop: 16,
-        marginBottom: 24,
+        marginTop: 10,
+        marginBottom: 6,
         alignSelf: 'center',
         width: '64%',
         maxWidth: 320,

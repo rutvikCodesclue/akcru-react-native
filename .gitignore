@@ -75,3 +75,4 @@ ios/
 gradle.properties
 android
 /package-lock.json
+/.codemoss/prompt.json

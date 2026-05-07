@@ -16,10 +16,11 @@ import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import moment from 'moment-timezone';
 import {API} from '../../clients/api.client';
 import {getShortenedTimezone} from '../../util/util';
+import {navigate as rootNavigate} from '../../util/RootNavigation';
 
 function mitInviteStatusDisplayLabel(statusRaw: string | undefined): string {
-    const upper = (statusRaw ?? 'ACCEPTED').toString().toUpperCase();
-    return upper === 'PENDING' ? 'Awaiting Response' : upper;
+    const upper = (statusRaw ?? 'ACCEPTED').toString().trim().toUpperCase();
+    return upper.includes('PENDING') ? 'Awaiting Response' : upper;
 }
 
 function visionaryStatusDisplayLabel(statusRaw: string | undefined): string {
@@ -208,9 +209,25 @@ const UpcomingDatesSection = ({
                 const counterpartUser =
                     mitItem.creator.id === user?.id ? mitItem.invitee : mitItem.creator;
                 const counterpart = counterpartFromUser(counterpartUser);
-                const mitDot = (mitItem.status ?? 'ACCEPTED').toString().toUpperCase();
-                const isPendingMIT = mitDot === 'PENDING';
+                const mitDot = (mitItem.status ?? 'ACCEPTED').toString().trim().toUpperCase();
+                const isPendingMIT = mitDot.includes('PENDING');
                 const isAcceptedMIT = mitDot === 'ACCEPTED';
+                const navigateToPendingMIT = () =>
+                    rootNavigate('NoBottomStack', {
+                        screen: 'ChooseMITScreen',
+                        params: {
+                            MITID: mitItem.id,
+                            movie: mitItem.movie,
+                            creator: mitItem.creator,
+                            inviteDate: mitItem.createdAt,
+                            akcruBadge: mitItem.invitee.badge,
+                            schedule: mitItem.startDate,
+                            timezone: mitItem.timezone,
+                            invitee: mitItem.invitee,
+                            expiresAt: mitItem.expiresAt,
+                            status: mitItem.status,
+                        },
+                    });
                 return (
                     <MitMovieUserPreviewCard
                         key={mitItem.id}
@@ -220,7 +237,7 @@ const UpcomingDatesSection = ({
                         timezone={mitItem.timezone}
                         statusCodeForDot={mitDot}
                         statusDisplayLabel={mitInviteStatusDisplayLabel(mitItem.status)}
-                        buttonName="Start Date"
+                        buttonName={isPendingMIT ? 'View Invite' : 'Start Date'}
                         onCardPress={
                             isAcceptedMIT
                                 ? () =>
@@ -234,36 +251,27 @@ const UpcomingDatesSection = ({
                                           timezone: mitItem.timezone,
                                       })
                                 : isPendingMIT
-                                ? () =>
-                                      navigation.navigate('ChooseMITScreen', {
-                                          MITID: mitItem.id,
-                                          movie: mitItem.movie,
-                                          creator: mitItem.creator,
-                                          inviteDate: mitItem.createdAt,
-                                          akcruBadge: mitItem.invitee.badge,
-                                          schedule: mitItem.startDate,
-                                          timezone: mitItem.timezone,
-                                          invitee: mitItem.invitee,
-                                          expiresAt: mitItem.expiresAt,
-                                          status: mitItem.status,
-                                      })
+                                ? navigateToPendingMIT
                                 : undefined
                         }
-                        onButtonPress={() =>
-                            checkTimeGate(
-                                'MITInvite',
-                                moment(mitItem.startDate).tz(mitItem.timezone).format('h:mm A'),
-                                mitItem.timezone,
-                                mitItem.startDate,
-                                {
-                                    id: mitItem.id,
-                                    movieId: mitItem.movie.id,
-                                    isHost: mitItem.creator.id === user?.id,
-                                    creator: mitItem.creator,
-                                    creatorId: mitItem.creator.id,
-                                    invitee: mitItem.invitee,
-                                },
-                            )
+                        onButtonPress={
+                            isPendingMIT
+                                ? navigateToPendingMIT
+                                : () =>
+                                      checkTimeGate(
+                                          'MITInvite',
+                                          moment(mitItem.startDate).tz(mitItem.timezone).format('h:mm A'),
+                                          mitItem.timezone,
+                                          mitItem.startDate,
+                                          {
+                                              id: mitItem.id,
+                                              movieId: mitItem.movie.id,
+                                              isHost: mitItem.creator.id === user?.id,
+                                              creator: mitItem.creator,
+                                              creatorId: mitItem.creator.id,
+                                              invitee: mitItem.invitee,
+                                          },
+                                      )
                         }
                     />
                 );

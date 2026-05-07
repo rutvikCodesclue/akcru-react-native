@@ -309,7 +309,7 @@ const MovieDetailCard = ({
                             landscapeURL: landscapeURL,
                         });
                     }}>
-                    <View style={styles.MITbutton}>
+                    <View style={[styles.MITbutton, styles.ctaCenteredButton]}>
                         <Text style={styles.buttonText}>Watch Trailer</Text>
                     </View>
                 </TouchableOpacity>
@@ -381,7 +381,7 @@ const MovieDetailCard = ({
                         <View style={styles.MITbutton}>
                             <Image
                                 source={imageindex.mitTicketImage}
-                                style={{ width: 70, height: 70}}
+                                style={styles.mitTicketIcon}
                                 resizeMode="contain"
                             />
                             <Text style={styles.buttonText}>Send an Invite</Text>
