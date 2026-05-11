@@ -10,12 +10,13 @@ import {
     Text,
     View,
 } from 'react-native';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import Video from 'react-native-video';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -37,7 +38,8 @@ import {formatMovieDuration} from '../../../util/util';
 import useAuthStore from '../../../stores/auth.store';
 import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
-import type {IMovie} from '../../../../types';
+import BetterTogetherModal from '../../../components/BetterTogetherModal';
+import type { IMovie } from '../../../../types';
 
 /** Cap the deck so we don't render hundreds of items in memory. */
 const TOP_RATED_LIMIT = 20;
@@ -79,8 +81,17 @@ const formatRating = (rating: number | null | undefined): string => {
     return `⭐ ${rating.toFixed(1)}/10`;
 };
 
+const formatSecondsLabel = (seconds: number): string => {
+    const safe = Number.isFinite(seconds) && seconds > 0 ? Math.floor(seconds) : 0;
+    const mins = Math.floor(safe / 60);
+    const secs = safe % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
 export default function SoloSessionScreen({route}: Props) {
     const navigation = useNavigation<SoloSessionScreenNavigationProp>();
+    const insets = useSafeAreaInsets();
+    const isFocused = useIsFocused();
     /**
      * `ContentPlayer` is registered on `NoBottomTabStack`, the parent of
      * `ClientTabNavigator` → `ClientStack`. Pushing onto this navigator (rather
@@ -107,8 +118,22 @@ export default function SoloSessionScreen({route}: Props) {
     const [pendingMovie, setPendingMovie] = useState<IMovie | null>(null);
     const [purchaseStatus, setPurchaseStatus] = useState<IContentPurchaseStatus>({active: false});
     const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+    const [showBetterTogetherModal, setShowBetterTogetherModal] = useState(false);
     const [confirmAction, setConfirmAction] = useState<'rent' | 'buy' | null>(null);
     const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
+    const [showTopMenu, setShowTopMenu] = useState(false);
+    const [pauseTrailerForNavigation, setPauseTrailerForNavigation] = useState(false);
+    const [resumeTrailerImmediately, setResumeTrailerImmediately] = useState(false);
+    const [isBrowseAllResumeFlow, setIsBrowseAllResumeFlow] = useState(false);
+    const [isTrailerManuallyPaused, setIsTrailerManuallyPaused] = useState(false);
+    const [isTrailerHorizontal, setIsTrailerHorizontal] = useState(false);
+    const ignoreTrailerToggleUntilRef = useRef(0);
+    const [activeTrailerMovieId, setActiveTrailerMovieId] = useState<string | null>(null);
+    const [trailerDurationSec, setTrailerDurationSec] = useState(0);
+    const [trailerProgressSec, setTrailerProgressSec] = useState(0);
+    const [trailerResumePositionByMovie, setTrailerResumePositionByMovie] = useState<Record<string, number>>({});
+    const [startedTrailerByMovie, setStartedTrailerByMovie] = useState<Record<string, boolean>>({});
+    const trailerVideoRef = useRef<Video | null>(null);
 
     useEffect(() => {
         getUserWallet()
@@ -252,6 +277,72 @@ export default function SoloSessionScreen({route}: Props) {
         }, [realignToActiveCard]),
     );
 
+    useFocusEffect(
+        React.useCallback(() => {
+            // Resume trailer playback after coming back from Browse All/Home.
+            if (pauseTrailerForNavigation) {
+                setPauseTrailerForNavigation(false);
+                setResumeTrailerImmediately(isBrowseAllResumeFlow);
+            }
+            return () => {};
+        }, [isBrowseAllResumeFlow, pauseTrailerForNavigation]),
+    );
+
+    useEffect(() => {
+        if (!resumeTrailerImmediately) {
+            return;
+        }
+        const timer = setTimeout(() => {
+            setResumeTrailerImmediately(false);
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [resumeTrailerImmediately]);
+
+    useEffect(() => {
+        const activeMovie = topRatedMovies[activeIndex];
+        setActiveTrailerMovieId(activeMovie?.id ?? null);
+        setTrailerProgressSec(0);
+        setTrailerDurationSec(0);
+        setIsTrailerManuallyPaused(false);
+        setIsTrailerHorizontal(false);
+        // Outside Browse All return flow, always start trailers from 0.
+        if (!isBrowseAllResumeFlow) {
+            setTrailerResumePositionByMovie({});
+            setStartedTrailerByMovie({});
+        }
+    }, [activeIndex, topRatedMovies]);
+
+    useEffect(() => {
+        const activeMovie = topRatedMovies[activeIndex];
+        const trailerUrl = activeMovie?.trailerURL?.trim() ?? '';
+        const canPlayTrailer = trailerUrl.length > 0;
+        const shouldStartNow =
+            isFocused &&
+            !pauseTrailerForNavigation &&
+            !isSwiping &&
+            (isTrailerAutoplayReady || resumeTrailerImmediately) &&
+            canPlayTrailer &&
+            !!activeMovie?.id;
+
+        if (!shouldStartNow || !activeMovie?.id) {
+            return;
+        }
+        setStartedTrailerByMovie(prev => {
+            if (prev[activeMovie.id]) {
+                return prev;
+            }
+            return {...prev, [activeMovie.id]: true};
+        });
+    }, [
+        activeIndex,
+        isFocused,
+        isSwiping,
+        isTrailerAutoplayReady,
+        pauseTrailerForNavigation,
+        resumeTrailerImmediately,
+        topRatedMovies,
+    ]);
+
     useEffect(() => {
         // Start trailer only after the user remains on the same card for 2s.
         setIsTrailerAutoplayReady(false);
@@ -269,8 +360,15 @@ export default function SoloSessionScreen({route}: Props) {
             return;
         }
         const nextIndex = activeIndex + 1 >= topRatedMovies.length ? 0 : activeIndex + 1;
+        setIsSwiping(true);
         listRef.current?.scrollToIndex({index: nextIndex, animated: true});
-        setActiveIndex(nextIndex);
+
+        // Programmatic scrolls don't always trigger onMomentumScrollEnd reliably.
+        // We manually update the index and clear swiping state after the animation.
+        setTimeout(() => {
+            setActiveIndex(nextIndex);
+            setIsSwiping(false);
+        }, 600);
     };
 
     const handlePressInvite = (movie: IMovie) => {
@@ -315,6 +413,15 @@ export default function SoloSessionScreen({route}: Props) {
             return;
         }
         setPendingMovie(movie);
+        setIsTrailerManuallyPaused(true);
+        setShowBetterTogetherModal(true);
+    };
+
+    const proceedToWatchSolo = async (movie: IMovie) => {
+        if (!movie?.id) {
+            return;
+        }
+        setShowBetterTogetherModal(false);
 
         let status: IContentPurchaseStatus = {active: false};
         try {
@@ -374,7 +481,7 @@ export default function SoloSessionScreen({route}: Props) {
                     <Icon name="arrow-left" type="material-community" size={22} color={COLORS.WHITE} />
                 </Pressable>
                 <Text style={styles.topTitle}>Solo Session</Text>
-                <Pressable style={styles.topIconButton}>
+                <Pressable style={styles.topIconButton} onPress={() => setShowTopMenu(true)}>
                     <Icon name="tune-variant" type="material-community" size={20} color={COLORS.WHITE} />
                 </Pressable>
             </View>
@@ -424,24 +531,127 @@ export default function SoloSessionScreen({route}: Props) {
                             const canPlayTrailer = trailerUrl.length > 0;
                             const isActiveCard = index === activeIndex;
                             const shouldAutoplayTrailer =
-                                isActiveCard && !isSwiping && isTrailerAutoplayReady && canPlayTrailer;
+                                isFocused &&
+                                !pauseTrailerForNavigation &&
+                                isActiveCard &&
+                                !isSwiping &&
+                                !isTrailerManuallyPaused &&
+                                (isTrailerAutoplayReady || resumeTrailerImmediately) &&
+                                canPlayTrailer;
+                            const shouldRenderTrailerVideo =
+                                isActiveCard && canPlayTrailer && (shouldAutoplayTrailer || !!startedTrailerByMovie[item.id]);
+                            const showTrailerProgress = shouldAutoplayTrailer && activeTrailerMovieId === item.id;
+                            const trailerProgressRatio =
+                                trailerDurationSec > 0
+                                    ? Math.max(0, Math.min(1, trailerProgressSec / trailerDurationSec))
+                                    : 0;
                             return (
                                 <View style={[styles.card, {height: listHeight}]}>
-                                    <ImageBackground source={portraitSource} style={styles.backgroundImage} resizeMode="cover">
-                                        {shouldAutoplayTrailer ? (
-                                            <Video
+                                    <ImageBackground
+                                        source={portraitSource}
+                                        style={styles.backgroundImage}
+                                        resizeMode="cover"
+                                        blurRadius={isActiveCard && isTrailerHorizontal ? 2 : 0}>
+                                        {isActiveCard && isTrailerHorizontal && (
+                                            <LinearGradient
+                                                colors={['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
                                                 style={StyleSheet.absoluteFillObject}
+                                            />
+                                        )}
+                                        {shouldRenderTrailerVideo ? (
+                                            <Video
+                                                ref={ref => {
+                                                    trailerVideoRef.current = ref;
+                                                }}
+                                                style={
+                                                    isTrailerHorizontal
+                                                        ? {
+                                                              position: 'absolute',
+                                                              left: 0,
+                                                              right: 0,
+                                                              width: '100%',
+                                                              height: 200,
+                                                              top: (listHeight - 200) / 2,
+                                                          }
+                                                        : StyleSheet.absoluteFillObject
+                                                }
+                                                pointerEvents="none"
                                                 source={{uri: trailerUrl}}
                                                 resizeMode="cover"
                                                 repeat
                                                 muted
+                                                paused={!shouldAutoplayTrailer}
+                                                onLoad={event => {
+                                                    setActiveTrailerMovieId(item.id);
+                                                    setTrailerDurationSec(event.duration ?? 0);
+                                                    const resumeAt =
+                                                        isBrowseAllResumeFlow && resumeTrailerImmediately
+                                                            ? (trailerResumePositionByMovie[item.id] ?? 0)
+                                                            : 0;
+                                                    if (resumeAt > 0 && isBrowseAllResumeFlow) {
+                                                        setTimeout(() => {
+                                                            trailerVideoRef.current?.seek(resumeAt);
+                                                            setTrailerProgressSec(resumeAt);
+                                                        }, 0);
+                                                        // Use resume once for Browse All return, then clear.
+                                                        setTrailerResumePositionByMovie({});
+                                                        setIsBrowseAllResumeFlow(false);
+                                                    } else {
+                                                        setTrailerProgressSec(0);
+                                                    }
+                                                }}
+                                                onProgress={event => {
+                                                    if (activeTrailerMovieId !== item.id) {
+                                                        return;
+                                                    }
+                                                    setTrailerProgressSec(event.currentTime ?? 0);
+                                                }}
                                             />
+                                        ) : null}
+                                        {shouldRenderTrailerVideo && isActiveCard && isTrailerManuallyPaused ? (
+                                            <View style={styles.pausedIndicatorWrap} pointerEvents="none">
+                                                <View style={styles.pausedIndicatorButton}>
+                                                    <Icon name="pause" type="ionicon" color={COLORS.WHITE} size={26} />
+                                                </View>
+                                            </View>
                                         ) : null}
                                         <LinearGradient
                                             colors={['rgba(3,3,10,0.25)', 'rgba(8,7,20,0.78)', 'rgba(4,4,10,0.96)']}
                                             locations={[0.1, 0.58, 1]}
                                             style={styles.backgroundOverlay}>
-                                            <View style={styles.bottomContentWrap}>
+                                            {showTrailerProgress ? (
+                                                <View style={styles.trailerProgressWrap}>
+                                                    <View style={styles.trailerProgressBarTrack}>
+                                                        <View
+                                                            style={[
+                                                                styles.trailerProgressBarFill,
+                                                                {width: `${trailerProgressRatio * 100}%`},
+                                                            ]}
+                                                        />
+                                                    </View>
+                                                    <View style={styles.trailerProgressTextRow}>
+                                                        <Text style={styles.trailerProgressText}>
+                                                            {formatSecondsLabel(trailerProgressSec)}
+                                                        </Text>
+                                                        <Text style={styles.trailerProgressText}>
+                                                            {formatSecondsLabel(trailerDurationSec)}
+                                                        </Text>
+                                                    </View>
+                                                </View>
+                                            ) : null}
+                                            <Pressable
+                                                style={styles.trailerToggleZone}
+                                                onPress={() => {
+                                                    if (Date.now() < ignoreTrailerToggleUntilRef.current) {
+                                                        return;
+                                                    }
+                                                    if (!isActiveCard || !canPlayTrailer) {
+                                                        return;
+                                                    }
+                                                    setIsTrailerManuallyPaused(prev => !prev);
+                                                }}
+                                            />
+                                                <View style={styles.bottomContentWrap}>
                                                 <View style={styles.metaWrap}>
                                                     <Text style={styles.title} numberOfLines={2}>
                                                         {item.title}
@@ -475,6 +685,26 @@ export default function SoloSessionScreen({route}: Props) {
                                                 </View>
 
                                                 <View style={styles.rightActions}>
+                                                    <View style={styles.actionItemWrap}>
+                                                        <Pressable
+                                                            style={styles.roundAction}
+                                                            onPress={() => {
+                                                                ignoreTrailerToggleUntilRef.current = Date.now() + 400;
+                                                                setIsTrailerHorizontal(prev => !prev);
+                                                                setIsTrailerAutoplayReady(true);
+                                                                setIsTrailerManuallyPaused(false);
+                                                            }}>
+                                                            <Icon
+                                                                name="phone-rotate-landscape"
+                                                                type="material-community"
+                                                                color={COLORS.WHITE}
+                                                                size={22}
+                                                            />
+                                                        </Pressable>
+                                                        <Text style={styles.actionLabel}>
+                                                            {isTrailerHorizontal ? 'Vertical' : 'Horizontal'}
+                                                        </Text>
+                                                    </View>
                                                     <View style={styles.actionItemWrap}>
                                                         <Pressable style={styles.roundAction} onPress={() => handlePressInvite(item)}>
                                                             <Icon name="heart" type="material-community" color="#FF5FB8" size={28} />
@@ -520,8 +750,9 @@ export default function SoloSessionScreen({route}: Props) {
                                                         </Pressable>
                                                         <Text style={styles.actionLabel}>Next</Text>
                                                     </View>
+
                                                 </View>
-                                            </View>
+                                                </View>
                                         </LinearGradient>
                                     </ImageBackground>
                                 </View>
@@ -530,6 +761,22 @@ export default function SoloSessionScreen({route}: Props) {
                     />
                 )}
             </View>
+
+            <BetterTogetherModal
+                visible={showBetterTogetherModal}
+                movie={pendingMovie}
+                onClose={() => {
+                    setShowBetterTogetherModal(false);
+                    setIsTrailerManuallyPaused(false);
+                }}
+                onSendInvite={() => {
+                    setShowBetterTogetherModal(false);
+                    if (pendingMovie) handlePressInvite(pendingMovie);
+                }}
+                onWatchSolo={() => {
+                    if (pendingMovie) proceedToWatchSolo(pendingMovie);
+                }}
+            />
 
             {pendingMovie && !purchaseStatus.active && (pendingMovie.rentable || pendingMovie.buyable) && (
                 <ContentPurchaseModal
@@ -560,6 +807,48 @@ export default function SoloSessionScreen({route}: Props) {
                     />
                 </Modal>
             )}
+
+            <Modal
+                animationType="fade"
+                transparent
+                visible={showTopMenu}
+                onRequestClose={() => setShowTopMenu(false)}>
+                <View style={{flex: 1}}>
+                    <Pressable
+                        style={[StyleSheet.absoluteFillObject, {backgroundColor: 'rgba(0, 0, 0, 0.45)'}]}
+                        onPress={() => setShowTopMenu(false)}
+                    />
+                    <View
+                        style={{
+                            position: 'absolute',
+                            top: insets.top + 52,
+                            right: 12,
+                            backgroundColor: COLORS.BLACK,
+                            borderRadius: 12,
+                            paddingVertical: 6,
+                            minWidth: 216,
+                            borderWidth: 1,
+                            borderColor: COLORS.LIGHTGREY,
+                        }}>
+                        <Pressable
+                            style={{paddingHorizontal: 14, paddingVertical: 12}}
+                            onPress={() => {
+                                setShowTopMenu(false);
+                                if (activeTrailerMovieId && trailerProgressSec > 0) {
+                                    setTrailerResumePositionByMovie(prev => ({
+                                        ...prev,
+                                        [activeTrailerMovieId]: trailerProgressSec,
+                                    }));
+                                }
+                                setIsBrowseAllResumeFlow(true);
+                                setPauseTrailerForNavigation(true);
+                                navigation.navigate('HomeScreen');
+                            }}>
+                            <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Browse All</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }
@@ -612,6 +901,56 @@ const styles = StyleSheet.create({
         flex: 1,
         paddingHorizontal: 14,
     },
+    trailerToggleZone: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 480,
+        zIndex: 4,
+    },
+    pausedIndicatorWrap: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 2,
+    },
+    pausedIndicatorButton: {
+        width: 70,
+        height: 70,
+        borderRadius: 35,
+        borderWidth: 1.2,
+        borderColor: 'rgba(255,255,255,0.7)',
+        backgroundColor: 'rgba(0,0,0,0.35)',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    trailerProgressWrap: {
+        marginTop: 52,
+        marginBottom: 8,
+    },
+    trailerProgressBarTrack: {
+        height: 4,
+        width: '100%',
+        borderRadius: 999,
+        backgroundColor: 'rgba(255,255,255,0.35)',
+        overflow: 'hidden',
+    },
+    trailerProgressBarFill: {
+        height: '100%',
+        borderRadius: 999,
+        backgroundColor: COLORS.AKCRUBLUE,
+    },
+    trailerProgressTextRow: {
+        marginTop: 6,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    trailerProgressText: {
+        ...FONTS.paragraph6,
+        color: COLORS.WHITE,
+    },
     topIconButton: {
         width: 34,
         height: 34,
@@ -628,6 +967,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'flex-end',
         paddingBottom: 18,
+        zIndex: 3,
     },
     rightActions: {
         justifyContent: 'flex-end',
