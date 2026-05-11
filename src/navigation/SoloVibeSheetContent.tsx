@@ -17,7 +17,7 @@ type SoloVibeSheetContentProps = {
     onSelectSoloVibe: (id: string) => void;
     onBack: () => void;
     onClose: () => void;
-    onStartSession: (selectedVibeId: string) => void;
+    onStartSession: (selectedVibeId?: string) => void;
 };
 
 export default function SoloVibeSheetContent({
@@ -28,8 +28,6 @@ export default function SoloVibeSheetContent({
     onClose,
     onStartSession,
 }: SoloVibeSheetContentProps) {
-    const isStartEnabled = selectedSoloVibeId !== null;
-
     return (
         <>
             <View style={styles.soloSheetHeaderWrap}>
@@ -67,14 +65,8 @@ export default function SoloVibeSheetContent({
             </View>
             <View style={styles.soloStartButtonGlow}>
                 <Pressable
-                    style={[styles.soloStartButtonTouchable, !isStartEnabled && styles.soloStartButtonDisabled]}
-                    onPress={() => {
-                        if (!selectedSoloVibeId) {
-                            return;
-                        }
-                        onStartSession(selectedSoloVibeId);
-                    }}
-                    disabled={!isStartEnabled}>
+                    style={styles.soloStartButtonTouchable}
+                    onPress={() => onStartSession(selectedSoloVibeId ?? undefined)}>
                     <LinearGradient
                         colors={['#172554', '#3730a3', '#7c3aed', '#c026d3']}
                         start={{x: 0, y: 0.5}}
@@ -213,9 +205,6 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 12,
         overflow: 'hidden',
-    },
-    soloStartButtonDisabled: {
-        opacity: 0.45,
     },
     soloStartButtonGradient: {
         flexDirection: 'row',

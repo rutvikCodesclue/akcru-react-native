@@ -153,6 +153,12 @@ export default StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: 'rgba(95, 123, 255, 0.25)',
     },
+    scheduleBottomDockMovieTitle: {
+        ...FONTS.Title2,
+        color: '#F3D9FF',
+        textAlign: 'center',
+        marginBottom: 8,
+    },
     input: {
         flexDirection: 'row',
         borderWidth: 0.8,

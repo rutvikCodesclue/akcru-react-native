@@ -1523,6 +1523,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     </View>
                                 </ScrollView>
                                 <View style={styles.scheduleBottomDock}>
+                                    {(movie?.title || route.params?.title) ? (
+                                        <Text
+                                            style={styles.scheduleBottomDockMovieTitle}
+                                            numberOfLines={1}
+                                            ellipsizeMode="tail">
+                                            {movie?.title ?? route.params?.title}
+                                        </Text>
+                                    ) : null}
                                     <AkcruButtons.SmallButton
                                         variant="auth"
                                         btnname={'Send Invite'}

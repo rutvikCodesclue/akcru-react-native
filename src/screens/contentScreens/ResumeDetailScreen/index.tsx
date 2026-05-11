@@ -1,4 +1,4 @@
-import {View, ScrollView, SafeAreaView, ActivityIndicator, Modal} from 'react-native';
+import {View, ScrollView, SafeAreaView, ActivityIndicator} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
@@ -9,12 +9,18 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {useRoute} from '@react-navigation/native';
 import {useNavigation} from '@react-navigation/native';
-import {addToWatchlist, findMovieById, findMovies, getUserReactions, getWatchlist} from '../../../lib/api/movies.lib';
+import {
+    addToWatchlist,
+    findMovieById,
+    findMovies,
+    getUserReactions,
+    getWatchlist,
+    removeFromWatchlist,
+} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import ResultModal from '../../../components/ResultModal/ResultModal';
 import useAuthStore from '../../../stores/auth.store';
 import {navigateToMITDateSchedule} from '../../../util/RootNavigation';
 
@@ -95,15 +101,9 @@ export default function ResumeDetailScreen({navigation}: Props) {
         trailerURL,
     } = movie[0] || {};
 
-    const [showAddToWatchListConfirmationModal, setShowAddToWatchListConfirmationModal] = useState(false);
-
-    const handleCancelAddToWatchList = () => {
-        setShowAddToWatchListConfirmationModal(false);
-    };
-
     const [watchlist, setWatchlist] = useState<IMovie[]>([]);
     const isCurrentMovieInWatchlist = !!id && watchlist.some(movie => movie.id === id);
-    const watchlistConfirmationText = `Are you sure you want to add "${title}" to your watchlist?`;
+    const [isProcessingWatchlist, setIsProcessingWatchlist] = useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -123,43 +123,33 @@ export default function ResumeDetailScreen({navigation}: Props) {
         }, [user?.id]),
     );
 
-    const handleConfirmAddToWatchList = async () => {
-        setShowAddToWatchListConfirmationModal(false);
-
-        if (id) {
-            const isMovieInWatchlist = watchlist.some(movie => movie.id === id);
-
-            if (isMovieInWatchlist) {
-                handleShowResultModal('alreadyInList');
-            } else {
-                setResult(true);
-
-                const success = await addToWatchlist(id);
+    /**
+     * Tap toggles the watchlist directly — no confirmation/result dialogs.
+     * The heart icon re-renders from `isCurrentMovieInWatchlist` once the
+     * API call resolves. Guards against rapid double-taps.
+     */
+    const handleWatchlistIconPress = async () => {
+        if (!id || isProcessingWatchlist) {
+            return;
+        }
+        setIsProcessingWatchlist(true);
+        try {
+            if (isCurrentMovieInWatchlist) {
+                const success = await removeFromWatchlist(id);
                 if (success) {
-                    setResult(false);
-                    handleShowResultModal('success');
-                } else {
-                    setResult(false);
-                    handleShowResultModal('failed');
+                    setWatchlist(prev => prev.filter(m => m.id !== id));
+                }
+            } else {
+                const success = await addToWatchlist(id);
+                if (success && movie[0]) {
+                    setWatchlist(prev => (prev.some(m => m.id === id) ? prev : [...prev, movie[0]]));
                 }
             }
+        } catch (error) {
+            console.error('ResumeDetailScreen: watchlist toggle failed', error);
+        } finally {
+            setIsProcessingWatchlist(false);
         }
-    };
-
-    const [result, setResult] = useState(false);
-    const [typeResultModal, setTypeResultModal] = useState('');
-    const [showResultModal, setShowResultModal] = useState(false);
-
-    const handleShowResultModal = (typeResultModal: React.SetStateAction<string>) => {
-        setTypeResultModal(typeResultModal);
-        setShowResultModal(true);
-    };
-
-    const handleCloseResultModal = () => {
-        if (typeResultModal === 'success') {
-            //do something
-        }
-        setShowResultModal(false);
     };
 
     const [reactions, setReactions] = useState<string[]>([]);
@@ -228,14 +218,8 @@ export default function ResumeDetailScreen({navigation}: Props) {
                                             navigation,
                                         );
                                     }}
-                                    watchlistButton={() => {
-                                        setShowAddToWatchListConfirmationModal(true);
-                                    }}
+                                    watchlistButton={handleWatchlistIconPress}
                                     isInWatchlist={isCurrentMovieInWatchlist}
-                                    watchlistConfirmationText={watchlistConfirmationText}
-                                    showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
-                                    handleCancelAddToWatchList={handleCancelAddToWatchList}
-                                    handleConfirmAddToWatchList={handleConfirmAddToWatchList}
                                 />
                             </View>
                             <View />
@@ -256,9 +240,6 @@ export default function ResumeDetailScreen({navigation}: Props) {
                         </View>
                     )}
                 </ScrollView>
-                <Modal animationType="fade" transparent={true} visible={showResultModal}>
-                    <ResultModal closeModal={handleCloseResultModal} type={typeResultModal} />
-                </Modal>
             </SafeAreaView>
         </TabContainer>
     );

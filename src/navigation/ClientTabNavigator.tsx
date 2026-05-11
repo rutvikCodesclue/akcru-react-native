@@ -421,15 +421,17 @@ export default function ClientTabNavigator() {
         setSelectedSoloVibeId(null);
     }, []);
 
-    const handlePressStartSoloSession = (selectedVibeId: string) => {
+    const handlePressStartSoloSession = (selectedVibeId?: string) => {
         // Persist the selected vibe in parallel with the navigation animation so the
         // user is never blocked on the network. Failures are surfaced via console only;
         // the screen still opens so the experience is not interrupted.
-        const apiVibe = resolveSoloSessionVibe(selectedVibeId);
-        if (apiVibe) {
-            void setSoloSessionVibe(apiVibe);
-        } else {
-            console.warn('handlePressStartSoloSession: unknown vibe id', selectedVibeId);
+        if (selectedVibeId) {
+            const apiVibe = resolveSoloSessionVibe(selectedVibeId);
+            if (apiVibe) {
+                void setSoloSessionVibe(apiVibe);
+            } else {
+                console.warn('handlePressStartSoloSession: unknown vibe id', selectedVibeId);
+            }
         }
 
         scheduleCenterCircleNavigation('solo', () => {

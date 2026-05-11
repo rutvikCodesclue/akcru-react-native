@@ -1,4 +1,4 @@
-import {View, Text, TouchableOpacity, Image, Modal, BackHandler } from 'react-native';
+import {View, Text, TouchableOpacity, Image, BackHandler} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {COLORS, FONTS, SIZES} from '../../../assets/constants';
 import styles from './styles';
@@ -10,7 +10,6 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {formatMovieDuration} from '../../util/util';
 import {capitalizeFirstLetterOfString} from '../../util/util';
-import ConfirmationModal from '../ConfirmationModal';
 import {API} from '../../clients/api.client';
 import {MULTISIZES} from '../../../assets/constants/theme';
 import Orientation from 'react-native-orientation-locker';
@@ -43,12 +42,25 @@ type MovieDetailCardProps = {
     genre2: string;
     onPress: () => void;
     playContent: () => void;
-    showAddToWatchListConfirmationModal: boolean;
-    handleCancelAddToWatchList: () => void;
-    handleConfirmAddToWatchList: () => void;
+    /**
+     * Watchlist toggle — call site is expected to call the relevant API
+     * (`addToWatchlist` / `removeFromWatchlist`) directly inside this handler
+     * and update its local watchlist state. The icon and label re-render from
+     * `isInWatchlist`, so no confirmation/result dialogs are rendered here.
+     */
     watchlistButton: () => void;
     isInWatchlist: boolean;
-    watchlistConfirmationText: string;
+    /**
+     * Legacy props from the old confirmation-modal flow. Kept optional so
+     * existing callers can be migrated without breaking the type, but they are
+     * no longer used by this component.
+     * @deprecated The confirmation/result modals were removed in favour of a
+     * direct toggle. Stop passing these props.
+     */
+    showAddToWatchListConfirmationModal?: boolean;
+    handleCancelAddToWatchList?: () => void;
+    handleConfirmAddToWatchList?: () => void;
+    watchlistConfirmationText?: string;
     PlayTrailer: () => void;
     reactions: any;
     contentButtonName: string;
@@ -74,10 +86,6 @@ const MovieDetailCard = ({
     playContent,
     watchlistButton,
     isInWatchlist,
-    watchlistConfirmationText,
-    showAddToWatchListConfirmationModal,
-    handleCancelAddToWatchList,
-    handleConfirmAddToWatchList,
     PlayTrailer,
     reactions,
     contentButtonName,
@@ -273,18 +281,6 @@ const MovieDetailCard = ({
                             </TouchableOpacity>
                         </View>
                     </View>
-
-                    <Modal animationType="fade" transparent={true} visible={showAddToWatchListConfirmationModal}>
-                        <ConfirmationModal
-                            onPressYes={handleConfirmAddToWatchList}
-                            onPressNo={handleCancelAddToWatchList}
-                            variant="continueWatching"
-                            yesLabel="Yes"
-                            noLabel="No"
-                            confirmationText={watchlistConfirmationText}
-                        />
-                    </Modal>
-
                 </View>
             </View>
 

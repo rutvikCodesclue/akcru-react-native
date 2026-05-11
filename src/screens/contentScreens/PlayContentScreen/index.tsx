@@ -168,6 +168,17 @@ export default function ContentPlayer({navigation}: Props) {
         }
 
         Orientation.lockToPortrait();
+
+        // Opt-in: callers that want the system back-stack behavior (so back
+        // returns to the screen that pushed the player) pass `returnTo: 'goBack'`.
+        // All existing entry points omit this flag and keep the original
+        // hardcoded route to ClientTabNavigator → ClientStack.
+        const returnTo = routeParams.params?.returnTo;
+        if (returnTo === 'goBack' && navigation.canGoBack()) {
+            navigation.goBack();
+            return;
+        }
+
         navigation.navigate('ClientTabNavigator', {screen: 'ClientStack'});
     };
 
@@ -316,7 +327,7 @@ export default function ContentPlayer({navigation}: Props) {
     const adTagUrl = `${DEV_API_URL}/v1/video-ads/vmap/main?movieId=${movieId}`;
 
     // console.log('VMAP_URL_USED:', adTagUrl);
-    
+
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>

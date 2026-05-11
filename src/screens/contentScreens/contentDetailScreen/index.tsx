@@ -25,7 +25,6 @@ import {IMovie} from '../../../../types';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import ResultModal from '../../../components/ResultModal/ResultModal';
 import useAuthStore from '../../../stores/auth.store';
 import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
 import {getUserWallet} from '../../../lib/api/wallet.lib';
@@ -40,8 +39,6 @@ type Props = {
     navigation: ContentDetailScreenNavigationProp;
     route: ContentDetailScreenRouteProp;
 };
-
-type ResultModalType = 'success' | 'failed' | 'alreadyInList' | 'removed' | 'removeFailed';
 
 export default function ContentDetailScreen({navigation}: Props) {
     const [movie, setMovie] = useState<IMovie[]>([]);
@@ -213,15 +210,9 @@ export default function ContentDetailScreen({navigation}: Props) {
         if (ok) playContent();
     };
 
-    const [showAddToWatchListConfirmationModal, setShowAddToWatchListConfirmationModal] = useState(false);
-    const [watchlistAction, setWatchlistAction] = useState<'add' | 'remove'>('add');
-
-    const handleCancelAddToWatchList = () => {
-        setShowAddToWatchListConfirmationModal(false);
-    };
-
     const [watchlist, setWatchlist] = useState<IMovie[]>([]);
     const isCurrentMovieInWatchlist = !!id && watchlist.some(movie => movie.id === id);
+    const [isProcessingWatchlist, setIsProcessingWatchlist] = useState(false);
 
     useFocusEffect(
         React.useCallback(() => {
@@ -241,71 +232,33 @@ export default function ContentDetailScreen({navigation}: Props) {
         }, [user?.id]),
     );
 
-    const [result, setResult] = useState(false);
-    const [typeResultModal, setTypeResultModal] = useState<ResultModalType>('success');
-    const [showResultModal, setShowResultModal] = useState(false);
-    const watchlistConfirmationText =
-        watchlistAction === 'remove'
-            ? `Are you sure you want to remove "${title}" from your watchlist?`
-            : `Are you sure you want to add "${title}" to your watchlist?`;
-
-    const handleShowResultModal = (nextType: ResultModalType) => {
-        setTypeResultModal(nextType);
-        setShowResultModal(true);
-    };
-
-    const handleWatchlistIconPress = () => {
-        setWatchlistAction(isCurrentMovieInWatchlist ? 'remove' : 'add');
-        setShowAddToWatchListConfirmationModal(true);
-    };
-
-    const handleConfirmAddToWatchList = async () => {
-        setShowAddToWatchListConfirmationModal(false);
-        if (!id) {
+    /**
+     * Tap toggles the watchlist directly — no confirmation/result dialogs.
+     * The heart icon re-renders from `isCurrentMovieInWatchlist` once the
+     * API call resolves. Guards against rapid double-taps.
+     */
+    const handleWatchlistIconPress = async () => {
+        if (!id || isProcessingWatchlist) {
             return;
         }
-
-        setResult(true);
-
-        if (watchlistAction === 'remove') {
-            const success = await removeFromWatchlist(id);
-            setResult(false);
-            if (success) {
-                setWatchlist(prev => prev.filter(movie => movie.id !== id));
-                handleShowResultModal('removed');
-            } else {
-                handleShowResultModal('removeFailed');
-            }
-            return;
-        }
-
-        const isMovieInWatchlist = watchlist.some(movie => movie.id === id);
-        if (isMovieInWatchlist) {
-            setResult(false);
-            handleShowResultModal('alreadyInList');
-            return;
-        }
-
-        const success = await addToWatchlist(id);
-        setResult(false);
-        if (success) {
-            setWatchlist(prev => {
-                if (prev.some(movie => movie.id === id) || !movie[0]) {
-                    return prev;
+        setIsProcessingWatchlist(true);
+        try {
+            if (isCurrentMovieInWatchlist) {
+                const success = await removeFromWatchlist(id);
+                if (success) {
+                    setWatchlist(prev => prev.filter(m => m.id !== id));
                 }
-                return [...prev, movie[0]];
-            });
-            handleShowResultModal('success');
-        } else {
-            handleShowResultModal('failed');
+            } else {
+                const success = await addToWatchlist(id);
+                if (success && movie[0]) {
+                    setWatchlist(prev => (prev.some(m => m.id === id) ? prev : [...prev, movie[0]]));
+                }
+            }
+        } catch (error) {
+            console.error('ContentDetailScreen: watchlist toggle failed', error);
+        } finally {
+            setIsProcessingWatchlist(false);
         }
-    };
-
-    const handleCloseResultModal = () => {
-        if (typeResultModal === 'success') {
-            //do something
-        }
-        setShowResultModal(false);
     };
 
     const [reactions, setReactions] = useState<string[]>([]);
@@ -373,14 +326,8 @@ export default function ContentDetailScreen({navigation}: Props) {
                                             navigation,
                                         );
                                     }}
-                                    watchlistButton={() => {
-                                        handleWatchlistIconPress();
-                                    }}
+                                    watchlistButton={handleWatchlistIconPress}
                                     isInWatchlist={isCurrentMovieInWatchlist}
-                                    watchlistConfirmationText={watchlistConfirmationText}
-                                    showAddToWatchListConfirmationModal={showAddToWatchListConfirmationModal}
-                                    handleCancelAddToWatchList={handleCancelAddToWatchList}
-                                    handleConfirmAddToWatchList={handleConfirmAddToWatchList}
                                 />
                             </View>
                             <View />
@@ -402,9 +349,6 @@ export default function ContentDetailScreen({navigation}: Props) {
                         </View>
                     )}
                 </ScrollView>
-                <Modal animationType="fade" transparent={true} visible={showResultModal}>
-                    <ResultModal closeModal={handleCloseResultModal} type={typeResultModal} />
-                </Modal>
 
                 {!purchaseStatus.active && (rentable || buyable) && (
                     <ContentPurchaseModal

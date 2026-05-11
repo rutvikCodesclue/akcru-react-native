@@ -1,39 +1,54 @@
-import React, {useMemo, useRef, useState} from 'react';
-import {FlatList, ImageBackground, Pressable, SafeAreaView, StyleSheet, Text, View} from 'react-native';
-import {RouteProp, useNavigation} from '@react-navigation/native';
+import React, {useEffect, useRef, useState} from 'react';
+import {
+    ActivityIndicator,
+    FlatList,
+    ImageBackground,
+    Modal,
+    Pressable,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    View,
+} from 'react-native';
+import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 
 import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {ClientStackParams} from '../../../navigation/ClientStack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {navigateToMITDateSchedule} from '../../../util/RootNavigation';
+import {
+    addToWatchlist,
+    buyMovie,
+    findMovies,
+    getMoviePurchaseStatus,
+    getWatchlist,
+    removeFromWatchlist,
+    rentMovie,
+    type IContentPurchaseStatus,
+} from '../../../lib/api/movies.lib';
+import {getUserWallet} from '../../../lib/api/wallet.lib';
+import {formatMovieDuration} from '../../../util/util';
+import useAuthStore from '../../../stores/auth.store';
+import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
+import ComfirmationModal from '../../../components/ConfirmationModal';
+import type {IMovie} from '../../../../types';
 
-// TODO: Replace with the currently focused movie once the Solo Session feed is wired
-// to a real data source. Hardcoded for now so the Invite flow is testable.
-const STATIC_INVITE_MOVIE = {
-    id: '03d45735-a27b-4b73-9311-d26149611a8f',
-    portraitURL: 'https://priymuscontent.s3.us-east-1.amazonaws.com/Beta+test+posters/Pack+portrait.jpg',
-    title: 'Big Packz',
-    year: 2025,
-} as const;
+/** Cap the deck so we don't render hundreds of items in memory. */
+const TOP_RATED_LIMIT = 20;
+
+/** Fallback poster used when a movie has no `portraitURL`. */
+const FALLBACK_PORTRAIT = imageindex.JustAVibe;
 
 type SoloSessionScreenNavigationProp = StackNavigationProp<ClientStackParams, 'SoloSessionScreen'>;
 type SoloSessionScreenRouteProp = RouteProp<ClientStackParams, 'SoloSessionScreen'>;
 
 type Props = {
     route: SoloSessionScreenRouteProp;
-};
-type DummySoloMovie = {
-    id: string;
-    title: string;
-    chapter: string;
-    tags: [string, string, string];
-    ratingText: string;
-    durationText: string;
-    description: string;
-    image: any;
 };
 
 const vibeLabelMap: Record<string, string> = {
@@ -44,78 +59,297 @@ const vibeLabelMap: Record<string, string> = {
     invite: 'Fit your vibe: might invite someone',
 };
 
+/**
+ * Render a movie's duration via the shared helper so the format matches every
+ * other movie card in the app. `IMovie.duration` is stored in **seconds**.
+ */
+const formatDurationLabel = (durationSeconds: number | null | undefined): string => {
+    if (!durationSeconds || durationSeconds <= 0) {
+        return '—';
+    }
+    const formatted = formatMovieDuration(durationSeconds).trim();
+    return formatted.length > 0 ? formatted : '—';
+};
+
+const formatRating = (rating: number | null | undefined): string => {
+    if (rating == null || Number.isNaN(rating)) {
+        return '⭐ —';
+    }
+    return `⭐ ${rating.toFixed(1)}/10`;
+};
+
 export default function SoloSessionScreen({route}: Props) {
     const navigation = useNavigation<SoloSessionScreenNavigationProp>();
+    /**
+     * `ContentPlayer` is registered on `NoBottomTabStack`, the parent of
+     * `ClientTabNavigator` → `ClientStack`. Pushing onto this navigator (rather
+     * than navigating the root via a nested `navigate` call) preserves the
+     * back stack, so the system back button returns the user to this screen
+     * instead of dropping back to the default tab (Crummunity).
+     */
+    const parentNavigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
     const vibeId = route.params?.vibeId ?? 'browsing';
     const vibeText = vibeLabelMap[vibeId] ?? vibeLabelMap.browsing;
     const [activeIndex, setActiveIndex] = useState(0);
     const [listHeight, setListHeight] = useState(SIZES.ScreenHeight);
-    const listRef = useRef<FlatList<DummySoloMovie>>(null);
-    const dummyMovies = useMemo<DummySoloMovie[]>(
-        () => [
-            {
-                id: 'solo-1',
-                title: 'John Wick',
-                chapter: 'CHAPTER 4',
-                tags: ['Action', 'Thriller', 'Crime'],
-                ratingText: '⭐ 8.1/10',
-                durationText: '2h 49m',
-                description: 'John Wick uncovers a path to defeating The High Table. But first, he must face new enemies.',
-                image: imageindex.JustAVibe,
-            },
-            {
-                id: 'solo-2',
-                title: 'Big Packz',
-                chapter: 'SEASON 1',
-                tags: ['R', 'Crime', 'Drama'],
-                ratingText: '⭐ 6.9/10',
-                durationText: '2h 10m',
-                description: 'An aspiring rapper moves to L.A. to pursue his music dreams but gets pulled into street life.',
-                image: imageindex.FindMyMatch,
-            },
-            {
-                id: 'solo-3',
-                title: 'Neon Streets',
-                chapter: 'EPISODE 9',
-                tags: ['Sci-Fi', 'Mystery', 'Action'],
-                ratingText: '⭐ 7.8/10',
-                durationText: '1h 56m',
-                description: 'A hacker duo follows a data trail through a futuristic city where every secret has a price.',
-                image: imageindex.FLickFlirt,
-            },
-        ],
-        [],
+    const [topRatedMovies, setTopRatedMovies] = useState<IMovie[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const listRef = useRef<FlatList<IMovie>>(null);
+
+    // --- Watch Solo / purchase flow (mirrors ContentDetailScreen.handlePrimary) ---
+    const userId = useAuthStore(s => s.user?.id);
+    const rawBalance = useAuthStore(s => s.walletBalance);
+    const balance = rawBalance != null ? Number(rawBalance) : 0;
+    const setWalletBalance = useAuthStore(s => s.setWalletBalance);
+    const [pendingMovie, setPendingMovie] = useState<IMovie | null>(null);
+    const [purchaseStatus, setPurchaseStatus] = useState<IContentPurchaseStatus>({active: false});
+    const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<'rent' | 'buy' | null>(null);
+    const [isProcessingPurchase, setIsProcessingPurchase] = useState(false);
+
+    useEffect(() => {
+        getUserWallet()
+            .then(b => {
+                if (b !== undefined) {
+                    setWalletBalance(b);
+                }
+            })
+            .catch(error => console.error('SoloSessionScreen: wallet fetch failed', error));
+    }, [setWalletBalance]);
+
+    const pendingRentCost = pendingMovie?.rentalPrice != null ? Number(pendingMovie.rentalPrice) : 0;
+    const pendingBuyCost = pendingMovie?.buyPrice != null ? Number(pendingMovie.buyPrice) : 0;
+    const pendingRentalLabel =
+        pendingMovie?.rentable && pendingRentCost && pendingMovie?.rentalDurationHrs
+            ? `${pendingMovie.rentalDurationHrs}h rental for ${pendingRentCost} AD`
+            : undefined;
+    const pendingBuyLabel =
+        pendingMovie?.buyable && pendingBuyCost ? `Buy for ${pendingBuyCost} AD` : undefined;
+    const canRent = balance >= pendingRentCost;
+    const canBuy = balance >= pendingBuyCost;
+
+    // --- Favourite / Watchlist flow ---
+    // Tap toggles the watchlist directly (no confirm/result dialogs). The icon
+    // re-renders from `isInWatchlist(...)` once the API call resolves.
+    const [watchlist, setWatchlist] = useState<IMovie[]>([]);
+    const [pendingWatchlistMovieId, setPendingWatchlistMovieId] = useState<string | null>(null);
+
+    /** Returns true when the given movie id is currently saved in the user's watchlist. */
+    const isInWatchlist = React.useCallback(
+        (movieId: string | undefined) => !!movieId && watchlist.some(movie => movie.id === movieId),
+        [watchlist],
     );
-    const feedMovies = useMemo<DummySoloMovie[]>(() => {
-        const loopCount = 20;
-        const repeated: DummySoloMovie[] = [];
-        for (let i = 0; i < loopCount; i += 1) {
-            for (const movie of dummyMovies) {
-                repeated.push({
-                    ...movie,
-                    id: `${movie.id}-${i}`,
-                });
+
+    useFocusEffect(
+        React.useCallback(() => {
+            if (!userId) {
+                return;
             }
+            let isActive = true;
+            (async () => {
+                try {
+                    const watchlistMovies = await getWatchlist(userId);
+                    if (isActive) {
+                        setWatchlist(watchlistMovies);
+                    }
+                } catch (error) {
+                    console.error('SoloSessionScreen: fetch watchlist failed', error);
+                }
+            })();
+            return () => {
+                isActive = false;
+            };
+        }, [userId]),
+    );
+
+    const handleToggleFavourite = async (movie: IMovie) => {
+        if (!movie?.id) {
+            return;
         }
-        return repeated;
-    }, [dummyMovies]);
+        // Guard against rapid double-taps on the same card.
+        if (pendingWatchlistMovieId === movie.id) {
+            return;
+        }
+        setPendingWatchlistMovieId(movie.id);
+        const wasInWatchlist = isInWatchlist(movie.id);
+        try {
+            if (wasInWatchlist) {
+                const success = await removeFromWatchlist(movie.id);
+                if (success) {
+                    setWatchlist(prev => prev.filter(m => m.id !== movie.id));
+                }
+            } else {
+                const success = await addToWatchlist(movie.id);
+                if (success) {
+                    setWatchlist(prev => (prev.some(m => m.id === movie.id) ? prev : [...prev, movie]));
+                }
+            }
+        } catch (error) {
+            console.error('SoloSessionScreen: watchlist toggle failed', error);
+        } finally {
+            setPendingWatchlistMovieId(null);
+        }
+    };
+
+    useEffect(() => {
+        let isMounted = true;
+        const loadTopRated = async () => {
+            try {
+                // No genre filter ⇒ fetch all movies, then sort by rating desc.
+                // Mirrors the convention used in `Home/index.tsx` for the Top Rated rail.
+                const movies = await findMovies('');
+                if (!isMounted) {
+                    return;
+                }
+                const sorted = [...movies]
+                    .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0))
+                    .slice(0, TOP_RATED_LIMIT);
+                setTopRatedMovies(sorted);
+            } catch (error) {
+                console.error('SoloSessionScreen: failed to load top rated movies', error);
+            } finally {
+                if (isMounted) {
+                    setIsLoading(false);
+                }
+            }
+        };
+        void loadTopRated();
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    /**
+     * Re-snap the FlatList to the currently active card whenever:
+     *   - the deck height changes (e.g., safe-area / status-bar insets shift
+     *     after returning from ContentPlayer's orientation lock), or
+     *   - the screen regains focus (e.g., user pressed back from the player).
+     *
+     * Without this, the scroll offset (in pixels) recorded before navigation
+     * away no longer aligns with the new item height, so the user lands
+     * parked between two cards.
+     */
+    const realignToActiveCard = React.useCallback(() => {
+        if (topRatedMovies.length === 0) {
+            return;
+        }
+        const targetIndex = Math.min(activeIndex, topRatedMovies.length - 1);
+        listRef.current?.scrollToIndex({index: targetIndex, animated: false});
+    }, [activeIndex, topRatedMovies.length]);
+
+    useEffect(() => {
+        realignToActiveCard();
+    }, [listHeight, realignToActiveCard]);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // Defer one frame so the FlatList has finished its post-focus layout pass.
+            const timer = setTimeout(realignToActiveCard, 0);
+            return () => clearTimeout(timer);
+        }, [realignToActiveCard]),
+    );
 
     const handlePressNext = () => {
-        const nextIndex = activeIndex + 1 >= feedMovies.length ? 0 : activeIndex + 1;
+        if (topRatedMovies.length === 0) {
+            return;
+        }
+        const nextIndex = activeIndex + 1 >= topRatedMovies.length ? 0 : activeIndex + 1;
         listRef.current?.scrollToIndex({index: nextIndex, animated: true});
         setActiveIndex(nextIndex);
     };
 
-    const handlePressInvite = () => {
+    const handlePressInvite = (movie: IMovie) => {
+        if (!movie?.id) {
+            console.warn('SoloSessionScreen: handlePressInvite called without a valid movie');
+            return;
+        }
         navigateToMITDateSchedule(
             {
-                id: STATIC_INVITE_MOVIE.id,
-                title: STATIC_INVITE_MOVIE.title,
-                portraitURL: STATIC_INVITE_MOVIE.portraitURL,
-                year: STATIC_INVITE_MOVIE.year,
+                id: movie.id,
+                title: movie.title,
+                portraitURL: movie.portraitURL,
+                year: movie.year,
             },
             navigation,
         );
+    };
+
+    /**
+     * Mirror of `ContentDetailScreen.playContent`. Pushes `ContentPlayer` onto
+     * the parent `NoBottomTabStack` and opts into the player's `goBack` return
+     * mode so the system back button returns to this screen instead of the
+     * default ClientTabNavigator tab (Crummunity).
+     */
+    const playContent = (movie: IMovie) => {
+        parentNavigation.navigate('ContentPlayer', {
+            id: movie.id,
+            movieURL: movie.movieURL,
+            landscapeURL: movie.landscapeURL,
+            title: movie.title,
+            returnTo: 'goBack',
+        });
+    };
+
+    /**
+     * Mirror of `ContentDetailScreen.handlePrimary` (the "Play for Free" press
+     * method). If the movie is paid and not yet purchased by the user, show
+     * the rent/buy modal; otherwise jump straight to the player.
+     */
+    const handlePressWatchSolo = async (movie: IMovie) => {
+        if (!movie?.id) {
+            return;
+        }
+        setPendingMovie(movie);
+
+        let status: IContentPurchaseStatus = {active: false};
+        try {
+            status = await getMoviePurchaseStatus(movie.id);
+            setPurchaseStatus(status);
+        } catch (error) {
+            console.error('SoloSessionScreen: getMoviePurchaseStatus failed', error);
+        }
+
+        if (!status.active && (movie.rentable || movie.buyable)) {
+            setShowPurchaseModal(true);
+            return;
+        }
+        playContent(movie);
+    };
+
+    const handleRent = () => {
+        setShowPurchaseModal(false);
+        setConfirmAction('rent');
+    };
+
+    const handleBuy = () => {
+        setShowPurchaseModal(false);
+        setConfirmAction('buy');
+    };
+
+    const runPurchase = async () => {
+        if (!confirmAction || !pendingMovie?.id) {
+            setConfirmAction(null);
+            return;
+        }
+        const action = confirmAction;
+        setConfirmAction(null);
+        setIsProcessingPurchase(true);
+
+        let ok = false;
+        try {
+            ok = action === 'rent' ? await rentMovie(pendingMovie.id) : await buyMovie(pendingMovie.id);
+            if (ok) {
+                setPurchaseStatus({active: true});
+            }
+        } catch (error) {
+            console.error('SoloSessionScreen: purchase failed', error);
+        } finally {
+            setIsProcessingPurchase(false);
+        }
+
+        if (ok) {
+            playContent(pendingMovie);
+        }
     };
 
     return (
@@ -131,96 +365,169 @@ export default function SoloSessionScreen({route}: Props) {
             </View>
 
             <View style={styles.deckWrap}>
-                <FlatList
-                    ref={listRef}
-                    data={feedMovies}
-                    style={styles.list}
-                    keyExtractor={item => item.id}
-                    pagingEnabled
-                    bounces={false}
-                    showsVerticalScrollIndicator={false}
-                    decelerationRate="fast"
-                    onLayout={event => {
-                        const height = event.nativeEvent.layout.height;
-                        if (height > 0 && height !== listHeight) {
-                            setListHeight(height);
-                        }
-                    }}
-                    getItemLayout={(_, index) => ({
-                        length: listHeight,
-                        offset: listHeight * index,
-                        index,
-                    })}
-                    onMomentumScrollEnd={event => {
-                        const index = Math.round(event.nativeEvent.contentOffset.y / listHeight);
-                        setActiveIndex(index);
-                    }}
-                    renderItem={({item}) => (
-                        <View style={[styles.card, {height: listHeight}]}>
-                            <ImageBackground source={item.image} style={styles.backgroundImage} resizeMode="cover">
-                                <LinearGradient
-                                    colors={['rgba(3,3,10,0.25)', 'rgba(8,7,20,0.78)', 'rgba(4,4,10,0.96)']}
-                                    locations={[0.1, 0.58, 1]}
-                                    style={styles.backgroundOverlay}>
-                                    <View style={styles.centerPlayWrap}>
-                                        <Pressable style={styles.playButton}>
-                                            <Icon name="play" type="ionicon" color={COLORS.WHITE} size={34} />
-                                        </Pressable>
-                                    </View>
+                {isLoading && topRatedMovies.length === 0 ? (
+                    <View style={styles.centeredState}>
+                        <ActivityIndicator size="large" color={COLORS.WHITE} />
+                    </View>
+                ) : topRatedMovies.length === 0 ? (
+                    <View style={styles.centeredState}>
+                        <Text style={styles.emptyStateText}>No top-rated movies right now. Pull back later.</Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        ref={listRef}
+                        data={topRatedMovies}
+                        style={styles.list}
+                        keyExtractor={item => item.id}
+                        pagingEnabled
+                        bounces={false}
+                        showsVerticalScrollIndicator={false}
+                        decelerationRate="fast"
+                        onLayout={event => {
+                            const height = event.nativeEvent.layout.height;
+                            if (height > 0 && height !== listHeight) {
+                                setListHeight(height);
+                            }
+                        }}
+                        getItemLayout={(_, index) => ({
+                            length: listHeight,
+                            offset: listHeight * index,
+                            index,
+                        })}
+                        onMomentumScrollEnd={event => {
+                            const index = Math.round(event.nativeEvent.contentOffset.y / listHeight);
+                            setActiveIndex(index);
+                        }}
+                        renderItem={({item}) => {
+                            const portraitSource = item.portraitURL ? {uri: item.portraitURL} : FALLBACK_PORTRAIT;
+                            const tags = (item.genres ?? []).slice(0, 3);
+                            return (
+                                <View style={[styles.card, {height: listHeight}]}>
+                                    <ImageBackground source={portraitSource} style={styles.backgroundImage} resizeMode="cover">
+                                        <LinearGradient
+                                            colors={['rgba(3,3,10,0.25)', 'rgba(8,7,20,0.78)', 'rgba(4,4,10,0.96)']}
+                                            locations={[0.1, 0.58, 1]}
+                                            style={styles.backgroundOverlay}>
+                                            <View style={styles.centerPlayWrap}>
+                                                <Pressable style={styles.playButton}>
+                                                    <Icon name="play" type="ionicon" color={COLORS.WHITE} size={34} />
+                                                </Pressable>
+                                            </View>
 
-                                    <View style={styles.bottomContentWrap}>
-                                        <View style={styles.metaWrap}>
-                                            <Text style={styles.title}>{item.title}</Text>
-                                            <Text style={styles.subtitle}>{item.chapter}</Text>
-                                            <View style={styles.tagRow}>
-                                                {item.tags.map(tag => (
-                                                    <Text key={`${item.id}-${tag}`} style={styles.tag}>
-                                                        {tag}
+                                            <View style={styles.bottomContentWrap}>
+                                                <View style={styles.metaWrap}>
+                                                    <Text style={styles.title} numberOfLines={2}>
+                                                        {item.title}
                                                     </Text>
-                                                ))}
-                                            </View>
-                                            <Text style={styles.vibeText}>{vibeText}</Text>
-                                            <Text style={styles.description}>{item.description}</Text>
-                                            <View style={styles.footerMetaRow}>
-                                                <Text style={styles.footerMeta}>{item.ratingText}</Text>
-                                                <Text style={styles.footerMeta}>{item.durationText}</Text>
-                                                <Icon name="film-outline" type="ionicon" color="rgba(255,255,255,0.72)" size={14} />
-                                            </View>
-                                        </View>
+                                                    {item.year ? <Text style={styles.subtitle}>{item.year}</Text> : null}
+                                                    {tags.length > 0 ? (
+                                                        <View style={styles.tagRow}>
+                                                            {tags.map(tag => (
+                                                                <Text key={`${item.id}-${tag}`} style={styles.tag}>
+                                                                    {tag}
+                                                                </Text>
+                                                            ))}
+                                                        </View>
+                                                    ) : null}
+                                                    <Text style={styles.vibeText}>{vibeText}</Text>
+                                                    {item.description ? (
+                                                        <Text style={styles.description} numberOfLines={3}>
+                                                            {item.description}
+                                                        </Text>
+                                                    ) : null}
+                                                    <View style={styles.footerMetaRow}>
+                                                        <Text style={styles.footerMeta}>{formatRating(item.rating)}</Text>
+                                                        <Text style={styles.footerMeta}>{formatDurationLabel(item.duration)}</Text>
+                                                        <Icon name="film-outline" type="ionicon" color="rgba(255,255,255,0.72)" size={14} />
+                                                    </View>
+                                                </View>
 
-                                        <View style={styles.rightActions}>
-                                            <View style={styles.actionItemWrap}>
-                                                <Pressable style={styles.roundAction} onPress={handlePressInvite}>
-                                                    <Icon name="heart" type="material-community" color="#FF5FB8" size={28} />
-                                                </Pressable>
-                                                <Text style={styles.actionLabel}>Invite</Text>
+                                                <View style={styles.rightActions}>
+                                                    <View style={styles.actionItemWrap}>
+                                                        <Pressable style={styles.roundAction} onPress={() => handlePressInvite(item)}>
+                                                            <Icon name="heart" type="material-community" color="#FF5FB8" size={28} />
+                                                        </Pressable>
+                                                        <Text style={styles.actionLabel}>Invite</Text>
+                                                    </View>
+                                                    <View style={styles.actionItemWrap}>
+                                                        <Pressable
+                                                            style={[styles.roundAction, styles.roundActionPrimary]}
+                                                            disabled={isProcessingPurchase && pendingMovie?.id === item.id}
+                                                            onPress={() => handlePressWatchSolo(item)}>
+                                                            {isProcessingPurchase && pendingMovie?.id === item.id ? (
+                                                                <ActivityIndicator size="small" color={COLORS.WHITE} />
+                                                            ) : (
+                                                                <Icon name="play" type="ionicon" color={COLORS.WHITE} size={20} />
+                                                            )}
+                                                        </Pressable>
+                                                        <Text style={styles.actionLabel}>Watch Solo</Text>
+                                                    </View>
+                                                    <View style={styles.actionItemWrap}>
+                                                        <Pressable
+                                                            style={styles.roundAction}
+                                                            disabled={pendingWatchlistMovieId === item.id}
+                                                            onPress={() => handleToggleFavourite(item)}>
+                                                            {pendingWatchlistMovieId === item.id ? (
+                                                                <ActivityIndicator size="small" color={COLORS.WHITE} />
+                                                            ) : (
+                                                                <Icon
+                                                                    name={isInWatchlist(item.id) ? 'star' : 'star-outline'}
+                                                                    type="ionicon"
+                                                                    color={isInWatchlist(item.id) ? COLORS.STARGOLD : COLORS.WHITE}
+                                                                    size={22}
+                                                                />
+                                                            )}
+                                                        </Pressable>
+                                                        <Text style={styles.actionLabel}>
+                                                            {isInWatchlist(item.id) ? 'Unfavourite' : 'Favourite'}
+                                                        </Text>
+                                                    </View>
+                                                    <View style={styles.actionItemWrap}>
+                                                        <Pressable style={styles.roundAction} onPress={handlePressNext}>
+                                                            <Icon name="refresh" type="material-community" color={COLORS.WHITE} size={20} />
+                                                        </Pressable>
+                                                        <Text style={styles.actionLabel}>Next</Text>
+                                                    </View>
+                                                </View>
                                             </View>
-                                            <View style={styles.actionItemWrap}>
-                                                <Pressable style={[styles.roundAction, styles.roundActionPrimary]}>
-                                                    <Icon name="play" type="ionicon" color={COLORS.WHITE} size={20} />
-                                                </Pressable>
-                                                <Text style={styles.actionLabel}>Watch Solo</Text>
-                                            </View>
-                                            <View style={styles.actionItemWrap}>
-                                                <Pressable style={styles.roundAction}>
-                                                    <Icon name="plus" type="ionicon" color={COLORS.WHITE} size={22} />
-                                                </Pressable>
-                                                <Text style={styles.actionLabel}>Save</Text>
-                                            </View>
-                                            <View style={styles.actionItemWrap}>
-                                                <Pressable style={styles.roundAction} onPress={handlePressNext}>
-                                                    <Icon name="refresh" type="material-community" color={COLORS.WHITE} size={20} />
-                                                </Pressable>
-                                                <Text style={styles.actionLabel}>Next</Text>
-                                            </View>
-                                        </View>
-                                    </View>
-                                </LinearGradient>
-                            </ImageBackground>
-                        </View>
-                    )}
-                />
+                                        </LinearGradient>
+                                    </ImageBackground>
+                                </View>
+                            );
+                        }}
+                    />
+                )}
             </View>
+
+            {pendingMovie && !purchaseStatus.active && (pendingMovie.rentable || pendingMovie.buyable) && (
+                <ContentPurchaseModal
+                    visible={showPurchaseModal}
+                    onClose={() => setShowPurchaseModal(false)}
+                    onRent={handleRent}
+                    onBuy={handleBuy}
+                    rentalLabel={pendingRentalLabel}
+                    buyLabel={pendingBuyLabel}
+                    canRent={canRent}
+                    canBuy={canBuy}
+                    rentalPrice={pendingRentCost}
+                    buyPrice={pendingBuyCost}
+                    balance={balance}
+                />
+            )}
+
+            {confirmAction != null && (
+                <Modal transparent animationType="fade" visible onRequestClose={() => setConfirmAction(null)}>
+                    <ComfirmationModal
+                        confirmationText={
+                            confirmAction === 'rent'
+                                ? `Rent this movie for ${pendingRentCost} AD? This cannot be undone.`
+                                : `Buy this movie for ${pendingBuyCost} AD? This cannot be undone.`
+                        }
+                        onPressYes={runPurchase}
+                        onPressNo={() => setConfirmAction(null)}
+                    />
+                </Modal>
+            )}
         </SafeAreaView>
     );
 }
@@ -235,6 +542,17 @@ const styles = StyleSheet.create({
     },
     list: {
         flex: 1,
+    },
+    centeredState: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 24,
+    },
+    emptyStateText: {
+        ...FONTS.paragraph4,
+        color: 'rgba(255,255,255,0.7)',
+        textAlign: 'center',
     },
     topBar: {
         position: 'absolute',
