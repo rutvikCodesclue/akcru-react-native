@@ -15,6 +15,7 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
+import Video from 'react-native-video';
 
 import imageindex from '../../../../assets/images/imageindex';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
@@ -94,6 +95,8 @@ export default function SoloSessionScreen({route}: Props) {
     const [listHeight, setListHeight] = useState(SIZES.ScreenHeight);
     const [topRatedMovies, setTopRatedMovies] = useState<IMovie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isSwiping, setIsSwiping] = useState(false);
+    const [isTrailerAutoplayReady, setIsTrailerAutoplayReady] = useState(false);
     const listRef = useRef<FlatList<IMovie>>(null);
 
     // --- Watch Solo / purchase flow (mirrors ContentDetailScreen.handlePrimary) ---
@@ -249,6 +252,18 @@ export default function SoloSessionScreen({route}: Props) {
         }, [realignToActiveCard]),
     );
 
+    useEffect(() => {
+        // Start trailer only after the user remains on the same card for 2s.
+        setIsTrailerAutoplayReady(false);
+        if (isSwiping || topRatedMovies.length === 0) {
+            return;
+        }
+        const timer = setTimeout(() => {
+            setIsTrailerAutoplayReady(true);
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, [activeIndex, isSwiping, topRatedMovies.length]);
+
     const handlePressNext = () => {
         if (topRatedMovies.length === 0) {
             return;
@@ -383,6 +398,8 @@ export default function SoloSessionScreen({route}: Props) {
                         bounces={false}
                         showsVerticalScrollIndicator={false}
                         decelerationRate="fast"
+                        onScrollBeginDrag={() => setIsSwiping(true)}
+                        onMomentumScrollBegin={() => setIsSwiping(true)}
                         onLayout={event => {
                             const height = event.nativeEvent.layout.height;
                             if (height > 0 && height !== listHeight) {
@@ -397,23 +414,33 @@ export default function SoloSessionScreen({route}: Props) {
                         onMomentumScrollEnd={event => {
                             const index = Math.round(event.nativeEvent.contentOffset.y / listHeight);
                             setActiveIndex(index);
+                            setIsSwiping(false);
                         }}
-                        renderItem={({item}) => {
+                        onScrollEndDrag={() => setIsSwiping(false)}
+                        renderItem={({item, index}) => {
                             const portraitSource = item.portraitURL ? {uri: item.portraitURL} : FALLBACK_PORTRAIT;
                             const tags = (item.genres ?? []).slice(0, 3);
+                            const trailerUrl = item.trailerURL?.trim() ?? '';
+                            const canPlayTrailer = trailerUrl.length > 0;
+                            const isActiveCard = index === activeIndex;
+                            const shouldAutoplayTrailer =
+                                isActiveCard && !isSwiping && isTrailerAutoplayReady && canPlayTrailer;
                             return (
                                 <View style={[styles.card, {height: listHeight}]}>
                                     <ImageBackground source={portraitSource} style={styles.backgroundImage} resizeMode="cover">
+                                        {shouldAutoplayTrailer ? (
+                                            <Video
+                                                style={StyleSheet.absoluteFillObject}
+                                                source={{uri: trailerUrl}}
+                                                resizeMode="cover"
+                                                repeat
+                                                muted
+                                            />
+                                        ) : null}
                                         <LinearGradient
                                             colors={['rgba(3,3,10,0.25)', 'rgba(8,7,20,0.78)', 'rgba(4,4,10,0.96)']}
                                             locations={[0.1, 0.58, 1]}
                                             style={styles.backgroundOverlay}>
-                                            <View style={styles.centerPlayWrap}>
-                                                <Pressable style={styles.playButton}>
-                                                    <Icon name="play" type="ionicon" color={COLORS.WHITE} size={34} />
-                                                </Pressable>
-                                            </View>
-
                                             <View style={styles.bottomContentWrap}>
                                                 <View style={styles.metaWrap}>
                                                     <Text style={styles.title} numberOfLines={2}>
@@ -438,7 +465,12 @@ export default function SoloSessionScreen({route}: Props) {
                                                     <View style={styles.footerMetaRow}>
                                                         <Text style={styles.footerMeta}>{formatRating(item.rating)}</Text>
                                                         <Text style={styles.footerMeta}>{formatDurationLabel(item.duration)}</Text>
-                                                        <Icon name="film-outline" type="ionicon" color="rgba(255,255,255,0.72)" size={14} />
+                                                        <Icon
+                                                            name="film-outline"
+                                                            type="ionicon"
+                                                            color="rgba(255,255,255,0.72)"
+                                                            size={14}
+                                                        />
                                                     </View>
                                                 </View>
 
@@ -590,23 +622,8 @@ const styles = StyleSheet.create({
         ...FONTS.Title2,
         color: COLORS.WHITE,
     },
-    centerPlayWrap: {
-        flex: 1,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    playButton: {
-        width: 74,
-        height: 74,
-        borderRadius: 37,
-        borderWidth: 1.2,
-        borderColor: 'rgba(255,255,255,0.6)',
-        backgroundColor: 'rgba(0,0,0,0.25)',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
     bottomContentWrap: {
-        minHeight: SIZES.ScreenHeight * 0.34,
+        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
