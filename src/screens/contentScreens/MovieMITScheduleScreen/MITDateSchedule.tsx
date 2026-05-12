@@ -14,7 +14,9 @@ import {
     Modal,
     Easing,
     BackHandler,
+    StatusBar,
 } from 'react-native';
+import Orientation from 'react-native-orientation-locker';
 import styles from './styles';
 import React, {useState, useRef, useEffect} from 'react';
 import Header from '../../../components/header';
@@ -96,6 +98,16 @@ type DiscoveryProfile = {
 };
 
 const MITDateSchedule = ({route, navigation}: Props) => {
+    useFocusEffect(
+        React.useCallback(() => {
+            Orientation.lockToPortrait();
+            StatusBar.setHidden(false);
+            return () => {
+                // We don't unlock here because the next screen might have its own lock
+                // but we can at least show status bar again
+            };
+        }, []),
+    );
     const loggedInUser = useAuthStore(state => state.user);
     const id: string | undefined = route.params?.id ?? null;
     const [movie, setMovie] = useState<IMovie | null>(null);

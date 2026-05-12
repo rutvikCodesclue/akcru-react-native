@@ -1,5 +1,6 @@
 import React, {useEffect, useRef} from 'react';
 import {StatusBar, StyleSheet, View, Platform} from 'react-native';
+import {Provider as PaperProvider} from 'react-native-paper';
 import RootNavigator from './src/navigation/RootNavigator';
 import {COLORS} from './assets/constants';
 import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
@@ -231,7 +232,9 @@ function App(): JSX.Element {
                         backgroundColor={COLORS.AKCRUBACKGROUND}
                         translucent={false} // Keep this false to maintain your current design
                     />
-                    <RootNavigator />
+                    <PaperProvider>
+                        <RootNavigator />
+                    </PaperProvider>
                 </SafeAreaView>
             </SafeAreaProvider>
         </GestureHandlerRootView>

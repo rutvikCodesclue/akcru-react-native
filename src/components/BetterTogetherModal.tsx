@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../assets/constants';
 import {IMovie} from '../../types';
+
 /** Static fog layer opacity (no pulse). */
 const FOG_LAYER_OPACITY = 0.58;
 

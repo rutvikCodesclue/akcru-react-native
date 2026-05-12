@@ -39,6 +39,8 @@ import useAuthStore from '../../../stores/auth.store';
 import ContentPurchaseModal from '../../../components/ContentPurchaseModal';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import BetterTogetherModal from '../../../components/BetterTogetherModal';
+import SoloSessionCompletionModal from '../../../components/SoloSessionCompletionModal';
+
 import type { IMovie } from '../../../../types';
 
 /** Cap the deck so we don't render hundreds of items in memory. */
@@ -127,6 +129,7 @@ export default function SoloSessionScreen({route}: Props) {
     const [isBrowseAllResumeFlow, setIsBrowseAllResumeFlow] = useState(false);
     const [isTrailerManuallyPaused, setIsTrailerManuallyPaused] = useState(false);
     const [isTrailerHorizontal, setIsTrailerHorizontal] = useState(false);
+    const [isMuted, setIsMuted] = useState(false);
     const ignoreTrailerToggleUntilRef = useRef(0);
     const [activeTrailerMovieId, setActiveTrailerMovieId] = useState<string | null>(null);
     const [trailerDurationSec, setTrailerDurationSec] = useState(0);
@@ -134,6 +137,8 @@ export default function SoloSessionScreen({route}: Props) {
     const [trailerResumePositionByMovie, setTrailerResumePositionByMovie] = useState<Record<string, number>>({});
     const [startedTrailerByMovie, setStartedTrailerByMovie] = useState<Record<string, boolean>>({});
     const trailerVideoRef = useRef<Video | null>(null);
+    const [showCompletionModal, setShowCompletionModal] = useState(false);
+
 
     useEffect(() => {
         getUserWallet()
@@ -394,7 +399,7 @@ export default function SoloSessionScreen({route}: Props) {
      * default ClientTabNavigator tab (Crummunity).
      */
     const playContent = (movie: IMovie) => {
-        parentNavigation.navigate('ContentPlayer', {
+        parentNavigation.navigate('WatchSoloSessionMovie', {
             id: movie.id,
             movieURL: movie.movieURL,
             landscapeURL: movie.landscapeURL,
@@ -474,16 +479,48 @@ export default function SoloSessionScreen({route}: Props) {
         }
     };
 
+    const handleSendInvite = () => {
+        setShowCompletionModal(false);
+        const currentMovie = topRatedMovies[activeIndex];
+        if (currentMovie) {
+            handlePressInvite(currentMovie);
+        }
+    };
+
+    const handleFindMatches = () => {
+        setShowCompletionModal(false);
+        navigation.navigate('ClientTabNavigator', {screen: 'FlickFlirt'});
+    };
+
+    const handleWatchSomethingElse = () => {
+        setShowCompletionModal(false);
+        navigation.navigate('ClientTabNavigator', {screen: 'Home'});
+    };
+
+
     return (
         <SafeAreaView style={styles.screen}>
             <View style={styles.topBar}>
                 <Pressable onPress={() => navigation.goBack()} style={styles.topIconButton}>
                     <Icon name="arrow-left" type="material-community" size={22} color={COLORS.WHITE} />
                 </Pressable>
-                <Text style={styles.topTitle}>Solo Session</Text>
-                <Pressable style={styles.topIconButton} onPress={() => setShowTopMenu(true)}>
-                    <Icon name="tune-variant" type="material-community" size={20} color={COLORS.WHITE} />
+                <Pressable onPress={() => setShowCompletionModal(true)}>
+                    <Text style={styles.topTitle}>Solo Session</Text>
                 </Pressable>
+
+                <View style={{flexDirection: 'row', gap: 4}}>
+                    <Pressable style={styles.topIconButton} onPress={() => setIsMuted(prev => !prev)}>
+                        <Icon
+                            name={isMuted ? 'volume-off' : 'volume-high'}
+                            type="material-community"
+                            size={22}
+                            color={COLORS.WHITE}
+                        />
+                    </Pressable>
+                    <Pressable style={styles.topIconButton} onPress={() => setShowTopMenu(true)}>
+                        <Icon name="tune-variant" type="material-community" size={20} color={COLORS.WHITE} />
+                    </Pressable>
+                </View>
             </View>
 
             <View style={styles.deckWrap}>
@@ -579,7 +616,7 @@ export default function SoloSessionScreen({route}: Props) {
                                                 source={{uri: trailerUrl}}
                                                 resizeMode="cover"
                                                 repeat
-                                                muted
+                                                muted={isMuted}
                                                 paused={!shouldAutoplayTrailer}
                                                 onLoad={event => {
                                                     setActiveTrailerMovieId(item.id);
@@ -793,6 +830,16 @@ export default function SoloSessionScreen({route}: Props) {
                     balance={balance}
                 />
             )}
+
+            <SoloSessionCompletionModal
+                visible={showCompletionModal}
+                onClose={() => setShowCompletionModal(false)}
+                onSendInvite={handleSendInvite}
+                onFindMatches={handleFindMatches}
+                onWatchSomethingElse={handleWatchSomethingElse}
+                movie={topRatedMovies[activeIndex] || null}
+            />
+
 
             {confirmAction != null && (
                 <Modal transparent animationType="fade" visible onRequestClose={() => setConfirmAction(null)}>

@@ -6,6 +6,7 @@ import ClientTabNavigator from './ClientTabNavigator';
 import {ClientStack} from './ClientStack';
 import ContentSwipe from '../screens/contentScreens/contentSwipe';
 import ContentPlayer from '../screens/contentScreens/PlayContentScreen';
+import WatchSoloSessionMovie from '../screens/contentScreens/WatchSoloSessionMovie';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import StartMITDate from '../screens/userScreens/StartMITDate';
 import StartWatchPartyView from '../screens/userScreens/StartWatchPartyView';
@@ -103,6 +104,7 @@ export type NoBottomTabStackParams = {
     ClientTabNavigator: any;
     ClientStack: any;
     ContentPlayer: any;
+    WatchSoloSessionMovie: any;
     ContentDetailScreen: any;
     StartMITDate: any;
     StartWatchPartyView: any;
@@ -240,6 +242,14 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="ContentPlayer"
                 component={ContentPlayer}
+                options={{
+                    headerShown: false,
+                    gestureDirection: 'horizontal',
+                }}
+            />
+            <NoBottom.Screen
+                name="WatchSoloSessionMovie"
+                component={WatchSoloSessionMovie}
                 options={{
                     headerShown: false,
                     gestureDirection: 'horizontal',

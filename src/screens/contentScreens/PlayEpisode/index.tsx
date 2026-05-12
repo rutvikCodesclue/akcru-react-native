@@ -1,5 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, View, StatusBar, Text, TouchableOpacity, Platform} from 'react-native';;
+import {ActivityIndicator, View, StatusBar, Text, TouchableOpacity, Platform} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
