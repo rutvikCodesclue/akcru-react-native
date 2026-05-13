@@ -46,6 +46,9 @@ import type { IMovie } from '../../../../types';
 /** Cap the deck so we don't render hundreds of items in memory. */
 const TOP_RATED_LIMIT = 20;
 
+/** Temporary: every card shows the badge. Set to `false` for top-4 + ties only. */
+const TEMP_SHOW_POPULAR_FOR_INVITES_ON_ALL_CARDS = true;
+
 /** Fallback poster used when a movie has no `portraitURL`. */
 const FALLBACK_PORTRAIT = imageindex.JustAVibe;
 
@@ -88,6 +91,32 @@ const formatSecondsLabel = (seconds: number): string => {
     const mins = Math.floor(safe / 60);
     const secs = safe % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
+
+const normalizeMitAcceptCount = (movie: IMovie): number =>
+    Math.max(0, Number(movie.mitAcceptCount ?? 0) || 0);
+
+/**
+ * Solo Session deck: badge every title whose `mitAcceptCount` is at least the
+ * value at the 4th rank when sorted descending (so ties on that cutoff all
+ * qualify). If every count is 0, no badges.
+ */
+const computePopularForInviteRanking = (movies: IMovie[]): Set<string> => {
+    if (movies.length === 0) {
+        return new Set();
+    }
+    const rows = movies.map(m => ({id: m.id, c: normalizeMitAcceptCount(m)}));
+    const sorted = [...rows].sort((a, b) => b.c - a.c);
+    const cutoff = sorted[Math.min(3, sorted.length - 1)].c;
+    const ids = new Set<string>();
+    if (cutoff > 0) {
+        for (const r of rows) {
+            if (r.c >= cutoff) {
+                ids.add(r.id);
+            }
+        }
+    }
+    return ids;
 };
 
 export default function SoloSessionScreen({route}: Props) {
@@ -138,6 +167,12 @@ export default function SoloSessionScreen({route}: Props) {
     const [startedTrailerByMovie, setStartedTrailerByMovie] = useState<Record<string, boolean>>({});
     const trailerVideoRef = useRef<Video | null>(null);
     const [showCompletionModal, setShowCompletionModal] = useState(false);
+    const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+    const activeIndexRef = useRef(0);
+
+    useEffect(() => {
+        activeIndexRef.current = activeIndex;
+    }, [activeIndex]);
 
 
     useEffect(() => {
@@ -149,6 +184,10 @@ export default function SoloSessionScreen({route}: Props) {
             })
             .catch(error => console.error('SoloSessionScreen: wallet fetch failed', error));
     }, [setWalletBalance]);
+
+    useEffect(() => {
+        setIsDescriptionExpanded(false);
+    }, [activeIndex]);
 
     const pendingRentCost = pendingMovie?.rentalPrice != null ? Number(pendingMovie.rentalPrice) : 0;
     const pendingBuyCost = pendingMovie?.buyPrice != null ? Number(pendingMovie.buyPrice) : 0;
@@ -364,7 +403,8 @@ export default function SoloSessionScreen({route}: Props) {
         if (topRatedMovies.length === 0) {
             return;
         }
-        const nextIndex = activeIndex + 1 >= topRatedMovies.length ? 0 : activeIndex + 1;
+        const nextIndex =
+            activeIndexRef.current + 1 >= topRatedMovies.length ? 0 : activeIndexRef.current + 1;
         setIsSwiping(true);
         listRef.current?.scrollToIndex({index: nextIndex, animated: true});
 
@@ -375,6 +415,7 @@ export default function SoloSessionScreen({route}: Props) {
             setIsSwiping(false);
         }, 600);
     };
+
 
     const handlePressInvite = (movie: IMovie) => {
         if (!movie?.id) {
@@ -492,6 +533,11 @@ export default function SoloSessionScreen({route}: Props) {
         navigation.navigate('ClientTabNavigator', {screen: 'FlickFlirt'});
     };
 
+    const popularForInviteIds = React.useMemo(
+        () => computePopularForInviteRanking(topRatedMovies),
+        [topRatedMovies],
+    );
+
     const handleWatchSomethingElse = () => {
         setShowCompletionModal(false);
         navigation.navigate('ClientTabNavigator', {screen: 'Home'});
@@ -542,6 +588,10 @@ export default function SoloSessionScreen({route}: Props) {
                         bounces={false}
                         showsVerticalScrollIndicator={false}
                         decelerationRate="fast"
+                        initialNumToRender={3}
+                        maxToRenderPerBatch={3}
+                        windowSize={3}
+                        removeClippedSubviews
                         onScrollBeginDrag={() => setIsSwiping(true)}
                         onMomentumScrollBegin={() => setIsSwiping(true)}
                         onLayout={event => {
@@ -556,14 +606,16 @@ export default function SoloSessionScreen({route}: Props) {
                             index,
                         })}
                         onMomentumScrollEnd={event => {
-                            const index = Math.round(event.nativeEvent.contentOffset.y / listHeight);
-                            setActiveIndex(index);
+                            const rawIndex = Math.round(event.nativeEvent.contentOffset.y / listHeight);
+                            const clampedIndex = Math.max(0, Math.min(rawIndex, topRatedMovies.length - 1));
+                            setActiveIndex(clampedIndex);
                             setIsSwiping(false);
                         }}
-                        onScrollEndDrag={() => setIsSwiping(false)}
                         renderItem={({item, index}) => {
                             const portraitSource = item.portraitURL ? {uri: item.portraitURL} : FALLBACK_PORTRAIT;
                             const tags = (item.genres ?? []).slice(0, 3);
+                            const showPopularForInvites =
+                                TEMP_SHOW_POPULAR_FOR_INVITES_ON_ALL_CARDS || popularForInviteIds.has(item.id);
                             const trailerUrl = item.trailerURL?.trim() ?? '';
                             const canPlayTrailer = trailerUrl.length > 0;
                             const isActiveCard = index === activeIndex;
@@ -645,13 +697,6 @@ export default function SoloSessionScreen({route}: Props) {
                                                 }}
                                             />
                                         ) : null}
-                                        {shouldRenderTrailerVideo && isActiveCard && isTrailerManuallyPaused ? (
-                                            <View style={styles.pausedIndicatorWrap} pointerEvents="none">
-                                                <View style={styles.pausedIndicatorButton}>
-                                                    <Icon name="pause" type="ionicon" color={COLORS.WHITE} size={26} />
-                                                </View>
-                                            </View>
-                                        ) : null}
                                         <LinearGradient
                                             colors={['rgba(3,3,10,0.25)', 'rgba(8,7,20,0.78)', 'rgba(4,4,10,0.96)']}
                                             locations={[0.1, 0.58, 1]}
@@ -676,19 +721,9 @@ export default function SoloSessionScreen({route}: Props) {
                                                     </View>
                                                 </View>
                                             ) : null}
-                                            <Pressable
-                                                style={styles.trailerToggleZone}
-                                                onPress={() => {
-                                                    if (Date.now() < ignoreTrailerToggleUntilRef.current) {
-                                                        return;
-                                                    }
-                                                    if (!isActiveCard || !canPlayTrailer) {
-                                                        return;
-                                                    }
-                                                    setIsTrailerManuallyPaused(prev => !prev);
-                                                }}
-                                            />
-                                                <View style={styles.bottomContentWrap}>
+
+                                            <View style={styles.trailerToggleZone} />
+                                            <View style={styles.bottomContentWrap}>
                                                 <View style={styles.metaWrap}>
                                                     <Text style={styles.title} numberOfLines={2}>
                                                         {item.title}
@@ -703,12 +738,20 @@ export default function SoloSessionScreen({route}: Props) {
                                                             ))}
                                                         </View>
                                                     ) : null}
-                                                    <Text style={styles.vibeText}>{vibeText}</Text>
                                                     {item.description ? (
-                                                        <Text style={styles.description} numberOfLines={3}>
-                                                            {item.description}
-                                                        </Text>
+                                                        <Pressable
+                                                            onPress={e => {
+                                                                e.stopPropagation();
+                                                                setIsDescriptionExpanded(!isDescriptionExpanded);
+                                                            }}>
+                                                            <Text
+                                                                style={styles.description}
+                                                                numberOfLines={isDescriptionExpanded ? undefined : 3}>
+                                                                {item.description}
+                                                            </Text>
+                                                        </Pressable>
                                                     ) : null}
+                                                    <Text style={styles.vibeText}>{vibeText}</Text>
                                                     <View style={styles.footerMetaRow}>
                                                         <Text style={styles.footerMeta}>{formatRating(item.rating)}</Text>
                                                         <Text style={styles.footerMeta}>{formatDurationLabel(item.duration)}</Text>
@@ -720,7 +763,6 @@ export default function SoloSessionScreen({route}: Props) {
                                                         />
                                                     </View>
                                                 </View>
-
                                                 <View style={styles.rightActions}>
                                                     <View style={styles.actionItemWrap}>
                                                         <Pressable
@@ -787,10 +829,20 @@ export default function SoloSessionScreen({route}: Props) {
                                                         </Pressable>
                                                         <Text style={styles.actionLabel}>Next</Text>
                                                     </View>
-
                                                 </View>
-                                                </View>
+                                            </View>
                                         </LinearGradient>
+                                        {showPopularForInvites ? (
+                                            <View style={styles.popularTag} pointerEvents="none" collapsable={false}>
+                                                <View style={styles.popularTagContent}>
+                                                    <Text style={styles.popularTagEmoji}>🔥</Text>
+                                                    <View style={styles.popularTagTextContainer}>
+                                                        <Text style={styles.popularText}>Popular</Text>
+                                                        <Text style={styles.subPopularText}>for invites</Text>
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        ) : null}
                                     </ImageBackground>
                                 </View>
                             );
@@ -949,28 +1001,8 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
     },
     trailerToggleZone: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 480,
+        flex: 1,
         zIndex: 4,
-    },
-    pausedIndicatorWrap: {
-        ...StyleSheet.absoluteFillObject,
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 2,
-    },
-    pausedIndicatorButton: {
-        width: 70,
-        height: 70,
-        borderRadius: 35,
-        borderWidth: 1.2,
-        borderColor: 'rgba(255,255,255,0.7)',
-        backgroundColor: 'rgba(0,0,0,0.35)',
-        alignItems: 'center',
-        justifyContent: 'center',
     },
     trailerProgressWrap: {
         marginTop: 52,
@@ -1009,7 +1041,6 @@ const styles = StyleSheet.create({
         color: COLORS.WHITE,
     },
     bottomContentWrap: {
-        flex: 1,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-end',
@@ -1095,5 +1126,40 @@ const styles = StyleSheet.create({
     footerMeta: {
         ...FONTS.paragraph6,
         color: 'rgba(255,255,255,0.8)',
+    },
+    popularTag: {
+        position: 'absolute',
+        top: 100,
+        left: 15,
+        zIndex: 50,
+        elevation: 24,
+    },
+    popularTagContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.55)',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.12)',
+        gap: 6,
+    },
+    popularTagEmoji: {
+        fontSize: 18,
+    },
+    popularTagTextContainer: {
+        flexDirection: 'column',
+    },
+    popularText: {
+        ...FONTS.paragraph5,
+        fontWeight: 'bold',
+        color: COLORS.WHITE,
+        lineHeight: 16,
+    },
+    subPopularText: {
+        ...FONTS.paragraph6,
+        color: 'rgba(255, 255, 255, 0.6)',
+        lineHeight: 16,
     },
 });

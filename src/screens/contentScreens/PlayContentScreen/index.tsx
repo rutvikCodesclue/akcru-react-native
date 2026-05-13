@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
     ActivityIndicator,
     View,
@@ -19,12 +19,13 @@ import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import Orientation from 'react-native-orientation-locker';
-import Video from 'react-native-video';
+import Video, {AdEvent as ImaAdEvent, type OnReceiveAdEventData} from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {finishUserWatching, startUserWatching, logUserContentWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
-import {updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {PLAYBACK_EVENT, updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {usePlaybackWatchTimeEvents} from '../../../hooks/usePlaybackWatchTimeEvents';
 import AkcruOpener from '../../../components/AkcruOpener';
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 import {DEV_API_URL} from '@env';
@@ -49,33 +50,63 @@ export default function ContentPlayer({navigation}: Props) {
     const [hasLoggedRecently, setHasLoggedRecently] = useState(false);
     const {user} = useAuthStore();
     const [hasStartedWatching, setHasStartedWatching] = useState(false);
+    const [loadingError, setLoadingError] = useState<string>('');
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'ContentPlayer'>>();
     const movieId = routeParams.params?.id;
     const isEpisode = routeParams.params?.isEpisode; // Add this line to get the isEpisode parameter
     let currentTime = 0;
 
-    const [adLoaded, setAdLoaded] = useState(false);
     const interstitialRef = useRef<InterstitialAd | null>(null);
 
     const [adDone, setAdDone] = useState(false); // interstitial finished (closed/error/fallback)
     const adShownRef = useRef(false); // prevent double show
     const fallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const adOpenGuardTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const openerTransitionDoneRef = useRef(false);
+    const streamAdFallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const streamAdTimerStartedRef = useRef(false);
+    const playback403RetriedRef = useRef(false);
+
+    /** IMA/VMAP stream preroll from API — disable on IMA error or timeout so main film still plays. */
+    const [useStreamAds, setUseStreamAds] = useState(true);
+    const [playbackRemountNonce, setPlaybackRemountNonce] = useState(0);
 
     const isInAdPhaseRef = useRef(true); // true until opener completes -> prevents saving ad time as movie time
 
-    const [adLoading, setAdLoading] = useState(true); // waiting for interstitial to load
-    const [adShowing, setAdShowing] = useState(false); // interstitial currently visible
+    const {syncProgressPosition, onPlaybackPlay, onPlaybackPause, onPlaybackComplete, playbackPositionRef} =
+        usePlaybackWatchTimeEvents({
+            contentId: movieId,
+            isEpisode,
+            suppressPlaybackTrackingRef: isInAdPhaseRef,
+        });
 
-    const PROD_IDS = Platform.select({
-        android: 'ca-app-pub-8264001768347242/2150819252', // <-- your real ANDROID id
-        ios: 'ca-app-pub-8264001768347242/1708251538', // <-- your real iOS id (make a separate unit in AdMob)
-    });
+    const PROD_INTERSTITIAL_ANDROID = 'ca-app-pub-8264001768347242/2150819252';
+    const PROD_INTERSTITIAL_IOS = 'ca-app-pub-8264001768347242/1708251538';
+    const TEST_INTERSTITIAL_ANDROID = 'ca-app-pub-3940256099942544/1033173712';
+    const TEST_INTERSTITIAL_IOS = 'ca-app-pub-3940256099942544/4411468910';
 
-    const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
+    const prodInterstitialId =
+        Platform.OS === 'android'
+            ? PROD_INTERSTITIAL_ANDROID
+            : Platform.OS === 'ios'
+              ? PROD_INTERSTITIAL_IOS
+              : '';
+    const testInterstitialId =
+        Platform.OS === 'android'
+            ? TEST_INTERSTITIAL_ANDROID
+            : Platform.OS === 'ios'
+              ? TEST_INTERSTITIAL_IOS
+              : '';
+    const interstitialUnitId = __DEV__
+        ? TestIds.INTERSTITIAL || testInterstitialId
+        : prodInterstitialId || testInterstitialId;
 
-    // Create & preload interstitial once per mount
+    // Create & preload interstitial once per mount (mirrors EpisodePlayer; avoids stuck "Loading ad" UI)
     useEffect(() => {
-        if (!interstitialUnitId) return;
+        if (!interstitialUnitId) {
+            setAdDone(true);
+            return;
+        }
 
         const ad = InterstitialAd.createForAdRequest(interstitialUnitId, {
             requestNonPersonalizedAdsOnly: true,
@@ -84,12 +115,11 @@ export default function ContentPlayer({navigation}: Props) {
 
         const finishAdPhase = () => {
             if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
-            setAdShowing(false);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
             setAdDone(true);
         };
 
         const offLoaded = ad.addAdEventListener(AdEventType.LOADED, () => {
-            setAdLoading(false);
             if (!adShownRef.current) {
                 ad.show();
                 adShownRef.current = true;
@@ -97,30 +127,30 @@ export default function ContentPlayer({navigation}: Props) {
         });
 
         const offOpened = ad.addAdEventListener(AdEventType.OPENED, () => {
-            setAdShowing(true);
-            setIsMoviePlaying(false); // keep content paused
+            setIsMoviePlaying(false);
+            // Guard against cases where CLOSED never arrives from SDK/device state.
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
+            adOpenGuardTimerRef.current = setTimeout(() => {
+                finishAdPhase();
+            }, 12000);
         });
 
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
             finishAdPhase();
-            ad.load(); // optional: preload next
+            ad.load();
         });
 
         const offError = ad.addAdEventListener(AdEventType.ERROR, () => {
-            setAdLoading(false);
             finishAdPhase();
         });
 
-        // start load
         ad.load();
 
-        // fallback timeout
         fallbackTimerRef.current = setTimeout(() => {
             if (!adShownRef.current) {
-                setAdLoading(false);
                 finishAdPhase();
             }
-        }, 2500);
+        }, 8000);
 
         return () => {
             offLoaded();
@@ -128,15 +158,130 @@ export default function ContentPlayer({navigation}: Props) {
             offClosed();
             offError();
             if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
             interstitialRef.current = null;
         };
     }, [interstitialUnitId]);
 
-    const [loadingError, setLoadingError] = useState<string>('');
+    useEffect(() => {
+        openerTransitionDoneRef.current = false;
+        streamAdTimerStartedRef.current = false;
+        isInAdPhaseRef.current = true;
+        playback403RetriedRef.current = false;
+        setPlaybackRemountNonce(0);
+    }, [movieId]);
 
     useEffect(() => {
-        console.log('Fetching the movie');
+        setUseStreamAds(true);
+    }, [movieId]);
 
+    const clearStreamAdFallbackTimer = useCallback(() => {
+        if (streamAdFallbackTimerRef.current) {
+            clearTimeout(streamAdFallbackTimerRef.current);
+            streamAdFallbackTimerRef.current = null;
+        }
+    }, []);
+
+    const refreshMovieStreamUrl = useCallback(async (): Promise<boolean> => {
+        if (!movieId) {
+            return false;
+        }
+        try {
+            const fresh = await findMovieById(movieId);
+            if (!fresh?.movieURL) {
+                return false;
+            }
+            setMovie(prev => {
+                if (!prev) {
+                    return fresh;
+                }
+                return prev.movieURL === fresh.movieURL ? prev : fresh;
+            });
+            return true;
+        } catch {
+            return false;
+        }
+    }, [movieId]);
+
+    const onVideoError = useCallback(
+        (err: {error?: Record<string, unknown> | string}) => {
+            console.log('Video error:', err);
+            const payload = err?.error;
+            const errStr =
+                typeof payload === 'object' && payload !== null
+                    ? JSON.stringify(payload)
+                    : String(payload ?? err);
+            const is403 =
+                errStr.includes('403') ||
+                errStr.includes('BAD_HTTP_STATUS') ||
+                errStr.includes('22004');
+            if (!movieId || !is403 || playback403RetriedRef.current) {
+                return;
+            }
+            playback403RetriedRef.current = true;
+            void findMovieById(movieId).then(fresh => {
+                if (fresh?.movieURL) {
+                    setMovie(fresh);
+                    setPlaybackRemountNonce(n => n + 1);
+                } else {
+                    setLoadingError('Playback link expired. Please try again.');
+                }
+            });
+        },
+        [movieId],
+    );
+
+    const onReceiveImaAdEvent = useCallback(
+        (e: OnReceiveAdEventData) => {
+            if (e.event === ImaAdEvent.ERROR) {
+                clearStreamAdFallbackTimer();
+                setUseStreamAds(false);
+                return;
+            }
+            if (
+                e.event === ImaAdEvent.STARTED ||
+                e.event === ImaAdEvent.STREAM_LOADED ||
+                e.event === ImaAdEvent.LOADED ||
+                e.event === ImaAdEvent.AD_BREAK_STARTED
+            ) {
+                clearStreamAdFallbackTimer();
+            }
+            if (e.event === ImaAdEvent.CONTENT_RESUME_REQUESTED || e.event === ImaAdEvent.ALL_ADS_COMPLETED) {
+                clearStreamAdFallbackTimer();
+                void (async () => {
+                    setIsMoviePlaying(false);
+                    await refreshMovieStreamUrl();
+                    setIsMoviePlaying(true);
+                })();
+                return;
+            }
+            if (e.event === ImaAdEvent.AD_BREAK_ENDED) {
+                clearStreamAdFallbackTimer();
+                setIsMoviePlaying(true);
+            }
+        },
+        [clearStreamAdFallbackTimer, refreshMovieStreamUrl],
+    );
+
+    useEffect(() => {
+        if (!hasLottieFirstLoopCompleted || !movie?.movieURL || !useStreamAds) {
+            return;
+        }
+        if (streamAdTimerStartedRef.current) {
+            return;
+        }
+        streamAdTimerStartedRef.current = true;
+        clearStreamAdFallbackTimer();
+        streamAdFallbackTimerRef.current = setTimeout(() => {
+            streamAdFallbackTimerRef.current = null;
+            setUseStreamAds(false);
+        }, 20000);
+        return () => {
+            clearStreamAdFallbackTimer();
+        };
+    }, [hasLottieFirstLoopCompleted, movie?.movieURL, useStreamAds, clearStreamAdFallbackTimer]);
+
+    useEffect(() => {
         const fetchMovie = async () => {
             if (movieId) {
                 try {
@@ -164,7 +309,7 @@ export default function ContentPlayer({navigation}: Props) {
         // ✅ Don’t sync/update watchtime if user backs out during ad/opener
         if (!isInAdPhaseRef.current) {
             syncWatchTime();
-            updateWatchTime(movieId, currentTime, isEpisode);
+            updateWatchTime(movieId, playbackPositionRef.current, isEpisode, PLAYBACK_EVENT.EXITED);
         }
 
         Orientation.lockToPortrait();
@@ -238,6 +383,7 @@ export default function ContentPlayer({navigation}: Props) {
         if (isInAdPhaseRef.current) return;
 
         currentTime = Math.floor(data.currentTime);
+        syncProgressPosition(data.currentTime);
 
         if (currentTime) {
             if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
@@ -249,7 +395,7 @@ export default function ContentPlayer({navigation}: Props) {
 
             if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
                 syncWatchTime();
-                updateWatchTime(movieId, currentTime, isEpisode);
+                updateWatchTime(movieId, currentTime, isEpisode, PLAYBACK_EVENT.PROGRESS);
             }
         }
     };
@@ -269,6 +415,8 @@ export default function ContentPlayer({navigation}: Props) {
                 }
             });
         }
+
+        onPlaybackPlay();
     };
 
     const onPause = () => {
@@ -281,11 +429,15 @@ export default function ContentPlayer({navigation}: Props) {
         if (movieId) {
             setLastPlaybackPosition(movieId, currentTime, isEpisode);
         }
+
+        onPlaybackPause();
     };
 
     const onEnd = () => {
         // ✅ If end fires during ad phase for any reason, ignore
         if (isInAdPhaseRef.current) return;
+
+        onPlaybackComplete();
 
         setIsMoviePlaying(false);
         pauseTimer();
@@ -295,7 +447,7 @@ export default function ContentPlayer({navigation}: Props) {
             finishUserWatching(movieId, isEpisode)
                 .then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
-                        const pausedCurrentTime = currentTime;
+                        const pausedCurrentTime = playbackPositionRef.current;
                         setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
                         setHasStartedWatching(false);
 
@@ -324,31 +476,47 @@ export default function ContentPlayer({navigation}: Props) {
         }
     };
 
-    const adTagUrl = `${DEV_API_URL}/v1/video-ads/vmap/main?movieId=${movieId}`;
-
-    // console.log('VMAP_URL_USED:', adTagUrl);
+    const adTagUrl =
+        movieId && DEV_API_URL
+            ? `${DEV_API_URL}/v1/video-ads/vmap/main?movieId=${encodeURIComponent(movieId)}`
+            : '';
 
     return (
         <View style={{flex: 1}}>
             <View style={styles.container}>
                 {!adDone ? (
-                    adLoading && !adShowing ? (
-                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                            <ActivityIndicator size="large" color={COLORS.PURPLE} />
-                            <Text style={{...FONTS.paragraph1, marginTop: 8}}>Loading ad…</Text>
-                        </View>
-                    ) : (
-                        // ✅ Interstitial is showing (or we're transitioning) — don't overlay UI
-                        <View style={{flex: 1, backgroundColor: 'black'}} />
-                    )
+                    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                        <ActivityIndicator size="large" color={COLORS.PURPLE} />
+                        <Text style={{...FONTS.paragraph1, marginTop: 8}}>Loading ad…</Text>
+                    </View>
                 ) : !hasLottieFirstLoopCompleted ? (
                     // PHASE 2: show opener AFTER ad finishes
                     <AkcruOpener
                         onAnimationFinish={() => {
-                            if (!hasLottieFirstLoopCompleted) {
-                                setHasLottieFirstLoopCompleted(true);
-                                isInAdPhaseRef.current = false; // ✅ now we allow movie tracking/seek
-                                setIsMoviePlaying(true);
+                            if (openerTransitionDoneRef.current) return;
+                            openerTransitionDoneRef.current = true;
+                            setHasLottieFirstLoopCompleted(true);
+                            isInAdPhaseRef.current = false;
+                            setIsMoviePlaying(true);
+                            if (movieId) {
+                                void (async () => {
+                                    try {
+                                        const fresh = await findMovieById(movieId);
+                                        if (fresh?.movieURL) {
+                                            setMovie(fresh);
+                                        } else if (!movie?.movieURL) {
+                                            setLoadingError(
+                                                'Failed to prepare playback. The stream link may have expired — please try again.',
+                                            );
+                                        }
+                                    } catch {
+                                        if (!movie?.movieURL) {
+                                            setLoadingError(
+                                                'Failed to prepare playback. Please check your connection and try again.',
+                                            );
+                                        }
+                                    }
+                                })();
                             }
                         }}
                     />
@@ -358,15 +526,16 @@ export default function ContentPlayer({navigation}: Props) {
                         {!loadingError ? (
                             movie && movie.movieURL ? (
                                 <VideoPlayer
+                                    key={`${movie.movieURL}-${useStreamAds ? 'ima' : 'plain'}-${playbackRemountNonce}`}
                                     videoRef={videoRef}
-                                    source={{
-                                        uri: movie.movieURL,
-                                        ad: {
-                                            adTagUrl,
-                                            // 'http://10.0.2.2:3000/v1/video-ads/vmap/main',
-                                            // 'https://pubads.g.doubleclick.net/gampad/ads?sz=640x480|640x360|640x480&iu=/23317898787/app_video_preroll&env=vp&impl=s&gdfp_req=1&output=vast&unviewed_position_start=1&url=[referrer_url]&description_url=[description_url]&correlator=[timestamp]',
-                                        },
-                                    }}
+                                    source={
+                                        useStreamAds && adTagUrl
+                                            ? {
+                                                  uri: movie.movieURL,
+                                                  ad: {adTagUrl},
+                                              }
+                                            : {uri: movie.movieURL}
+                                    }
                                     resizeMode="cover"
                                     tapAnywhereToPause={false}
                                     preventsDisplaySleepDuringVideoPlayback={true}
@@ -381,7 +550,8 @@ export default function ContentPlayer({navigation}: Props) {
                                     onEnd={onEnd}
                                     onLoad={onLoad}
                                     onProgress={onProgress}
-                                    onError={e => console.log('Video error:', e)}
+                                    onReceiveAdEvent={onReceiveImaAdEvent}
+                                    onError={onVideoError}
                                     title={movie.title}
                                 />
                             ) : (

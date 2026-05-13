@@ -1,3 +1,4 @@
+import {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, View, StatusBar, Text, TouchableOpacity, Platform} from 'react-native';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
@@ -15,7 +16,8 @@ import useWatchTimeStore from '../../../stores/watchTime.store';
 import {finishUserWatching, logUserContentWatchHistory, startUserWatching} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
-import {updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {PLAYBACK_EVENT, updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {usePlaybackWatchTimeEvents} from '../../../hooks/usePlaybackWatchTimeEvents';
 import AkcruOpener from '../../../components/AkcruOpener';
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 
@@ -49,6 +51,15 @@ export default function EpisodePlayer({navigation}: Props) {
     const [adDone, setAdDone] = useState(false); // interstitial finished (closed/error/fallback)
     const adShownRef = useRef(false); // show only once
     const fallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const adOpenGuardTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const isInAdPhaseRef = useRef(true);
+
+    const {syncProgressPosition, onPlaybackPlay, onPlaybackPause, onPlaybackComplete, playbackPositionRef} =
+        usePlaybackWatchTimeEvents({
+            contentId: episodeId,
+            isEpisode: true,
+            suppressPlaybackTrackingRef: isInAdPhaseRef,
+        });
 
     // interstitial instance + unit id
     const interstitialRef = useRef<InterstitialAd | null>(null);
@@ -57,6 +68,10 @@ export default function EpisodePlayer({navigation}: Props) {
         ios: 'ca-app-pub-8264001768347242/1708251538',
     });
     const interstitialUnitId = __DEV__ ? TestIds.INTERSTITIAL : PROD_IDS;
+
+    useEffect(() => {
+        isInAdPhaseRef.current = true;
+    }, [episodeId]);
 
     useEffect(() => {
         if (!interstitialUnitId) return;
@@ -68,6 +83,7 @@ export default function EpisodePlayer({navigation}: Props) {
 
         const finishAdPhase = () => {
             if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
             setAdDone(true); // allow opener to show
         };
 
@@ -81,6 +97,10 @@ export default function EpisodePlayer({navigation}: Props) {
         const offOpened = ad.addAdEventListener(AdEventType.OPENED, () => {
             // make sure content stays paused during ad
             setIsEpisodePlaying(false);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
+            adOpenGuardTimerRef.current = setTimeout(() => {
+                finishAdPhase();
+            }, 12000);
         });
 
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
@@ -106,6 +126,7 @@ export default function EpisodePlayer({navigation}: Props) {
             offClosed();
             offError();
             if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
             interstitialRef.current = null;
         };
     }, [interstitialUnitId]);
@@ -126,8 +147,8 @@ export default function EpisodePlayer({navigation}: Props) {
         syncWatchTime();
 
         if (episodeId) {
-            updateWatchTime(episodeId, currentTime, true);
-            setLastPlaybackPosition(episodeId, currentTime, true);
+            updateWatchTime(episodeId, playbackPositionRef.current, true, PLAYBACK_EVENT.EXITED);
+            setLastPlaybackPosition(episodeId, playbackPositionRef.current, true);
         }
 
         if (hasStartedWatching && episodeId) {
@@ -250,6 +271,7 @@ export default function EpisodePlayer({navigation}: Props) {
 
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
+        syncProgressPosition(data.currentTime);
         if (episodeId && currentTime % 10 === 0 && !hasLoggedRecently) {
             setLastPlaybackPosition(episodeId, currentTime, true);
             setHasLoggedRecently(true);
@@ -258,7 +280,7 @@ export default function EpisodePlayer({navigation}: Props) {
         }
         if (episodeId && currentTime % 60 === 0 && !hasLoggedRecently) {
             syncWatchTime();
-            updateWatchTime(episodeId, currentTime, true);
+            updateWatchTime(episodeId, currentTime, true, PLAYBACK_EVENT.PROGRESS);
         }
     };
 
@@ -286,6 +308,8 @@ export default function EpisodePlayer({navigation}: Props) {
                     console.error('Error in startUserWatching:', error);
                 });
         }
+
+        onPlaybackPlay();
     };
 
     const onPause = () => {
@@ -293,13 +317,18 @@ export default function EpisodePlayer({navigation}: Props) {
         setIsEpisodePlaying(false);
         pauseTimer();
         if (episodeId) {
-            const pausedCurrentTime = currentTime;
-            setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
+            setLastPlaybackPosition(episodeId, playbackPositionRef.current, true);
         }
+
+        onPlaybackPause();
     };
 
     const onEnd = () => {
         console.log('onEnd called');
+
+        if (!isInAdPhaseRef.current) {
+            onPlaybackComplete();
+        }
         setIsEpisodePlaying(false);
         pauseTimer();
         resetTimer();
@@ -312,7 +341,7 @@ export default function EpisodePlayer({navigation}: Props) {
                     if (finishedSuccessfully) {
                         logUserContentWatchHistory(user.id, episodeId, true)
                             .then(() => {
-                                const pausedCurrentTime = currentTime;
+                                const pausedCurrentTime = playbackPositionRef.current;
                                 setLastPlaybackPosition(episodeId, pausedCurrentTime, true);
                                 setHasStartedWatching(false);
                                 Orientation.lockToPortrait();
@@ -355,6 +384,7 @@ export default function EpisodePlayer({navigation}: Props) {
                         onAnimationFinish={() => {
                             if (!hasLottieFirstLoopCompleted) {
                                 setHasLottieFirstLoopCompleted(true);
+                                isInAdPhaseRef.current = false;
                                 setIsEpisodePlaying(true); // start episode right after opener
                             }
                         }}

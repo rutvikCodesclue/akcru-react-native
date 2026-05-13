@@ -115,6 +115,7 @@ export interface IMovie {
     buyPrice?: string; // BigInt serialized as string
     rentCount: number;
     buyCount: number;
+    mitAcceptCount?: number;
 }
 
 export interface IGenreItem {

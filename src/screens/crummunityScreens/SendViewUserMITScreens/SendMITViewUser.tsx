@@ -28,6 +28,7 @@ type Props = {
 
 const SendMITViewUser = ({route, navigation}: Props) => {
     const userID: string | undefined = route.params?.userID ?? route.params?.userid ?? null;
+    const receiverUser: IUserProfile | undefined = (route.params as any)?.receiverUser;
     const rawIsFromChangeMovie = route.params?.isFromChangeMovie;
     const isFromChangeMovie = rawIsFromChangeMovie === true || rawIsFromChangeMovie === 'true';
     const inviteId: string | undefined = route.params?.inviteId ? String(route.params.inviteId) : undefined;
@@ -37,15 +38,19 @@ const SendMITViewUser = ({route, navigation}: Props) => {
 
     useFocusEffect(
         React.useCallback(() => {
+            if (receiverUser) {
+                setUser(receiverUser);
+                return () => {};
+            }
             findAUser({id: userID}).then(user => {
                 setUser(user);
             });
 
             return () => {};
-        }, [userID]),
+        }, [receiverUser, userID]),
     );
 
-    const [user, setUser] = useState<IUserProfile | undefined>(undefined);
+    const [user, setUser] = useState<IUserProfile | undefined>(receiverUser);
 
     const [genres, setGenres] = React.useState<IGenreItem[]>([]);
     const [loading, setIsLoading] = React.useState(true);
@@ -77,6 +82,7 @@ const SendMITViewUser = ({route, navigation}: Props) => {
             // Use route param directly so userID is always available.
             userID: userID,
             userName: user?.username,
+            receiverUser: user,
             isFromChangeMovie: Boolean(isFromChangeMovie),
             inviteId,
             currentMovieId,
@@ -98,6 +104,7 @@ const SendMITViewUser = ({route, navigation}: Props) => {
 
                         <SendMITSearchInput
                             userid={userID}
+                            receiverUser={user}
                             isFromChangeMovie={isFromChangeMovie}
                             inviteId={inviteId}
                             currentMovieId={currentMovieId}

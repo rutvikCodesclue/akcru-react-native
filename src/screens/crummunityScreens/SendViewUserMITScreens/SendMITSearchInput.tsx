@@ -20,11 +20,12 @@ import LinearGradient from 'react-native-linear-gradient';
 import filter from 'lodash/filter';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {findMovies} from '../../../lib/api/movies.lib';
-import {IMovie} from '../../../../types';
+import {IMovie, IUserProfile} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 
 type SendMITSearchInputProps = {
     userid?: string;
+    receiverUser?: IUserProfile;
     isFromChangeMovie?: boolean;
     inviteId?: string;
     currentMovieId?: string;
@@ -32,6 +33,7 @@ type SendMITSearchInputProps = {
 
 const SendMITSearchInput = ({
     userid,
+    receiverUser,
     isFromChangeMovie = false,
     inviteId,
     currentMovieId,
@@ -169,8 +171,10 @@ const SendMITSearchInput = ({
                                                 Keyboard.dismiss;
                                                 navigation.navigate('SendMITSchedule', {
                                                     id: item.id,
-                                                    movie: item.id,
+                                                    movieData: item,
+                                                    movie: item.title,
                                                     userID: userid,
+                                                    receiverUser,
                                                     isFromChangeMovie: Boolean(normalizedIsFromChangeMovie),
                                                     inviteId,
                                                     currentMovieId,

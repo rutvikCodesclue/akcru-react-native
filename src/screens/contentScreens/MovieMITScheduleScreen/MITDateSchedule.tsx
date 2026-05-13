@@ -15,6 +15,7 @@ import {
     Easing,
     BackHandler,
     StatusBar,
+    ToastAndroid,
 } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
 import styles from './styles';
@@ -23,10 +24,8 @@ import Header from '../../../components/header';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants/index';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {CommonActions, RouteProp, useFocusEffect} from '@react-navigation/native';
-import {findAUser} from '../../../lib/api/user.lib';
 import {searchForUsers} from '../../../lib/api/user.lib';
 import {IMITInvite, IMovie, IUserProfile} from '../../../../types';
-import {findMovieById} from '../../../lib/api/movies.lib';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {
@@ -110,8 +109,32 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     );
     const loggedInUser = useAuthStore(state => state.user);
     const id: string | undefined = route.params?.id ?? null;
-    const [movie, setMovie] = useState<IMovie | null>(null);
-    const [user, setUser] = useState<IUserProfile | undefined>(undefined);
+    const receiverUserFromParams: IUserProfile | undefined = (route.params as any)?.receiverUser;
+    const [movie] = useState<IMovie | null>(() => {
+        const movieData = (route.params as any)?.movieData as IMovie | undefined;
+        if (movieData?.id) {
+            return movieData;
+        }
+        if (!id) {
+            return null;
+        }
+        return {
+            id,
+            title: (route.params as any)?.title ?? '',
+            description: (route.params as any)?.description ?? '',
+            actors: (route.params as any)?.actors ?? [],
+            director: (route.params as any)?.director ?? [],
+            genres: (route.params as any)?.genres ?? [],
+            portraitURL: (route.params as any)?.portraitURL ?? '',
+            landscapeURL: (route.params as any)?.landscapeURL ?? '',
+            trailerURL: (route.params as any)?.trailerURL ?? '',
+            rating: (route.params as any)?.rating ?? '',
+            year: (route.params as any)?.year ?? '',
+            rated: (route.params as any)?.rated ?? '',
+            duration: (route.params as any)?.duration ?? 0,
+        } as IMovie;
+    });
+    const [user] = useState<IUserProfile | undefined>(receiverUserFromParams ?? undefined);
     const [data, setData] = useState<IUserProfile[] | []>([]);
 
     // Interstitial setup
@@ -173,45 +196,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         };
     }, [interstitialUnitId, navigation]);
 
-    useEffect(() => {
-        const fetchMovieData = async () => {
-            try {
-                if (id) {
-                    const fetchedMovie: IMovie | null = await findMovieById(id);
-                    if (fetchedMovie) {
-                        setMovie(fetchedMovie);
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching movie data:', error);
-            }
-        };
-
-        fetchMovieData();
-    }, [id]);
-
-    const userID: string | undefined = route.params?.userId ?? null;
-
-    useFocusEffect(
-        React.useCallback(() => {
-            const fetchUserData = async () => {
-                try {
-                    if (userID) {
-                        const fetchedUser: IUserProfile | undefined = await findAUser({id: userID});
-                        if (fetchedUser) {
-                            setUser(fetchedUser);
-                        }
-                    }
-                } catch (error) {
-                    console.error('Error fetching user data:', error);
-                }
-            };
-
-            if (userID) {
-                fetchUserData();
-            }
-        }, [userID, setUser]),
-    );
+    const userID: string | undefined = route.params?.userId ?? receiverUserFromParams?.id ?? null;
 
     const [textInputFocused, setTextInputFocused] = useState(false);
     const textInputRef = useRef(null);
@@ -242,8 +227,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             name: match.username || fallbackName || 'Unknown User',
             match: match.matchLabel?.trim() || defaultMatchLabel,
             desc: getArchetypeDescription(match.archetype),
-            // Unified matches API currently does not include badge.
-            badge: '',
+            badge: match.badge ?? '',
             profilePicture: match.profilePicture ?? '',
         };
     };
@@ -272,12 +256,6 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             setArchetypeProfiles([]);
         }
     };
-
-    useFocusEffect(
-        React.useCallback(() => {
-            fetchUnifiedMatchesData();
-        }, []),
-    );
 
     type DiscoveryCardSelection =
         | {kind: 'showcase'; id: string}
@@ -308,7 +286,17 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }
     };
 
-    const [scheduleIsShown, setScheduleIsShown] = useState(false);
+    // If invitee is already known from route params (e.g. SendMITSearchResult flow),
+    // open directly on schedule UI to avoid selection-screen flicker.
+    const [scheduleIsShown, setScheduleIsShown] = useState(Boolean(userID || receiverUserFromParams?.id));
+
+    useFocusEffect(
+        React.useCallback(() => {
+            if (!scheduleIsShown) {
+                fetchUnifiedMatchesData();
+            }
+        }, [scheduleIsShown]),
+    );
 
     const [selectedUserName, setSelectedUserName] = useState('');
     const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] = useState('');
@@ -323,13 +311,14 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     const applySelectedInvitee = (username: string, badge: string, profilePicture: string) => {
         //console.log('Item with username', username, badge, 'pressed!');
         //console.log('Item with movie title', movie?.title, movie?.year, 'pressed!');
-        const borderColor = selectAvatarBorderColor(badge);
+        const normalizedBadge = (badge ?? '').trim().toUpperCase();
+        const borderColor = selectAvatarBorderColor(normalizedBadge);
 
         setSelectedUserName(username);
-        setSelectedAkcruBadgeAkcruit(badge);
-        setSelectedAkcruBadgeGuardian(badge);
-        setSelectedAkcruBadgeHero(badge);
-        setSelectedAkcruBadgeSuperHero(badge);
+        setSelectedAkcruBadgeAkcruit(normalizedBadge);
+        setSelectedAkcruBadgeGuardian(normalizedBadge);
+        setSelectedAkcruBadgeHero(normalizedBadge);
+        setSelectedAkcruBadgeSuperHero(normalizedBadge);
         setSelectedUserPicture(profilePicture);
         setSelectedUser(true);
 
@@ -350,7 +339,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
             );
             return;
         }
-        applySelectedInvitee(selectedInvitee.username, selectedInvitee.badge, selectedInvitee.profilePicture);
+        applySelectedInvitee(selectedInvitee.username, selectedInvitee.badge ?? '', selectedInvitee.profilePicture);
         setScheduleIsShown(true);
     };
 
@@ -804,6 +793,18 @@ const MITDateSchedule = ({route, navigation}: Props) => {
 //                runCinematicAnimationPreview(handleInviteSuccessFlow);
                 playSendMITVideoThen(handleInviteSuccessFlow);
             } else {
+                if (response.code === 'INSUFFICIENT_AD') {
+                    setIsSelectionDisabled(false);
+                    setIsSendingInvite(false);
+                    const message =
+                        response.message?.trim() ||
+                        'You have no MIT tickets and not enough AD to send this invite.';
+                    ToastAndroid.show(message, ToastAndroid.SHORT);
+                    setTimeout(() => {
+                        navigation.navigate('PurchaseAdScreen');
+                    }, 120);
+                    return;
+                }
                 setIsSelectionDisabled(false);
                 setIsSendingInvite(false);
                 const failedMessage =

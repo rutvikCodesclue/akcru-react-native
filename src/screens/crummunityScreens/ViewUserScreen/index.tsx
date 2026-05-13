@@ -711,7 +711,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     variant="auth"
                                     btnname="Send MIT"
                                     color={COLORS.AKCRUBLUE}
-                                    onPress={() => navigation.navigate('SendMITViewUser', {userID})}
+                                    onPress={() => navigation.navigate('SendMITViewUser', {userID, receiverUser: user})}
                                     authButtonWidth={SIZES.ScreenWidth - 84}
                                     authLeftImage={require('../../../../assets/images/mit_ticket_image.png')}
                                     authImagePosition="left"

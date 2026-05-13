@@ -1,11 +1,27 @@
 import {API} from '../../clients/api.client';
 import useAuthStore from '../../stores/auth.store';
 
-export const updateWatchTime = async (id: string, watchTime: number, isEpisode: boolean = false): Promise<boolean> => {
+export const PLAYBACK_EVENT = {
+    STARTED: 'PLAYBACK_STARTED',
+    PROGRESS: 'PLAYBACK_PROGRESS',
+    PAUSED: 'PLAYBACK_PAUSED',
+    RESUMED: 'PLAYBACK_RESUMED',
+    COMPLETED: 'PLAYBACK_COMPLETED',
+    EXITED: 'PLAYBACK_EXITED',
+} as const;
+
+export type PlaybackEventValue = (typeof PLAYBACK_EVENT)[keyof typeof PLAYBACK_EVENT];
+
+export const updateWatchTime = async (
+    id: string,
+    watchTime: number,
+    isEpisode: boolean = false,
+    eventType: PlaybackEventValue = PLAYBACK_EVENT.PROGRESS,
+): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
     const endpoint = isEpisode ? `/v1/watchtime/episode/${id}` : `/v1/watchtime/movie/${id}`;
     try {
-        const response = await API.put(endpoint, {watchTime});
+        const response = await API.put(endpoint, {watchTime, eventType});
         return response.data.success;
     } catch (error) {
         console.error('Error updating watch time:', error);

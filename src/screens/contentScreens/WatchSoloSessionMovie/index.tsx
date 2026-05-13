@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {
     ActivityIndicator,
     View,
@@ -9,7 +9,6 @@ import {
     BackHandler,
     Platform,
 } from 'react-native';
-import {Snackbar, Portal} from 'react-native-paper';
 import styles from './styles';
 import VideoPlayer from 'react-native-media-console';
 import {useRoute, useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -20,12 +19,13 @@ import {IMovie} from '../../../../types';
 import {findMovieById} from '../../../lib/api/movies.lib';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import Orientation from 'react-native-orientation-locker';
-import Video from 'react-native-video';
+import Video, {AdEvent as ImaAdEvent, type OnReceiveAdEventData} from 'react-native-video';
 import useWatchTimeStore from '../../../stores/watchTime.store';
 import {finishUserWatching, startUserWatching, logUserContentWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
-import {updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {PLAYBACK_EVENT, updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {usePlaybackWatchTimeEvents} from '../../../hooks/usePlaybackWatchTimeEvents';
 import AkcruOpener from '../../../components/AkcruOpener';
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 import {DEV_API_URL} from '@env';
@@ -65,21 +65,53 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
     const [adDone, setAdDone] = useState(false);
     const adShownRef = useRef(false);
     const fallbackTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const adOpenGuardTimerRef = useRef<NodeJS.Timeout | null>(null);
 
     const isInAdPhaseRef = useRef(true);
+
+    const {syncProgressPosition, onPlaybackPlay, onPlaybackPause, onPlaybackComplete, playbackPositionRef} =
+        usePlaybackWatchTimeEvents({
+            contentId: movieId,
+            isEpisode,
+            suppressPlaybackTrackingRef: isInAdPhaseRef,
+        });
 
     const [adLoading, setAdLoading] = useState(true);
     const [adShowing, setAdShowing] = useState(false);
     const [showCompletionModal, setShowCompletionModal] = useState(false);
     const [showPauseModal, setShowPauseModal] = useState(false);
     const [duration, setDuration] = useState<number>(0);
-    const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-    const [shownPercentages, setShownPercentages] = useState<number[]>([]);
-    const [currentPercent, setCurrentPercent] = useState<number>(0);
+    /** True while Google IMA stream ads are playing (not the app interstitial / opener). */
+    const [isImaStreamAdActive, setIsImaStreamAdActive] = useState(false);
+    const isImaStreamAdActiveRef = useRef(false);
 
-
-
+    const onReceiveImaAdEvent = useCallback((e: OnReceiveAdEventData) => {
+        let next: boolean | null = null;
+        switch (e.event) {
+            case ImaAdEvent.CONTENT_PAUSE_REQUESTED:
+            case ImaAdEvent.STARTED:
+            case ImaAdEvent.AD_BREAK_STARTED:
+            case ImaAdEvent.AD_PERIOD_STARTED:
+                next = true;
+                break;
+            case ImaAdEvent.CONTENT_RESUME_REQUESTED:
+            case ImaAdEvent.ALL_ADS_COMPLETED:
+            case ImaAdEvent.AD_BREAK_ENDED:
+            case ImaAdEvent.AD_PERIOD_ENDED:
+            case ImaAdEvent.SKIPPED:
+            case ImaAdEvent.USER_CLOSE:
+            case ImaAdEvent.ERROR:
+                next = false;
+                break;
+            default:
+                break;
+        }
+        if (next === null) {
+            return;
+        }
+        isImaStreamAdActiveRef.current = next;
+        setIsImaStreamAdActive(next);
+    }, []);
     const PROD_IDS = Platform.select({
         android: 'ca-app-pub-8264001768347242/2150819252',
         ios: 'ca-app-pub-8264001768347242/1708251538',
@@ -97,6 +129,7 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
 
         const finishAdPhase = () => {
             if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
             setAdShowing(false);
             setAdDone(true);
         };
@@ -112,6 +145,10 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
         const offOpened = ad.addAdEventListener(AdEventType.OPENED, () => {
             setAdShowing(true);
             setIsMoviePlaying(false);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
+            adOpenGuardTimerRef.current = setTimeout(() => {
+                finishAdPhase();
+            }, 12000);
         });
 
         const offClosed = ad.addAdEventListener(AdEventType.CLOSED, () => {
@@ -139,6 +176,7 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
             offClosed();
             offError();
             if (fallbackTimerRef.current) clearTimeout(fallbackTimerRef.current);
+            if (adOpenGuardTimerRef.current) clearTimeout(adOpenGuardTimerRef.current);
             interstitialRef.current = null;
         };
     }, [interstitialUnitId]);
@@ -146,7 +184,7 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
     const [loadingError, setLoadingError] = useState<string>('');
 
     useEffect(() => {
-        console.log('Fetching the movie');
+        isInAdPhaseRef.current = true;
 
         const fetchMovie = async () => {
             if (movieId) {
@@ -165,14 +203,22 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
         };
 
         fetchMovie();
-    }, [movieId, hasStartedWatching, resetTimer, pauseTimer]);
+        Orientation.lockToLandscape();
+        StatusBar.setHidden(true);
+        // Only re-run when movie changes — do not depend on hasStartedWatching or timers, or
+        // isInAdPhaseRef flips back to true after playback starts and blocks onProgress / pause UI.
+        return () => {
+            isImaStreamAdActiveRef.current = false;
+            setIsImaStreamAdActive(false);
+        };
+    }, [movieId]);
 
     const onBack = () => {
         onPause();
 
         if (!isInAdPhaseRef.current) {
             syncWatchTime();
-            updateWatchTime(movieId, currentTime, isEpisode);
+            updateWatchTime(movieId, playbackPositionRef.current, isEpisode, PLAYBACK_EVENT.EXITED);
         }
 
         Orientation.lockToPortrait();
@@ -223,13 +269,17 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
         }, [isMoviePlaying, pauseTimer, isFocused, resetTimer]),
     );
 
-    const onLoad = (data: any) => {
-        console.log('Video Load Data:', data);
+    const onLoad = (data: {duration?: number; seekableDuration?: number}) => {
         StatusBar.setHidden(true);
 
-        if (data && data.duration) {
-            console.log('Setting Duration:', data.duration);
-            setDuration(data.duration);
+        const loaded =
+            typeof data?.duration === 'number' && data.duration > 0
+                ? data.duration
+                : typeof data?.seekableDuration === 'number' && data.seekableDuration > 0
+                  ? data.seekableDuration
+                  : 0;
+        if (loaded > 0 && !isImaStreamAdActiveRef.current) {
+            setDuration(loaded);
         }
 
         if (isInAdPhaseRef.current) return;
@@ -243,42 +293,39 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
         }
     };
 
-    const onProgress = (data: {currentTime: number}) => {
+    const onProgress = (data: {
+        currentTime: number;
+        playableDuration?: number;
+        seekableDuration?: number;
+    }) => {
         if (isInAdPhaseRef.current) return;
+        if (isImaStreamAdActiveRef.current) return;
 
-        currentTime = Math.floor(data.currentTime);
+        const t = Math.floor(data.currentTime);
+        currentTime = t;
+        syncProgressPosition(data.currentTime);
 
-        if (currentTime) {
-            if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
-                setLastPlaybackPosition(movieId, currentTime, isEpisode);
+        const seekable = data.seekableDuration ?? 0;
+        const playable = data.playableDuration ?? 0;
+        const inferredDuration = duration > 0 ? duration : Math.max(seekable, playable);
+        if (duration <= 0 && inferredDuration > 0) {
+            setDuration(inferredDuration);
+        }
+        if (inferredDuration > 0) {
+            // Duration can still be inferred for seek/playback logic,
+            // but we no longer show any percentage progress UI.
+        }
+
+        if (t) {
+            if (movieId && t % 10 === 0 && !hasLoggedRecently) {
+                setLastPlaybackPosition(movieId, t, isEpisode);
                 setHasLoggedRecently(true);
-            } else if (currentTime % 10 !== 0) {
+            } else if (t % 10 !== 0) {
                 setHasLoggedRecently(false);
             }
 
-            if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
+            if (movieId && t % 60 === 0 && !hasLoggedRecently) {
                 syncWatchTime();
-                updateWatchTime(movieId, currentTime, isEpisode);
-            }
-
-            // Milestone snackbars
-            if (duration > 0) {
-                const percent = Math.floor((data.currentTime / duration) * 100);
-                setCurrentPercent(percent);
-
-                const milestones = [10, 25, 50, 75, 90];
-                // Find milestones that are reached but not yet shown
-                const applicableMilestones = milestones.filter(m => percent >= m && !shownPercentages.includes(m));
-
-                if (applicableMilestones.length > 0) {
-                    // Pick the highest one reached to avoid showing multiple in a row if seeking
-                    const hitMilestone = Math.max(...applicableMilestones);
-
-                    console.log('Milestone Triggered:', hitMilestone, 'Current Percent:', percent);
-                    setShownPercentages(prev => [...prev, hitMilestone]);
-                    setSnackbarMessage(`you played video ${hitMilestone}%`);
-                    setSnackbarVisible(true);
-                }
             }
         }
     };
@@ -297,6 +344,8 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
                 }
             });
         }
+
+        onPlaybackPlay();
     };
 
     const onPause = () => {
@@ -306,15 +355,19 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
         if (isInAdPhaseRef.current) return;
 
         if (movieId) {
-            setLastPlaybackPosition(movieId, currentTime, isEpisode);
+            setLastPlaybackPosition(movieId, playbackPositionRef.current, isEpisode);
         }
 
         setShowPauseModal(true);
+
+        onPlaybackPause();
     };
 
 
     const onEnd = () => {
         if (isInAdPhaseRef.current) return;
+
+        onPlaybackComplete();
 
         setIsMoviePlaying(false);
         pauseTimer();
@@ -324,7 +377,7 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
             finishUserWatching(movieId, isEpisode)
                 .then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
-                        const pausedCurrentTime = currentTime;
+                        const pausedCurrentTime = playbackPositionRef.current;
                         setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
                         setHasStartedWatching(false);
 
@@ -361,7 +414,7 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
     const handleSendInvite = () => {
         setShowCompletionModal(false);
         if (movie) {
-            navigation.navigate('MITDateSchedule', {id: movie.id});
+            navigation.navigate('SendMITSchedule', {id: movie.id, movieData: movie});
         }
     };
 
@@ -427,14 +480,10 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
                                         onEnd={onEnd}
                                         onLoad={onLoad}
                                         onProgress={onProgress}
+                                        onReceiveAdEvent={onReceiveImaAdEvent}
                                         onError={e => console.log('Video error:', e)}
                                         title={movie.title}
                                     />
-                                    <View style={{position: 'absolute', top: 20, width: '100%', alignItems: 'center', zIndex: 1000}} pointerEvents="none">
-                                        <Text style={{color: COLORS.WHITE, backgroundColor: 'rgba(0,0,0,0.6)', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, ...FONTS.Title1}}>
-                                            Progress: {currentPercent}%
-                                        </Text>
-                                    </View>
                                 </>
                             ) : (
                                 <ActivityIndicator size="large" color={COLORS.BLACK} />
@@ -471,27 +520,15 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
                     onSendInvite={() => {
                         setShowPauseModal(false);
                         if (movie) {
-                            navigation.navigate('MITDateSchedule', {
+                            navigation.navigate('SendMITSchedule', {
                                 id: movie.id,
+                                movieData: movie,
                             });
                         }
                     }}
                     movie={movie}
                 />
             </View>
-            <Portal>
-                <Snackbar
-                    visible={snackbarVisible}
-                    onDismiss={() => setSnackbarVisible(false)}
-                    duration={3000}
-                    style={{backgroundColor: COLORS.PURPLE}}
-                    action={{
-                        label: 'Close',
-                        onPress: () => setSnackbarVisible(false),
-                    }}>
-                    <Text style={{color: COLORS.WHITE, ...FONTS.paragraph2}}>{snackbarMessage}</Text>
-                </Snackbar>
-            </Portal>
         </View>
 
 

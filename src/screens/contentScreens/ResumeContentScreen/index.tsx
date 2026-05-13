@@ -15,7 +15,8 @@ import useWatchTimeStore from '../../../stores/watchTime.store';
 import {finishUserWatching, startUserWatching, logUserContentWatchHistory} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
-import {updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {PLAYBACK_EVENT, updateWatchTime} from '../../../lib/api/watchtime.lib';
+import {usePlaybackWatchTimeEvents} from '../../../hooks/usePlaybackWatchTimeEvents';
 
 type ResumePlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ContentPlayer'>;
 
@@ -40,6 +41,14 @@ export default function ResumePlayer({navigation}: Props) {
     const movieId = routeParams.params?.id;
     let currentTime = 0;
     const isEpisode = routeParams.params?.isEpisode; // Add this line to get the isEpisode parameter
+
+    const suppressPlaybackTrackingRef = useRef(false);
+    const {syncProgressPosition, onPlaybackPlay, onPlaybackPause, onPlaybackComplete, playbackPositionRef} =
+        usePlaybackWatchTimeEvents({
+            contentId: movieId,
+            isEpisode,
+            suppressPlaybackTrackingRef,
+        });
 
     const [loadingError, setLoadingError] = useState<string>('');
 
@@ -113,6 +122,7 @@ export default function ResumePlayer({navigation}: Props) {
 
     const onProgress = (data: {currentTime: number}) => {
         currentTime = Math.floor(data.currentTime);
+        syncProgressPosition(data.currentTime);
         if (movieId && currentTime % 10 === 0 && !hasLoggedRecently) {
             setLastPlaybackPosition(movieId, currentTime, isEpisode);
             setHasLoggedRecently(true);
@@ -121,7 +131,7 @@ export default function ResumePlayer({navigation}: Props) {
         }
         if (movieId && currentTime % 60 === 0 && !hasLoggedRecently) {
             syncWatchTime();
-            updateWatchTime(movieId, currentTime, isEpisode);
+            updateWatchTime(movieId, currentTime, isEpisode, PLAYBACK_EVENT.PROGRESS);
         }
     };
 
@@ -138,6 +148,8 @@ export default function ResumePlayer({navigation}: Props) {
                 }
             });
         }
+
+        onPlaybackPlay();
     };
     const onPause = () => {
         setIsMoviePlaying(false);
@@ -147,9 +159,13 @@ export default function ResumePlayer({navigation}: Props) {
 
             setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
         }
+
+        onPlaybackPause();
     };
 
     const onEnd = () => {
+        onPlaybackComplete();
+
         setIsMoviePlaying(false);
         pauseTimer();
         resetTimer();
@@ -158,7 +174,7 @@ export default function ResumePlayer({navigation}: Props) {
             finishUserWatching(movieId, isEpisode)
                 .then(finishedSuccessfully => {
                     if (finishedSuccessfully) {
-                        const pausedCurrentTime = currentTime;
+                        const pausedCurrentTime = playbackPositionRef.current;
                         setLastPlaybackPosition(movieId, pausedCurrentTime, isEpisode);
                         setHasStartedWatching(false);
 

@@ -3,13 +3,12 @@ import React, {useEffect, useState} from 'react';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import BasicMovieCard from '../../../components/BasicMovieCard';
 import SendMITSearchInput from './SendMITSearchInput';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
+import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {IMovie, IUserProfile} from '../../../../types';
 import {findMovies} from '../../../lib/api/movies.lib';
-import {findAUser} from '../../../lib/api/user.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import styles from '../../contentScreens/PlayContentScreen/styles';
 import BackButton from '../../../components/General/backbutton';
@@ -31,22 +30,13 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
     const currentMovieId: string | undefined = route.params?.currentMovieId
         ? String(route.params.currentMovieId)
         : undefined;
+    const receiverUser: IUserProfile | undefined = (route.params as any)?.receiverUser;
 
     const [selectedGenre, setSelectedGenre] = useState('');
 
     const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
 
-    useFocusEffect(
-        React.useCallback(() => {
-            findAUser({id: userID}).then(user => {
-                setUser(user);
-            });
-
-            return () => {};
-        }, []),
-    );
-
-    const [user, setUser] = useState<IUserProfile | undefined>(undefined);
+    const [user] = useState<IUserProfile | undefined>(receiverUser);
 
     useEffect(() => {
         if (route.params && route.params.genre) {
@@ -100,6 +90,7 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
                     <View style={styles.backbutton}>
                         <SendMITSearchInput
                             userid={userID}
+                            receiverUser={receiverUser}
                             isFromChangeMovie={isFromChangeMovie}
                             inviteId={inviteId}
                             currentMovieId={currentMovieId}
@@ -147,9 +138,11 @@ const SendMITSearchResult = ({navigation, route}: Props) => {
                                             onPress={() => {
                                                 navigation.navigate('SendMITSchedule', {
                                                     id: item.id,
+                                                    movieData: item,
                                                     movie: item.title,
-                                                    userID: user?.id,
+                                                    userID: user?.id ?? userID,
                                                     userName: user?.username,
+                                                    receiverUser: user ?? receiverUser,
                                                     isFromChangeMovie: Boolean(isFromChangeMovie),
                                                     inviteId,
                                                     currentMovieId,

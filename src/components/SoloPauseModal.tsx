@@ -22,7 +22,24 @@ const SoloPauseModal = ({
     const isLandscape = width > height;
 
     if (!movie) {
-        return null;
+        return (
+            <Modal
+                transparent
+                animationType="fade"
+                visible={visible}
+                onRequestClose={onClose}
+                supportedOrientations={['portrait', 'landscape']}>
+                <View style={styles.modalOverlay}>
+                    <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+                    <View style={[styles.modalContainer, {padding: 24, minWidth: 280}]}>
+                        <Text style={[styles.heading, {marginBottom: 20}]}>Paused</Text>
+                        <Pressable onPress={onClose} style={[styles.dismissButton, {height: 48}]}>
+                            <Text style={styles.dismissButtonText}>Resume</Text>
+                        </Pressable>
+                    </View>
+                </View>
+            </Modal>
+        );
     }
 
     const tags = (movie.genres ?? []).slice(0, 3);
