@@ -93,6 +93,7 @@ type PostStats = {
 type PostType = {
     id: string;
     content: any;
+    allowComments?: boolean;
     author: User;
     createdAt: string;
     numberOfComments?: number;
@@ -560,15 +561,18 @@ const PostCard = ({
                         comments={post._count?.comments ?? 0}
                         mitCount={currentUserMITTickets}
                         isLiked={!!post.isLikedByCurrentUser}
+                        allowComments={post.allowComments !== false}
                         onLike={() => onLikeOrUnlike(+post.id)}
                         onComment={CommentOnPostButton}
                         onMit={openCrummunityMIT}
                     />
 
-                    <Pressable onPress={CommentOnPostButton} style={styles.commentBar}>
-                        <Text style={styles.commentPlaceholder}>Add a comment...</Text>
-                        <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
-                    </Pressable>
+                    {post.allowComments !== false ? (
+                        <Pressable onPress={CommentOnPostButton} style={styles.commentBar}>
+                            <Text style={styles.commentPlaceholder}>Add a comment...</Text>
+                            <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
+                        </Pressable>
+                    ) : null}
 
                     <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
                         <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>

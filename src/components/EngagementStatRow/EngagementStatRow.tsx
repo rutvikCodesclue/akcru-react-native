@@ -11,7 +11,7 @@ const MIT_GLOW_PINK = '#ff4fd8';
 const MIT_GLOW_PURPLE = '#9b59b6';
 
 /** Same box for like / comment / MIT so icons align on one horizontal line */
-const ACTION_ICON_SLOT = 76;
+const ACTION_ICON_SLOT = 58;
 
 export const formatEngagementCount = (n: number | undefined): string => {
     const v = n ?? 0;
@@ -42,6 +42,7 @@ export type EngagementStatRowProps = {
     comments: number;
     mitCount: number;
     isLiked: boolean;
+    allowComments?: boolean;
     onLike: () => void;
     onComment: () => void;
     onMit: () => void;
@@ -55,6 +56,7 @@ const EngagementStatRow = ({
     comments,
     mitCount,
     isLiked,
+    allowComments = true,
     onLike,
     onComment,
     onMit,
@@ -71,59 +73,67 @@ const EngagementStatRow = ({
                 style={styles.cell}
                 accessibilityRole="button"
                 accessibilityLabel="Like">
-                <View style={styles.actionSlot}>
-                    <View style={styles.likeHaloOuter} />
-                    <View style={styles.likeHaloInner} />
-                    <View style={[styles.likeGlowOuter, glow(LIKE_GLOW_OUTER, 18)]}>
-                        <View style={[styles.likeGlowInner, glow(LIKE_MAGENTA, 12)]}>
-                            <Icon
-                                name={isLiked ? 'heart' : 'heart-outline'}
-                                type="ionicon"
-                                color={isLiked ? LIKE_MAGENTA : 'rgba(255,255,255,0.88)'}
-                                size={30}
-                            />
+                <View style={styles.actionWithCount}>
+                    <View style={styles.actionSlot}>
+                        <View style={styles.likeHaloOuter} />
+                        <View style={styles.likeHaloInner} />
+                        <View style={[styles.likeGlowOuter, glow(LIKE_GLOW_OUTER, 18)]}>
+                            <View style={[styles.likeGlowInner, glow(LIKE_MAGENTA, 12)]}>
+                                <Icon
+                                    name={isLiked ? 'heart' : 'heart-outline'}
+                                    type="ionicon"
+                                    color={isLiked ? LIKE_MAGENTA : 'rgba(255,255,255,0.88)'}
+                                    size={22}
+                                />
+                            </View>
                         </View>
                     </View>
+                    <Text style={styles.count}>{formatEngagementCount(likes)}</Text>
                 </View>
-                <Text style={styles.count}>{formatEngagementCount(likes)}</Text>
             </Pressable>
 
-            <Pressable
-                onPress={event => stopTapBubble(event, onComment)}
-                style={styles.cell}
-                accessibilityRole="button"
-                accessibilityLabel="Comment">
-                <View style={styles.actionSlot}>
-                    <View style={styles.commentHaloOuter} />
-                    <View style={styles.commentHaloInner} />
-                    <View style={[styles.commentGlowOuter, glow(COMMENT_GLOW, 18)]}>
-                        <View style={[styles.commentGlowInner, glow(COMMENT_LAVENDER, 12)]}>
-                            <Icon name="chatbubble-outline" type="ionicon" color={COMMENT_LAVENDER} size={30} />
+            {allowComments ? (
+                <Pressable
+                    onPress={event => stopTapBubble(event, onComment)}
+                    style={styles.cell}
+                    accessibilityRole="button"
+                    accessibilityLabel="Comment">
+                    <View style={styles.actionWithCount}>
+                        <View style={styles.actionSlot}>
+                            <View style={styles.commentHaloOuter} />
+                            <View style={styles.commentHaloInner} />
+                            <View style={[styles.commentGlowOuter, glow(COMMENT_GLOW, 18)]}>
+                                <View style={[styles.commentGlowInner, glow(COMMENT_LAVENDER, 12)]}>
+                                    <Icon name="chatbubble-outline" type="ionicon" color={COMMENT_LAVENDER} size={22} />
+                                </View>
+                            </View>
                         </View>
+                        <Text style={styles.count}>{formatEngagementCount(comments)}</Text>
                     </View>
-                </View>
-                <Text style={styles.count}>{formatEngagementCount(comments)}</Text>
-            </Pressable>
+                </Pressable>
+            ) : null}
 
             <Pressable
                 onPress={event => stopTapBubble(event, onMit)}
                 style={styles.cell}
                 accessibilityRole="button"
                 accessibilityLabel="Send MIT">
-                <View style={styles.actionSlot}>
-                    <View style={styles.mitHaloOuter} />
-                    <View style={styles.mitHaloInner} />
-                    <View style={[styles.likeGlowOuter, glow(MIT_GLOW_PINK, 22)]}>
-                        <View style={[styles.likeGlowInner, glow(MIT_GLOW_PURPLE, 16)]}>
-                            <Image
-                                source={imageindex.mitTicketImage}
-                                style={[styles.mitImage, {transform: [{rotate: '8deg'}]}]}
-                                resizeMode="contain"
-                            />
+                <View style={styles.actionWithCount}>
+                    <View style={styles.actionSlot}>
+                        <View style={styles.mitHaloOuter} />
+                        <View style={styles.mitHaloInner} />
+                        <View style={[styles.likeGlowOuter, glow(MIT_GLOW_PINK, 22)]}>
+                            <View style={[styles.likeGlowInner, glow(MIT_GLOW_PURPLE, 16)]}>
+                                <Image
+                                    source={imageindex.mitTicketImage}
+                                    style={[styles.mitImage, {transform: [{rotate: '8deg'}]}]}
+                                    resizeMode="contain"
+                                />
+                            </View>
                         </View>
                     </View>
+                    <Text style={styles.count}>{formatEngagementCount(mitCount)}</Text>
                 </View>
-                <Text style={styles.count}>{formatEngagementCount(mitCount)}</Text>
             </Pressable>
         </View>
     );
@@ -134,8 +144,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center',
-        marginTop: 18,
-        paddingVertical: 10,
+        marginTop: 14,
+        paddingVertical: 6,
         overflow: 'visible',
         borderTopWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'rgba(155, 89, 182, 0.25)',
@@ -143,8 +153,13 @@ const styles = StyleSheet.create({
     cell: {
         flex: 1,
         alignItems: 'center',
-        minHeight: 96,
+        minHeight: 58,
         overflow: 'visible',
+    },
+    actionWithCount: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     actionSlot: {
         width: ACTION_ICON_SLOT,
@@ -155,83 +170,83 @@ const styles = StyleSheet.create({
     },
     likeHaloOuter: {
         position: 'absolute',
-        width: 58,
-        height: 58,
-        borderRadius: 29,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(255, 79, 216, 0.25)',
     },
     likeHaloInner: {
         position: 'absolute',
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         backgroundColor: 'rgba(255, 45, 146, 0.35)',
     },
     likeGlowOuter: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
         alignItems: 'center',
         justifyContent: 'center',
     },
     likeGlowInner: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },
     commentGlowOuter: {
-        width: 44,
-        height: 44,
-        borderRadius: 22,
+        width: 34,
+        height: 34,
+        borderRadius: 17,
         alignItems: 'center',
         justifyContent: 'center',
     },
     commentHaloOuter: {
         position: 'absolute',
-        width: 58,
-        height: 58,
-        borderRadius: 29,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(168, 85, 247, 0.25)',
     },
     commentHaloInner: {
         position: 'absolute',
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         backgroundColor: 'rgba(216, 180, 254, 0.32)',
     },
     commentGlowInner: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: 30,
+        height: 30,
+        borderRadius: 15,
         alignItems: 'center',
         justifyContent: 'center',
     },
     mitHaloOuter: {
         position: 'absolute',
-        width: 58,
-        height: 58,
-        borderRadius: 29,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         backgroundColor: 'rgba(255, 79, 216, 0.25)',
     },
     mitHaloInner: {
         position: 'absolute',
-        width: 48,
-        height: 48,
-        borderRadius: 24,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         backgroundColor: 'rgba(155, 89, 182, 0.32)',
     },
     mitImage: {
-        width: 68,
-        height: 68,
+        width: 50,
+        height: 50,
     },
     count: {
         color: '#FFFFFF',
         fontSize: 14,
         fontWeight: '700',
-        marginTop: 2,
+        marginLeft: 8,
         textAlign: 'center',
         letterSpacing: 0.2,
     },

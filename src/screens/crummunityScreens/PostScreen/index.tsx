@@ -19,8 +19,9 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {IComment, IPost, IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
-import PostCard from '../../../components/SkinnyPostCard';
+import PostCard from '../../../components/CrummunitySkinnyPost';
 import {
+    commentOnPost,
     deleteComment,
     deletePost,
     getPost,
@@ -59,6 +60,8 @@ const PostScreen = ({navigation, route}: Props) => {
     const [comments, setComments] = useState<IComment[]>([]);
     const [loadingComments, setLoadingComments] = useState(true);
     const [debounce, setDebounce] = useState(false);
+    const [commentDraft, setCommentDraft] = useState('');
+    const [isCommentSending, setIsCommentSending] = useState(false);
 
     const currentUserID = user?.id;
     const author: IUserProfile | null = route.params?.author ?? null;
@@ -231,7 +234,7 @@ const PostScreen = ({navigation, route}: Props) => {
             setError(error.message || 'Failed to like/unlike the post');
             setPost(prevPost => {
                 if (!prevPost) return prevPost; // Prevent updates if prevPost is null
-    
+
                 return {
                     ...prevPost,
                     isLikedByCurrentUser: isLiked,
@@ -278,9 +281,50 @@ const PostScreen = ({navigation, route}: Props) => {
         }
     };
 
-    function handleToggleBlockUser(id: any, isCurrentlyBlocked: any) {
-        throw new Error('Function not implemented.');
+    function handleToggleBlockUser(id?: any, isCurrentlyBlocked?: any) {
+        // TODO: Hook PostScreen into the block-user flow if needed.
     }
+
+    const handleCommentInputChange = (value: string) => {
+        setCommentDraft(value);
+    };
+
+    const handleInlineCommentSend = async () => {
+        const commentText = commentDraft.trim();
+        if (!commentText || isCommentSending) {
+            return;
+        }
+
+        setIsCommentSending(true);
+        try {
+            await commentOnPost(+post.id, 'TEXT', [commentText]);
+            setCommentDraft('');
+
+            setPost(prevPost => ({
+                ...prevPost,
+                _count: {
+                    ...prevPost._count,
+                    comments: (prevPost._count?.comments ?? 0) + 1,
+                },
+            }));
+
+            fetchCommentsAndStatuses();
+        } catch (error) {
+            console.error('Error creating inline comment:', error);
+        } finally {
+            setIsCommentSending(false);
+        }
+    };
+
+    const handleReportUser = (postAuthor: IUserProfile) => {
+        navigation2.navigate('ReportUser', {
+            authorId: postAuthor.id,
+            authorUsername: postAuthor.username,
+            authorFirstName: postAuthor.firstName,
+            authorProfilePicture: postAuthor.profilePicture,
+            authorBadge: postAuthor.badge,
+        });
+    };
 
     const handleEditComment = (comment: IComment) => {
         navigation2.navigate('EditCommentScreen', {comment});
@@ -336,17 +380,26 @@ const PostScreen = ({navigation, route}: Props) => {
                             post={post}
                             loading={loadingPostIds[postId] || false}
                             openProfile={() => navigation2.navigate('ViewUserScreen', {userID: post.author?.id})}
+                            reportUser={() => handleReportUser(post.author)}
                             currentUserID={currentUserID ?? ''}
-                            deleteThePost={() => handleDeletePost(+post.id)}
                             onDeletePost={handleDeletePost}
-                            isPostLiked={post.isLikedByCurrentUser}
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
+                            onCommentIconPress={() => navigateToNewComment(post.id)}
+                            commentInputValue={commentDraft}
+                            onCommentInputChange={handleCommentInputChange}
+                            onCommentSend={handleInlineCommentSend}
+                            isCommentSending={isCommentSending}
                             akcruBadge={post.author?.badge}
-                            CommentOnPostButton={() => navigateToNewComment(post.id)}
                             onFollow={() => handleFollow(post.author.id, post.author.isFollowed)}
+                            onUnfollow={() => handleFollow(post.author.id, post.author.isFollowed)}
                             isFollowing={post.author.isFollowed}
                             akcruBadgeColor={selectAvatarBorderColor(post.author.badge ?? 'AKCRUIT')}
+                            onBlockUser={handleToggleBlockUser}
+                            isOwner={post.author.ownerStatus}
+                            isPromo={post.author.promoUser}
+                            isSuggestedUser={(post as any).isSuggestedUser}
                             isAdmin={user?.isAdmin}
+                            visionaryStatus={user?.visionaryStatus}
                         />
                     </View>
                     <View style={{marginBottom: '5%', backgroundColor: '#050508'}}>

@@ -6,18 +6,18 @@ import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AkcruButtonStackParams} from '../../../navigation/AkcruButtonStack';
-import {getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
+import {getPosts, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
 import type {IPost} from '../../../../types';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import AkcruNetworkPost from '../../../components/AkcruNetworkPost';
 import LinearGradient from 'react-native-linear-gradient';
 import {navigateToPostScreen} from '../../../util/RootNavigation';
-
-const userId = 'f35b2f80-9d35-47d5-9f80-48984308cb57';
+import useAuthStore from '../../../stores/auth.store';
 
 const AkcruNetworkScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<AkcruButtonStackParams>>();
-    const [posts, setPosts] = useState([]);
+    const currentUserId = useAuthStore(s => s.user?.id ?? '');
+    const [posts, setPosts] = useState<IPost[]>([]);
     const [loadingPosts, setLoadingPosts] = useState(true);
     const [page, setPage] = useState(1);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -25,12 +25,12 @@ const AkcruNetworkScreen = () => {
     const [refreshing, setRefreshing] = useState(false);
 
     useEffect(() => {
-        fetchUserPosts(1);
+        fetchFeedPosts(1, 'false');
     }, []);
 
-    const fetchUserPosts = async (pageNumber: number) => {
+    const fetchFeedPosts = async (pageNumber: number, skipCache: string) => {
         try {
-            const fetchedPosts = await getPostsByUser(userId, pageNumber);
+            const fetchedPosts = await getPosts(pageNumber, skipCache);
             if (pageNumber === 1) {
                 setPosts(fetchedPosts);
             } else {
@@ -48,7 +48,7 @@ const AkcruNetworkScreen = () => {
     const loadMorePosts = async () => {
         if (!hasMore || isLoadingMore) return;
         setIsLoadingMore(true);
-        await fetchUserPosts(page + 1);
+        await fetchFeedPosts(page + 1, 'false');
         setIsLoadingMore(false);
     };
 
@@ -74,8 +74,35 @@ const AkcruNetworkScreen = () => {
 
     const handleRefresh = () => {
         setRefreshing(true);
-        fetchUserPosts(1);
+        fetchFeedPosts(1, 'true');
         setRefreshing(false);
+    };
+
+    const handleLikeOrUnlike = async (post: IPost) => {
+        try {
+            if (post.isLikedByCurrentUser) {
+                await unlikePost(post.id);
+            } else {
+                await likePost(post.id);
+            }
+
+            setPosts(prev =>
+                prev.map(item =>
+                    String(item.id) === String(post.id)
+                        ? {
+                              ...item,
+                              isLikedByCurrentUser: !item.isLikedByCurrentUser,
+                              _count: {
+                                  ...item._count,
+                                  likes: (item._count?.likes ?? 0) + (item.isLikedByCurrentUser ? -1 : 1),
+                              },
+                          }
+                        : item,
+                ),
+            );
+        } catch (error) {
+            console.error('Failed to toggle like:', error);
+        }
     };
 
     return (
@@ -144,10 +171,10 @@ const AkcruNetworkScreen = () => {
                                                     navigation.navigate('ViewUserScreen', {userID: item.author?.id})
                                                 }
                                                 onDeletePost={() => deletePost(item.id)}
-                                                currentUserID={userId}
+                                                currentUserID={currentUserId}
                                                 akcruBadge={item.author?.badge}
                                                 isPostLiked={item.isLikedByCurrentUser}
-                                                onLikeOrUnlike={() => likePost(item.id)}
+                                                onLikeOrUnlike={() => handleLikeOrUnlike(item)}
                                                 onUnlike={() => unlikePost(item.id)}
                                             />
                                         </Pressable>

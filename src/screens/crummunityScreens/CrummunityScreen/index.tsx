@@ -156,9 +156,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                 }),
             );
 
-            const combinedItems = [...updatedPosts, ...pollsWithDetails].sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-            );
+            const combinedItems = [...updatedPosts, ...pollsWithDetails];
 
             if (pageNumber === 1) {
                 setPosts(combinedItems);

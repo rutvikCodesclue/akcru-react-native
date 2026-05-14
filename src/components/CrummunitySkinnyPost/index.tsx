@@ -97,6 +97,7 @@ type PostStats = {
 type PostType = {
     id: string;
     content: string;
+    allowComments?: boolean;
     author: IUserProfile;
     createdAt: string;
     numberOfComments?: number;
@@ -679,30 +680,34 @@ const SkinnyPostCard = ({
                         comments={post._count?.comments ?? 0}
                         mitCount={currentUserMITTickets}
                         isLiked={!!post.isLikedByCurrentUser}
+                        allowComments={post.allowComments !== false}
                         onLike={() => onLikeOrUnlike(+post.id)}
                         onComment={handleCommentFocus}
                         onMit={openCrummunityMIT}
                     />
 
-                    <View style={styles.commentBar}>
-                        <TextInput
-                            ref={commentInputRef}
-                            value={commentInputValue}
-                            onChangeText={text => onCommentInputChange?.(text)}
-                            placeholder="Add a comment..."
-                            placeholderTextColor="rgba(255,255,255,0.4)"
-                            style={styles.commentPlaceholder}
-                            multiline={false}
-                            onPressIn={event => event.stopPropagation()}
-                        />
-                        <Pressable onPress={handleCommentSendPress}>
-                            {isCommentSending ? (
-                                <ActivityIndicator size="small" color="#9b59b6" />
-                            ) : (
-                                <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
-                            )}
-                        </Pressable>
-                    </View>
+                    {post.allowComments !== false ? (
+                        <View style={styles.commentBar}>
+                            <TextInput
+                                ref={commentInputRef}
+                                value={commentInputValue}
+                                onChangeText={text => onCommentInputChange?.(text)}
+                                placeholder="Add a comment..."
+                                placeholderTextColor="rgba(255,255,255,0.4)"
+                                style={styles.commentPlaceholder}
+                                multiline={false}
+                                numberOfLines={1}
+                                onPressIn={event => event.stopPropagation()}
+                            />
+                            <Pressable onPress={handleCommentSendPress}>
+                                {isCommentSending ? (
+                                    <ActivityIndicator size="small" color="#9b59b6" />
+                                ) : (
+                                    <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
+                                )}
+                            </Pressable>
+                        </View>
+                    ) : null}
 
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 8}}>
                         {post.isSuggestedUser ? (

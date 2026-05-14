@@ -167,6 +167,7 @@ const PostCommentCard = ({
 
     // Determine the color for the "happy" icon based on whether the post is liked by the current user
     const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
+    const author = post?.author ?? null;
 
     const topVideoRef = useRef(null);
     const modalVideoRef = useRef(null);
@@ -272,7 +273,7 @@ const PostCommentCard = ({
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                     <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author?.username}</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {author?.username ?? 'user'}</Text>
                 </Pressable>
             );
         }
@@ -283,7 +284,7 @@ const PostCommentCard = ({
             return (
                 <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
                     <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
+                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {author?.username ?? 'user'}</Text>
                 </Pressable>
             );
         }
@@ -312,7 +313,7 @@ const PostCommentCard = ({
                     }}>
                     <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
                     <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                        {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
+                        {isFollowing ? `Unfollow ${author?.username ?? 'user'}` : `Follow ${author?.username ?? 'user'}`}
                     </Text>
                 </Pressable>
             );
@@ -386,7 +387,7 @@ const PostCommentCard = ({
                 <View style={{marginRight: 8}}>
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
-                            source={{uri: post.author?.profilePicture}}
+                            source={{uri: author?.profilePicture}}
                             size={isTablet() ? 75 : 58}
                             bordercolor={akcruBadgeColor}
                         />
@@ -395,7 +396,7 @@ const PostCommentCard = ({
                 <View>
                     <View style={{flexDirection: 'row', alignItems: 'center'}}>
                         <Text style={{...FONTS.Username, marginRight: 2}}>{userName}</Text>
-                        {post?.author.ownerStatus && (
+                        {author?.ownerStatus && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
@@ -404,7 +405,7 @@ const PostCommentCard = ({
                                 style={{marginRight: 0}}
                             />
                         )}
-                        {post?.author.companyStatus && (
+                        {author?.companyStatus && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
@@ -413,7 +414,7 @@ const PostCommentCard = ({
                                 style={{marginRight: 0}}
                             />
                         )}
-                        {post?.author.influencerStatus && (
+                        {author?.influencerStatus && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
@@ -422,7 +423,7 @@ const PostCommentCard = ({
                                 style={{marginRight: 0}}
                             />
                         )}
-                        {post?.author.blackCloakStatus && (
+                        {author?.blackCloakStatus && (
                             <Icon
                                 name="ribbon"
                                 type="ionicon"
@@ -431,7 +432,7 @@ const PostCommentCard = ({
                                 style={{marginRight: 0}}
                             />
                         )}
-                        {post?.author.isAdmin && (
+                        {author?.isAdmin && (
                             <CustomIcon
                                 name="police-badge"
                                 type="material-community"
@@ -440,7 +441,7 @@ const PostCommentCard = ({
                                 style={{marginRight: 0}}
                             />
                         )}
-                        {post?.author.visionaryStatus && (
+                        {author?.visionaryStatus && (
                             <Icon
                                 name="diamond-stone"
                                 type="material-community"

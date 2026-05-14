@@ -498,6 +498,7 @@ export interface IPost {
     id: string;
     type: 'TEXT' | 'IMAGE' | 'VIDEO' | 'REEL' | 'HYBRID';
     content: string[];
+    allowComments?: boolean;
     createdAt: string;
     updatedAt: string;
     author: IUserProfile;
@@ -964,4 +965,3 @@ export interface ICreateAdRequest {
 
 export interface ICreateAdResponse { ad: IAd; }
 export interface IGetAdsResponse { ads: IAd[]; }
-

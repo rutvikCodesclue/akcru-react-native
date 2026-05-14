@@ -43,7 +43,7 @@ export default StyleSheet.create({
         ...FONTS.paragraph1,
         color: 'rgba(255,255,255,0.45)',
         fontSize: isTablet() ? 15 : 14,
-        marginTop: 2,
+        marginTop: 0,
     },
     followBtn: {
         backgroundColor: 'rgba(155, 89, 182, 0.35)',
@@ -51,7 +51,7 @@ export default StyleSheet.create({
         paddingVertical: 6,
         borderRadius: 20,
         marginRight: 8,
-        borderWidth: 1,
+        borderWidth: StyleSheet.hairlineWidth,
         borderColor: 'rgba(155, 89, 182, 0.7)',
     },
     followBtnText: {
@@ -63,7 +63,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
         color: COLORS.WHITE,
         fontWeight: '700',
-        marginTop: 8,
+        marginTop: 0,
         lineHeight: 22,
     },
     descText: {
@@ -91,7 +91,7 @@ export default StyleSheet.create({
         justifyContent: 'space-around',
         alignItems: 'flex-start',
         marginTop: 18,
-        paddingVertical: 8,
+        paddingVertical: 2,
         borderTopWidth: StyleSheet.hairlineWidth,
         borderTopColor: 'rgba(155, 89, 182, 0.25)',
     },
@@ -104,12 +104,12 @@ export default StyleSheet.create({
     commentBar: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 14,
+        marginTop: 0,
         paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: 24,
+        paddingVertical: 2,
+        borderRadius: 20,
         backgroundColor: '#12121c',
-        borderWidth: 1,
+        borderWidth: StyleSheet.hairlineWidth,
         borderColor: '#9b59b6',
     },
     commentPlaceholder: {
