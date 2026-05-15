@@ -1,23 +1,21 @@
-import {View, Text, TouchableOpacity, Image, Modal, Pressable, ScrollView} from 'react-native';
+import {View, Text, TouchableOpacity, Image, Modal, Pressable} from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
-import {Avatar, Icon} from '@rneui/base';
+import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../assets/constants';
-import AkcruLevels from '../akcruBadges';
 import Video from 'react-native-video';
 import AkcruButtons from '../akcruButtons';
-import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
-import {deletePost} from '../../lib/api/post.lib';
 import {IUserProfile} from '../../../types';
-import DisplayBadge from '../General/akcrubadge';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
 import {useNavigation} from '@react-navigation/native';
-import CustomIcon from '../CustomIcon/CustomIcon';
 import {isTablet} from '../../../assets/constants/theme';
+import HexAvatar from '../HexAvatar';
+import CustomIcon from '../CustomIcon/CustomIcon';
+import {resolveAkcruBadgeConfig} from '../ProfileUserBadges';
 
 type FooterIconsProps = {
     iconname: string;
@@ -31,38 +29,6 @@ const FooterIcons = ({iconname, onPress, color}: FooterIconsProps) => {
             <TouchableOpacity onPress={onPress}>
                 <Icon name={iconname} type="ionicon" color={color} size={isTablet() ? 25 : 18} />
             </TouchableOpacity>
-        </View>
-    );
-};
-
-type ShareOptionProps = {
-    iconname: string;
-    sharename?: string | number;
-    sharePress: () => void;
-};
-
-const ShareOptions = ({iconname, sharename, sharePress}: ShareOptionProps) => {
-    return (
-        <View style={{marginRight: 15}}>
-            <View style={{alignItems: 'center'}}>
-                <Pressable
-                    onPress={sharePress}
-                    style={{
-                        backgroundColor: COLORS.AKCRUBLUE,
-                        width: 50,
-                        height: 50,
-                        borderRadius: 30,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                    }}>
-                    <Icon name={iconname} type="ionicon" color={COLORS.MIDORANGE} size={20} />
-                </Pressable>
-                <View style={{marginTop: 5, width: 70}}>
-                    <Text style={{...FONTS.paragraph1, fontSize: 12, color: COLORS.MIDORANGE, textAlign: 'center'}}>
-                        {sharename}
-                    </Text>
-                </View>
-            </View>
         </View>
     );
 };
@@ -128,6 +94,8 @@ type PostProps = {
     akcruBadgeColor: string;
     onEditComment: () => void;
     isAdmin: boolean;
+    isCommentLiked?: boolean;
+    onBlockUser?: () => void;
 };
 
 const PostCommentCard = ({
@@ -161,12 +129,8 @@ const PostCommentCard = ({
 
     const [showSkipButton, setShowSkipButton] = useState(false);
 
-    const [shareOptionsVisible, setShareOptionsVisible] = useState(false);
-
-    // const {text} = comment; // Destructure the text field from the comment object
-
-    // Determine the color for the "happy" icon based on whether the post is liked by the current user
-    const likeIconColor = post.isLikedByCurrentUser ? COLORS.PURPLE : COLORS.AKCRUBLUE;
+    const isLiked = !!post.isLikedByCurrentUser;
+    const likeIconColor = isLiked ? '#ff3b30' : 'rgba(255,255,255,0.6)';
     const author = post?.author ?? null;
 
     const topVideoRef = useRef(null);
@@ -229,93 +193,44 @@ const PostCommentCard = ({
         setPostOptionsVisible(false);
     };
 
-    const openShareOptions = () => {
-        setShareOptionsVisible(true);
-    };
+    const renderOptionRow = (
+        key: string,
+        label: string,
+        iconName: string,
+        iconType: 'ionicon' | 'material-community' = 'ionicon',
+        onPress?: () => void,
+    ) => (
+        <Pressable key={key} style={styles.optionRow} onPress={onPress}>
+            <View style={styles.optionIconWrap}>
+                <Icon name={iconName} type={iconType} color={COLORS.PURPLE} size={18} />
+            </View>
+            <Text style={styles.optionLabel}>{label}</Text>
+        </Pressable>
+    );
 
-    const closeShareOptions = () => {
-        setShareOptionsVisible(false);
-    };
-
-    // Conditional rendering of options in option modal
     const renderDeleteComment = () => {
         if (isCurrentUserAuthor || isAdmin) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={onDeleteComment}>
-                    <Icon name="trash" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Comment</Text>
-                </Pressable>
-            );
-        }
-        return null;
-    };
-    const renderMuteUser = () => {
-        if (!isCurrentUserAuthor) {
-            return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon
-                        name="volume-mute"
-                        type="ionicon"
-                        color={COLORS.MIDORANGE}
-                        size={20}
-                        style={{marginLeft: 5}}
-                    />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Mute {post.author?.username}</Text>
-                </Pressable>
-            );
-        }
-        return null;
-    };
-    const renderBlockUser = () => {
-        if (!isCurrentUserAuthor) {
-            return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon name="hand-left" type="ionicon" color={COLORS.MIDORANGE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {author?.username ?? 'user'}</Text>
-                </Pressable>
-            );
+            return renderOptionRow('delete', 'Delete Comment', 'trash-outline', 'ionicon', onDeleteComment);
         }
         return null;
     };
     const renderReportSkinny = () => {
         if (!isCurrentUserAuthor) {
-            return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {author?.username ?? 'user'}</Text>
-                </Pressable>
-            );
+            return renderOptionRow('report', `Report ${author?.username ?? 'user'}`, 'flag-outline', 'ionicon');
         }
         return null;
     };
-    const renderNotInterested = () => {
-        if (!isCurrentUserAuthor) {
-            return (
-                <Pressable style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}>
-                    <Icon name="sad" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Not Interested in this Skinny</Text>
-                </Pressable>
-            );
-        }
-        return null;
-    };
-
     const renderFollowUser = () => {
         if (!isCurrentUserAuthor) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={() => {
-                        onFollow(); // Call the report user function
-                        closePostOptions(); // Close the modal
-                    }}>
-                    <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                        {isFollowing ? `Unfollow ${author?.username ?? 'user'}` : `Follow ${author?.username ?? 'user'}`}
-                    </Text>
-                </Pressable>
+            return renderOptionRow(
+                'follow',
+                isFollowing ? `Unfollow ${author?.username ?? 'user'}` : `Follow ${author?.username ?? 'user'}`,
+                isFollowing ? 'person-remove-outline' : 'person-add-outline',
+                'ionicon',
+                () => {
+                    onFollow();
+                    closePostOptions();
+                },
             );
         }
         return null;
@@ -351,85 +266,76 @@ const PostCommentCard = ({
 
     const renderEditCommentScreen = () => {
         if (isCurrentUserAuthor) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={() => {
-                        // Close the post options modal and navigate to the edit screen
-                        closePostOptions();
-                        onEditComment();
-                    }}>
-                    <Icon name="create" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Edit Comment</Text>
-                </Pressable>
-            );
+            return renderOptionRow('edit', 'Edit Comment', 'create-outline', 'ionicon', () => {
+                closePostOptions();
+                onEditComment();
+            });
         }
         return null;
     };
 
     const {textContent, imageUrls, videoUrl} = classifyPostContent(post.content);
+    const badgeConfig = resolveAkcruBadgeConfig(author?.badge);
 
     return (
         <View style={styles.cardcontainer}>
-            <LinearGradient
-                // Background Linear Gradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    bottom: 0,
-                    borderRadius: 5,
-                }}
-            />
-            <View style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-                <View style={{marginRight: 8}}>
+            <LinearGradient colors={['rgba(16,20,30,0.95)', 'rgba(8,10,16,0.92)']} style={styles.cardGlow} />
+            <View style={styles.headerRow}>
+                <View style={styles.avatarWrap}>
                     <TouchableOpacity onPress={() => openProfile()}>
                         <HexAvatar
                             source={{uri: author?.profilePicture}}
-                            size={isTablet() ? 75 : 58}
+                            size={isTablet() ? 62 : 46}
                             bordercolor={akcruBadgeColor}
                         />
                     </TouchableOpacity>
                 </View>
-                <View>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <Text style={{...FONTS.Username, marginRight: 2}}>{userName}</Text>
-                        {author?.ownerStatus && (
+                <View style={styles.headerContent}>
+                    <View style={styles.identityRow}>
+                        <Text style={styles.userName}>{userName}</Text>
+                        {(author?.influencerStatus || author?.ownerStatus) && (
                             <Icon
+                                name="checkmark-circle"
+                                type="ionicon"
+                                color="#3498db"
+                                size={isTablet() ? 16 : 14}
+                                style={styles.roleIcon}
+                            />
+                        )}
+                        {author?.ownerStatus && (
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.STARGOLD}
-                                size={isTablet() ? 25 : 18}
-                                style={{marginRight: 0}}
+                                baseSize={isTablet() ? 14 : 12}
+                                style={styles.roleIcon}
                             />
                         )}
                         {author?.companyStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.WHITE}
-                                size={isTablet() ? 25 : 18}
-                                style={{marginRight: 0}}
+                                baseSize={isTablet() ? 14 : 12}
+                                style={styles.roleIcon}
                             />
                         )}
                         {author?.influencerStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.AKCRUBLUE}
-                                size={isTablet() ? 25 : 18}
-                                style={{marginRight: 0}}
+                                baseSize={isTablet() ? 14 : 12}
+                                style={styles.roleIcon}
                             />
                         )}
                         {author?.blackCloakStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="ribbon"
                                 type="ionicon"
                                 color={COLORS.BLACKCLOAK}
-                                size={isTablet() ? 25 : 18}
-                                style={{marginRight: 0}}
+                                baseSize={isTablet() ? 14 : 12}
+                                style={styles.roleIcon}
                             />
                         )}
                         {author?.isAdmin && (
@@ -437,102 +343,78 @@ const PostCommentCard = ({
                                 name="police-badge"
                                 type="material-community"
                                 color={COLORS.STARGOLD}
-                                baseSize={isTablet() ? 18 : 12}
-                                style={{marginRight: 0}}
+                                baseSize={isTablet() ? 14 : 12}
+                                style={styles.roleIcon}
                             />
                         )}
                         {author?.visionaryStatus && (
-                            <Icon
+                            <CustomIcon
                                 name="diamond-stone"
                                 type="material-community"
                                 color={COLORS.WHITE}
-                                size={isTablet() ? 25 : 18}
-                                style={{marginRight: 0}}
+                                baseSize={isTablet() ? 14 : 12}
+                                style={styles.roleIcon}
                             />
                         )}
                     </View>
-                    <Text style={{...FONTS.paragraph1}}>{firstName}</Text>
-                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                        <DisplayBadge akcruBadge={akcruBadge} />
+                    {badgeConfig ? (
+                        <LinearGradient
+                            colors={[`${badgeConfig.color}24`, `${badgeConfig.color}40`]}
+                            start={{x: 0, y: 0}}
+                            end={{x: 1, y: 1}}
+                            style={styles.badgePill}>
+                            <Text style={[styles.badgePillText, {color: badgeConfig.color}]}>{badgeConfig.label}</Text>
+                        </LinearGradient>
+                    ) : null}
+                    <View style={styles.metaRow}>
+                        <Text style={styles.metaText}>
+                            {post.edited
+                                ? `Edited ${timeSince(post.updatedAt)}`
+                                : `Posted ${timeSince(post.createdAt)}`}
+                        </Text>
+                        {post.edited && (
+                            <Icon
+                                name="create-outline"
+                                type="ionicon"
+                                color={COLORS.PURPLE}
+                                size={16}
+                                style={styles.metaIcon}
+                            />
+                        )}
                     </View>
                 </View>
-                <View style={{marginLeft: 'auto', flexDirection: 'row', alignItems: 'center', marginTop: -3}}>
-                    {/* <Text style={{...FONTS.Username, color: COLORS.AKCRUBLUE, marginRight: 10}}>
-                        {timeSince(post.createdAt)}
-                    </Text> */}
+                <View style={styles.menuWrap}>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.AKCRUBLUE} size={20} />
+                        <Icon name="ellipsis-horizontal" type="ionicon" color="rgba(255,255,255,0.72)" size={20} />
                     </Pressable>
                 </View>
-                <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
-                    <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
-                        <View style={styles.postoptionsmodal}>
-                            {renderFollowUser()}
-                            {renderDeleteComment()}
-                            {renderReportSkinny()}
-                            {renderEditCommentScreen()}
-                        </View>
-                    </Pressable>
-                </Modal>
-                <Modal visible={shareOptionsVisible} transparent={true} animationType="slide">
-                    <Pressable style={styles.postoptioncontainer} onPress={closeShareOptions}>
-                        <View style={styles.postoptionsmodal}>
-                            <View>
-                                <Text style={{...FONTS.Title2Orange, fontSize: 14, marginBottom: 15}}>Share post</Text>
+                <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
+                    <Pressable style={styles.sheetBackdrop} onPress={closePostOptions} />
+                    <LinearGradient
+                        colors={['#4f46e5', '#7c3aed', '#ec4899']}
+                        start={{x: 0, y: 0}}
+                        end={{x: 1, y: 1}}
+                        style={styles.mediaSheetGradientBorder}>
+                        <View style={styles.mediaSheet}>
+                            <Text style={styles.mediaSheetTitle}>Comment options</Text>
+                            <View style={styles.optionsList}>
+                                {renderFollowUser()}
+                                {renderDeleteComment()}
+                                {renderReportSkinny()}
+                                {renderEditCommentScreen()}
                             </View>
-                            <ScrollView horizontal={true}>
-                                <ShareOptions iconname={'link'} sharename={'Copy Link'} sharePress={() => {}} />
-                                <ShareOptions iconname={'bookmark'} sharename={'Bookmark'} sharePress={() => {}} />
-                                <ShareOptions
-                                    iconname={'share-social'}
-                                    sharename={'Share via...'}
-                                    sharePress={() => {}}
-                                />
-                            </ScrollView>
-                            <ScrollView
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                                style={{paddingTop: 15}}>
-                                <ShareOptions iconname={'logo-whatsapp'} sharename={'WhatsApp'} sharePress={() => {}} />
-                                <ShareOptions
-                                    iconname={'logo-instagram'}
-                                    sharename={'Instagram Stories'}
-                                    sharePress={() => {}}
-                                />
-                                <ShareOptions
-                                    iconname={'chatbubble-ellipses'}
-                                    sharename={'Messages'}
-                                    sharePress={() => {}}
-                                />
-                                <ShareOptions
-                                    iconname={'logo-facebook'}
-                                    sharename={'News Feed'}
-                                    sharePress={() => {}}
-                                />
-                                <ShareOptions iconname={'logo-linkedin'} sharename={'LinkedIn'} sharePress={() => {}} />
-                            </ScrollView>
                         </View>
-                    </Pressable>
+                    </LinearGradient>
                 </Modal>
             </View>
-            <Text style={{...FONTS.Username, color: COLORS.TRANSAKCRUBLUE, marginRight: 10}}>
-                {/* {timeSince(post.createdAt)} */}
-                {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
-                {post.edited && <Text style={{...FONTS.Username, color: COLORS.PURPLE}}> (edited)</Text>}
-            </Text>
-            {/* Render text if available */}
-            {/* {textContent && (
-                <View style={{marginTop: 10}}>
-                    <Text style={styles.post}>{renderPostText(textContent)}</Text>
-                </View>
-            )} */}
+
             {post.edited && post.editedText ? (
-                <View style={{marginTop: 10}}>
+                <View style={styles.bodyWrap}>
                     <Text style={styles.post}>{renderPostText(post.editedText)}</Text>
                 </View>
             ) : (
                 textContent && (
-                    <View style={{marginTop: 10}}>
+                    <View style={styles.bodyWrap}>
                         <Text style={styles.post}>{renderPostText(textContent)}</Text>
                     </View>
                 )
@@ -613,31 +495,15 @@ const PostCommentCard = ({
                     )}
                 </View>
             </Modal>
-            <View style={styles.postfooter}>
-                {/* <FooterIcons iconname={'chatbox'} onPress={CommentOnPostButton} /> */}
-                <FooterIcons iconname={'happy'} onPress={() => onLikeOrUnlike(+post.id)} color={likeIconColor} />
-                {/* <FooterIcons
-                    iconname={'sync'}
-                    onPress={() => {
-                        ('');
-                    }}
-                /> */}
-                {/* <FooterIcons
-                    iconname={'stats-chart'}
-                    text={post.impressions || 0}
-                    onPress={() => {
-                        ('');
-                    }}
-                /> */}
-                {/* <FooterIcons iconname={'share-social'} onPress={openShareOptions} /> */}
-            </View>
-            <View>
-                <Text style={styles.footStats}>
-                    {/* {post._count?.comments || 0} Comments •  */}
-                    {likeCount} Likes
-                    {/* • {post?.numberOfReposts || 0}{' '}
-                    Repost */}
-                </Text>
+            <View style={styles.footerRow}>
+                <View style={styles.postfooter}>
+                    <FooterIcons
+                        iconname={isLiked ? 'heart' : 'heart-outline'}
+                        onPress={() => onLikeOrUnlike(+post.id)}
+                        color={likeIconColor}
+                    />
+                </View>
+                <Text style={styles.footStats}>{likeCount} Likes</Text>
             </View>
         </View>
     );

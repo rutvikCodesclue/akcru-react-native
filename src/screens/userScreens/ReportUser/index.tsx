@@ -13,7 +13,7 @@ import {
     Pressable,
 } from 'react-native';
 import {Icon} from '@rneui/base';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
 import AkcruButtons from '../../../components/akcruButtons';
 import Header from '../../../components/header';
 import {useNavigation} from '@react-navigation/native';
@@ -28,6 +28,8 @@ import ReportResultModal from '../../../components/ReportResultModal/ReportResul
 import ErrorModal from '../../../components/ErrorModal/ErrorModal';
 import EnlargeGalleryModal from '../../../components/EnlargeGalleryModal/EnlargeGalleryModal';
 import BackButton from '../../../components/General/backbutton';
+import LinearGradient from 'react-native-linear-gradient';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
 
 const ReportUser = ({route}) => {
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
@@ -134,28 +136,27 @@ const ReportUser = ({route}) => {
     const toggleEnlargeModal = () => {
         setEnlargeModalVisible(!enlargeModalVisible);
     };
+    const reportTargetName = reportedUser?.username ? reportedUser.username : authorUsername;
+    const canSubmit = description.trim().length >= 3;
 
     return (
         <TabContainer>
-            <View style={{flex: 1}}>
-                <ScrollView style={{flex: 1}} stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 20, backgroundColor: COLORS.AKCRUBACKGROUND, paddingBottom: 10}}>
+            <View style={styles.safeArea}>
+                <ScrollView style={{flex: 1}} stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.headerWrap}>
                         <Header />
                         <BackButton navigation={navigation} />
                     </View>
-                    <View>
-                        <View style={{alignItems: 'center'}}>
-                            <Text style={{...FONTS.Title2, color: COLORS.PINK, textAlign: 'center'}}>
-                                REPORT A USER
+                    <View style={styles.screenContent}>
+                        <LinearGradient
+                            colors={['rgba(124,58,237,0.18)', 'rgba(236,72,153,0.08)']}
+                            style={styles.reportCard}>
+                            <Text style={styles.title}>REPORT A USER</Text>
+                            <Text style={styles.instructionText}>
+                                We take abuse seriously at Akcru. Please share details of what happened with "
+                                {reportTargetName}".
                             </Text>
-                            <View style={{width: '90%'}}>
-                                <Text style={styles.instructionText}>
-                                    We take abuse serious here at Akcru. Please fill in the form below and give detailed
-                                    account of the abusive events you've encountered from user "
-                                    {reportedUser?.username ? reportedUser.username : authorUsername}
-                                    ".
-                                </Text>
-                            </View>
+                            {reportedUser ? <ProfileUserBadges user={reportedUser} variant="inline" style={styles.inlineBadge} /> : null}
                             <TextInput
                                 style={styles.input}
                                 placeholder="Add a detailed description of the abuse encountered"
@@ -165,9 +166,10 @@ const ReportUser = ({route}) => {
                                 onChangeText={setDescription}
                                 value={description}
                             />
-                        </View>
-                        <Text style={styles.instructionText}>Add a screenshot of the abuse you've encountered.</Text>
-                        <View style={{alignItems: 'center', paddingBottom: 10}}>
+                            <Text style={styles.charCount}>{description.length}/500</Text>
+                        </LinearGradient>
+                        <Text style={styles.mediaTitle}>Add screenshots</Text>
+                        <View style={styles.galleryWrap}>
                             {selectedImages ? (
                                 <View style={styles.gallerycontainer}>
                                     <FlatList
@@ -188,7 +190,8 @@ const ReportUser = ({route}) => {
                         </View>
 
                         <TouchableOpacity onPress={selectPostImage} style={styles.imagePickerButton}>
-                            <Icon name="images" type="ionicon" color={COLORS.PINK} size={30} />
+                            <Icon name="images-outline" type="ionicon" color={COLORS.AKCRUBLUE} size={22} />
+                            <Text style={styles.imagePickerLabel}>Choose Images</Text>
                         </TouchableOpacity>
                     </View>
                 </ScrollView>
@@ -196,8 +199,10 @@ const ReportUser = ({route}) => {
                     <AkcruButtons.LrgButton
                         btnname="Send Report"
                         onPress={() => handleSubmitReport()}
-                        color={description.length >= 3 ? COLORS.PURPLE : COLORS.DARKERGREY}
-                        disabled={description.length < 3}
+                        color={canSubmit ? COLORS.PURPLE : COLORS.DARKERGREY}
+                        disabled={!canSubmit}
+                        variant="auth"
+                        authButtonWidth={SIZES.ScreenWidth - 32}
                     />
                 </View>
                 <Modal
@@ -230,33 +235,102 @@ const ReportUser = ({route}) => {
 };
 
 const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#000',
+    },
+    scrollContent: {
+        paddingBottom: 120,
+    },
+    headerWrap: {
+        zIndex: 20,
+        backgroundColor: '#000',
+        paddingBottom: 10,
+    },
+    screenContent: {
+        paddingHorizontal: 15,
+        paddingTop: 6,
+    },
+    reportCard: {
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        padding: 12,
+    },
+    title: {
+        ...FONTS.Title2,
+        color: COLORS.PINK,
+        textAlign: 'center',
+        marginBottom: 6,
+    },
     instructionText: {
         ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
         textAlign: 'center',
         fontSize: 12,
-        marginTop: 10,
-        paddingBottom: 10,
+        marginTop: 4,
+        paddingBottom: 8,
+    },
+    inlineBadge: {
+        alignSelf: 'center',
+        marginBottom: 8,
     },
     input: {
         borderWidth: 1,
         borderColor: COLORS.DARKGREY,
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 10,
         marginTop: 10,
-        marginBottom: 20,
-        minHeight: 100,
+        minHeight: 130,
         textAlignVertical: 'top',
         color: COLORS.LIGHTGREY,
-        width: '90%',
+        width: '100%',
+        backgroundColor: 'rgba(255,255,255,0.02)',
+    },
+    charCount: {
+        ...FONTS.paragraph3,
+        color: 'rgba(255,255,255,0.45)',
+        alignSelf: 'flex-end',
+        marginTop: 6,
+    },
+    mediaTitle: {
+        ...FONTS.Title3,
+        color: COLORS.WHITE,
+        marginTop: 12,
+        marginBottom: 8,
+    },
+    galleryWrap: {
+        alignItems: 'center',
+        paddingBottom: 10,
     },
     imagePickerButton: {
         alignSelf: 'center',
-        marginBottom: 20,
+        marginBottom: 8,
+        flexDirection: 'row',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: COLORS.AKCRUBLUE,
+        borderRadius: 20,
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        backgroundColor: 'rgba(23,37,84,0.35)',
+    },
+    imagePickerLabel: {
+        ...FONTS.Title3,
+        color: COLORS.AKCRUBLUE,
+        marginLeft: 6,
     },
     sendReportButtonContainer: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
         alignItems: 'center',
-        paddingBottom: 20,
+        paddingTop: 10,
+        paddingBottom: 16,
+        borderTopWidth: 1,
+        borderTopColor: COLORS.FADEDBLACK,
+        backgroundColor: '#000',
         width: '100%',
     },
     gallerycontainer: {
@@ -265,10 +339,10 @@ const styles = StyleSheet.create({
         width: '100%',
     },
     galleryImage: {
-        width: SIZES.ScreenWidth / 3.55,
-        height: SIZES.ScreenWidth / 2.35,
+        width: SIZES.ScreenWidth / 3.8,
+        height: SIZES.ScreenWidth / 2.5,
         margin: 5,
-        borderRadius: 5,
+        borderRadius: 8,
     },
 });
 

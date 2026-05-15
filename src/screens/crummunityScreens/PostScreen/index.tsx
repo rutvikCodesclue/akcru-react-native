@@ -8,7 +8,7 @@ import {
     ActivityIndicator,
     Platform,
 } from 'react-native';
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,7 +19,6 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {IComment, IPost, IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
-import PostCard from '../../../components/SkinnyPostCard';
 import {
     deleteComment,
     deletePost,
@@ -28,16 +27,16 @@ import {
     likePost,
     unlikeComment,
     unlikePost,
+    commentOnPost,
 } from '../../../lib/api/post.lib';
 import PostCommentCard from '../../../components/PostCommentCard';
 import {getPostComments} from '../../../lib/api/post.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
-import {getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/user.lib';
+import {blockUser, getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/user.lib';
 import {selectAvatarBorderColor} from '../../../util/util';
-import PostButton from '../../../components/AkcruPostButton';
 import BackButton from '../../../components/General/backbutton';
-import {navigateToNewComment} from '../../../util/RootNavigation';
+import CommonPostCard from '../../../components/CommonPostCard';
 
 type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
 type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
@@ -50,9 +49,8 @@ type Props = {
 const PostScreen = ({navigation, route}: Props) => {
     const postId = route.params?.post.id;
     const isLikedByCurrentUser = route.params?.isLikedByCurrentUser;
-    const {user, hydrateUser} = useAuthStore();
+    const {user} = useAuthStore();
     const [posts, setPosts] = useState<IPost[]>([]);
-    const [likedPosts, setLikedPosts] = useState(new Set());
     const [loading, setLoading] = useState(false);
     const [loadingPostIds, setLoadingPostIds] = useState<{ [key: number]: boolean }>({});
     const [error, setError] = useState('');
@@ -61,9 +59,9 @@ const PostScreen = ({navigation, route}: Props) => {
     const [debounce, setDebounce] = useState(false);
 
     const currentUserID = user?.id;
-    const author: IUserProfile | null = route.params?.author ?? null;
     const [post, setPost] = useState<IPost>({...route.params?.post, isLikedByCurrentUser});
-    const [comment, setComment] = useState<IComment>(route.params?.comment);
+    const [commentDraft, setCommentDraft] = useState('');
+    const [isCommentSending, setIsCommentSending] = useState(false);
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const fetchPostData = useCallback(async () => {
@@ -216,20 +214,45 @@ const PostScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
-        const updatedStatus = await toggleFollow(authorId); // Your toggleFollow function should return the new follow status
-        if (updatedStatus !== undefined) {
-            setPosts(prevPosts =>
-                prevPosts.map(post => {
-                    if (post.author?.id === authorId) {
-                        // Update the follow status
-                        return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
-                    }
-                    return post;
-                }),
+    const handleFollow = async (authorId: string, isCurrentlyFollowing?: boolean) => {
+        try {
+            const updatedStatus = await toggleFollow(authorId);
+            if (updatedStatus === undefined) {
+                console.error('Failed to update follow status');
+                return;
+            }
+
+            const nextIsFollowed =
+                typeof updatedStatus === 'boolean' ? updatedStatus : !Boolean(isCurrentlyFollowing);
+
+            setPost(prevPost => {
+                if (!prevPost || prevPost.author?.id !== authorId) {
+                    return prevPost;
+                }
+                return {
+                    ...prevPost,
+                    author: {
+                        ...prevPost.author,
+                        isFollowed: nextIsFollowed,
+                    },
+                };
+            });
+
+            setComments(prevComments =>
+                prevComments.map(item =>
+                    item.author?.id === authorId
+                        ? {
+                              ...item,
+                              author: {
+                                  ...item.author,
+                                  isFollowed: nextIsFollowed,
+                              },
+                          }
+                        : item,
+                ),
             );
-        } else {
-            console.error('Failed to update follow status');
+        } catch (error) {
+            console.error('Failed to update follow status:', error);
         }
     };
 
@@ -309,12 +332,83 @@ const PostScreen = ({navigation, route}: Props) => {
         }
     };
 
-    function handleToggleBlockUser(id: any, isCurrentlyBlocked: any) {
-        throw new Error('Function not implemented.');
-    }
+    const handleToggleBlockUser = async (id: string) => {
+        try {
+            await blockUser(id);
+            setPost(prevPost => {
+                if (!prevPost || prevPost.author?.id !== id) {
+                    return prevPost;
+                }
+                return {
+                    ...prevPost,
+                    author: {
+                        ...prevPost.author,
+                        isBlocked: true,
+                    },
+                };
+            });
+            setComments(prevComments =>
+                prevComments.map(item =>
+                    item.author?.id === id
+                        ? {
+                              ...item,
+                              author: {
+                                  ...item.author,
+                                  isBlocked: true,
+                              },
+                          }
+                        : item,
+                ),
+            );
+        } catch (error) {
+            console.error('Failed to block user:', error);
+        }
+    };
+
+    const handleReportUser = (author: IUserProfile) => {
+        navigation2.navigate('ReportUser', {
+            authorId: author.id,
+            authorUsername: author.username,
+            authorFirstName: author.firstName,
+            authorProfilePicture: author.profilePicture,
+            authorBadge: author.badge,
+        });
+    };
 
     const handleEditComment = (comment: IComment) => {
         navigation2.navigate('EditCommentScreen', {comment});
+    };
+
+    const handleInlineCommentSend = async () => {
+        const commentText = commentDraft.trim();
+        if (!post?.id || !commentText || isCommentSending) {
+            return;
+        }
+
+        setIsCommentSending(true);
+        try {
+            await commentOnPost(+post.id, 'TEXT', [commentText]);
+
+            setPost(prevPost => {
+                if (!prevPost) {
+                    return prevPost;
+                }
+                return {
+                    ...prevPost,
+                    _count: {
+                        ...prevPost._count,
+                        comments: (prevPost._count?.comments ?? 0) + 1,
+                    },
+                };
+            });
+            setCommentDraft('');
+            await fetchCommentsAndStatuses();
+        } catch (error) {
+            console.error('Error creating inline comment:', error);
+            setError(error.message || 'Failed to add comment');
+        } finally {
+            setIsCommentSending(false);
+        }
     };
 
     if (!post) {
@@ -363,17 +457,18 @@ const PostScreen = ({navigation, route}: Props) => {
                     </View>
 
                     <View style={styles.postcontainer}>
-                        <PostCard
+                        <CommonPostCard
                             post={post}
                             loading={loadingPostIds[postId] || false}
                             openProfile={() => navigation2.navigate('ViewUserScreen', {userID: post.author?.id})}
+                            reportUser={() => handleReportUser(post.author)}
                             currentUserID={currentUserID ?? ''}
-                            deleteThePost={() => handleDeletePost(+post.id)}
                             onDeletePost={handleDeletePost}
-                            isPostLiked={post.isLikedByCurrentUser}
                             onLikeOrUnlike={() => onLikeOrUnlikePost(+post.id)}
-                            akcruBadge={post.author?.badge}
-                            CommentOnPostButton={() => navigateToNewComment(post.id)}
+                            commentInputValue={commentDraft}
+                            onCommentInputChange={setCommentDraft}
+                            onCommentSend={handleInlineCommentSend}
+                            isCommentSending={isCommentSending}
                             onFollow={() => {
                                 if (!post.author?.id) {
                                     return;
@@ -381,6 +476,12 @@ const PostScreen = ({navigation, route}: Props) => {
                                 handleFollow(post.author.id, post.author.isFollowed);
                             }}
                             isFollowing={post.author?.isFollowed}
+                            onBlockUser={() =>
+                                post.author?.id
+                                    ? handleToggleBlockUser(post.author.id)
+                                    : undefined
+                            }
+                            akcruBadge={post.author?.badge}
                             akcruBadgeColor={selectAvatarBorderColor(post.author?.badge ?? 'AKCRUIT')}
                             isAdmin={user?.isAdmin}
                         />
@@ -426,7 +527,7 @@ const PostScreen = ({navigation, route}: Props) => {
                                             isFollowing={item.author?.isFollowed}
                                             onBlockUser={() =>
                                                 item.author?.id
-                                                    ? handleToggleBlockUser(item.author.id, item.author.isCurrentlyBlocked)
+                                                    ? handleToggleBlockUser(item.author.id)
                                                     : undefined
                                             }
                                             akcruBadgeColor={selectAvatarBorderColor(item.author?.badge ?? 'AKCRUIT')}
@@ -439,10 +540,6 @@ const PostScreen = ({navigation, route}: Props) => {
                         )}
                     </View>
                 </ScrollView>
-
-                <View style={styles.floatingbuttonContainer}>
-                    <PostButton onPress={() => navigateToNewComment(post.id)} />
-                </View>
             </SafeAreaView>
         </TabContainer>
     );

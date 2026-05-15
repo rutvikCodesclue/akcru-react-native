@@ -87,6 +87,17 @@ export default StyleSheet.create({
         justifyContent: 'flex-end',
         paddingRight: '5%',
     },
+    floatingStack: {
+        alignItems: 'center',
+    },
+    floatingStackItem: {
+        width: isTablet() ? 80 : 64,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    floatingStackItemGap: {
+        marginBottom: 8,
+    },
     floatingbutton2: {
         width: 55,
         height: 55,

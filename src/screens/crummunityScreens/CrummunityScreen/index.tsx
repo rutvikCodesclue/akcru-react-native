@@ -23,7 +23,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
+import CommonPostCard from '../../../components/CommonPostCard';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {commentOnPost, deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
 import {deletePoll, getPollById, getPolls, likePoll, unlikePoll, voteOnPoll} from '../../../lib/api/poll.lib';
@@ -643,7 +643,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                 <Pressable
                                                     onPress={() => handlePostPress(+item.id)}
                                                     style={{marginBottom: 10}}>
-                                                    <SkinnyPostCard
+                                                    <CommonPostCard
                                                         post={item}
                                                         loading={loadingPostIds[item.id] || false}
                                                         openProfile={() =>
@@ -698,16 +698,16 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                 styles.floatingbutton,
                                 {paddingBottom: Math.max(12, tabBarHeight + insets.bottom - 6)},
                             ]}>
-                            {pollCreator && (
-                                <Pressable onPress={() => navigation2.navigate('NewPoll')}>
-                                    <View>
+                            <View style={styles.floatingStack}>
+                                {pollCreator && (
+                                    <Pressable
+                                        onPress={() => navigation2.navigate('NewPoll')}
+                                        style={[styles.floatingStackItem, styles.floatingStackItemGap]}>
                                         <PollButton />
-                                    </View>
-                                </Pressable>
-                            )}
+                                    </Pressable>
+                                )}
 
-                            <View>
-                                <View>
+                                <View style={styles.floatingStackItem}>
                                     <PostButton onPress={navigateToNewPost} />
                                 </View>
                             </View>

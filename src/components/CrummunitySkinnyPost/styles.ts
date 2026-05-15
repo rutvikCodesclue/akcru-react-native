@@ -47,6 +47,19 @@ export default StyleSheet.create({
         fontSize: isTablet() ? 15 : 14,
         marginTop: 0,
     },
+    badgePill: {
+        alignSelf: 'flex-start',
+        marginTop: 4,
+        paddingHorizontal: 7,
+        paddingVertical: 4,
+        borderRadius: 7,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    badgePillText: {
+        ...FONTS.Akcrubadges,
+        fontSize: 11,
+    },
     followBtn: {
         backgroundColor: 'rgba(155, 89, 182, 0.35)',
         paddingHorizontal: 14,
@@ -178,6 +191,53 @@ export default StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         padding: 15,
+    },
+    sheetBackdrop: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.45)',
+    },
+    mediaSheetGradientBorder: {
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        padding: 1,
+        backgroundColor: 'transparent',
+    },
+    mediaSheet: {
+        backgroundColor: COLORS.BLACK,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+        paddingHorizontal: 16,
+        paddingTop: 14,
+        paddingBottom: 20,
+        borderWidth: 1,
+        borderColor: 'rgba(124, 58, 237, 0.25)',
+    },
+    mediaSheetTitle: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        marginBottom: 12,
+    },
+    optionsList: {
+        borderTopWidth: 1,
+        borderTopColor: 'rgba(255,255,255,0.08)',
+    },
+    optionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 12,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.08)',
+    },
+    optionIconWrap: {
+        width: 28,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 10,
+    },
+    optionLabel: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
+        fontSize: 15,
     },
     postoptioncontainer: {
         flex: 1,

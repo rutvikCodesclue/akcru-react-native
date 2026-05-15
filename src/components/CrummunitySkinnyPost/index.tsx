@@ -22,7 +22,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import {IUserProfile} from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import {isTablet, MULTISIZES} from '../../../assets/constants/theme';
-import DisplayBadge from '../General/akcrubadge';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
@@ -31,6 +30,7 @@ import VideoPlayer from 'react-native-media-console';
 import EngagementStatRow from '../EngagementStatRow/EngagementStatRow';
 import {navigateToCrummunitySendMIT} from '../../util/RootNavigation';
 import useAuthStore from '../../stores/auth.store';
+import {resolveAkcruBadgeConfig} from '../ProfileUserBadges';
 
 const neonIconWrap = (color: string) =>
     Platform.select({
@@ -115,10 +115,9 @@ type PostProps = {
     post: PostType;
     loading?: boolean;
     openProfile: () => void;
-    onFollow: () => void;
-    onUnfollow: () => void;
-    reportUser: () => void;
-    isFollowing: boolean; // Add this to track follow status
+    onFollow?: () => void;
+    reportUser?: () => void;
+    isFollowing?: boolean;
     onDeletePost: (postId: number) => void;
     currentUserID?: string;
     akcruBadge?: string;
@@ -128,25 +127,19 @@ type PostProps = {
     onCommentInputChange?: (value: string) => void;
     onCommentSend?: () => void;
     isCommentSending?: boolean;
-    handleDeletePost: (postId: number) => void;
-    isLikedByCurrentUser?: boolean; // Assuming this property exists
-    isSuggestedUser: boolean;
-    isPromo: boolean;
-    isOwner: boolean;
-    onBlockUser: () => void;
+    onBlockUser?: () => void;
     akcruBadgeColor: string;
-    isAdmin: boolean; // Add this to check if the user is an admin
-    visionaryStatus: boolean;
+    isAdmin?: boolean;
+    visionaryStatus?: boolean;
 };
 
 const SkinnyPostCard = ({
     post,
     loading,
     openProfile,
-    onFollow,
-    onUnfollow,
-    reportUser,
-    isFollowing,
+    onFollow = () => {},
+    reportUser = () => {},
+    isFollowing = false,
     onDeletePost,
     currentUserID,
     akcruBadge,
@@ -156,14 +149,9 @@ const SkinnyPostCard = ({
     onCommentInputChange,
     onCommentSend,
     isCommentSending = false,
-    isSuggestedUser,
-    isPromo,
-    isOwner,
-    onBlockUser,
+    onBlockUser = () => {},
     akcruBadgeColor,
-    isAdmin,
-    isLikedByCurrentUser,
-    visionaryStatus,
+    isAdmin = false,
 }: PostProps) => {
     const commentInputRef = useRef<TextInput>(null);
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -278,17 +266,25 @@ const SkinnyPostCard = ({
         setShareOptionsVisible(false);
     };
 
+    const renderOptionRow = (
+        key: string,
+        label: string,
+        iconName: string,
+        iconType: 'ionicon' | 'material-community' = 'ionicon',
+        onPress?: () => void,
+    ) => (
+        <Pressable key={key} style={styles.optionRow} onPress={onPress}>
+            <View style={styles.optionIconWrap}>
+                <Icon name={iconName} type={iconType} color={COLORS.PURPLE} size={18} />
+            </View>
+            <Text style={styles.optionLabel}>{label}</Text>
+        </Pressable>
+    );
+
     // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor || isAdmin) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={handleDeletePost}>
-                    <Icon name="trash" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Delete Skinny</Text>
-                </Pressable>
-            );
+            return renderOptionRow('delete', 'Delete Skinny', 'trash-outline', 'ionicon', handleDeletePost);
         }
         return null;
     };
@@ -305,33 +301,19 @@ const SkinnyPostCard = ({
     };
     const renderBlockUser = () => {
         if (!isCurrentUserAuthor) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={() => {
-                        onBlockUser();
-                        closePostOptions(); // Close the modal
-                    }}>
-                    <Icon name="hand-left" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Block {post.author.username}</Text>
-                </Pressable>
-            );
+            return renderOptionRow('block', `Block ${post.author.username}`, 'hand-left-outline', 'ionicon', () => {
+                onBlockUser();
+                closePostOptions();
+            });
         }
         return null;
     };
     const renderReportSkinny = () => {
         if (!isCurrentUserAuthor) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={() => {
-                        reportUser(); // Call the report user function
-                        closePostOptions(); // Close the modal
-                    }}>
-                    <Icon name="flag" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Report {post.author.username}</Text>
-                </Pressable>
-            );
+            return renderOptionRow('report', `Report ${post.author.username}`, 'flag-outline', 'ionicon', () => {
+                reportUser();
+                closePostOptions();
+            });
         }
         return null;
     };
@@ -349,18 +331,15 @@ const SkinnyPostCard = ({
 
     const renderFollowUser = () => {
         if (!isCurrentUserAuthor) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={() => {
-                        onFollow(); // Call the report user function
-                        closePostOptions(); // Close the modal
-                    }}>
-                    <Icon name="person" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>
-                        {isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`}
-                    </Text>
-                </Pressable>
+            return renderOptionRow(
+                'follow',
+                isFollowing ? `Unfollow ${post.author.username}` : `Follow ${post.author.username}`,
+                isFollowing ? 'person-remove-outline' : 'person-add-outline',
+                'ionicon',
+                () => {
+                    onFollow();
+                    closePostOptions();
+                },
             );
         }
         return null;
@@ -396,18 +375,10 @@ const SkinnyPostCard = ({
 
     const renderEditPostScreen = () => {
         if (isCurrentUserAuthor) {
-            return (
-                <Pressable
-                    style={{flexDirection: 'row', alignItems: 'center', marginBottom: 15}}
-                    onPress={() => {
-                        // Navigate to the edit screen or open the edit modal
-                        navigation.navigate('EditPostScreen', {post});
-                        closePostOptions();
-                    }}>
-                    <Icon name="create" type="ionicon" color={COLORS.PURPLE} size={20} style={{marginLeft: 5}} />
-                    <Text style={{...FONTS.Title2, paddingLeft: 12}}>Edit Post</Text>
-                </Pressable>
-            );
+            return renderOptionRow('edit', 'Edit Post', 'create-outline', 'ionicon', () => {
+                navigation.navigate('EditPostScreen', {post});
+                closePostOptions();
+            });
         }
         return null;
     };
@@ -428,6 +399,7 @@ const SkinnyPostCard = ({
         [headline, description].filter(Boolean).join('\n').trim() ||
         (primaryText ? primaryText.slice(0, 280) : '') ||
         '';
+    const badgeConfig = resolveAkcruBadgeConfig(post.author?.badge);
     const displayName =
         [post.author?.firstName, post.author?.lastName].filter(Boolean).join(' ').trim() ||
         post.author?.username ||
@@ -560,9 +532,17 @@ const SkinnyPostCard = ({
                                 )}
                             </View>
                             <Text style={styles.handleText}>@{userHandle}</Text>
-                            <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 4}}>
-                                <DisplayBadge akcruBadge={akcruBadge} />
-                            </View>
+                            {badgeConfig ? (
+                                <LinearGradient
+                                    colors={[`${badgeConfig.color}24`, `${badgeConfig.color}40`]}
+                                    start={{x: 0, y: 0}}
+                                    end={{x: 1, y: 1}}
+                                    style={styles.badgePill}>
+                                    <Text style={[styles.badgePillText, {color: badgeConfig.color}]}>
+                                        {badgeConfig.label}
+                                    </Text>
+                                </LinearGradient>
+                            ) : null}
                         </View>
                         <View style={{flexDirection: 'row', alignItems: 'center'}}>
                             {!isCurrentUserAuthor && (
@@ -718,16 +698,24 @@ const SkinnyPostCard = ({
                         ) : null}
                     </View>
 
-                    <Modal visible={isPostOptionsVisible} transparent={true} animationType="fade">
-                        <Pressable style={styles.postoptioncontainer} onPress={closePostOptions}>
-                            <View style={styles.postoptionsmodal}>
-                                {renderFollowUser()}
-                                {renderBlockUser()}
-                                {renderReportSkinny()}
-                                {renderEditPostScreen()}
-                                {renderDeleteSkinny()}
+                    <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
+                        <Pressable style={styles.sheetBackdrop} onPress={closePostOptions} />
+                        <LinearGradient
+                            colors={['#4f46e5', '#7c3aed', '#ec4899']}
+                            start={{x: 0, y: 0}}
+                            end={{x: 1, y: 1}}
+                            style={styles.mediaSheetGradientBorder}>
+                            <View style={styles.mediaSheet}>
+                                <Text style={styles.mediaSheetTitle}>Post options</Text>
+                                <View style={styles.optionsList}>
+                                    {renderFollowUser()}
+                                    {renderBlockUser()}
+                                    {renderReportSkinny()}
+                                    {renderEditPostScreen()}
+                                    {renderDeleteSkinny()}
+                                </View>
                             </View>
-                        </Pressable>
+                        </LinearGradient>
                     </Modal>
                     <Modal visible={shareOptionsVisible} transparent={true} animationType="slide">
                         <Pressable style={styles.postoptioncontainer} onPress={closeShareOptions}>
