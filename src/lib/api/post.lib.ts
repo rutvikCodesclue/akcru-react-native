@@ -96,7 +96,7 @@ export const getPostComments = async (postId: number): Promise<Object | undefine
     }
 };
 
-export async function createPost(postType: string, content: string[]) {
+export async function createPost(postType: string, content: string[], allowComments = true) {
     try {
         const postContent = Array.isArray(content) ? content : [content];
         console.log('Post Content:', postContent);
@@ -104,6 +104,7 @@ export async function createPost(postType: string, content: string[]) {
         const {data} = await CRUMMUNITY.post('/v1/post/create', {
             postType,
             content: postContent,
+            allowComments,
         });
 
         if (data.success === false) {

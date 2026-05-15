@@ -16,21 +16,19 @@ import {
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
-import LinearGradient from 'react-native-linear-gradient';
 import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {extractUsernamesFromText, selectAvatarBorderColor} from '../../../util/util';
-import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
 import {Image} from 'react-native';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import {createPost, uploadPictures, uploadVideo} from '../../../lib/api/post.lib';
+import {uploadPictures, uploadVideo} from '../../../lib/api/post.lib';
 import CalculateVideoDuration from '../../../util/calculatevideoduration';
 import Video from 'react-native-video';
 import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
@@ -41,6 +39,9 @@ import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-c
 import {ProgressView} from '@react-native-community/progress-view';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
 import {createPoll} from '../../../lib/api/poll.lib';
+import AkcruButtons from '../../../components/akcruButtons';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 
 const NewPoll = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -49,9 +50,7 @@ const NewPoll = () => {
     const [cancelidVideo, setcancelidVideo] = useState('');
 
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
-
     const [selectedVideo, setSelectedVideo] = useState('');
-
     const [showSizeErrorModal, setShowSizeErrorModal] = useState(false);
 
     const [isTagging, setIsTagging] = useState(false);
@@ -61,14 +60,14 @@ const NewPoll = () => {
     const [isPosting, setIsPosting] = useState(false);
     const [isCompress, setIsCompress] = useState(false);
     const [progressVal, setProgress] = useState(0);
+    const [isPressing, setIsPressing] = useState(false);
+
     const videoRef = useRef(null);
 
     const [pollChoices, setPollChoices] = useState<{text: string; imageUrl?: string}[]>([{text: ''}]);
-
     const [hours, setHours] = useState<string>('');
     const [minutes, setMinutes] = useState<string>('');
 
-    // Function to ensure only numeric input
     const handleNumericInput = (text, setter) => {
         const numericText = text.replace(/[^0-9]/g, '');
         setter(numericText);
@@ -77,7 +76,7 @@ const NewPoll = () => {
     const [isPollButtonEnabled, setIsPollButtonEnabled] = useState(false);
 
     useEffect(() => {
-        const isValidDuration = parseInt(hours) > 0 || parseInt(minutes) > 0;
+        const isValidDuration = parseInt(hours, 10) > 0 || parseInt(minutes, 10) > 0;
         const hasValidChoices = pollChoices.length >= 2 && pollChoices.every(choice => choice.text.trim().length > 0);
         const isPollValid = pollText.trim().length > 0 && isValidDuration && hasValidChoices;
         setIsPollButtonEnabled(isPollValid);
@@ -102,11 +101,9 @@ const NewPoll = () => {
     };
 
     const selectChoiceImage = async (index: number) => {
-        let options = {
+        const options = {
             mediaType: 'photo' as MediaType,
-            storageOptions: {
-                path: 'images',
-            },
+            storageOptions: {path: 'images'},
             selectionLimit: 1,
         };
 
@@ -120,6 +117,15 @@ const NewPoll = () => {
         });
     };
 
+    const removeSelectedImage = (indexToRemove: number) => {
+        setSelectedImages(prev => prev.filter((_, index) => index !== indexToRemove));
+    };
+
+    const removeSelectedVideo = () => {
+        setSelectedVideo('');
+        setVideoDuration(0);
+    };
+
     const getFileSize = async filePath => {
         try {
             const response = await fetch(filePath, {method: 'HEAD'});
@@ -131,12 +137,11 @@ const NewPoll = () => {
             return 0;
         }
     };
+
     const selectPollImage = async () => {
-        let options = {
+        const options = {
             mediaType: 'photo' as MediaType,
-            storageOptions: {
-                path: 'images',
-            },
+            storageOptions: {path: 'images'},
             selectionLimit: 3,
         };
 
@@ -149,18 +154,16 @@ const NewPoll = () => {
                 }
 
                 callbackExecuted = true;
-
                 const maxSizeInBytes = 10 * 1024 * 1024;
-                let imagesForPost = [];
+                const imagesForPost: string[] = [];
 
                 for (const asset of response.assets) {
                     if (asset.fileSize && asset.fileSize > maxSizeInBytes) {
                         setShowSizeErrorModal(true);
                         return;
-                    } else {
-                        if (asset.uri) {
-                            imagesForPost.push(asset.uri);
-                        }
+                    }
+                    if (asset.uri) {
+                        imagesForPost.push(asset.uri);
                     }
                 }
 
@@ -177,77 +180,31 @@ const NewPoll = () => {
 
     <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />;
 
-    const selectPollVideo = async () => {
-        let options = {
-            mediaType: 'video' as MediaType,
-            quality: 1,
-            selectionLimit: 1,
-        };
-
-        let callbackExecuted = false;
-
-        launchImageLibrary(options, response => {
-            if (response.didCancel) {
-                if (callbackExecuted) {
-                    return;
-                }
-
-                callbackExecuted = true;
-            } else if (response.errorCode) {
-            } else if (response.assets) {
-                const video = response.assets[0];
-
-                const maxSizeInBytes = 1000 * 1024 * 1024;
-                if (video.fileSize > maxSizeInBytes) {
-                    return;
-                }
-
-                setSelectedVideo(video.uri);
-
-                if (pollText) {
-                    setSelectedImages([]);
-                }
-            }
-        });
-    };
-
     const determinePostType = (): IPollType => {
         if (pollText && (selectedImages.length > 0 || selectedVideo)) {
             return 'HYBRID';
-        } else if (selectedImages.length > 0) {
-            return 'IMAGE';
-        } else if (selectedVideo) {
-            return 'VIDEO';
-        } else {
-            return 'TEXT';
         }
+        if (selectedImages.length > 0) {
+            return 'IMAGE';
+        }
+        if (selectedVideo) {
+            return 'VIDEO';
+        }
+        return 'TEXT';
     };
 
-    const compressAndUploadImages = async selectedImages => {
-        const originalSizeList = [];
-        const compressedSizeList = [];
+    const compressAndUploadImages = async images => {
         const compressedImages = [];
 
-        for (let image of selectedImages) {
-            // Get the original file size
-            const originalSize = await getFileSize(image);
-            originalSizeList.push(originalSize);
-
-            // Compress the image
-            const compressedImagePath = await CompressorImage.compress(image, {
-                compressionMethod: 'auto',
-            });
-
-            // Get the compressed file size
-            const compressedSize = await getFileSize(compressedImagePath);
-            compressedSizeList.push(compressedSize);
-
+        for (const image of images) {
+            await getFileSize(image);
+            const compressedImagePath = await CompressorImage.compress(image, {compressionMethod: 'auto'});
+            await getFileSize(compressedImagePath);
             compressedImages.push(compressedImagePath);
         }
+
         return compressedImages;
     };
-
-    //Updated Code adding GIF
 
     const onCancelVideo = async () => {
         await VideoCompressor.cancelCompression(cancelidVideo);
@@ -273,29 +230,25 @@ const NewPoll = () => {
             } else if (pollType === 'IMAGE') {
                 setIsPosting(true);
 
-                // Separate GIFs from other images
                 const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
                 const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
 
                 let imageUrls = [];
                 if (otherImages.length > 0) {
-                    // Compress and upload other images
                     const compressedImages = await compressAndUploadImages(otherImages);
                     imageUrls = await uploadPictures(compressedImages);
                 }
 
                 let gifUrls = [];
                 if (gifs.length > 0) {
-                    // Upload GIFs directly without compression
                     gifUrls = await uploadPictures(gifs);
                 }
 
-                // Combine both URLs
                 content = [...imageUrls, ...gifUrls];
                 if (imageUrls.length > 0) {
-                    imageUrl = imageUrls[0]; // Use the first image URL for the poll question
+                    imageUrl = imageUrls[0];
                 } else if (gifUrls.length > 0) {
-                    imageUrl = gifUrls[0]; // Use the first gif URL for the poll question
+                    imageUrl = gifUrls[0];
                 }
             } else if (pollType === 'VIDEO') {
                 setIsCompress(true);
@@ -322,25 +275,21 @@ const NewPoll = () => {
                 }
                 content = [pollText];
 
-                // Separate GIFs from other images
                 const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
                 const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
 
                 let imageUrls = [];
                 if (otherImages.length > 0) {
-                    // Compress and upload other images
                     const compressedImages = await compressAndUploadImages(otherImages);
                     imageUrls = await uploadPictures(compressedImages);
                 }
 
                 let gifUrls = [];
                 if (gifs.length > 0) {
-                    // Upload GIFs directly without compression
                     gifUrls = await uploadPictures(gifs);
                 }
 
                 if (selectedVideo) {
-                    // Upload video if exists
                     setIsCompress(true);
                     const compressedVideoPath = await VideoCompressor.compress(
                         selectedVideo,
@@ -357,11 +306,9 @@ const NewPoll = () => {
                     );
                     setIsCompress(false);
                     setIsPosting(true);
-
                     videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
                 }
 
-                // Combine all media URLs
                 const mediaUrls = [...imageUrls, ...gifUrls];
                 if (videoUrl) {
                     mediaUrls.push(videoUrl);
@@ -369,9 +316,9 @@ const NewPoll = () => {
 
                 content = content.concat(mediaUrls);
                 if (imageUrls.length > 0) {
-                    imageUrl = imageUrls[0]; // Use the first image URL for the poll question
+                    imageUrl = imageUrls[0];
                 } else if (gifUrls.length > 0) {
-                    imageUrl = gifUrls[0]; // Use the first gif URL for the poll question
+                    imageUrl = gifUrls[0];
                 }
             }
 
@@ -379,15 +326,15 @@ const NewPoll = () => {
                 pollChoices.map(async choice => {
                     if (choice.imageUrl) {
                         const compressedImages = await compressAndUploadImages([choice.imageUrl]);
-                        const imageUrl = await uploadPictures(compressedImages);
-                        return {...choice, imageUrl: imageUrl[0]};
+                        const uploadedImageUrl = await uploadPictures(compressedImages);
+                        return {...choice, imageUrl: uploadedImageUrl[0]};
                     }
                     return choice;
                 }),
             );
 
-            const durationHours = parseInt(hours) || 0;
-            const durationMinutes = parseInt(minutes) || 0;
+            const durationHours = parseInt(hours, 10) || 0;
+            const durationMinutes = parseInt(minutes, 10) || 0;
             const expirationDate = new Date();
             expirationDate.setHours(expirationDate.getHours() + durationHours);
             expirationDate.setMinutes(expirationDate.getMinutes() + durationMinutes);
@@ -402,27 +349,25 @@ const NewPoll = () => {
 
             if (result && result.id) {
                 const newPollId = result.id;
-
                 const taggedUsernames = extractUsernamesFromText(pollText);
 
                 if (taggedUsernames.includes('followers')) {
                     const notificationType = 'UserTaggedOnPoll';
                     const success = await sendTagNotification(user?.id, notificationType, newPollId, '@followers');
                     if (!success) {
-                        console.error(`Failed to send notification to followers`);
+                        console.error('Failed to send notification to followers');
                     }
                 }
 
                 await Promise.all(
                     taggedUsernames.map(async username => {
-                        if (username === 'followers') return; // Skip the followers tag here
+                        if (username === 'followers') return;
                         try {
-                            const user = await findAUser({username});
-                            if (user && user.id) {
+                            const taggedUser = await findAUser({username});
+                            if (taggedUser && taggedUser.id) {
                                 const notificationType = 'UserTaggedOnPoll';
-                                const success = await sendTagNotification(user.id, notificationType, newPollId);
-                                if (success) {
-                                } else {
+                                const success = await sendTagNotification(taggedUser.id, notificationType, newPollId);
+                                if (!success) {
                                     console.error(`Failed to send notification to ${username}`);
                                 }
                             } else {
@@ -442,14 +387,27 @@ const NewPoll = () => {
             console.error('Error creating the poll:', error);
             setIsPosting(false);
         }
+
         if (!cancelidVideo) {
             setPollText('');
             setPollChoices([{text: ''}]);
             setSelectedImages([]);
             setSelectedVideo('');
+            setHours('');
+            setMinutes('');
         } else {
             setSelectedImages([]);
             setSelectedVideo('');
+            setHours('');
+            setMinutes('');
+        }
+    };
+
+    const handlePress = () => {
+        if (!isPressing) {
+            setIsPressing(true);
+            navigation.pop();
+            setTimeout(() => setIsPressing(false), 1000);
         }
     };
 
@@ -457,8 +415,8 @@ const NewPoll = () => {
         const fetchUserSuggestions = async () => {
             if (isTagging && currentTag) {
                 try {
-                    const suggestions = await searchForUsers(currentTag);
-                    setSuggestions(suggestions);
+                    const fetchedSuggestions = await searchForUsers(currentTag);
+                    setSuggestions(fetchedSuggestions);
                 } catch (error) {
                     console.error('Error fetching user suggestions:', error);
                     setSuggestions([]);
@@ -471,96 +429,45 @@ const NewPoll = () => {
         fetchUserSuggestions();
     }, [currentTag, isTagging]);
 
+    const profileHandleRaw = (user?.username ?? 'Guest').trim() || 'Guest';
+    const profileHandleDisplay = profileHandleRaw;
+
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 100}}>
+            <SafeAreaView style={styles.safeArea}>
+                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.headerZIndex}>
                         <Header />
                     </View>
-                    <View
-                        style={{
-                            height: SIZES.ScreenHeight * 0.15,
-                            marginTop: isTablet() ? -160 : -68,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                        }}>
-                        <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: isTablet() ? SIZES.ScreenHeight * 0.26 : SIZES.ScreenHeight * 0.15,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginTop: '20%',
-                                    marginHorizontal: 15,
-                                }}>
-                                <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View>
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity
-                                    onPress={OnPollPress}
-                                    style={{marginLeft: 'auto'}}
-                                    disabled={!isPollButtonEnabled}>
-                                    <View>
-                                        <Text
-                                            style={[
-                                                styles.postButton,
-                                                !isPollButtonEnabled && styles.postButtonDisabled,
-                                            ]}>
-                                            Poll
-                                        </Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </LinearGradient>
+                    <View style={styles.cancelRowStandalone}>
+                        <TouchableOpacity onPress={handlePress} disabled={isPressing}>
+                            <Text style={styles.cancelText}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={{marginTop: '5%', marginHorizontal: 15}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{marginRight: 8}}>
+
+                    <View style={styles.composerWrap}>
+                        <View style={styles.authorRow}>
+                            <View style={styles.avatarWrap}>
                                 <TouchableOpacity>
                                     <HexAvatar
                                         source={
-                                            user?.profilePicture
-                                                ? {uri: user.profilePicture}
-                                                : imageindex.Akcruplaceholder
+                                            user?.profilePicture ? {uri: user.profilePicture} : imageindex.Akcruplaceholder
                                         }
-                                        size={isTablet() ? 65 : 45}
+                                        size={isTablet() ? 82 : 58}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                     />
                                 </TouchableOpacity>
                             </View>
-                            <View>
-                                <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
+                            <View style={styles.authorMeta}>
+                                <View style={styles.usernameBadgeRow}>
+                                    <Text style={styles.usernameText} numberOfLines={1} ellipsizeMode="tail">
+                                        {profileHandleDisplay}
+                                    </Text>
+                                    <ProfileUserBadges user={user} variant="inline" style={styles.inlineBadge} />
+                                </View>
                             </View>
                         </View>
+
                         <View style={styles.input}>
                             <TextInput
                                 placeholder={'Enter the question of your poll here'}
@@ -588,6 +495,7 @@ const NewPoll = () => {
                                 editable={true}
                             />
                         </View>
+
                         {isTagging && suggestions.length > 0 && (
                             <FlatList
                                 data={suggestions}
@@ -596,9 +504,9 @@ const NewPoll = () => {
                                 scrollEnabled={true}
                                 contentContainerStyle={{flexGrow: 1}}
                                 keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
+                                renderItem={({item}) => (
                                     <Pressable
-                                        style={{marginVertical: 5}}
+                                        style={styles.suggestionItem}
                                         onPress={() => {
                                             const newText =
                                                 pollText.substring(0, pollText.lastIndexOf('@')) + `@${item.username} `;
@@ -629,39 +537,53 @@ const NewPoll = () => {
                                 )}
                             />
                         )}
+
                         {!isTagging && (
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPollImage}>
-                                    <Icon
-                                        name="images"
-                                        type="ionicon"
-                                        color={COLORS.AKCRUBLUE}
-                                        size={isTablet() ? 30 : 20}
-                                    />
-                                </TouchableOpacity>
-                            </View>
+                            <>
+                                <View style={styles.uploadMediaRow}>
+                                    <Text style={styles.commentSwitchLabel}>Want to upload media?</Text>
+                                    <TouchableOpacity style={styles.uploadMediaButton} onPress={selectPollImage}>
+                                        <Icon name="plus" type="material-community" color={COLORS.WHITE} size={22} />
+                                    </TouchableOpacity>
+                                </View>
+                                {(selectedImages.length > 0 || !!selectedVideo) && (
+                                    <ArchetypeHorizontalDivider title="Media" containerStyle={styles.uploadDivider} />
+                                )}
+                            </>
                         )}
-                        {selectedVideo && (
-                            <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
-                        )}
+
+                        {selectedVideo && <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />}
+
                         {!isTagging && (
-                            <View style={{marginTop: 10}}>
+                            <View style={styles.mediaPreviewWrap}>
                                 <FlatList
                                     data={selectedImages}
                                     horizontal={true}
                                     showsHorizontalScrollIndicator={false}
                                     keyExtractor={(item, index) => index.toString()}
-                                    renderItem={({item}) => (
-                                        <View>
+                                    renderItem={({item, index}) => (
+                                        <View style={styles.previewImageCard}>
                                             <Image
                                                 source={{uri: item}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 3.55,
-                                                    height: SIZES.ScreenWidth / 2.35,
-                                                    margin: 5,
-                                                    borderRadius: 5,
-                                                }}
+                                                style={[
+                                                    styles.previewImage,
+                                                    {
+                                                        height: isTablet()
+                                                            ? SIZES.ScreenWidth / 2.9
+                                                            : SIZES.ScreenWidth / 1.9,
+                                                    },
+                                                ]}
                                             />
+                                            <TouchableOpacity
+                                                style={styles.removeMediaButton}
+                                                onPress={() => removeSelectedImage(index)}>
+                                                <Icon
+                                                    name="close"
+                                                    type="material-community"
+                                                    color={COLORS.WHITE}
+                                                    size={16}
+                                                />
+                                            </TouchableOpacity>
                                         </View>
                                     )}
                                 />
@@ -675,80 +597,76 @@ const NewPoll = () => {
                                             repeat={true}
                                             muted={true}
                                         />
+                                        <TouchableOpacity style={styles.removeVideoButton} onPress={removeSelectedVideo}>
+                                            <Icon
+                                                name="close"
+                                                type="material-community"
+                                                color={COLORS.WHITE}
+                                                size={16}
+                                            />
+                                        </TouchableOpacity>
                                     </View>
                                 )}
                             </View>
                         )}
-                        <View>
-                            <Text style={{...FONTS.paragraph1, textAlign: 'center', color: COLORS.DARKGREY}}>
-                                (Must have at least 2 choices and at most 8 choices.)
-                            </Text>
+
+                        <View style={styles.limitCard}>
+                            <Text style={styles.limitText}>* Note: Image limit: 10 MB each</Text>
                         </View>
+
+                        <ArchetypeHorizontalDivider title="Choices" containerStyle={styles.uploadDivider} />
+
                         <View style={styles.choicesContainer}>
                             {pollChoices.map((choice, index) => (
                                 <View key={index} style={styles.choice}>
-                                    <TextInput
-                                        placeholder={`Choice ${index + 1}`}
-                                        placeholderTextColor={COLORS.DARKGREY}
-                                        style={styles.choiceInput}
-                                        secureTextEntry={false}
-                                        onChangeText={text => updateChoiceText(text, index)}
-                                        value={choice.text}
-                                    />
-                                    {choice.imageUrl && (
-                                        <Image source={{uri: choice.imageUrl}} style={styles.choiceImage} />
-                                    )}
-                                    <View style={styles.choiceButtons}>
-                                        <TouchableOpacity onPress={() => selectChoiceImage(index)}>
-                                            <Icon
-                                                name="images"
-                                                type="ionicon"
-                                                color={COLORS.AKCRUBLUE}
-                                                size={isTablet() ? 30 : 20}
-                                            />
-                                        </TouchableOpacity>
-                                        {pollChoices.length > 2 && (
-                                            <TouchableOpacity onPress={() => removeChoice(index)}>
+                                    <View style={styles.choiceInputRow}>
+                                        <TextInput
+                                            placeholder={`Choice ${index + 1}`}
+                                            placeholderTextColor={COLORS.DARKGREY}
+                                            style={styles.choiceInput}
+                                            secureTextEntry={false}
+                                            onChangeText={text => updateChoiceText(text, index)}
+                                            value={choice.text}
+                                        />
+                                        <View style={styles.choiceButtons}>
+                                            <TouchableOpacity onPress={() => selectChoiceImage(index)}>
                                                 <Icon
-                                                    name="remove-circle"
+                                                    name="images"
                                                     type="ionicon"
-                                                    color={COLORS.CATREDDRK}
+                                                    color={COLORS.AKCRUBLUE}
                                                     size={isTablet() ? 30 : 20}
                                                 />
                                             </TouchableOpacity>
-                                        )}
+                                            {pollChoices.length > 2 && (
+                                                <TouchableOpacity onPress={() => removeChoice(index)}>
+                                                    <Icon
+                                                        name="remove-circle"
+                                                        type="ionicon"
+                                                        color={COLORS.CATREDDRK}
+                                                        size={isTablet() ? 30 : 20}
+                                                    />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
                                     </View>
+                                    {choice.imageUrl && <Image source={{uri: choice.imageUrl}} style={styles.choiceImage} />}
                                 </View>
                             ))}
-                        </View>
-                        <TouchableOpacity onPress={addChoice} style={styles.addChoiceButton}>
-                            <Text style={styles.addChoiceButtonText}>Add Choice</Text>
-                            <Icon
-                                name="plus-circle"
-                                type="material-community"
-                                color={COLORS.AKCRUPINK}
-                                size={isTablet() ? 30 : 25}
-                            />
-                        </TouchableOpacity>
-                        <View style={styles.durationContainer}>
-                            <View style={{marginBottom: 10}}>
-                                <Text style={{...FONTS.paragraph1, textAlign: 'center', color: COLORS.DARKGREY}}>
-                                    (Must enter the amount of time the poll will run.)
-                                </Text>
-                            </View>
-                            <View style={{marginBottom: 10}}>
-                                <Text style={styles.durationLabel}>Poll Duration</Text>
-                            </View>
-
-                            <View>
+                            <TouchableOpacity onPress={addChoice} style={styles.addChoiceButton}>
+                                <Text style={styles.addChoiceButtonText}>Add Choice</Text>
                                 <Icon
-                                    name="timer"
+                                    name="plus-circle"
                                     type="material-community"
-                                    color={COLORS.PINK}
+                                    color={COLORS.AKCRUPINK}
                                     size={isTablet() ? 30 : 25}
                                 />
-                            </View>
+                            </TouchableOpacity>
+                            <Text style={styles.durationHint}>* Note: Must have at least 2 choices and at most 8 choices.</Text>
+                        </View>
 
+                        <ArchetypeHorizontalDivider title="Poll Duration" containerStyle={styles.uploadDivider} />
+
+                        <View style={styles.durationContainer}>
                             <View style={styles.durationInputs}>
                                 <TextInput
                                     style={styles.durationInput}
@@ -768,7 +686,9 @@ const NewPoll = () => {
                                     placeholderTextColor={COLORS.DARKGREY}
                                 />
                             </View>
+                            <Text style={styles.durationHint}>* Note: Must enter the amount of time the poll will run.</Text>
                         </View>
+
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
                             <View
                                 style={{
@@ -785,18 +705,10 @@ const NewPoll = () => {
                                         alignItems: 'center',
                                         marginHorizontal: 15,
                                     }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title3,
-                                            marginBottom: 10,
-                                            textAlign: 'center',
-                                        }}>
+                                    <Text style={{...FONTS.Title3, marginBottom: 10, textAlign: 'center'}}>
                                         {'Image is too large. Please select an image under 5MB.'}
                                     </Text>
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            setShowSizeErrorModal(false);
-                                        }}>
+                                    <TouchableOpacity onPress={() => setShowSizeErrorModal(false)}>
                                         <Text
                                             style={{
                                                 ...FONTS.Title2,
@@ -812,12 +724,24 @@ const NewPoll = () => {
                         </Modal>
                     </View>
                 </ScrollView>
+
+                <View style={styles.bottomPostBar}>
+                    <View style={styles.bottomPostButton}>
+                        <AkcruButtons.LrgButton
+                            btnname="Poll"
+                            onPress={OnPollPress}
+                            color={COLORS.AKCRUBLUE}
+                            variant="auth"
+                            authButtonWidth={SIZES.ScreenWidth - 32}
+                            disabled={!isPollButtonEnabled}
+                        />
+                    </View>
+                </View>
+
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
                         <View style={stylesProgress.modalContainer}>
-                            <Text style={stylesProgress.progressText}>{`Loading: ${Math.round(
-                                progressVal * 100,
-                            )}%`}</Text>
+                            <Text style={stylesProgress.progressText}>{`Loading: ${Math.round(progressVal * 100)}%`}</Text>
                             {Platform.OS === 'android' ? (
                                 <ProgressBar
                                     styleAttr="Horizontal"
@@ -848,6 +772,7 @@ const NewPoll = () => {
                         <Text style={stylesProgress.loadingText}>We're Posting...</Text>
                     </View>
                 </Modal>
+
             </SafeAreaView>
         </TabContainer>
     );

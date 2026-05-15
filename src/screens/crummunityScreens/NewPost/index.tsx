@@ -11,6 +11,8 @@ import {
     ActivityIndicator,
     Platform,
     StyleSheet,
+    Alert,
+    Switch,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
@@ -22,7 +24,6 @@ import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {extractUsernamesFromText, selectAvatarBorderColor} from '../../../util/util';
-import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
@@ -40,6 +41,9 @@ import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-c
 import {ProgressView} from '@react-native-community/progress-view';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
 import { handleError } from '../../../util/handleError';
+import AkcruButtons from '../../../components/akcruButtons';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -61,6 +65,8 @@ const NewPost = () => {
     const [isCompress, setIsCompress] = useState(false);
     const [progressVal, setProgress] = useState(0);
     const [isPressing, setIsPressing] = useState(false);
+    const [allowComments, setAllowComments] = useState(true);
+    const [showMediaSheet, setShowMediaSheet] = useState(false);
 
     const videoRef = useRef(null);
 
@@ -119,6 +125,15 @@ const NewPost = () => {
         setVideoDuration(duration);
     };
 
+    const removeSelectedImage = (indexToRemove: number) => {
+        setSelectedImages(prev => prev.filter((_, index) => index !== indexToRemove));
+    };
+
+    const removeSelectedVideo = () => {
+        setSelectedVideo('');
+        setVideoDuration(0);
+    };
+
     <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />;
 
     const selectPostVideo = async () => {
@@ -147,10 +162,6 @@ const NewPost = () => {
                 }
 
                 setSelectedVideo(video.uri);
-
-                if (postText) {
-                    setSelectedImages([]);
-                }
             }
         });
     };
@@ -306,7 +317,7 @@ const NewPost = () => {
                 content = content.concat(mediaUrls);
             }
 
-            const result = await createPost(postType, content);
+            const result = await createPost(postType, content, allowComments);
             if (result && result.id) {
                 const newPostId = result.id;
 
@@ -384,51 +395,25 @@ const NewPost = () => {
         fetchUserSuggestions();
     }, [currentTag, isTagging]);
 
+    const canPost = postText.trim().length > 0 || selectedImages.length > 0 || !!selectedVideo;
+    const profileHandleRaw = (user?.username ?? 'Guest').trim() || 'Guest';
+    const profileHandleDisplay = profileHandleRaw;
+
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 100}}>
+            <SafeAreaView style={styles.safeArea}>
+                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.headerZIndex}>
                         <Header />
                     </View>
-                    <View
-                        style={{
-                            height: isTablet() ? SIZES.ScreenHeight * 0.15 : SIZES.ScreenHeight * 0.15,
-                            marginTop: isTablet() ? -160 : -68,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                        }}>
-                        <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: isTablet() ? SIZES.ScreenHeight * 0.26 : SIZES.ScreenHeight * 0.15,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginTop: '20%',
-                                    marginHorizontal: 15,
-                                }}>
-                                <TouchableOpacity onPress={handlePress} disabled={isPressing}>
-                                    <View>
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
-                                    <View>
-                                        <Text style={styles.postButton}>Post</Text>
-                                    </View>
-                                </TouchableOpacity>
-                            </View>
-                        </LinearGradient>
+                    <View style={styles.cancelRowStandalone}>
+                        <TouchableOpacity onPress={handlePress} disabled={isPressing}>
+                            <Text style={styles.cancelText}>Cancel</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={{marginTop: '5%', marginHorizontal: 15}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{marginRight: 8}}>
+                    <View style={styles.composerWrap}>
+                        <View style={styles.authorRow}>
+                            <View style={styles.avatarWrap}>
                                 <TouchableOpacity>
                                     <HexAvatar
                                         source={
@@ -436,33 +421,18 @@ const NewPost = () => {
                                                 ? {uri: user.profilePicture}
                                                 : imageindex.Akcruplaceholder
                                         }
-                                        size={isTablet() ? 65 : 45}
+                                        size={isTablet() ? 82 : 58}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                     />
                                 </TouchableOpacity>
                             </View>
-                            <View>
-                                <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
+                            <View style={styles.authorMeta}>
+                                <View style={styles.usernameBadgeRow}>
+                                    <Text style={styles.usernameText} numberOfLines={1} ellipsizeMode="tail">
+                                        {profileHandleDisplay}
+                                    </Text>
+                                    <ProfileUserBadges user={user} variant="inline" style={styles.inlineBadge} />
+                                </View>
                             </View>
                         </View>
                         <View style={styles.input}>
@@ -502,7 +472,7 @@ const NewPost = () => {
                                 keyExtractor={item => item.id}
                                 renderItem={({item, index}) => (
                                     <Pressable
-                                        style={{marginVertical: 5}}
+                                        style={styles.suggestionItem}
                                         onPress={() => {
                                             const newText =
                                                 postText.substring(0, postText.lastIndexOf('@')) + `@${item.username} `;
@@ -534,49 +504,58 @@ const NewPost = () => {
                             />
                         )}
                         {!isTagging && (
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                    <Icon
-                                        name="images"
-                                        type="ionicon"
-                                        color={COLORS.AKCRUBLUE}
-                                        size={isTablet() ? 35 : 20}
-                                    />
-                                </TouchableOpacity>
-
-                                <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
-                                    <Icon
-                                        name="video-account"
-                                        type="material-community"
-                                        color={COLORS.AKCRUBLUE}
-                                        size={isTablet() ? 50 : 30}
-                                    />
-                                </TouchableOpacity>
-                            </View>
+                            <>
+                                <View style={styles.uploadMediaRow}>
+                                    <Text style={styles.commentSwitchLabel}>Want to upload media?</Text>
+                                    <TouchableOpacity
+                                        style={styles.uploadMediaButton}
+                                        onPress={() => setShowMediaSheet(true)}>
+                                        <Icon
+                                            name="plus"
+                                            type="material-community"
+                                            color={COLORS.WHITE}
+                                            size={22}
+                                        />
+                                    </TouchableOpacity>
+                                </View>
+                                {(selectedImages.length > 0 || !!selectedVideo) && (
+                                    <ArchetypeHorizontalDivider title="Media" containerStyle={styles.uploadDivider} />
+                                )}
+                            </>
                         )}
                         {selectedVideo && (
                             <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
                         )}
                         {!isTagging && (
-                            <View style={{marginTop: 10}}>
+                            <View style={styles.mediaPreviewWrap}>
                                 <FlatList
                                     data={selectedImages}
                                     horizontal={true}
                                     showsHorizontalScrollIndicator={false}
                                     keyExtractor={(item, index) => index.toString()}
-                                    renderItem={({item}) => (
-                                        <View>
+                                    renderItem={({item, index}) => (
+                                        <View style={styles.previewImageCard}>
                                             <Image
                                                 source={{uri: item}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 3.55,
-                                                    height: isTablet()
-                                                        ? SIZES.ScreenWidth / 3.55
-                                                        : SIZES.ScreenWidth / 2.35,
-                                                    margin: 5,
-                                                    borderRadius: 5,
-                                                }}
+                                                style={[
+                                                    styles.previewImage,
+                                                    {
+                                                        height: isTablet()
+                                                            ? SIZES.ScreenWidth / 2.9
+                                                            : SIZES.ScreenWidth / 1.9,
+                                                    },
+                                                ]}
                                             />
+                                            <TouchableOpacity
+                                                style={styles.removeMediaButton}
+                                                onPress={() => removeSelectedImage(index)}>
+                                                <Icon
+                                                    name="close"
+                                                    type="material-community"
+                                                    color={COLORS.WHITE}
+                                                    size={16}
+                                                />
+                                            </TouchableOpacity>
                                         </View>
                                     )}
                                 />
@@ -590,13 +569,21 @@ const NewPost = () => {
                                             repeat={true}
                                             muted={true}
                                         />
+                                        <TouchableOpacity style={styles.removeVideoButton} onPress={removeSelectedVideo}>
+                                            <Icon
+                                                name="close"
+                                                type="material-community"
+                                                color={COLORS.WHITE}
+                                                size={16}
+                                            />
+                                        </TouchableOpacity>
                                     </View>
                                 )}
                             </View>
                         )}
-                        <View style={{marginHorizontal: isTablet() ? 20 : 10}}>
-                            <Text style={{...FONTS.paragraph1, color: COLORS.DARKGREY}}>Limit of Image: 10 MB</Text>
-                            <Text style={{...FONTS.paragraph1, color: COLORS.DARKGREY}}>Limit of Video: 01 GB</Text>
+                        <View style={[styles.limitCard, {marginHorizontal: isTablet() ? 20 : 10}]}>
+                            <Text style={styles.limitText}>Image limit: 10 MB each</Text>
+                            <Text style={styles.limitText}>Video limit: 1 GB</Text>
                         </View>
 
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
@@ -642,6 +629,65 @@ const NewPost = () => {
                         </Modal>
                     </View>
                 </ScrollView>
+
+                <View style={styles.bottomPostBar}>
+                    <View style={styles.commentSwitchRow}>
+                        <Text style={styles.commentSwitchLabel}>Want to Allow comments of this post ?</Text>
+                        <Switch
+                            value={allowComments}
+                            onValueChange={setAllowComments}
+                            trackColor={{false: COLORS.DARKGREY, true: COLORS.AKCRUBLUE}}
+                            thumbColor={allowComments ? COLORS.WHITE : COLORS.LIGHTGREY}
+                        />
+                    </View>
+                    <View style={styles.bottomPostButton}>
+                        <AkcruButtons.LrgButton
+                            btnname="Post"
+                            onPress={OnPostPress}
+                            color={COLORS.AKCRUBLUE}
+                            variant="auth"
+                            authButtonWidth={SIZES.ScreenWidth - 32}
+                            disabled={!canPost}
+                        />
+                    </View>
+                </View>
+
+                <Modal visible={showMediaSheet} transparent={true} animationType="slide">
+                    <Pressable style={styles.sheetBackdrop} onPress={() => setShowMediaSheet(false)} />
+                    <LinearGradient
+                        colors={['#4f46e5', '#7c3aed', '#ec4899']}
+                        start={{x: 0, y: 0}}
+                        end={{x: 1, y: 1}}
+                        style={styles.mediaSheetGradientBorder}>
+                        <View style={styles.mediaSheet}>
+                            <Text style={styles.mediaSheetTitle}>Select media type</Text>
+                            <TouchableOpacity
+                                style={styles.mediaSheetOption}
+                                onPress={() => {
+                                    setShowMediaSheet(false);
+                                    selectPostImage();
+                                }}>
+                                <Icon name="images" type="ionicon" color={COLORS.AKCRUBLUE} size={22} />
+                                <Text style={styles.mediaSheetOptionLabel}>Photos</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.mediaSheetOption, styles.mediaSheetOptionLast]}
+                                onPress={() => {
+                                    setShowMediaSheet(false);
+                                    selectPostVideo();
+                                }}>
+                                <Icon
+                                    name="video-account"
+                                    type="material-community"
+                                    color={COLORS.AKCRUBLUE}
+                                    size={30}
+                                />
+                                <Text style={styles.mediaSheetOptionLabel}>Video</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </LinearGradient>
+                </Modal>
+
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
                         <View style={stylesProgress.modalContainer}>
