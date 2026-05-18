@@ -16,6 +16,7 @@ import {isTablet} from '../../../assets/constants/theme';
 import HexAvatar from '../HexAvatar';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import {resolveAkcruBadgeConfig} from '../ProfileUserBadges';
+import PostImageCarousel from '../PostImageCarousel';
 
 type FooterIconsProps = {
     iconname: string;
@@ -287,6 +288,7 @@ const PostCommentCard = ({
                             source={{uri: author?.profilePicture}}
                             size={isTablet() ? 62 : 46}
                             bordercolor={akcruBadgeColor}
+                            rotateFrameDegrees={90}
                         />
                     </TouchableOpacity>
                 </View>
@@ -420,14 +422,14 @@ const PostCommentCard = ({
                 )
             )}
 
-            <View>
-                {/* Render images */}
-                {imageUrls.map((url, index) => (
-                    <TouchableOpacity key={index} onPress={() => openModal(url)}>
-                        <Image source={{uri: url}} style={styles.postimage} />
-                    </TouchableOpacity>
-                ))}
-            </View>
+            {imageUrls.length > 0 ? (
+                <PostImageCarousel
+                    imageUrls={imageUrls}
+                    onImagePress={openModal}
+                    imageStyle={styles.postimage}
+                    containerStyle={styles.mediaCarouselWrap}
+                />
+            ) : null}
             <View>
                 {/* Render video if available */}
                 {videoUrl && (

@@ -1,7 +1,6 @@
 import {
     Text,
     View,
-    ScrollView,
     TouchableWithoutFeedback,
     Modal,
     FlatList,
@@ -9,7 +8,6 @@ import {
     Pressable,
     ActivityIndicator,
     Alert,
-    RefreshControl,
     TouchableOpacity,
 } from 'react-native';
 import Video from 'react-native-video';
@@ -20,13 +18,21 @@ import {FONTS, COLORS, SIZES} from '../../../../assets/constants';
 import {Icon} from '@rneui/base';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {RouteProp, useFocusEffect, useIsFocused, useNavigation} from '@react-navigation/native';
 import {useBottomTabBarHeight} from '@react-navigation/bottom-tabs';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import CommonPostCard from '../../../components/CommonPostCard';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import {commentOnPost, deletePost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
-import {deletePoll, getPollById, getPolls, likePoll, unlikePoll, voteOnPoll} from '../../../lib/api/poll.lib';
+import {commentOnPost, deletePost, getPost, getPosts, likePost, unlikePost} from '../../../lib/api/post.lib';
+import {
+    commentOnPoll,
+    deletePoll,
+    getPollById,
+    getPolls,
+    likePoll,
+    unlikePoll,
+    voteOnPoll,
+} from '../../../lib/api/poll.lib';
 import {IPost, IUserProfile, IPoll} from '../../../../types';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {blockUser, getBlockedUsers, getUserFollowing} from '../../../lib/api/user.lib';
@@ -39,13 +45,24 @@ import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import {selectAvatarBorderColor} from '../../../util/util';
 import PostButton from '../../../components/AkcruPostButton';
 import PollButton from '../../../components/AkcruPollButton';
-import PollCard from '../../../components/CrummunityPoll';
+import PollCard from '../../../components/SkinnyPollCard';
 import {newVisitCrum} from '../../../lib/api/post.lib';
 import {newUserUpdate} from '../../../lib/api/post.lib';
 import LoadingComponent from '../../../components/Loading';
 import {isTablet} from '../../../../assets/constants/theme';
-import {navigateToNewPost, navigateToPostScreen} from '../../../util/RootNavigation';
+import {
+    navigateToNewPoll,
+    navigateToNewPost,
+    navigateToPollScreen,
+    navigateToPostScreen,
+    navigateToReportUser,
+} from '../../../util/RootNavigation';
+import {
+    subscribeFeedPollRefresh,
+    subscribeFeedPostRefresh,
+} from '../../../util/feedRefreshEvents';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {CLIENT_TAB_NAVIGATOR_ID} from '../../../navigation/clientTabNavigatorId';
 type CrummunityScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'ViewUserScreen'>;
 
 type CrummunityScreenRouteProp = RouteProp<CrummunityStackParams, 'ViewUserScreen'>;
@@ -61,6 +78,11 @@ type Props = {
     ];
 };
 
+type FeedPoll = IPoll & {type: 'poll'};
+type FeedItem = IPost | FeedPoll;
+
+const isFeedPoll = (item: FeedItem): item is FeedPoll => 'type' in item && item.type === 'poll';
+
 const CrummunityScreen = ({navigation, route}: Props) => {
     const {user, hydrateUser} = useAuthStore();
     const currentUserID = user?.id;
@@ -68,12 +90,13 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const author: IPost | null = route.params?.author ?? null;
 
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const isCrummunityScreenFocused = useIsFocused();
     const insets = useSafeAreaInsets();
     const tabBarHeight = useBottomTabBarHeight();
 
     const [likedPosts, setLikedPosts] = useState(new Set());
 
-    const [posts, setPosts] = useState<(IPost | IPoll)[]>([]);
+    const [posts, setPosts] = useState<FeedItem[]>([]);
     const [loading, setLoading] = useState(false);
     const [loadingPostIds, setLoadingPostIds] = useState<{[key: number]: boolean}>({});
     const [loadingPosts, setLoadingPosts] = useState(true);
@@ -89,13 +112,18 @@ const CrummunityScreen = ({navigation, route}: Props) => {
     const [blockedUsers, setBlockedUsers] = useState([]);
     const [commentDrafts, setCommentDrafts] = useState<Record<number, string>>({});
     const [commentSubmitting, setCommentSubmitting] = useState<Record<number, boolean>>({});
+    const [pollCommentDrafts, setPollCommentDrafts] = useState<Record<string, string>>({});
+    const [pollCommentSubmitting, setPollCommentSubmitting] = useState<Record<string, boolean>>({});
 
     const [refreshing, setRefreshing] = useState(false);
     const [skipped, setSkipped] = useState(false);
 
     useEffect(() => {
         const unsubscribe = navigation.addListener('focus', () => {
-            fetchPostsAndPolls(1, 'false');
+            setRefreshing(true);
+            fetchPostsAndPolls(1, 'true').finally(() => {
+                setRefreshing(false);
+            });
         });
 
         return unsubscribe;
@@ -110,6 +138,78 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }, []),
     );
 
+    const refreshFeedPost = React.useCallback(async (postId: number) => {
+        try {
+            const fetchedPost = await getPost(postId);
+            setPosts(prev =>
+                prev.map(item => {
+                    if ('type' in item && item.type === 'poll') {
+                        return item;
+                    }
+                    if (+item.id !== postId) {
+                        return item;
+                    }
+                    const existing = item as IPost;
+                    if (!fetchedPost?.id || !fetchedPost.author?.id) {
+                        return item;
+                    }
+                    return {
+                        ...fetchedPost,
+                        author: {
+                            ...fetchedPost.author,
+                            isFollowed: existing.author?.isFollowed,
+                            isBlocked: existing.author?.isBlocked,
+                        },
+                        isLikedByCurrentUser:
+                            fetchedPost.isLikedByCurrentUser ?? existing.isLikedByCurrentUser,
+                    };
+                }),
+            );
+        } catch (refreshError) {
+            console.error('Failed to refresh feed post:', refreshError);
+        }
+    }, []);
+
+    const refreshFeedPoll = React.useCallback(async (pollId: string) => {
+        try {
+            const pollDetails = await getPollById(pollId);
+            setPosts(prev =>
+                prev.map(item => {
+                    if (!('type' in item) || item.type !== 'poll' || item.id !== pollId) {
+                        return item;
+                    }
+                    const existing = item as FeedPoll;
+                    if (!pollDetails?.id || !pollDetails.user?.id) {
+                        return item;
+                    }
+                    return {
+                        ...existing,
+                        ...pollDetails,
+                        type: 'poll',
+                        user: {
+                            ...pollDetails.user,
+                            isFollowed: existing.user?.isFollowed,
+                            isBlocked: existing.user?.isBlocked,
+                        },
+                        isLikedByCurrentUser:
+                            pollDetails.isLikedByCurrentUser ?? existing.isLikedByCurrentUser,
+                    };
+                }),
+            );
+        } catch (refreshError) {
+            console.error('Failed to refresh feed poll:', refreshError);
+        }
+    }, []);
+
+    useEffect(() => {
+        const postSubscription = subscribeFeedPostRefresh(refreshFeedPost);
+        const pollSubscription = subscribeFeedPollRefresh(refreshFeedPoll);
+        return () => {
+            postSubscription.remove();
+            pollSubscription.remove();
+        };
+    }, [refreshFeedPost, refreshFeedPoll]);
+
     const fetchPostsAndPolls = async (pageNumber: number, skipCache: string) => {
         setLoading(true);
         try {
@@ -123,40 +223,63 @@ const CrummunityScreen = ({navigation, route}: Props) => {
 
             if (currentUserID) {
                 const followingResponse = await getUserFollowing(currentUserID);
-                followingIds = new Set(followingResponse?.following.map(user => user.id));
+                const followingList = Array.isArray(followingResponse?.following)
+                    ? followingResponse.following
+                    : [];
+                followingIds = new Set(
+                    followingList.filter((profile): profile is IUserProfile => Boolean(profile?.id)).map(profile => profile.id),
+                );
 
                 const blockedResponse = await getBlockedUsers();
-                blockedUserIds = new Set(blockedResponse.blockedUsers?.map(user => user.id));
+                const blockedList = Array.isArray(blockedResponse?.blockedUsers)
+                    ? blockedResponse.blockedUsers
+                    : [];
+                setBlockedUsers(blockedList);
+                blockedUserIds = new Set(
+                    blockedList.filter((profile): profile is IUserProfile => Boolean(profile?.id)).map(profile => profile.id),
+                );
             }
 
-            const updatedPosts = fetchedPosts.map(post => ({
-                ...post,
-                author: {
-                    ...post.author,
-                    isFollowed: followingIds.has(post.author.id),
-                    isBlocked: blockedUserIds.has(post.author.id),
-                },
-                isLikedByCurrentUser: post.isLikedByCurrentUser ?? false,
-            }));
+            const updatedPosts: IPost[] = fetchedPosts
+                .filter((post): post is IPost => Boolean(post?.id && post.author?.id))
+                .map(post => ({
+                    ...post,
+                    author: {
+                        ...post.author,
+                        isFollowed: followingIds.has(post.author.id),
+                        isBlocked: blockedUserIds.has(post.author.id),
+                    },
+                    isLikedByCurrentUser: post.isLikedByCurrentUser ?? false,
+                }));
 
-            // Fetch additional poll details for each poll
-            const pollsWithDetails = await Promise.all(
-                fetchedPolls.map(async poll => {
-                    const pollDetails = await getPollById(poll.id);
-                    return {
-                        ...poll,
-                        ...pollDetails,
-                        user: {
-                            ...poll.user,
-                            isFollowed: followingIds.has(poll.user.id),
-                            isBlocked: blockedUserIds.has(poll.user.id),
-                        },
-                        type: 'poll',
-                    };
-                }),
-            );
+            const pollsWithDetails = (
+                await Promise.all(
+                    fetchedPolls
+                        .filter((poll): poll is IPoll => Boolean(poll?.id && poll.user?.id))
+                        .map(async poll => {
+                            try {
+                                const pollDetails = await getPollById(poll.id);
+                                if (!pollDetails?.id || !pollDetails.user?.id) {
+                                    return null;
+                                }
+                                return {
+                                    ...poll,
+                                    ...pollDetails,
+                                    user: {
+                                        ...pollDetails.user,
+                                        isFollowed: followingIds.has(pollDetails.user.id),
+                                        isBlocked: blockedUserIds.has(pollDetails.user.id),
+                                    },
+                                    type: 'poll' as const,
+                                };
+                            } catch {
+                                return null;
+                            }
+                        }),
+                )
+            ).filter((poll): poll is FeedPoll => poll !== null);
 
-            const combinedItems = [...updatedPosts, ...pollsWithDetails];
+            const combinedItems: FeedItem[] = [...updatedPosts, ...pollsWithDetails];
 
             if (pageNumber === 1) {
                 setPosts(combinedItems);
@@ -175,16 +298,27 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleScroll = ({nativeEvent}) => {
-        if (isCloseToBottom(nativeEvent)) {
-            loadMorePosts();
-        }
+    const handleRefresh = async () => {
+        setRefreshing(true);
+        await fetchPostsAndPolls(1, 'true');
+        setRefreshing(false);
     };
 
-    const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
-        const paddingToBottom = contentSize.height * 0.25;
-        return layoutMeasurement.height + contentOffset.y >= contentSize.height - paddingToBottom;
-    };
+    useEffect(() => {
+        const parentTabs = navigation.getParent(CLIENT_TAB_NAVIGATOR_ID);
+        if (!parentTabs) {
+            return;
+        }
+
+        const unsubscribeTabPress = parentTabs.addListener('tabPress', () => {
+            if (!isCrummunityScreenFocused) {
+                return;
+            }
+            handleRefresh();
+        });
+
+        return unsubscribeTabPress;
+    }, [navigation, isCrummunityScreenFocused, handleRefresh]);
 
     const loadMorePosts = async () => {
         if (!hasMore || isLoadingMore) {
@@ -213,8 +347,8 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         const selectedPoll = posts.find(poll => poll.id === pollId);
 
         if (selectedPoll) {
-            navigation2.navigate('PollScreen', {
-                poll: selectedPoll,
+            navigateToPollScreen({
+                poll: selectedPoll as IPoll,
                 isLikedByCurrentUser: selectedPoll.isLikedByCurrentUser,
             });
         } else {
@@ -401,6 +535,55 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
+    const handlePollCommentInputChange = (pollId: string, value: string) => {
+        setPollCommentDrafts(prev => ({
+            ...prev,
+            [pollId]: value,
+        }));
+    };
+
+    const handleInlinePollCommentSend = async (pollId: string) => {
+        const commentText = (pollCommentDrafts[pollId] ?? '').trim();
+        if (!commentText || pollCommentSubmitting[pollId]) {
+            return;
+        }
+
+        setPollCommentSubmitting(prev => ({
+            ...prev,
+            [pollId]: true,
+        }));
+
+        try {
+            await commentOnPoll(pollId, 'POLL', [commentText]);
+
+            setPosts(prevPosts =>
+                prevPosts.map(post =>
+                    post.id === pollId && 'type' in post && post.type === 'poll'
+                        ? {
+                              ...post,
+                              _count: {
+                                  ...post._count,
+                                  comments: (post._count?.comments ?? 0) + 1,
+                              },
+                          }
+                        : post,
+                ),
+            );
+
+            setPollCommentDrafts(prev => ({
+                ...prev,
+                [pollId]: '',
+            }));
+        } catch (error) {
+            console.error('Error creating inline poll comment:', error);
+        } finally {
+            setPollCommentSubmitting(prev => ({
+                ...prev,
+                [pollId]: false,
+            }));
+        }
+    };
+
     const handleVote = async (pollId: string, choiceId: string) => {
         try {
             await voteOnPoll(pollId, choiceId);
@@ -410,15 +593,33 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleFollow = async (authorId: any | IUserProfile, isCurrentlyFollowing: undefined) => {
+    const handleFollow = async (authorId: string, isCurrentlyFollowing?: boolean) => {
         const updatedStatus = await toggleFollow(authorId);
         if (updatedStatus !== undefined) {
             setPosts(prevPosts =>
-                prevPosts.map(post => {
-                    if (post.author.id === authorId) {
-                        return {...post, author: {...post.author, isFollowed: !isCurrentlyFollowing}};
+                prevPosts.map(item => {
+                    if (isFeedPoll(item)) {
+                        if (item.user?.id !== authorId) {
+                            return item;
+                        }
+                        return {
+                            ...item,
+                            user: {
+                                ...item.user,
+                                isFollowed: !isCurrentlyFollowing,
+                            },
+                        };
                     }
-                    return post;
+                    if (item.author?.id !== authorId) {
+                        return item;
+                    }
+                    return {
+                        ...item,
+                        author: {
+                            ...item.author,
+                            isFollowed: !isCurrentlyFollowing,
+                        },
+                    };
                 }),
             );
         } else {
@@ -426,8 +627,11 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         }
     };
 
-    const handleReportUser = (author: IUserProfile) => {
-        navigation2.navigate('ReportUser', {
+    const handleReportUser = (author?: IUserProfile) => {
+        if (!author?.id) {
+            return;
+        }
+        navigateToReportUser({
             authorId: author.id,
             authorUsername: author.username,
             authorFirstName: author.firstName,
@@ -481,7 +685,14 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         if (response.success) {
             setBlockedUsers(prev => [...prev, {id: authorId}]);
 
-            setPosts(prevPosts => prevPosts.filter(post => post.author.id !== authorId));
+            setPosts(prevPosts =>
+                prevPosts.filter(item => {
+                    if (isFeedPoll(item)) {
+                        return item.user?.id !== authorId;
+                    }
+                    return item.author?.id !== authorId;
+                }),
+            );
 
             setModalType('success');
             setBlockUserMessage('User successfully blocked');
@@ -490,12 +701,6 @@ const CrummunityScreen = ({navigation, route}: Props) => {
         } else {
             Alert.alert('Error', 'Failed to block user.');
         }
-    };
-
-    const handleRefresh = async () => {
-        setRefreshing(true);
-        await fetchPostsAndPolls(1, 'true');
-        setRefreshing(false);
     };
 
     if (firstTimeUser === null) {
@@ -531,167 +736,176 @@ const CrummunityScreen = ({navigation, route}: Props) => {
             <TabContainer>
                 <SafeAreaView style={{flex: 1, backgroundColor: '#050508'}}>
                     <View style={{flex: 1, backgroundColor: '#050508'}}>
-                        <ScrollView
-                            style={{height: SIZES.ScreenHeight, backgroundColor: '#050508'}}
-                            onScroll={handleScroll}
-                            scrollEventThrottle={16}
-                            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />}>
-                            <View>
-                                <View style={{zIndex: 100}}>
-                                    <Header />
-                                </View>
-                                <View
-                                    style={{
-                                        height: SIZES.ScreenHeight * 0.26,
-                                        marginTop: isTablet() ? -160 : -68,
-                                        backgroundColor: '#050508',
-                                    }}>
-                                    <LinearGradient
-                                        colors={['#0a1628', '#0d0d18', '#050508']}
-                                        style={{
-                                            position: 'absolute',
-                                            left: 0,
-                                            right: 0,
-                                            top: 0,
-                                            height: SIZES.ScreenHeight * 0.26,
-                                        }}
-                                    />
-                                    <Text style={styles.screenTitle}>What's the Skinny?</Text>
-
-                                    <View style={{alignItems: 'center'}}>
-                                        <TouchableWithoutFeedback
-                                            onPress={() => {
-                                                navigation.navigate('CrummunityStack', {
-                                                    screen: 'UserSearchResultScreen',
-                                                });
-                                            }}>
-                                            <View style={styles.searchinput}>
-                                                <Icon
-                                                    name="magnify"
-                                                    type="material-community"
-                                                    color="#9b59b6"
-                                                    size={isTablet() ? 32 : 25}
-                                                    style={{marginRight: '2%'}}
-                                                />
-                                                <Text style={{...FONTS.Title2, color: 'rgba(255,255,255,0.45)'}}>
-                                                    Search users
-                                                </Text>
-                                            </View>
-                                        </TouchableWithoutFeedback>
+                        <FlatList
+                            data={loadingPosts ? [] : posts}
+                            style={{flex: 1, backgroundColor: '#050508'}}
+                            contentContainerStyle={{paddingBottom: '23%'}}
+                            keyExtractor={item =>
+                                isFeedPoll(item) ? `poll-${item.id}` : `post-${item.id}`
+                            }
+                            refreshing={refreshing}
+                            onRefresh={handleRefresh}
+                            onEndReached={loadMorePosts}
+                            onEndReachedThreshold={0.25}
+                            ListHeaderComponent={
+                                <View>
+                                    <View style={{zIndex: 100}}>
+                                        <Header />
                                     </View>
                                     <View
                                         style={{
-                                            flexDirection: 'row',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
+                                            height: SIZES.ScreenHeight * 0.26,
+                                            marginTop: isTablet() ? -160 : -68,
+                                            backgroundColor: '#050508',
                                         }}>
-                                        <Text style={styles.feedLabel}>Crummunity Feed</Text>
-                                        <CustomIcon
-                                            name="account-group"
-                                            type="material-community"
-                                            color="#5dade2"
-                                            baseSize={15}
+                                        <LinearGradient
+                                            colors={['#0a1628', '#0d0d18', '#050508']}
+                                            style={{
+                                                position: 'absolute',
+                                                left: 0,
+                                                right: 0,
+                                                top: 0,
+                                                height: SIZES.ScreenHeight * 0.26,
+                                            }}
                                         />
+                                        <Text style={styles.screenTitle}>What's the Skinny?</Text>
+
+                                        <View style={{alignItems: 'center'}}>
+                                            <TouchableWithoutFeedback
+                                                onPress={() => {
+                                                    navigation.navigate('CrummunityStack', {
+                                                        screen: 'UserSearchResultScreen',
+                                                    });
+                                                }}>
+                                                <View style={styles.searchinput}>
+                                                    <Icon
+                                                        name="magnify"
+                                                        type="material-community"
+                                                        color="#9b59b6"
+                                                        size={isTablet() ? 32 : 25}
+                                                        style={{marginRight: '2%'}}
+                                                    />
+                                                    <Text style={{...FONTS.Title2, color: 'rgba(255,255,255,0.45)'}}>
+                                                        Search users
+                                                    </Text>
+                                                </View>
+                                            </TouchableWithoutFeedback>
+                                        </View>
+                                        <View
+                                            style={{
+                                                flexDirection: 'row',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                            }}>
+                                            <Text style={styles.feedLabel}>Crummunity Feed</Text>
+                                            <CustomIcon
+                                                name="account-group"
+                                                type="material-community"
+                                                color="#5dade2"
+                                                baseSize={15}
+                                            />
+                                        </View>
                                     </View>
                                 </View>
-                            </View>
-                            <View style={{marginBottom: '23%'}}>
-                                {loadingPosts ? (
+                            }
+                            ListEmptyComponent={
+                                loadingPosts ? (
                                     <View style={{marginTop: '25%'}}>
                                         <ActivityIndicator size="large" color={COLORS.PINK} />
                                     </View>
-                                ) : posts.length === 0 ? (
+                                ) : (
                                     <View>
                                         <Text style={styles.noPostText}>No Post yet</Text>
                                     </View>
-                                ) : (
-                                    <FlatList
-                                        data={posts}
-                                        style={styles.postcontainer}
-                                        keyExtractor={item => item.id}
-                                        // refreshing={refreshing}
-                                        // onRefresh={handleRefresh}
-                                        renderItem={({item}) =>
-                                            item.type === 'poll' ? (
-                                                <Pressable
-                                                    onPress={() => handlePollPress(item.id)}
-                                                    style={{marginBottom: 10}}>
-                                                    <PollCard
-                                                        poll={item}
-                                                        onVote={handleVote}
-                                                        onDeletePoll={handleDeletePoll}
-                                                        currentUserID={currentUserID || ''}
-                                                        akcruBadge={item.user?.badge}
-                                                        akcruBadgeColor={selectAvatarBorderColor(
-                                                            item.user.badge ?? 'AKCRUIT',
-                                                        )}
-                                                        CommentOnPollButton={() =>
-                                                            navigation2.navigate('NewPollComment', {
-                                                                pollId: item.id,
-                                                            })
-                                                        }
-                                                        onLikeOrUnlikePoll={() => onLikeOrUnlikePoll(item.id)}
-                                                        openProfile={() =>
-                                                            navigation2.navigate('ViewUserScreen', {
-                                                                userID: item.user?.id,
-                                                            })
-                                                        }
-                                                        isAdmin={user?.isAdmin}
-                                                    />
-                                                </Pressable>
-                                            ) : (
-                                                <Pressable
-                                                    onPress={() => handlePostPress(+item.id)}
-                                                    style={{marginBottom: 10}}>
-                                                    <CommonPostCard
-                                                        post={item}
-                                                        loading={loadingPostIds[item.id] || false}
-                                                        openProfile={() =>
-                                                            navigation2.navigate('ViewUserScreen', {
-                                                                userID: item.author?.id,
-                                                            })
-                                                        }
-                                                        reportUser={() => handleReportUser(item.author)}
-                                                        onDeletePost={handleDeletePost}
-                                                        currentUserID={currentUserID || ''}
-                                                        akcruBadge={item.author?.badge}
-                                                        isPostLiked={item.isLikedByCurrentUser}
-                                                        onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
-                                                        onCommentIconPress={() => handlePostPress(+item.id)}
-                                                        commentInputValue={commentDrafts[+item.id] ?? ''}
-                                                        onCommentInputChange={value =>
-                                                            handleCommentInputChange(+item.id, value)
-                                                        }
-                                                        onCommentSend={() => handleInlineCommentSend(+item.id)}
-                                                        isCommentSending={commentSubmitting[+item.id] ?? false}
-                                                        isFollowing={item.author.isFollowed}
-                                                        onFollow={() =>
-                                                            handleFollow(item.author.id, item.author.isFollowed)
-                                                        }
-                                                        akcruBadgeColor={selectAvatarBorderColor(
-                                                            item.author.badge ?? 'AKCRUIT',
-                                                        )}
-                                                        onBlockUser={() =>
-                                                            handleToggleBlockUser(
-                                                                item.author.id,
-                                                                item.author.isCurrentlyBlocked,
-                                                            )
-                                                        }
-                                                        isOwner={item.author.ownerStatus}
-                                                        isPromo={item.author.promoUser}
-                                                        isAdmin={user?.isAdmin} // Pass isAdmin prop
-                                                        visionaryStatus={user?.visionaryStatus}
-                                                    />
-                                                </Pressable>
-                                            )
-                                        }
-                                        ListFooterComponent={() =>
-                                            hasMore && isLoadingMore ? <ActivityIndicator color={COLORS.PINK} /> : null
-                                        }
-                                    />
-                                )}
-                            </View>
-                        </ScrollView>
+                                )
+                            }
+                            renderItem={({item}) => {
+                                if (!item?.id) {
+                                    return null;
+                                }
+
+                                if (isFeedPoll(item)) {
+                                    if (!item.user?.id) {
+                                        return null;
+                                    }
+
+                                    return (
+                                    <View style={styles.postcontainer}>
+                                        <Pressable onPress={() => handlePollPress(item.id)} style={{marginBottom: 10}}>
+                                            <PollCard
+                                                poll={item}
+                                                onVote={handleVote}
+                                                onDeletePoll={handleDeletePoll}
+                                                currentUserID={currentUserID || ''}
+                                                akcruBadge={item.user?.badge}
+                                                akcruBadgeColor={selectAvatarBorderColor(item.user?.badge ?? 'AKCRUIT')}
+                                                profilePicture={item.user?.profilePicture}
+                                                onLikeOrUnlike={() => onLikeOrUnlikePoll(item.id)}
+                                                openProfile={() =>
+                                                    navigation2.navigate('ViewUserScreen', {
+                                                        userID: item.user?.id,
+                                                    })
+                                                }
+                                                isAdmin={user?.isAdmin}
+                                                onCommentIconPress={() => handlePollPress(item.id)}
+                                                commentInputValue={pollCommentDrafts[item.id] ?? ''}
+                                                onCommentInputChange={value =>
+                                                    handlePollCommentInputChange(item.id, value)
+                                                }
+                                                onCommentSend={() => handleInlinePollCommentSend(item.id)}
+                                                isCommentSending={pollCommentSubmitting[item.id] ?? false}
+                                            />
+                                        </Pressable>
+                                    </View>
+                                    );
+                                }
+
+                                if (!item.author?.id) {
+                                    return null;
+                                }
+
+                                return (
+                                    <View style={[styles.postcontainer, {marginBottom: 10}]}>
+                                        <CommonPostCard
+                                            post={item}
+                                            loading={loadingPostIds[item.id] || false}
+                                            openProfile={() =>
+                                                navigation2.navigate('ViewUserScreen', {
+                                                    userID: item.author.id,
+                                                })
+                                            }
+                                            reportUser={() => handleReportUser(item.author)}
+                                            onDeletePost={handleDeletePost}
+                                            currentUserID={currentUserID || ''}
+                                            akcruBadge={item.author?.badge}
+                                            isPostLiked={item.isLikedByCurrentUser}
+                                            onLikeOrUnlike={() => onLikeOrUnlike(+item.id)}
+                                            onCommentIconPress={() => handlePostPress(+item.id)}
+                                            onOpenPost={() => handlePostPress(+item.id)}
+                                            commentInputValue={commentDrafts[+item.id] ?? ''}
+                                            onCommentInputChange={value => handleCommentInputChange(+item.id, value)}
+                                            onCommentSend={() => handleInlineCommentSend(+item.id)}
+                                            isCommentSending={commentSubmitting[+item.id] ?? false}
+                                            isFollowing={item.author?.isFollowed}
+                                            onFollow={() => handleFollow(item.author.id, item.author.isFollowed)}
+                                            akcruBadgeColor={selectAvatarBorderColor(item.author?.badge ?? 'AKCRUIT')}
+                                            onBlockUser={() =>
+                                                handleToggleBlockUser(item.author.id, item.author.isCurrentlyBlocked)
+                                            }
+                                            isOwner={item.author?.ownerStatus}
+                                            isPromo={item.author?.promoUser}
+                                            isAdmin={user?.isAdmin}
+                                            visionaryStatus={user?.visionaryStatus}
+                                        />
+                                    </View>
+                                );
+                            }}
+                            ListFooterComponent={() =>
+                                hasMore && isLoadingMore && !loadingPosts && posts.length > 0 ? (
+                                    <ActivityIndicator color={COLORS.PINK} />
+                                ) : null
+                            }
+                        />
                         <View
                             pointerEvents="box-none"
                             style={[
@@ -701,7 +915,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                             <View style={styles.floatingStack}>
                                 {pollCreator && (
                                     <Pressable
-                                        onPress={() => navigation2.navigate('NewPoll')}
+                                        onPress={navigateToNewPoll}
                                         style={[styles.floatingStackItem, styles.floatingStackItemGap]}>
                                         <PollButton />
                                     </Pressable>

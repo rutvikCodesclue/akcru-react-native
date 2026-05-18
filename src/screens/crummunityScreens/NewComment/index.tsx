@@ -17,12 +17,11 @@ import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, SIZES, isTablet} from '../../../../assets/constants/theme';
 import {Icon} from '@rneui/base';
 import {RouteProp} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {extractUsernamesFromText, selectAvatarBorderColor} from '../../../util/util';
-import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
 import {MediaType, launchImageLibrary} from 'react-native-image-picker';
@@ -35,12 +34,15 @@ import {StackNavigationProp} from '@react-navigation/stack';
 import CalculateVideoDuration from '../../../util/calculatevideoduration';
 import Video from 'react-native-video';
 import {IUserProfile} from '../../../../types';
-import UserTaggedCard from '../../../components/UserTaggedCard';
 import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
 import {sendTagNotification} from '../../../lib/api/notify.lib';
 import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
 import {ProgressView} from '@react-native-community/progress-view';
 import {ProgressBar} from '@react-native-community/progress-bar-android';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
+import AkcruButtons from '../../../components/akcruButtons';
+import {emitPostCommentCountDelta} from '../../../util/feedRefreshEvents';
+import DisplayBadge from '../../../components/General/akcrubadge';
 type NewCommentNavigationProp = StackNavigationProp<CrummunityStackParams, 'NewComment'>;
 
 type NewCommentRouteProp = RouteProp<CrummunityStackParams, 'NewComment'>;
@@ -50,9 +52,11 @@ type Props = {
     route: NewCommentRouteProp;
 };
 
-const NewComment = ({navigation, route}: Props) => {
-    const postId = route.params;
+const MAX_COMMENT_LENGTH = 200;
+const MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_VIDEO_SIZE_BYTES = 1000 * 1024 * 1024;
 
+const NewComment = ({navigation, route}: Props) => {
     const {user} = useAuthStore();
     const [comment, setComment] = useState('');
     const [selectedImages, setSelectedImages] = useState<string[]>([]);
@@ -75,17 +79,38 @@ const NewComment = ({navigation, route}: Props) => {
         setcancelidVideo('');
         setProgress(0);
     };
+    const removeSelectedImage = (index: number) => {
+        setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    };
 
-    const getFileSize = async filePath => {
-        try {
-            const response = await fetch(filePath, {method: 'HEAD'});
-            const contentLength = response._bodyBlob._data.size;
-            return contentLength ? parseInt(contentLength, 10) : 0;
-        } catch (error) {
-            console.error('Error getting file size: ', error);
-            Alert.alert('Error', 'Could not get file size.');
-            return 0;
+    const removeSelectedVideo = () => {
+        setSelectedVideo('');
+        setVideoDuration(0);
+    };
+
+    const updateTagState = (text: string) => {
+        const parts = text.split(' ');
+        const lastPart = parts[parts.length - 1];
+        if (lastPart.startsWith('@')) {
+            setIsTagging(true);
+            setCurrentTag(lastPart.slice(1));
+            return;
         }
+        setIsTagging(false);
+        setCurrentTag('');
+    };
+
+    const applyTaggedUserToComment = (username: string) => {
+        const newText = comment.substring(0, comment.lastIndexOf('@')) + `@${username} `;
+        setComment(newText);
+        setIsTagging(false);
+        setCurrentTag('');
+    };
+
+    const splitGifAndNonGifImages = (images: string[]) => {
+        const gifs = images.filter(image => image.toLowerCase().endsWith('.gif'));
+        const otherImages = images.filter(image => !image.toLowerCase().endsWith('.gif'));
+        return {gifs, otherImages};
     };
     const selectPostImage = async () => {
         let options = {
@@ -96,21 +121,12 @@ const NewComment = ({navigation, route}: Props) => {
             selectionLimit: 3,
         };
 
-        let callbackExecuted = false;
-
         launchImageLibrary(options, response => {
             if (response && !response.didCancel && response.assets) {
-                if (callbackExecuted) {
-                    return;
-                }
-
-                callbackExecuted = true;
-
-                const maxSizeInBytes = 10 * 1024 * 1024;
                 let imagesForPost = [];
 
                 for (const asset of response.assets) {
-                    if (asset.fileSize > maxSizeInBytes) {
+                    if (asset.fileSize > MAX_IMAGE_SIZE_BYTES) {
                         setShowSizeErrorModal(true);
                         return;
                     } else {
@@ -138,28 +154,19 @@ const NewComment = ({navigation, route}: Props) => {
             selectionLimit: 1,
         };
 
-        let callbackExecuted = false;
-
         launchImageLibrary(options, response => {
-            if (response.didCancel) {
-                if (callbackExecuted) {
-                    return;
-                }
+            if (response.didCancel || response.errorCode || !response.assets) {
+                return;
+            }
 
-                callbackExecuted = true;
-            } else if (response.errorCode) {
-            } else if (response.assets) {
-                const video = response.assets[0];
+            const video = response.assets[0];
+            if (video.fileSize > MAX_VIDEO_SIZE_BYTES) {
+                return;
+            }
+            setSelectedVideo(video.uri);
 
-                const maxSizeInBytes = 1000 * 1024 * 1024;
-                if (video.fileSize > maxSizeInBytes) {
-                    return;
-                }
-                setSelectedVideo(video.uri);
-
-                if (comment) {
-                    setSelectedImages([]);
-                }
+            if (comment) {
+                setSelectedImages([]);
             }
         });
     };
@@ -177,30 +184,55 @@ const NewComment = ({navigation, route}: Props) => {
     };
 
     const compressAndUploadImages = async selectedImages => {
-        const originalSizeList = [];
-        const compressedSizeList = [];
         const compressedImages = [];
 
         for (let image of selectedImages) {
-            // Get the original file size
-            const originalSize = await getFileSize(image);
-            originalSizeList.push(originalSize);
-
-            // Compress the image
             const compressedImagePath = await CompressorImage.compress(image, {
                 compressionMethod: 'auto',
             });
-
-            // Get the compressed file size
-            const compressedSize = await getFileSize(compressedImagePath);
-            compressedSizeList.push(compressedSize);
-
             compressedImages.push(compressedImagePath);
         }
         return compressedImages;
     };
 
-    const OnCommentPress = async () => {
+    const uploadSelectedImages = async (images: string[]) => {
+        const {gifs, otherImages} = splitGifAndNonGifImages(images);
+        let imageUrls = [];
+        let gifUrls = [];
+
+        if (otherImages.length > 0) {
+            const compressedImages = await compressAndUploadImages(otherImages);
+            imageUrls = await uploadPictures(compressedImages);
+        }
+
+        if (gifs.length > 0) {
+            gifUrls = await uploadPictures(gifs);
+        }
+
+        return [...imageUrls, ...gifUrls];
+    };
+
+    const compressAndUploadSelectedVideo = async () => {
+        setIsCompress(true);
+        const compressedVideoPath = await VideoCompressor.compress(
+            selectedVideo,
+            {
+                compressionMethod: 'auto',
+                getCancellationId: cancellationId => {
+                    setcancelidVideo(cancellationId);
+                },
+                progressDivider: 10,
+            },
+            progress => {
+                setProgress(progress);
+            },
+        );
+        setIsCompress(false);
+        setIsCommenting(true);
+        return uploadVideo(compressedVideoPath, 'video', videoDuration);
+    };
+
+    const handleCommentPress = async () => {
         try {
             const postType = determinePostType();
             let content = [];
@@ -210,97 +242,24 @@ const NewComment = ({navigation, route}: Props) => {
                 content = [comment];
             } else if (postType === 'IMAGE') {
                 setIsCommenting(true);
-
-                // Separate GIFs from other images
-                const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
-                const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
-
-                let imageUrls = [];
-                if (otherImages.length > 0) {
-                    // Compress and upload other images
-                    const compressedImages = await compressAndUploadImages(otherImages);
-                    imageUrls = await uploadPictures(compressedImages);
-                }
-
-                let gifUrls = [];
-                if (gifs.length > 0) {
-                    // Upload GIFs directly without compression
-                    gifUrls = await uploadPictures(gifs);
-                }
-
-                // Combine both URLs
-                content = [...imageUrls, ...gifUrls].join(', ');
+                const imageUrls = await uploadSelectedImages(selectedImages);
+                content = imageUrls.join(', ');
             } else if (postType === 'VIDEO') {
-                setIsCompress(true);
-
-                const compressedVideoPath = await VideoCompressor.compress(
-                    selectedVideo,
-                    {
-                        compressionMethod: 'auto',
-                        getCancellationId: cancellationId => {
-                            setcancelidVideo(cancellationId);
-                        },
-                        progressDivider: 10,
-                    },
-                    progress => {
-                        setProgress(progress);
-                    },
-                );
-                setIsCompress(false);
-                setIsCommenting(true);
-                const videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
-
+                const videoUrl = await compressAndUploadSelectedVideo();
                 content = [videoUrl];
             } else if (postType === 'HYBRID') {
                 if (!selectedVideo) {
                     setIsCommenting(true);
                 }
                 content.push(comment);
-
-                // Separate GIFs from other images
-                const gifs = selectedImages.filter(image => image.toLowerCase().endsWith('.gif'));
-                const otherImages = selectedImages.filter(image => !image.toLowerCase().endsWith('.gif'));
-
-                let imageUrls = [];
-                if (otherImages.length > 0) {
-                    // Compress and upload other images
-                    const compressedImages = await compressAndUploadImages(otherImages);
-                    imageUrls = await uploadPictures(compressedImages);
-                }
-
-                let gifUrls = [];
-                if (gifs.length > 0) {
-                    // Upload GIFs directly without compression
-                    gifUrls = await uploadPictures(gifs);
-                }
+                const imageUrls = await uploadSelectedImages(selectedImages);
 
                 let videoUrl = null;
                 if (selectedVideo) {
-                    // Upload video if exists
-                    setIsCompress(true);
-
-                    const compressedVideoPath = await VideoCompressor.compress(
-                        selectedVideo,
-                        {
-                            compressionMethod: 'auto',
-                            getCancellationId: cancellationId => {
-                                setcancelidVideo(cancellationId);
-                            },
-                            progressDivider: 10,
-                        },
-                        progress => {
-                            setProgress(progress);
-                        },
-                    );
-                    setIsCompress(false);
-
-                    setIsCommenting(true);
-
-                    videoUrl = await uploadVideo(compressedVideoPath, 'video', videoDuration);
+                    videoUrl = await compressAndUploadSelectedVideo();
                 }
 
-                // Combine all media URLs
-                const mediaUrls = [...imageUrls, ...gifUrls];
+                const mediaUrls = [...imageUrls];
                 if (videoUrl) {
                     mediaUrls.push(videoUrl);
                 }
@@ -312,6 +271,7 @@ const NewComment = ({navigation, route}: Props) => {
 
             const result = await commentOnPost(postId, postType, content);
             if (result && result.id) {
+                emitPostCommentCountDelta(postId, 1);
                 const newPostId = result.id;
 
                 const taggedUsernames = extractUsernamesFromText(comment);
@@ -349,6 +309,11 @@ const NewComment = ({navigation, route}: Props) => {
             }
         } catch (error) {
             console.error('Error creating the post:', error);
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to add comment';
+            Alert.alert('Action Failed', message);
             setIsCommenting(false);
         }
 
@@ -374,52 +339,29 @@ const NewComment = ({navigation, route}: Props) => {
 
         fetchUserSuggestions();
     }, [currentTag, isTagging]);
+    const canComment = comment.trim().length > 0 || selectedImages.length > 0 || !!selectedVideo;
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 100}}>
+            <SafeAreaView style={styles.safeArea}>
+                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.headerContainer}>
                         <Header />
                     </View>
-                    <View
-                        style={{
-                            height: SIZES.ScreenHeight * 0.15,
-                            marginTop: isTablet() ? -160 : -68,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                        }}>
+                    <View style={[styles.gradientWrapper, isTablet() && styles.gradientWrapperTablet]}>
                         <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: isTablet() ? SIZES.ScreenHeight * 0.26 : SIZES.ScreenHeight * 0.15,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginTop: '20%',
-                                    marginHorizontal: 15,
-                                }}>
+                            colors={['#0a1628', '#0d0d18', '#050508']}
+                            style={[styles.gradient, isTablet() && styles.gradientTablet]}>
+                            <View style={styles.actionRow}>
                                 <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View>
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={OnCommentPress} style={{marginLeft: 'auto'}}>
-                                    <View>
-                                        <Text style={styles.postButton}>Comment</Text>
-                                    </View>
+                                    <Text style={styles.cancelText}>Cancel</Text>
                                 </TouchableOpacity>
                             </View>
                         </LinearGradient>
                     </View>
-                    <View style={{marginTop: '5%', marginHorizontal: 15}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{marginRight: 8}}>
+                    <View style={styles.contentContainer}>
+                        <View style={styles.profileRow}>
+                            <View style={styles.avatarContainer}>
                                 <TouchableOpacity>
                                     <HexAvatar
                                         source={
@@ -429,195 +371,155 @@ const NewComment = ({navigation, route}: Props) => {
                                         }
                                         size={isTablet() ? 65 : 45}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        rotateFrameDegrees={90}
                                     />
                                 </TouchableOpacity>
                             </View>
-                            <View>
-                                <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
+                            <View style={styles.authorMeta}>
+                                <Text style={styles.usernameText}>{user ? user?.username : 'Guest'}</Text>
+                                <ProfileUserBadges user={user} variant="inline" style={styles.inlineBadge} />
                             </View>
                         </View>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={'Tell us the "skinny" in 200 characters or less'}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => {
-                                    const parts = text.split(' ');
-                                    const lastPart = parts[parts.length - 1];
-                                    if (lastPart.startsWith('@')) {
-                                        setIsTagging(true);
-                                        setCurrentTag(lastPart.slice(1));
-                                    } else {
-                                        setIsTagging(false);
-                                        setCurrentTag('');
-                                    }
-
-                                    if (text.length <= 200) {
-                                        setComment(text);
-                                    }
-                                }}
-                                value={comment}
-                                multiline={true}
-                                maxLength={200}
-                                editable={true}
-                            />
-                        </View>
-                        {isTagging && suggestions.length > 0 && (
-                            <FlatList
-                                data={suggestions}
-                                horizontal={false}
-                                showsHorizontalScrollIndicator={false}
-                                scrollEnabled={true}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
-                                    <Pressable
-                                        style={{marginVertical: 5}}
-                                        onPress={() => {
-                                            const newText =
-                                                comment.substring(0, comment.lastIndexOf('@')) + `@${item.username} `;
-                                            setComment(newText);
-                                            setIsTagging(false);
-                                            setCurrentTag('');
-                                        }}>
-                                        <UserTaggedCard
-                                            userPicture={item.profilePicture}
-                                            userName={item.username}
-                                            onPress={() => {
-                                                const newText =
-                                                    comment.substring(0, comment.lastIndexOf('@')) +
-                                                    `@${item.username} `;
-                                                setComment(newText);
-                                                setIsTagging(false);
-                                                setCurrentTag('');
-                                            }}
-                                            userID={item.id}
-                                            akcruBadge={item.badge}
-                                            firstName={item.firstName}
-                                            blackCloakStatus={item.blackCloakStatus}
-                                            ownerStatus={item.ownerStatus}
-                                            companyStatus={item.companyStatus}
-                                            influencer={item.influencerStatus}
-                                        />
-                                    </Pressable>
-                                )}
-                            />
-                        )}
-                        {!isTagging && (
-                            <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                                <TouchableOpacity style={{marginHorizontal: 10}} onPress={selectPostImage}>
-                                    <Icon
-                                        name="images"
-                                        type="ionicon"
-                                        color={COLORS.AKCRUBLUE}
-                                        size={isTablet() ? 32 : 20}
-                                    />
-                                </TouchableOpacity>
-                                <TouchableOpacity style={{marginHorizontal: 8}} onPress={selectPostVideo}>
-                                    <Icon
-                                        name="video-account"
-                                        type="material-community"
-                                        color={COLORS.AKCRUBLUE}
-                                        size={isTablet() ? 50 : 30}
-                                    />
-                                </TouchableOpacity>
+                        <View style={styles.inputAreaWrap}>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={'Tell us the "skinny" in 200 characters or less'}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => {
+                                        updateTagState(text);
+                                        if (text.length <= MAX_COMMENT_LENGTH) {
+                                            setComment(text);
+                                        }
+                                    }}
+                                    value={comment}
+                                    multiline={true}
+                                    maxLength={MAX_COMMENT_LENGTH}
+                                    editable={true}
+                                />
                             </View>
-                        )}
+                            {isTagging && suggestions.length > 0 && (
+                                <View style={styles.suggestionPanel}>
+                                    <FlatList
+                                        data={suggestions}
+                                        horizontal={false}
+                                        showsHorizontalScrollIndicator={false}
+                                        scrollEnabled={true}
+                                        keyExtractor={item => item.id}
+                                        style={styles.suggestionList}
+                                        keyboardShouldPersistTaps="handled"
+                                        renderItem={({item}) => (
+                                            <Pressable
+                                                style={styles.mentionRow}
+                                                onPress={() => applyTaggedUserToComment(item.username)}>
+                                                <HexAvatar
+                                                    source={
+                                                        item.profilePicture
+                                                            ? {uri: item.profilePicture}
+                                                            : imageindex.Akcruplaceholder
+                                                    }
+                                                    size={38}
+                                                    bordercolor={selectAvatarBorderColor(item.badge ?? 'AKCRUIT')}
+                                                    rotateFrameDegrees={90}
+                                                />
+                                                <View style={styles.mentionMeta}>
+                                                    <View style={styles.mentionNameRow}>
+                                                        <Text style={styles.mentionUsername}>@{item.username}</Text>
+                                                        {!!item.firstName && (
+                                                            <Text style={styles.mentionFirstName}>{item.firstName}</Text>
+                                                        )}
+                                                    </View>
+                                                    <View style={styles.mentionBadgeWrap}>
+                                                        <DisplayBadge akcruBadge={item.badge} />
+                                                    </View>
+                                                </View>
+                                            </Pressable>
+                                        )}
+                                    />
+                                </View>
+                            )}
+                        </View>
+                        <Text style={styles.charCount}>{comment.length}/200</Text>
+                        <View style={styles.mediaActionsRow}>
+                            <TouchableOpacity style={styles.mediaIconButton} onPress={selectPostImage}>
+                                <Icon
+                                    name="images"
+                                    type="ionicon"
+                                    color={COLORS.AKCRUBLUE}
+                                    size={isTablet() ? 32 : 20}
+                                />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.mediaIconButtonVideo} onPress={selectPostVideo}>
+                                <Icon
+                                    name="video-account"
+                                    type="material-community"
+                                    color={COLORS.AKCRUBLUE}
+                                    size={isTablet() ? 50 : 30}
+                                />
+                            </TouchableOpacity>
+                        </View>
 
                         {selectedVideo && (
                             <CalculateVideoDuration videoUri={selectedVideo} onDuration={handleVideoDuration} />
                         )}
-                        {!isTagging && (
-                            <View style={{marginTop: 10}}>
-                                <FlatList
-                                    data={selectedImages}
-                                    horizontal={true}
-                                    showsHorizontalScrollIndicator={false}
-                                    keyExtractor={(item, index) => index.toString()}
-                                    renderItem={({item}) => (
-                                        <View>
-                                            <Image
-                                                source={{uri: item}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 3.55,
-                                                    height: SIZES.ScreenWidth / 2.35,
-                                                    margin: 5,
-                                                    borderRadius: 5,
-                                                }}
+                        <View style={styles.mediaPreviewContainer}>
+                            <FlatList
+                                data={selectedImages}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                                keyExtractor={(item, index) => index.toString()}
+                                renderItem={({item, index}) => (
+                                    <View style={styles.previewItemWrap}>
+                                        <TouchableOpacity
+                                            style={styles.removeMediaButton}
+                                            onPress={() => removeSelectedImage(index)}>
+                                            <Icon
+                                                name="close"
+                                                type="material-community"
+                                                color={COLORS.WHITE}
+                                                size={16}
                                             />
-                                        </View>
-                                    )}
-                                />
-                                {selectedVideo && (
-                                    <View style={styles.postvideo}>
-                                        <Video
-                                            ref={videoRef}
-                                            style={{width: '100%', height: '100%', borderRadius: 10}}
-                                            source={{uri: selectedVideo}}
-                                            resizeMode="cover"
-                                            repeat={true}
-                                            muted={true}
-                                        />
+                                        </TouchableOpacity>
+                                        <Image source={{uri: item}} style={styles.selectedImage} />
                                     </View>
                                 )}
-                            </View>
-                        )}
+                            />
+                            {selectedVideo && (
+                                <View style={styles.postvideo}>
+                                    <TouchableOpacity
+                                        style={styles.removeVideoButton}
+                                        onPress={removeSelectedVideo}>
+                                        <Icon
+                                            name="close"
+                                            type="material-community"
+                                            color={COLORS.WHITE}
+                                            size={16}
+                                        />
+                                    </TouchableOpacity>
+                                    <Video
+                                        ref={videoRef}
+                                        style={styles.video}
+                                        source={{uri: selectedVideo}}
+                                        resizeMode="cover"
+                                        repeat={true}
+                                        muted={true}
+                                    />
+                                </View>
+                            )}
+                        </View>
 
                         <Modal animationType="fade" transparent={true} visible={showSizeErrorModal}>
-                            <View
-                                style={{
-                                    flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                }}>
-                                <View
-                                    style={{
-                                        backgroundColor: COLORS.AKCRUBACKGROUND,
-                                        padding: 20,
-                                        borderRadius: 10,
-                                        alignItems: 'center',
-                                        marginHorizontal: 15,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            ...FONTS.Title3,
-                                            marginBottom: 10,
-                                            textAlign: 'center',
-                                        }}>
+                            <View style={styles.modalBackdrop}>
+                                <View style={styles.sizeModalCard}>
+                                    <Text style={styles.sizeModalText}>
                                         {'Image is too large. Please select an image under 5MB.'}
                                     </Text>
                                     <TouchableOpacity
                                         onPress={() => {
                                             setShowSizeErrorModal(false);
                                         }}>
-                                        <Text
-                                            style={{
-                                                ...FONTS.Title2,
-                                                marginBottom: 10,
-                                                textAlign: 'center',
-                                                color: COLORS.MIDORANGE,
-                                            }}>
+                                        <Text style={styles.sizeModalClose}>
                                             {'Close'}
                                         </Text>
                                     </TouchableOpacity>
@@ -626,6 +528,16 @@ const NewComment = ({navigation, route}: Props) => {
                         </Modal>
                     </View>
                 </ScrollView>
+                <View style={styles.bottomActionBar}>
+                    <AkcruButtons.LrgButton
+                        btnname="Comment"
+                        onPress={handleCommentPress}
+                        color={COLORS.AKCRUBLUE}
+                        variant="auth"
+                        authButtonWidth={SIZES.ScreenWidth - 32}
+                        disabled={!canComment}
+                    />
+                </View>
                 <Modal visible={isCompress} transparent={true} animationType="fade">
                     <View style={stylesProgress.modalBackground}>
                         <View style={stylesProgress.modalContainer}>

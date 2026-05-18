@@ -21,6 +21,7 @@ import {IUserProfile} from '../../../types';
 import CustomIcon from '../CustomIcon/CustomIcon';
 import {MULTISIZES} from '../../../assets/constants/theme';
 import DisplayBadge from '../General/akcrubadge';
+import PostImageCarousel from '../PostImageCarousel';
 
 type FooterIconsProps = {
     iconname: string;
@@ -375,14 +376,14 @@ const AkcruNetworkPost = ({
                 </View>
             )}
 
-            <View>
-                {/* Render images */}
-                {imageUrls.map((url, index) => (
-                    <TouchableOpacity key={index} onPress={() => openModal(url)}>
-                        <Image source={{uri: url}} style={styles.postimage} />
-                    </TouchableOpacity>
-                ))}
-            </View>
+            {imageUrls.length > 0 ? (
+                <PostImageCarousel
+                    imageUrls={imageUrls}
+                    onImagePress={openModal}
+                    imageStyle={styles.postimage}
+                    containerStyle={styles.mediaCarouselWrap}
+                />
+            ) : null}
             <View>
                 {/* Render video if available */}
                 {videoUrl && (

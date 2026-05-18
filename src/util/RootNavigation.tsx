@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native';
 import {AuthStackParams} from '../navigation/AuthNavigation';
 import type {CrummunitySendMITParams} from '../screens/crummunityScreens/CrummunitySendMITScreen';
-import type {IComment, IPost, IUserProfile} from '../../types';
+import type {IComment, IPoll, IPollComment, IPost, IUserProfile} from '../../types';
 
 export const navigationRef = createNavigationContainerRef<AuthStackParams>();
 
@@ -252,6 +252,39 @@ export function navigateToNewPost() {
     }
 }
 
+/** `NewPoll` lives on `NoBottomStack`, not on `CrummunityStack`. */
+export function navigateToNewPoll() {
+    const go = () => {
+        if (!navigationRef.isReady()) {
+            return;
+        }
+        navigationRef.navigate('NoBottomStack', {
+            screen: 'NewPoll',
+        });
+    };
+    go();
+    if (!navigationRef.isReady()) {
+        setTimeout(go, 120);
+    }
+}
+
+/** `NewPollComment` lives on `NoBottomStack`, not on `CrummunityStack`. */
+export function navigateToNewPollComment(pollId: number | string) {
+    const go = () => {
+        if (!navigationRef.isReady()) {
+            return;
+        }
+        navigationRef.navigate('NoBottomStack', {
+            screen: 'NewPollComment',
+            params: {pollId},
+        });
+    };
+    go();
+    if (!navigationRef.isReady()) {
+        setTimeout(go, 120);
+    }
+}
+
 /** `CrummunitySendMITScreen` is on `NoBottomStack`, not on `CrummunityStack`. */
 export function navigateToCrummunitySendMIT(params: CrummunitySendMITParams) {
     const go = () => {
@@ -284,6 +317,67 @@ export function navigateToPostScreen(params: NavigateToPostScreenParams) {
         }
         navigationRef.navigate('NoBottomStack', {
             screen: 'PostScreen',
+            params: {
+                ...params,
+                postId: params.post?.id != null ? Number(params.post.id) : undefined,
+            },
+        });
+    };
+    go();
+    if (!navigationRef.isReady()) {
+        setTimeout(go, 120);
+    }
+}
+
+/** `PollScreen` is on `NoBottomStack`, not on `CrummunityStack`. */
+export type NavigateToPollScreenParams = {
+    poll: IPoll;
+    isLikedByCurrentUser?: boolean;
+    comment?: IPollComment;
+};
+
+export function navigateToPollScreen(params: NavigateToPollScreenParams) {
+    const go = () => {
+        if (!navigationRef.isReady()) {
+            return;
+        }
+        navigationRef.dispatch(
+            CommonActions.navigate({
+                name: 'NoBottomStack',
+                params: {
+                    screen: 'PollScreen',
+                    params: {
+                        ...params,
+                        pollId: params.poll.id,
+                    },
+                },
+            }),
+        );
+    };
+    go();
+    if (!navigationRef.isReady()) {
+        setTimeout(go, 120);
+    }
+}
+
+/** `ReportUser` is on `NoBottomStack`, not on `CrummunityStack`. */
+export type NavigateToReportUserParams =
+    | {userID: string}
+    | {
+          authorId: string;
+          authorUsername?: string;
+          authorFirstName?: string;
+          authorProfilePicture?: string;
+          authorBadge?: string;
+      };
+
+export function navigateToReportUser(params: NavigateToReportUserParams) {
+    const go = () => {
+        if (!navigationRef.isReady()) {
+            return;
+        }
+        navigationRef.navigate('NoBottomStack', {
+            screen: 'ReportUser',
             params,
         });
     };

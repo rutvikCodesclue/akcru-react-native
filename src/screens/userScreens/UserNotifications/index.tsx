@@ -17,7 +17,8 @@ import LoadingComponent from '../../../components/Loading';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {getPost} from '../../../lib/api/post.lib';
 import BackButton from '../../../components/General/backbutton';
-import { getPollById } from '../../../lib/api/poll.lib';
+import {getPollById} from '../../../lib/api/poll.lib';
+import {navigateToPollScreen} from '../../../util/RootNavigation';
 import {UseTabMenu} from '../../../context/TabContext';
 
 const UserNotifications = () => {
@@ -94,7 +95,7 @@ const UserNotifications = () => {
                     if (pollId) {
                         const poll = await getPollById(pollId);
                         if (poll) {
-                            navigation.navigate('PollScreen', {poll: poll});
+                            navigateToPollScreen({poll});
                         } else {
                             console.error('Poll not found');
                         }

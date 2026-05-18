@@ -85,7 +85,7 @@ export default StyleSheet.create({
         zIndex: 20,
         alignItems: 'flex-end',
         justifyContent: 'flex-end',
-        paddingRight: '5%',
+        paddingHorizontal: 15,
     },
     floatingStack: {
         alignItems: 'center',

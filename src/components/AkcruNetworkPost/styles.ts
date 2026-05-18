@@ -45,11 +45,16 @@ export default StyleSheet.create({
         color: COLORS.CATPURPLGT,
         fontSize: 14,
     },
-    postimage: {
-        width: '75%',
-        aspectRatio: 9 / 16,
-        borderRadius: 10,
+    mediaCarouselWrap: {
         marginTop: 10,
+        borderRadius: 10,
+        overflow: 'hidden',
+        alignSelf: 'center',
+        width: '75%',
+    },
+    postimage: {
+        width: '100%',
+        aspectRatio: 9 / 16,
         alignSelf: 'center',
     },
     postvideo: {

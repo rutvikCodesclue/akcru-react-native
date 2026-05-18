@@ -143,7 +143,8 @@ export type NoBottomTabStackParams = {
     PostScreen: {
         post?: IPost;
         comment?: IComment;
-        postId: number;
+        postId?: number;
+        isLikedByCurrentUser?: boolean;
     };
     ViewChat: {
         userId: string;
@@ -193,7 +194,8 @@ export type NoBottomTabStackParams = {
     PollScreen: {
         poll?: IPoll;
         comment?: IPollComment;
-        pollId: string;
+        pollId?: string;
+        isLikedByCurrentUser?: boolean;
     };
     CruInviteDecline: any;
     CruInviteAccept: any;

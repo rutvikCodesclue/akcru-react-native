@@ -112,11 +112,14 @@ export default StyleSheet.create({
         color: COLORS.CATPURPLGT,
         fontSize: 14,
     },
+    mediaCarouselWrap: {
+        marginTop: 10,
+        borderRadius: 10,
+        overflow: 'hidden',
+    },
     postimage: {
         width: '100%',
         aspectRatio: 16 / 9,
-        borderRadius: 10,
-        marginTop: 10,
     },
     postvideo: {
         width: '100%',

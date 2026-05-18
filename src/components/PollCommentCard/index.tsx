@@ -10,6 +10,7 @@ import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import {IPoll, IPollComment} from '../../../types';
 import DisplayBadge from '../General/akcrubadge';
+import PostImageCarousel from '../PostImageCarousel';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
@@ -289,6 +290,7 @@ const PollCommentCard = ({
                             source={{uri: comment.user?.profilePicture}}
                             size={isTablet() ? 75 : 58}
                             bordercolor={akcruBadgeColor}
+                            rotateFrameDegrees={90}
                         />
                     </TouchableOpacity>
                 </View>
@@ -392,13 +394,14 @@ const PollCommentCard = ({
                 )
             )}
 
-            <View>
-                {imageUrls.map((url, index) => (
-                    <TouchableOpacity key={index} onPress={() => openModal(url)}>
-                        <Image source={{uri: url}} style={styles.postimage} />
-                    </TouchableOpacity>
-                ))}
-            </View>
+            {imageUrls.length > 0 ? (
+                <PostImageCarousel
+                    imageUrls={imageUrls}
+                    onImagePress={openModal}
+                    imageStyle={styles.postimage}
+                    containerStyle={styles.mediaCarouselWrap}
+                />
+            ) : null}
             <View>
                 {videoUrl && (
                     <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>

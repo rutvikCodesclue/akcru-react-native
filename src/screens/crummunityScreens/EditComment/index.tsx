@@ -148,6 +148,7 @@ const EditCommentScreen = ({navigation, route}: Props) => {
                                         }
                                         size={isTablet() ? 62 : 46}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        rotateFrameDegrees={90}
                                     />
                                 </TouchableOpacity>
                             </View>

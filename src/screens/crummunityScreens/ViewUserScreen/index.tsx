@@ -53,21 +53,27 @@ import type {PressableAndroidRippleConfig, StyleProp, ViewStyle, TextStyle} from
 import {Route} from 'react-native';
 
 // posts
-import { getPostsByUser, likePost, unlikePost, deletePost } from '../../../lib/api/post.lib';
+import {getPost, getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 
 // polls
 import {
+  commentOnPoll,
   getPollById,
   likePoll,
   unlikePoll,
   deletePoll,
   voteOnPoll,
-  // OPTIONAL: if you have this already, use it
   getPollsByUser,
 } from '../../../lib/api/poll.lib';
-import PollCard from '../../../components/CrummunityPoll';
-import {navigateToNewComment, navigateToPostScreen} from '../../../util/RootNavigation';
+import PollCard from '../../../components/SkinnyPollCard';
+import {
+    navigateToNewComment,
+    navigateToPollScreen,
+    navigateToPostScreen,
+    navigateToReportUser,
+} from '../../../util/RootNavigation';
+import {subscribeFeedPollRefresh, subscribeFeedPostRefresh} from '../../../util/feedRefreshEvents';
 import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 import AkcruButtons from '../../../components/akcruButtons';
 import ProfileMetricChip from '../../../components/ProfileMetricChip';
@@ -331,7 +337,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
     };
 
     const handleReportUser = () => {
-        navigation2.navigate('ReportUser', {userID: userID});
+        if (!userID) {
+            return;
+        }
+        navigateToReportUser({userID});
         setUserOptionModal(false);
     };
 
@@ -492,6 +501,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const [actHasMore, setActHasMore] = useState(true);
     const [actLoadingMore, setActLoadingMore] = useState(false);
     const [actRefreshing, setActRefreshing] = useState(false);
+    const [pollCommentDrafts, setPollCommentDrafts] = useState<Record<string, string>>({});
+    const [pollCommentSubmitting, setPollCommentSubmitting] = useState<Record<string, boolean>>({});
 
     const loadMoreActivity = async () => {
         if (!actHasMore || actLoadingMore) return;
@@ -506,6 +517,72 @@ export default function ViewUserScreen({route, navigation}: Props) {
         setActRefreshing(false);
     };
 
+    const refreshActivityPost = React.useCallback(async (postId: number) => {
+        try {
+            const fetchedPost = await getPost(postId);
+            setActivity(prev =>
+                prev.map(item => {
+                    if ('type' in item && (item as IPoll & {type?: string}).type === 'poll') {
+                        return item;
+                    }
+                    if (+item.id !== postId) {
+                        return item;
+                    }
+                    const existing = item as IPost;
+                    return {
+                        ...fetchedPost,
+                        author: {
+                            ...fetchedPost.author,
+                            isFollowed: existing.author?.isFollowed,
+                            isBlocked: existing.author?.isBlocked,
+                        },
+                        isLikedByCurrentUser:
+                            fetchedPost.isLikedByCurrentUser ?? existing.isLikedByCurrentUser,
+                    };
+                }),
+            );
+        } catch (refreshError) {
+            console.error('Failed to refresh profile activity post:', refreshError);
+        }
+    }, []);
+
+    const refreshActivityPoll = React.useCallback(async (pollId: string) => {
+        try {
+            const pollDetails = await getPollById(pollId);
+            setActivity(prev =>
+                prev.map(item => {
+                    if (!('type' in item) || (item as IPoll & {type?: string}).type !== 'poll' || item.id !== pollId) {
+                        return item;
+                    }
+                    const existing = item as IPoll & {type?: string};
+                    return {
+                        ...existing,
+                        ...pollDetails,
+                        type: 'poll',
+                        user: {
+                            ...pollDetails.user,
+                            isFollowed: existing.user?.isFollowed,
+                            isBlocked: existing.user?.isBlocked,
+                        },
+                        isLikedByCurrentUser:
+                            pollDetails.isLikedByCurrentUser ?? existing.isLikedByCurrentUser,
+                    };
+                }),
+            );
+        } catch (refreshError) {
+            console.error('Failed to refresh profile activity poll:', refreshError);
+        }
+    }, []);
+
+    useEffect(() => {
+        const postSubscription = subscribeFeedPostRefresh(refreshActivityPost);
+        const pollSubscription = subscribeFeedPollRefresh(refreshActivityPoll);
+        return () => {
+            postSubscription.remove();
+            pollSubscription.remove();
+        };
+    }, [refreshActivityPost, refreshActivityPoll]);
+
     const openPost = (postId: number) => {
         const p = activity.find((it: any) => +it.id === postId);
         if (!p) return;
@@ -515,7 +592,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const openPoll = (pollId: string) => {
         const p = activity.find(it => (it as any).id === pollId);
         if (!p) return;
-        navigation2.navigate('PollScreen', {poll: p, isLikedByCurrentUser: (p as any).isLikedByCurrentUser});
+        navigateToPollScreen({
+            poll: p as IPoll,
+            isLikedByCurrentUser: (p as IPoll).isLikedByCurrentUser,
+        });
     };
 
     const onLikePostToggle = async (postId: number, isLiked: boolean) => {
@@ -596,6 +676,53 @@ export default function ViewUserScreen({route, navigation}: Props) {
             fetchActivity(1);
         } catch (e) {
             console.warn('voteOnPoll failed', e);
+        }
+    };
+
+    const handlePollCommentInputChange = (pollId: string, value: string) => {
+        setPollCommentDrafts(prev => ({
+            ...prev,
+            [pollId]: value,
+        }));
+    };
+
+    const handleInlinePollCommentSend = async (pollId: string) => {
+        const commentText = (pollCommentDrafts[pollId] ?? '').trim();
+        if (!commentText || pollCommentSubmitting[pollId]) {
+            return;
+        }
+
+        setPollCommentSubmitting(prev => ({
+            ...prev,
+            [pollId]: true,
+        }));
+
+        try {
+            await commentOnPoll(pollId, 'POLL', [commentText]);
+            setActivity(prev =>
+                prev.map(item =>
+                    item.id === pollId && 'type' in item && (item as IPoll & {type?: string}).type === 'poll'
+                        ? {
+                              ...item,
+                              _count: {
+                                  ...item._count,
+                                  comments: (item._count?.comments ?? 0) + 1,
+                              },
+                          }
+                        : item,
+                ),
+            );
+            setPollCommentDrafts(prev => ({
+                ...prev,
+                [pollId]: '',
+            }));
+        } catch (e) {
+            console.warn('commentOnPoll failed', e);
+        } finally {
+            setPollCommentSubmitting(prev => ({
+                ...prev,
+                [pollId]: false,
+            }));
         }
     };
 
@@ -798,10 +925,15 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         currentUserID={currentuser?.id || ''}
                         akcruBadge={item.user?.badge}
                         akcruBadgeColor={selectAvatarBorderColor(item.user?.badge ?? 'AKCRUIT')}
-                        CommentOnPollButton={() => navigation2.navigate('NewPollComment', {pollId: item.id})}
-                        onLikeOrUnlikePoll={() => onLikePollToggle(item.id, !!item.isLikedByCurrentUser)}
+                        profilePicture={item.user?.profilePicture}
+                        onLikeOrUnlike={() => onLikePollToggle(item.id, !!item.isLikedByCurrentUser)}
                         openProfile={() => navigation2.navigate('ViewUserScreen', {userID: item.user?.id})}
                         isAdmin={currentuser?.isAdmin}
+                        onCommentIconPress={() => openPoll(item.id)}
+                        commentInputValue={pollCommentDrafts[item.id] ?? ''}
+                        onCommentInputChange={value => handlePollCommentInputChange(item.id, value)}
+                        onCommentSend={() => handleInlinePollCommentSend(item.id)}
+                        isCommentSending={pollCommentSubmitting[item.id] ?? false}
                     />
                 </Pressable>
             ) : (
@@ -810,15 +942,18 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         post={item}
                         loading={false}
                         openProfile={() => navigation2.navigate('ViewUserScreen', {userID: item.author?.id})}
-                        reportUser={() =>
-                            navigation2.navigate('ReportUser', {
-                                authorId: item.author?.id,
-                                authorUsername: item.author?.username,
-                                authorFirstName: item.author?.firstName,
-                                authorProfilePicture: item.author?.profilePicture,
-                                authorBadge: item.author?.badge,
-                            })
-                        }
+                        reportUser={() => {
+                            if (!item.author?.id) {
+                                return;
+                            }
+                            navigateToReportUser({
+                                authorId: item.author.id,
+                                authorUsername: item.author.username,
+                                authorFirstName: item.author.firstName,
+                                authorProfilePicture: item.author.profilePicture,
+                                authorBadge: item.author.badge,
+                            });
+                        }}
                         onDeletePost={() => onDeletePost(+item.id)}
                         currentUserID={currentuser?.id || ''}
                         akcruBadge={item.author?.badge}
@@ -847,6 +982,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
             onLikePollToggle,
             onDeletePost,
             onLikePostToggle,
+            pollCommentDrafts,
+            pollCommentSubmitting,
+            handlePollCommentInputChange,
+            handleInlinePollCommentSend,
         ],
     );
 
@@ -868,6 +1007,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             data={activity}
                             keyExtractor={keyExtractor}
                             style={{width: SIZES.ScreenWidth * 0.93, alignSelf: 'center'}}
+                            contentContainerStyle={{paddingTop: 10}}
                             onEndReachedThreshold={0.4}
                             onEndReached={handleEndReached}
                             refreshing={actRefreshing}

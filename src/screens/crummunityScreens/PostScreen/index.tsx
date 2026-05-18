@@ -1,19 +1,11 @@
-import {
-    View,
-    Text,
-    SafeAreaView,
-    ScrollView,
-    FlatList,
-    Pressable,
-    ActivityIndicator,
-    Platform,
-} from 'react-native';
-import React, {useCallback, useState} from 'react';
+import {View, Text, SafeAreaView, ScrollView, ActivityIndicator, Platform, Alert} from 'react-native';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import styles from './styles';
 import {COLORS, FONTS, isTablet, SIZES} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
-import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
+import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import Header from '../../../components/header';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import {StackNavigationProp} from '@react-navigation/stack';
@@ -32,23 +24,38 @@ import {
 import PostCommentCard from '../../../components/PostCommentCard';
 import {getPostComments} from '../../../lib/api/post.lib';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {blockUser, getBlockedUsers, getUserFollowing, toggleFollow} from '../../../lib/api/user.lib';
 import {selectAvatarBorderColor} from '../../../util/util';
 import BackButton from '../../../components/General/backbutton';
 import CommonPostCard from '../../../components/CommonPostCard';
+import PostButton from '../../../components/AkcruPostButton';
+import {
+    emitFeedPostRefresh,
+    subscribePostCommentCountDelta,
+} from '../../../util/feedRefreshEvents';
+import {navigateToReportUser} from '../../../util/RootNavigation';
 
-type PostScreenNavigationProp = StackNavigationProp<CrummunityStackParams, 'PostScreen'>;
-type PostScreenRouteProp = RouteProp<CrummunityStackParams, 'PostScreen'>;
+type PostScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'PostScreen'>;
+type PostScreenRouteProp = RouteProp<NoBottomTabStackParams, 'PostScreen'>;
 
 type Props = {
     navigation: PostScreenNavigationProp;
     route: PostScreenRouteProp;
 };
 
+const resolvePostId = (raw: number | string | undefined): number | undefined => {
+    if (raw == null) {
+        return undefined;
+    }
+    const parsed = typeof raw === 'string' ? parseInt(raw, 10) : Number(raw);
+    return Number.isFinite(parsed) ? parsed : undefined;
+};
+
 const PostScreen = ({navigation, route}: Props) => {
-    const postId = route.params?.post.id;
-    const isLikedByCurrentUser = route.params?.isLikedByCurrentUser;
+    const resolvedPostId = useMemo(
+        () => resolvePostId(route.params?.postId ?? route.params?.post?.id),
+        [route.params?.postId, route.params?.post?.id],
+    );
     const {user} = useAuthStore();
     const [posts, setPosts] = useState<IPost[]>([]);
     const [loading, setLoading] = useState(false);
@@ -59,34 +66,41 @@ const PostScreen = ({navigation, route}: Props) => {
     const [debounce, setDebounce] = useState(false);
 
     const currentUserID = user?.id;
-    const [post, setPost] = useState<IPost>({...route.params?.post, isLikedByCurrentUser});
+    const [post, setPost] = useState<IPost | undefined>(route.params?.post);
     const [commentDraft, setCommentDraft] = useState('');
     const [isCommentSending, setIsCommentSending] = useState(false);
     const navigation2 = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
+    const insets = useSafeAreaInsets();
+    const showCommentFab = post?.allowComments !== false;
+    const scrollBottomPadding = showCommentFab
+        ? Math.max(88, insets.bottom + 72)
+        : Math.max(24, insets.bottom + 16);
 
     const fetchPostData = useCallback(async () => {
-        if (postId) {
-            setLoading(true);
-            try {
-                const fetchedPost = await getPost(postId);
-                fetchedPost.isLikedByCurrentUser = isLikedByCurrentUser;
-                setPost(fetchedPost);
-                setLoading(false);
-            } catch (error) {
-                console.error('Failed to fetch post:', error);
-                setError(error.message || 'Failed to fetch post');
-                setLoading(false);
-            }
-        } else {
-            console.log('Post ID is not defined');
+        if (!resolvedPostId) {
+            setError('Post ID is not defined');
+            return;
         }
-    }, [postId, isLikedByCurrentUser]);
+
+        setLoading(true);
+        try {
+            const fetchedPost = await getPost(resolvedPostId);
+            setPost(fetchedPost);
+        } catch (fetchError: unknown) {
+            const message =
+                fetchError instanceof Error ? fetchError.message : 'Failed to fetch post';
+            console.error('Failed to fetch post:', fetchError);
+            setError(message);
+        } finally {
+            setLoading(false);
+        }
+    }, [resolvedPostId]);
 
     const fetchCommentsAndStatuses = useCallback(async () => {
-        if (post?.id) {
+        if (resolvedPostId) {
             setLoadingComments(true);
             try {
-                const fetchedComments = await getPostComments(post.id);
+                const fetchedComments = await getPostComments(resolvedPostId);
 
                 if (!fetchedComments || !fetchedComments.comments) {
                     console.error('No comments data received:', fetchedComments);
@@ -152,22 +166,71 @@ const PostScreen = ({navigation, route}: Props) => {
 
                 setComments(updatedComments);
                 setLoadingComments(false);
-            } catch (error) {
-                console.error('Failed to fetch comments or statuses:', error);
-                setError(error.message || 'Failed to fetch comments');
+            } catch (fetchError: unknown) {
+                const message =
+                    fetchError instanceof Error ? fetchError.message : 'Failed to fetch comments';
+                console.error('Failed to fetch comments or statuses:', fetchError);
+                setError(message);
                 setLoadingComments(false);
             }
-        } else {
-            console.log('Post or post.id is not defined');
         }
-    }, [post?.id, currentUserID]);
+    }, [resolvedPostId, currentUserID]);
+
+    const shouldSkipPostFetch = useMemo(() => Boolean(route.params?.post), [route.params?.post]);
+
+    const loadScreenData = useCallback(async () => {
+        if (!shouldSkipPostFetch) {
+            await fetchPostData();
+        }
+        await fetchCommentsAndStatuses();
+    }, [shouldSkipPostFetch, fetchPostData, fetchCommentsAndStatuses]);
 
     useFocusEffect(
         useCallback(() => {
-            fetchPostData();
-            fetchCommentsAndStatuses();
-        }, [fetchPostData, fetchCommentsAndStatuses]),
+            void loadScreenData();
+        }, [loadScreenData]),
     );
+
+    useEffect(() => {
+        if (route.params?.post) {
+            setPost(route.params.post);
+        }
+        setComments([]);
+        setCommentDraft('');
+        setError('');
+    }, [resolvedPostId, route.params?.post]);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', () => {
+            if (resolvedPostId) {
+                emitFeedPostRefresh(resolvedPostId);
+            }
+        });
+        return unsubscribe;
+    }, [navigation, resolvedPostId]);
+
+    useEffect(() => {
+        const subscription = subscribePostCommentCountDelta(({postId, delta}) => {
+            if (!resolvedPostId || postId !== resolvedPostId || !delta) {
+                return;
+            }
+
+            setPost(prevPost => {
+                if (!prevPost) {
+                    return prevPost;
+                }
+                return {
+                    ...prevPost,
+                    _count: {
+                        ...prevPost._count,
+                        comments: Math.max(0, (prevPost._count?.comments ?? 0) + delta),
+                    },
+                };
+            });
+        });
+
+        return () => subscription.remove();
+    }, [resolvedPostId]);
 
     const handleDeletePost = async (postId: number) => {
         try {
@@ -203,27 +266,46 @@ const PostScreen = ({navigation, route}: Props) => {
                 }
             }
 
-            // Proceed to delete the comment
             await deleteComment(commentId);
 
-            // Update local state to remove the comment from the UI
             setComments(prevComments => prevComments.filter(comment => +comment.id !== commentId));
+            setPost(prevPost => {
+                if (!prevPost) {
+                    return prevPost;
+                }
+                return {
+                    ...prevPost,
+                    _count: {
+                        ...prevPost._count,
+                        comments: Math.max(0, (prevPost._count?.comments ?? 0) - 1),
+                    },
+                };
+            });
+            if (resolvedPostId) {
+                emitFeedPostRefresh(resolvedPostId);
+            }
         } catch (error) {
             console.error('Error in deleting comment:', error);
-            // Handle error (e.g., show a message to the user)
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to delete comment';
+            Alert.alert('Delete Comment Failed', message);
         }
     };
 
     const handleFollow = async (authorId: string, isCurrentlyFollowing?: boolean) => {
         try {
             const updatedStatus = await toggleFollow(authorId);
-            if (updatedStatus === undefined) {
-                console.error('Failed to update follow status');
+            if (!updatedStatus?.success) {
+                Alert.alert('Action Failed', updatedStatus?.message || 'Failed to update follow status.');
                 return;
             }
 
             const nextIsFollowed =
-                typeof updatedStatus === 'boolean' ? updatedStatus : !Boolean(isCurrentlyFollowing);
+                typeof updatedStatus?.isFollowing === 'boolean'
+                    ? updatedStatus.isFollowing
+                    : !Boolean(isCurrentlyFollowing);
 
             setPost(prevPost => {
                 if (!prevPost || prevPost.author?.id !== authorId) {
@@ -253,6 +335,11 @@ const PostScreen = ({navigation, route}: Props) => {
             );
         } catch (error) {
             console.error('Failed to update follow status:', error);
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to update follow status.';
+            Alert.alert('Action Failed', message);
         }
     };
 
@@ -282,7 +369,12 @@ const PostScreen = ({navigation, route}: Props) => {
             }
         } catch (error) {
             console.error('Error changing like status:', error);
-            setError(error.message || 'Failed to like/unlike the post');
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to like/unlike the post';
+            setError(message);
+            Alert.alert('Action Failed', message);
             setPost(prevPost => {
                 if (!prevPost) return prevPost; // Prevent updates if prevPost is null
 
@@ -328,45 +420,39 @@ const PostScreen = ({navigation, route}: Props) => {
             setComments(updatedComments);
         } catch (error) {
             console.error('Error changing like status for comment:', error);
-            // Optionally handle reversion or user notification here
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to update comment reaction.';
+            Alert.alert('Action Failed', message);
         }
     };
 
     const handleToggleBlockUser = async (id: string) => {
         try {
-            await blockUser(id);
-            setPost(prevPost => {
-                if (!prevPost || prevPost.author?.id !== id) {
-                    return prevPost;
-                }
-                return {
-                    ...prevPost,
-                    author: {
-                        ...prevPost.author,
-                        isBlocked: true,
-                    },
-                };
-            });
-            setComments(prevComments =>
-                prevComments.map(item =>
-                    item.author?.id === id
-                        ? {
-                              ...item,
-                              author: {
-                                  ...item.author,
-                                  isBlocked: true,
-                              },
-                          }
-                        : item,
-                ),
-            );
-        } catch (error) {
+            const result = await blockUser(id);
+            if (result?.success !== true) {
+                Alert.alert('Block User Failed', result?.message || 'Failed to block user.');
+                return;
+            }
+            if (resolvedPostId) {
+                emitFeedPostRefresh(resolvedPostId);
+            }
+            navigation.goBack();
+        } catch (error: unknown) {
             console.error('Failed to block user:', error);
+            const message = error instanceof Error && error.message
+                ? error.message
+                : 'Failed to block user.';
+            Alert.alert('Block User Failed', message);
         }
     };
 
     const handleReportUser = (author: IUserProfile) => {
-        navigation2.navigate('ReportUser', {
+        if (!author?.id) {
+            return;
+        }
+        navigateToReportUser({
             authorId: author.id,
             authorUsername: author.username,
             authorFirstName: author.firstName,
@@ -405,11 +491,30 @@ const PostScreen = ({navigation, route}: Props) => {
             await fetchCommentsAndStatuses();
         } catch (error) {
             console.error('Error creating inline comment:', error);
-            setError(error.message || 'Failed to add comment');
+            const message =
+                error instanceof Error && error.message
+                    ? error.message
+                    : 'Failed to add comment';
+            setError(message);
+            Alert.alert('Action Failed', message);
         } finally {
             setIsCommentSending(false);
         }
     };
+
+    if (loading && !post) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: COLORS.AKCRUBACKGROUND,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                }}>
+                <ActivityIndicator size="large" color="#9b59b6" />
+            </View>
+        );
+    }
 
     if (!post) {
         return (
@@ -420,7 +525,7 @@ const PostScreen = ({navigation, route}: Props) => {
                     alignItems: 'center',
                     justifyContent: 'center',
                 }}>
-                <Text style={{...FONTS.Title2Orange}}>Error: Post not found</Text>
+                <Text style={{...FONTS.Title2Orange}}>{error || 'Post not found'}</Text>
             </View>
         );
     }
@@ -428,7 +533,12 @@ const PostScreen = ({navigation, route}: Props) => {
     return (
         <TabContainer>
             <SafeAreaView style={{flex: 1, backgroundColor: '#050508'}}>
-                <ScrollView stickyHeaderIndices={[0]} style={{height: SIZES.ScreenHeight, backgroundColor: '#050508'}}>
+                <View style={{flex: 1, backgroundColor: '#050508'}}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    style={{flex: 1, backgroundColor: '#050508'}}
+                    contentContainerStyle={{paddingBottom: scrollBottomPadding}}
+                    showsVerticalScrollIndicator={false}>
                     <View style={{zIndex: 100}}>
                         <View style={{zIndex: 101}}>
                             <Header />
@@ -459,7 +569,7 @@ const PostScreen = ({navigation, route}: Props) => {
                     <View style={styles.postcontainer}>
                         <CommonPostCard
                             post={post}
-                            loading={loadingPostIds[postId] || false}
+                            loading={Boolean(post?.id && loadingPostIds[+post.id])}
                             openProfile={() => navigation2.navigate('ViewUserScreen', {userID: post.author?.id})}
                             reportUser={() => handleReportUser(post.author)}
                             currentUserID={currentUserID ?? ''}
@@ -486,9 +596,9 @@ const PostScreen = ({navigation, route}: Props) => {
                             isAdmin={user?.isAdmin}
                         />
                     </View>
-                    <View style={{marginBottom: '5%', backgroundColor: '#050508'}}>
+                    <View style={styles.commentsSection}>
                         {loadingComments ? (
-                            <View style={{marginTop: '25%'}}>
+                            <View style={styles.commentsLoader}>
                                 <ActivityIndicator size="large" color="#9b59b6" />
                             </View>
                         ) : // You can customize the size and color
@@ -499,12 +609,9 @@ const PostScreen = ({navigation, route}: Props) => {
                                 </Text>
                             </View>
                         ) : (
-                            <FlatList
-                                data={comments}
-                                style={styles.postcontainer}
-                                keyExtractor={item => item.id}
-                                renderItem={({item}) => (
-                                    <View style={{marginBottom: 10}}>
+                            <View style={styles.postcontainer}>
+                                {comments.map(item => (
+                                    <View key={item.id} style={{marginBottom: 10}}>
                                         <PostCommentCard
                                             post={item}
                                             openProfile={() =>
@@ -535,11 +642,22 @@ const PostScreen = ({navigation, route}: Props) => {
                                             isAdmin={user?.isAdmin}
                                         />
                                     </View>
-                                )}
-                            />
+                                ))}
+                            </View>
                         )}
                     </View>
                 </ScrollView>
+                {showCommentFab ? (
+                    <View
+                        style={[styles.floatingbutton, {paddingBottom: Math.max(12, insets.bottom)}]}
+                        pointerEvents="box-none">
+                        <PostButton
+                            isSending={isCommentSending}
+                            onPress={() => navigation2.navigate('NewComment', {postId: post.id})}
+                        />
+                    </View>
+                ) : null}
+                </View>
             </SafeAreaView>
         </TabContainer>
     );

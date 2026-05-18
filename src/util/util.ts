@@ -151,16 +151,70 @@ export function formatTimestampToAMPM(timestamp: string | number | Date) {
     return `${formattedHours}:${minutes} ${ampm}`;
 }
 
-export function classifyPostContent(contentArray: string[]) {
+const IMAGE_URL_PATTERN = /^https?:\/\/.+\.(jpe?g|png|gif|webp)(\?.*)?$/i;
+const VIDEO_URL_PATTERN = /^https?:\/\/.+\.(mov|mp4)(\?.*)?$/i;
+
+const isImageMediaUrl = (value: string): boolean => {
+    const trimmed = value.trim();
+    if (!trimmed.startsWith('http')) {
+        return false;
+    }
+    return (
+        IMAGE_URL_PATTERN.test(trimmed) ||
+        (/(user-pictures|photo-storage)/i.test(trimmed) && /\.(jpe?g|png|gif|webp)/i.test(trimmed))
+    );
+};
+
+const isVideoMediaUrl = (value: string): boolean => {
+    const trimmed = value.trim();
+    if (!trimmed.startsWith('http')) {
+        return false;
+    }
+    return VIDEO_URL_PATTERN.test(trimmed) || (trimmed.includes('user-videos') && /\.(mov|mp4)/i.test(trimmed));
+};
+
+/** Flattens post content into individual strings (handles comma-joined URLs in one entry). */
+export function normalizePostContentItems(content: string[] | string | undefined | null): string[] {
+    if (!content) {
+        return [];
+    }
+
+    const rawItems = Array.isArray(content) ? content : [content];
+    const expanded: string[] = [];
+
+    rawItems.forEach(item => {
+        if (item == null) {
+            return;
+        }
+        const value = String(item).trim();
+        if (!value) {
+            return;
+        }
+
+        if (value.includes('http') && (value.includes(',') || /\shttps?:\/\//.test(value))) {
+            const urls = value.match(/https?:\/\/[^\s,]+/g);
+            if (urls?.length) {
+                expanded.push(...urls.map(url => url.trim()));
+                return;
+            }
+        }
+
+        expanded.push(value);
+    });
+
+    return expanded;
+}
+
+export function classifyPostContent(content: string[] | string | undefined | null) {
     const imageUrls: string[] = [];
     let videoUrl = '';
     const textContentParts: string[] = [];
 
-    contentArray.forEach(item => {
-        if (/^https?:\/\/.+\.(jpeg|jpg|png|gif)$/i.test(item) && item.includes('user-pictures')) {
-            imageUrls.push(item);
-        } else if (/^https?:\/\/.+\.(mov|mp4)$/i.test(item) && item.includes('user-videos')) {
-            videoUrl = item;
+    normalizePostContentItems(content).forEach(item => {
+        if (isImageMediaUrl(item)) {
+            imageUrls.push(item.trim());
+        } else if (isVideoMediaUrl(item)) {
+            videoUrl = item.trim();
         } else {
             textContentParts.push(item);
         }
@@ -170,23 +224,8 @@ export function classifyPostContent(contentArray: string[]) {
     return {textContent, imageUrls, videoUrl};
 }
 
-export function classifyPollContent(contentArray: string[]) {
-    const imageUrls: string[] = [];
-    let videoUrl = '';
-    const textContentParts: string[] = [];
-
-    contentArray.forEach(item => {
-        if (/^https?:\/\/.+\.(jpeg|jpg|png|gif)$/i.test(item) && item.includes('user-pictures')) {
-            imageUrls.push(item);
-        } else if (/^https?:\/\/.+\.(mov|mp4)$/i.test(item) && item.includes('user-videos')) {
-            videoUrl = item;
-        } else {
-            textContentParts.push(item);
-        }
-    });
-
-    const textContent = textContentParts.join(' ');
-    return {textContent, imageUrls, videoUrl};
+export function classifyPollContent(contentArray: string[] | string | undefined | null) {
+    return classifyPostContent(contentArray);
 }
 
 export function extractUsernamesFromText(text: string) {

@@ -137,7 +137,7 @@ export async function commentOnPost(postId: number, postType: string, content: s
         return response.data.comment;
     } catch (error) {
         console.error('Error commenting on the post:', error);
-        throw error;
+        throw new Error(messageFromAxiosError(error, 'Failed to add comment.'));
     }
 }
 
@@ -285,7 +285,7 @@ export async function likeComment(id: number) {
         }
     } catch (error) {
         console.error(error);
-        throw new Error('Failed to like the post.');
+        throw new Error(messageFromAxiosError(error, 'Failed to like the comment.'));
     }
 }
 
@@ -300,7 +300,7 @@ export async function unlikeComment(id: number) {
         }
     } catch (error) {
         console.error(error);
-        throw new Error('Failed to unlike the post.');
+        throw new Error(messageFromAxiosError(error, 'Failed to unlike the comment.'));
     }
 }
 
@@ -315,7 +315,7 @@ export async function deleteComment(commentId: number) {
         }
     } catch (error) {
         console.error(error);
-        throw new Error('Failed to delete the comment.');
+        throw new Error(messageFromAxiosError(error, 'Failed to delete the comment.'));
     }
 }
 

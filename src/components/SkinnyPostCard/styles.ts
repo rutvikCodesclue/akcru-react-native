@@ -117,14 +117,14 @@ export default StyleSheet.create({
         color: 'rgba(255,255,255,0.4)',
         fontSize: 15,
     },
+    mediaCarouselWrap: {
+        marginTop: 12,
+        borderRadius: 12,
+        overflow: 'hidden',
+    },
     mediaImage: {
         width: '100%',
         aspectRatio: 4 / 5,
-        marginTop: 12,
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
-        borderBottomLeftRadius: 8,
-        borderBottomRightRadius: 8,
         alignSelf: 'center',
     },
     stamps: {

@@ -7,10 +7,9 @@ import {
     Pressable,
     ScrollView,
     TouchableWithoutFeedback,
-    ActivityIndicator,
     Platform,
-    GestureResponderEvent,
     TextInput,
+    ActivityIndicator,
 } from 'react-native';
 import React, {useRef, useState} from 'react';
 import styles from './styles';
@@ -31,6 +30,8 @@ import EngagementStatRow from '../EngagementStatRow/EngagementStatRow';
 import {navigateToCrummunitySendMIT} from '../../util/RootNavigation';
 import useAuthStore from '../../stores/auth.store';
 import {resolveAkcruBadgeConfig} from '../ProfileUserBadges';
+import InlineCommentComposer from '../InlineCommentComposer';
+import PostImageCarousel from '../PostImageCarousel';
 
 const neonIconWrap = (color: string) =>
     Platform.select({
@@ -131,6 +132,7 @@ type PostProps = {
     akcruBadgeColor: string;
     isAdmin?: boolean;
     visionaryStatus?: boolean;
+    onOpenPost?: () => void;
 };
 
 const SkinnyPostCard = ({
@@ -152,6 +154,7 @@ const SkinnyPostCard = ({
     onBlockUser = () => {},
     akcruBadgeColor,
     isAdmin = false,
+    onOpenPost,
 }: PostProps) => {
     const commentInputRef = useRef<TextInput>(null);
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -425,14 +428,6 @@ const SkinnyPostCard = ({
         });
     };
 
-    const handleCommentSendPress = (event: GestureResponderEvent) => {
-        event.stopPropagation();
-        if (isCommentSending) {
-            return;
-        }
-        onCommentSend?.();
-    };
-
     const handleCommentFocus = () => {
         if (onCommentIconPress) {
             onCommentIconPress();
@@ -561,13 +556,14 @@ const SkinnyPostCard = ({
                         </View>
                     </View>
 
-                    <View>
-                        {imageUrls.map((url, index) => (
-                            <TouchableOpacity key={index} onPress={() => openModal(url)}>
-                                <Image source={{uri: url}} style={styles.mediaImage} />
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    {imageUrls.length > 0 ? (
+                        <PostImageCarousel
+                            imageUrls={imageUrls}
+                            onImagePress={openModal}
+                            imageStyle={styles.mediaImage}
+                            containerStyle={styles.mediaCarouselWrap}
+                        />
+                    ) : null}
                     <View>
                         {videoUrl && (
                             <TouchableOpacity>
@@ -618,12 +614,30 @@ const SkinnyPostCard = ({
                     </Text>
 
                     {headline ? (
-                        <Text style={styles.headline}>{renderPostText(headline)}</Text>
+                        onOpenPost ? (
+                            <Pressable onPress={onOpenPost}>
+                                <Text style={styles.headline}>{renderPostText(headline)}</Text>
+                            </Pressable>
+                        ) : (
+                            <Text style={styles.headline}>{renderPostText(headline)}</Text>
+                        )
                     ) : null}
                     {description ? (
-                        <Text style={styles.descText}>{renderPostText(description)}</Text>
+                        onOpenPost ? (
+                            <Pressable onPress={onOpenPost}>
+                                <Text style={styles.descText}>{renderPostText(description)}</Text>
+                            </Pressable>
+                        ) : (
+                            <Text style={styles.descText}>{renderPostText(description)}</Text>
+                        )
                     ) : !headline && primaryText ? (
-                        <Text style={styles.descText}>{renderPostText(primaryText)}</Text>
+                        onOpenPost ? (
+                            <Pressable onPress={onOpenPost}>
+                                <Text style={styles.descText}>{renderPostText(primaryText)}</Text>
+                            </Pressable>
+                        ) : (
+                            <Text style={styles.descText}>{renderPostText(primaryText)}</Text>
+                        )
                     ) : null}
 
                     {hashTags.length > 0 ? (
@@ -667,26 +681,14 @@ const SkinnyPostCard = ({
                     />
 
                     {post.allowComments !== false ? (
-                        <View style={styles.commentBar}>
-                            <TextInput
-                                ref={commentInputRef}
-                                value={commentInputValue}
-                                onChangeText={text => onCommentInputChange?.(text)}
-                                placeholder="Add a comment..."
-                                placeholderTextColor="rgba(255,255,255,0.4)"
-                                style={styles.commentPlaceholder}
-                                multiline={false}
-                                numberOfLines={1}
-                                onPressIn={event => event.stopPropagation()}
-                            />
-                            <Pressable onPress={handleCommentSendPress}>
-                                {isCommentSending ? (
-                                    <ActivityIndicator size="small" color="#9b59b6" />
-                                ) : (
-                                    <Icon name="send" type="ionicon" color="#9b59b6" size={22} />
-                                )}
-                            </Pressable>
-                        </View>
+                        <InlineCommentComposer
+                            inputRef={commentInputRef}
+                            value={commentInputValue}
+                            onChangeText={text => onCommentInputChange?.(text)}
+                            onSend={onCommentSend}
+                            isSending={isCommentSending}
+                            onPressIn={event => event.stopPropagation()}
+                        />
                     ) : null}
 
                     <View style={{flexDirection: 'row', flexWrap: 'wrap', marginTop: 8}}>

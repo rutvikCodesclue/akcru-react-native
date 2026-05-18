@@ -1,6 +1,23 @@
 import {IPoll, IVote, IPollType} from '../../../types';
 import {API} from '../../clients/api.client';
 
+function messageFromAxiosError(error: unknown, fallback: string): string {
+    const err = error as {
+        response?: {data?: {message?: string; error?: string}};
+        message?: string;
+    };
+    const d = err?.response?.data;
+    if (d && typeof d === 'object') {
+        if (typeof d.message === 'string' && d.message.length) {
+            return d.message;
+        }
+        if (typeof d.error === 'string' && d.error.length) {
+            return d.error;
+        }
+    }
+    return err?.message || fallback;
+}
+
 // Function to create a poll
 export async function createPoll(
     question: string,
@@ -155,7 +172,7 @@ export async function commentOnPoll(pollId: string, postType: string, content: s
         return data.comment;
     } catch (error) {
         console.error('Error commenting on poll:', error);
-        throw new Error('Failed to comment on poll');
+        throw new Error(messageFromAxiosError(error, 'Failed to comment on poll'));
     }
 }
 
@@ -199,7 +216,7 @@ export async function likePollComment(pollCommentId: string): Promise<any> {
         return data.pollCommentLike;
     } catch (error) {
         console.error('Error liking poll comment:', error);
-        throw new Error('Failed to like poll comment');
+        throw new Error(messageFromAxiosError(error, 'Failed to like poll comment'));
     }
 }
 
@@ -215,7 +232,32 @@ export async function unlikePollComment(pollCommentId: string): Promise<string> 
         return data.message;
     } catch (error) {
         console.error('Error unliking poll comment:', error);
-        throw new Error('Failed to unlike poll comment');
+        throw new Error(messageFromAxiosError(error, 'Failed to unlike poll comment'));
+    }
+}
+
+// Function to delete a poll comment
+export async function deletePollComment(pollCommentId: string): Promise<string> {
+    try {
+        const {data} = await API.delete('/v1/poll/comment/delete', {
+            // Some backends expect id, some expect pollCommentId; pass both for compatibility.
+            params: {id: pollCommentId, pollCommentId},
+            data: {id: pollCommentId, pollCommentId},
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message);
+        }
+
+        return data.message || 'Poll comment deleted';
+    } catch (error: any) {
+        console.error('Error deleting poll comment:', error);
+        const apiMessage =
+            error?.response?.data?.message ||
+            error?.response?.data?.error ||
+            error?.message ||
+            'Failed to delete poll comment';
+        throw new Error(apiMessage);
     }
 }
 
@@ -267,4 +309,3 @@ export async function getPollsByUser(userId: string, page = 1): Promise<IPoll[]>
         throw new Error('Failed to fetch user polls');
     }
 }
-

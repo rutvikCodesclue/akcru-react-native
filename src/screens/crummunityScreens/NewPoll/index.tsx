@@ -455,6 +455,7 @@ const NewPoll = () => {
                                         }
                                         size={isTablet() ? 82 : 58}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        rotateFrameDegrees={90}
                                     />
                                 </TouchableOpacity>
                             </View>

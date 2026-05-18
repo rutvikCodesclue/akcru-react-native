@@ -321,7 +321,7 @@ const Read = () => {
                 <LoadingComponent />
             ) : (
                 <ScrollView>
-                    <View style={{marginHorizontal: 15}}>
+                    <View style={{marginHorizontal: 15, marginTop: 10}}>
                         {sortedNotifications.map((notification, index) => {
                             const {id, type, message, isRead, createdAt, user} = notification;
 

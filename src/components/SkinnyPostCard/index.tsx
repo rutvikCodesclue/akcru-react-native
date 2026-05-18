@@ -19,6 +19,7 @@ import HexAvatar from '../HexAvatar';
 import {classifyPostContent, timeSince} from '../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import DisplayBadge from '../General/akcrubadge';
+import PostImageCarousel from '../PostImageCarousel';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {NoBottomTabStackParams} from '../../navigation/NoBottomTabStack';
 import {findAUser} from '../../lib/api/user.lib';
@@ -476,13 +477,14 @@ const PostCard = ({
                         </View>
                     </View>
 
-                    <View>
-                        {imageUrls.map((url, index) => (
-                            <TouchableOpacity key={index} onPress={() => openModal(url)}>
-                                <Image source={{uri: url}} style={styles.mediaImage} />
-                            </TouchableOpacity>
-                        ))}
-                    </View>
+                    {imageUrls.length > 0 ? (
+                        <PostImageCarousel
+                            imageUrls={imageUrls}
+                            onImagePress={openModal}
+                            imageStyle={styles.mediaImage}
+                            containerStyle={styles.mediaCarouselWrap}
+                        />
+                    ) : null}
                     <View>
                         {videoUrl && (
                             <TouchableOpacity onPress={() => openVideoModal(videoUrl)}>

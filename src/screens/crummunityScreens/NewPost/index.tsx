@@ -241,8 +241,7 @@ const NewPost = () => {
                     gifUrls = await uploadPictures(gifs);
                 }
 
-                // Combine both URLs
-                content = [...imageUrls, ...gifUrls].join(', ');
+                content = [...imageUrls, ...gifUrls];
             } else if (postType === 'VIDEO') {
                 setIsCompress(true);
                 const compressedVideoPath = await VideoCompressor.compress(
@@ -423,6 +422,7 @@ const NewPost = () => {
                                         }
                                         size={isTablet() ? 82 : 58}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        rotateFrameDegrees={90}
                                     />
                                 </TouchableOpacity>
                             </View>
