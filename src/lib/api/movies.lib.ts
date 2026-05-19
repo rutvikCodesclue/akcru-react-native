@@ -27,6 +27,22 @@ export const findTopBoxMovies = async (): Promise<IMovie[] | []> => {
     }
 };
 
+export const getTrendingInvites = async (): Promise<IMovie[] | []> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.get('/v1/movies/trending-invites');
+
+        if (data.success === false) {
+            return [];
+        }
+
+        return Array.isArray(data.movies) ? data.movies : [];
+    } catch (error) {
+        console.error('Error fetching trending invites:', error);
+        return [];
+    }
+};
+
 export const findMovies = async (genre?: string): Promise<IMovie[] | []> => {
     await useAuthStore.getState().hydrateAuth();
     try {

@@ -25,6 +25,7 @@ import UnlockingMatchesScreen from '../screens/CenterButtonScreens/FlickFlirt/Un
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ClientEntryDecider from '../screens/ClientDeciderScreen';
 import SoloSessionScreen from '../screens/contentScreens/SoloSessionScreen';
+import CruSoloTabsScreen from '../screens/contentScreens/CruSoloTabsScreen';
 
 export type ClientStackParams = {
     HomeScreen: any;
@@ -52,6 +53,7 @@ export type ClientStackParams = {
     ContentDetailScreen: any;
     ClientEntryDecider: any;
     SoloSessionScreen: {vibeId?: string} | undefined;
+    CruSoloTabsScreen: any;
 };
 
 const ClientSearch = createStackNavigator<ClientStackParams>();
@@ -213,6 +215,13 @@ export function ClientStack() {
             <ClientSearch.Screen
                 name="SoloSessionScreen"
                 component={SoloSessionScreen}
+                options={{
+                    headerShown: false,
+                }}
+            />
+            <ClientSearch.Screen
+                name="CruSoloTabsScreen"
+                component={CruSoloTabsScreen}
                 options={{
                     headerShown: false,
                 }}

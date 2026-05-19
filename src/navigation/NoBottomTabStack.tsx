@@ -89,6 +89,7 @@ import {UnlockOption} from '../lib/api/flickflirt.lib';
 import CrummunitySendMITScreen, {
     CrummunitySendMITParams,
 } from '../screens/crummunityScreens/CrummunitySendMITScreen';
+import CruSoloTabsScreen from '../screens/contentScreens/CruSoloTabsScreen';
 
 export type NoBottomTabStackParams = {
     BlockedUsers: any;
@@ -205,6 +206,7 @@ export type NoBottomTabStackParams = {
     StripeWebCheckout: any;
     UserProfileStack: any;
     UserProfileHubTabScreen: {hubTab: 'details' | 'dates' | 'cru' | 'wallet'};
+    CruSoloTabsScreen: any;
 };
 
 const NoBottom = createStackNavigator<NoBottomTabStackParams>();
@@ -621,6 +623,13 @@ export default function NoBottomStack() {
             <NoBottom.Screen
                 name="UserProfileHubTabScreen"
                 component={UserProfileHubTabScreen}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <NoBottom.Screen
+                name="CruSoloTabsScreen"
+                component={CruSoloTabsScreen}
                 options={() => ({
                     headerShown: false,
                 })}

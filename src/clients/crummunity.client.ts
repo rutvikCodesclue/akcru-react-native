@@ -31,7 +31,7 @@ const CRUMMUNITY = axios.create({
 CRUMMUNITY.interceptors.request.use(
     async config => {
         const state = authStore.getState();
-        
+
         // If store hasn't hydrated yet, wait for it
         if (!state._hasHydrated) {
             // Wait for hydration to complete
@@ -41,13 +41,13 @@ CRUMMUNITY.interceptors.request.use(
                 attempts++;
             }
         }
-        
+
         const session = authStore.getState().getSession();
 
         if (session?.access_token) {
             config.headers.Authorization = `Bearer ${session.access_token}`;
         }
-        
+
         const endpoints = [
             '/v1/user',
             // '/v1/auth/signup',
@@ -138,7 +138,7 @@ CRUMMUNITY.interceptors.response.use(
                 console.error('Error during force logout:', logoutError);
             }
         }
-        
+
         return Promise.reject(error);
     },
 );
