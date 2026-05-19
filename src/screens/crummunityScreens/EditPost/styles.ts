@@ -80,6 +80,10 @@ export default StyleSheet.create({
         minHeight: 100,
         textAlignVertical: 'top',
     },
+    inputAreaWrap: {
+        position: 'relative',
+        zIndex: 50,
+    },
     charCount: {
         ...FONTS.paragraph3,
         color: 'rgba(255,255,255,0.45)',
@@ -142,11 +146,54 @@ export default StyleSheet.create({
         borderTopWidth: 1,
         borderTopColor: COLORS.FADEDBLACK,
     },
-    suggestionList: {
-        marginTop: 8,
+    suggestionPanel: {
+        position: 'absolute',
+        top: 126,
+        left: 0,
+        right: 0,
+        backgroundColor: '#0b1019',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        maxHeight: 260,
+        overflow: 'hidden',
+        zIndex: 100,
+        elevation: 8,
     },
-    suggestionItem: {
-        marginVertical: 5,
+    suggestionList: {
+        width: '100%',
+    },
+    mentionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 9,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.02)',
+    },
+    mentionMeta: {
+        marginLeft: 10,
+        flex: 1,
+    },
+    mentionNameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+    },
+    mentionUsername: {
+        ...FONTS.Title2,
+        fontSize: 13,
+        color: COLORS.WHITE,
+    },
+    mentionFirstName: {
+        ...FONTS.paragraph1,
+        color: 'rgba(255,255,255,0.65)',
+        marginLeft: 8,
+    },
+    mentionBadgeWrap: {
+        marginTop: 4,
+        alignSelf: 'flex-start',
     },
     mediaPreviewWrap: {
         marginTop: 10,
