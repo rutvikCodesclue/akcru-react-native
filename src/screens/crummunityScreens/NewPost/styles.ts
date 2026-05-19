@@ -80,8 +80,58 @@ export default StyleSheet.create({
         ...FONTS.paragraph1,
         color: COLORS.LIGHTGREY,
     },
-    suggestionItem: {
-        marginVertical: 5,
+    inputAreaWrap: {
+        position: 'relative',
+        zIndex: 50,
+    },
+    suggestionPanel: {
+        position: 'absolute',
+        top: 126,
+        left: 0,
+        right: 0,
+        backgroundColor: '#0b1019',
+        borderRadius: 12,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.08)',
+        maxHeight: 260,
+        overflow: 'hidden',
+        zIndex: 100,
+        elevation: 8,
+    },
+    suggestionList: {
+        width: '100%',
+    },
+    mentionRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 9,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(255,255,255,0.02)',
+    },
+    mentionMeta: {
+        marginLeft: 10,
+        flex: 1,
+    },
+    mentionNameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flexWrap: 'wrap',
+    },
+    mentionUsername: {
+        ...FONTS.Title2,
+        fontSize: 13,
+        color: COLORS.WHITE,
+    },
+    mentionFirstName: {
+        ...FONTS.paragraph1,
+        color: 'rgba(255,255,255,0.65)',
+        marginLeft: 8,
+    },
+    mentionBadgeWrap: {
+        marginTop: 4,
+        alignSelf: 'flex-start',
     },
     mediaActionRow: {
         flexDirection: 'row',

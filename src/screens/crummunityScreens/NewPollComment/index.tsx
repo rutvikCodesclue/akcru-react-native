@@ -387,7 +387,10 @@ const NewPollComment = ({navigation, route}: Props) => {
     return (
         <TabContainer>
             <SafeAreaView style={styles.safeArea}>
-                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    contentContainerStyle={styles.scrollContent}
+                    scrollEnabled={!isTagging}>
                     <View style={styles.headerContainer}>
                         <Header />
                     </View>
@@ -457,8 +460,10 @@ const NewPollComment = ({navigation, route}: Props) => {
                                     <FlatList
                                         data={suggestions}
                                         horizontal={false}
+                                        showsVerticalScrollIndicator={true}
                                         showsHorizontalScrollIndicator={false}
                                         scrollEnabled={true}
+                                        nestedScrollEnabled={true}
                                         keyExtractor={item => item.id}
                                         style={styles.suggestionList}
                                         keyboardShouldPersistTaps="handled"

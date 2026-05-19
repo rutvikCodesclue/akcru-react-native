@@ -28,11 +28,11 @@ import {editPollComment} from '../../../lib/api/poll.lib';
 import {StackNavigationProp} from '@react-navigation/stack';
 import Video from 'react-native-video';
 import {IUserProfile} from '../../../../types';
-import UserTaggedCard from '../../../components/UserTaggedCard';
 import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
 import {sendTagNotification} from '../../../lib/api/notify.lib';
 import ProfileUserBadges from '../../../components/ProfileUserBadges';
 import AkcruButtons from '../../../components/akcruButtons';
+import DisplayBadge from '../../../components/General/akcrubadge';
 
 type EditCommentNavigationProp = StackNavigationProp<CrummunityStackParams, 'EditPollCommentScreen'>;
 type EditCommentRouteProp = RouteProp<CrummunityStackParams, 'EditPollCommentScreen'>;
@@ -121,7 +121,10 @@ const EditPollCommentScreen = ({navigation, route}: Props) => {
     return (
         <TabContainer>
             <SafeAreaView style={styles.safeArea}>
-                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    contentContainerStyle={styles.scrollContent}
+                    scrollEnabled={!isTagging}>
                     <View style={styles.headerZIndex}>
                         <Header />
                     </View>
@@ -157,76 +160,85 @@ const EditPollCommentScreen = ({navigation, route}: Props) => {
                                 <ProfileUserBadges user={user} variant="inline" style={styles.inlineBadge} />
                             </View>
                         </View>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={'Tell us the "skinny" in 200 characters or less'}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => {
-                                    const parts = text.split(' ');
-                                    const lastPart = parts[parts.length - 1];
-                                    if (lastPart.startsWith('@')) {
-                                        setIsTagging(true);
-                                        setCurrentTag(lastPart.slice(1));
-                                    } else {
-                                        setIsTagging(false);
-                                        setCurrentTag('');
-                                    }
-
-                                    if (text.length <= 200) {
-                                        setCommentText(text);
-                                    }
-                                }}
-                                value={commentText}
-                                multiline={true}
-                                maxLength={200}
-                                editable={true}
-                            />
-                        </View>
-                        <Text style={styles.charCount}>{commentText.length}/200</Text>
-                        {isTagging && suggestions.length > 0 && (
-                            <FlatList
-                                data={suggestions}
-                                horizontal={false}
-                                showsHorizontalScrollIndicator={false}
-                                scrollEnabled={true}
-                                keyExtractor={item => item.id}
-                                style={styles.suggestionList}
-                                renderItem={({item}) => (
-                                    <Pressable
-                                        style={styles.suggestionItem}
-                                        onPress={() => {
-                                            const newText =
-                                                commentText.substring(0, commentText.lastIndexOf('@')) +
-                                                `@${item.username} `;
-                                            setCommentText(newText);
+                        <View style={styles.inputAreaWrap}>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={'Tell us the "skinny" in 200 characters or less'}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => {
+                                        const parts = text.split(' ');
+                                        const lastPart = parts[parts.length - 1];
+                                        if (lastPart.startsWith('@')) {
+                                            setIsTagging(true);
+                                            setCurrentTag(lastPart.slice(1));
+                                        } else {
                                             setIsTagging(false);
                                             setCurrentTag('');
-                                        }}>
-                                        <UserTaggedCard
-                                            userPicture={item.profilePicture}
-                                            userName={item.username}
-                                            onPress={() => {
-                                                const newText =
-                                                    commentText.substring(0, commentText.lastIndexOf('@')) +
-                                                    `@${item.username} `;
-                                                setCommentText(newText);
-                                                setIsTagging(false);
-                                                setCurrentTag('');
-                                            }}
-                                            userID={item.id}
-                                            akcruBadge={item.badge}
-                                            firstName={item.firstName}
-                                            blackCloakStatus={item.blackCloakStatus}
-                                            ownerStatus={item.ownerStatus}
-                                            companyStatus={item.companyStatus}
-                                            influencer={item.influencerStatus}
-                                        />
-                                    </Pressable>
-                                )}
-                            />
-                        )}
+                                        }
+
+                                        if (text.length <= 200) {
+                                            setCommentText(text);
+                                        }
+                                    }}
+                                    value={commentText}
+                                    multiline={true}
+                                    maxLength={200}
+                                    editable={true}
+                                />
+                            </View>
+                            {isTagging && suggestions.length > 0 && (
+                                <View style={styles.suggestionPanel}>
+                                    <FlatList
+                                        data={suggestions}
+                                        horizontal={false}
+                                        showsVerticalScrollIndicator={true}
+                                        showsHorizontalScrollIndicator={false}
+                                        scrollEnabled={true}
+                                        nestedScrollEnabled={true}
+                                        keyExtractor={item => item.id}
+                                        style={styles.suggestionList}
+                                        keyboardShouldPersistTaps="handled"
+                                        renderItem={({item}) => (
+                                            <Pressable
+                                                style={styles.mentionRow}
+                                                onPress={() => {
+                                                    const newText =
+                                                        commentText.substring(0, commentText.lastIndexOf('@')) +
+                                                        `@${item.username} `;
+                                                    setCommentText(newText);
+                                                    setIsTagging(false);
+                                                    setCurrentTag('');
+                                                }}>
+                                                <HexAvatar
+                                                    source={
+                                                        item.profilePicture
+                                                            ? {uri: item.profilePicture}
+                                                            : imageindex.Akcruplaceholder
+                                                    }
+                                                    size={38}
+                                                    bordercolor={selectAvatarBorderColor(item.badge ?? 'AKCRUIT')}
+                                                    rotateFrameDegrees={90}
+                                                />
+                                                <View style={styles.mentionMeta}>
+                                                    <View style={styles.mentionNameRow}>
+                                                        <Text style={styles.mentionUsername}>@{item.username}</Text>
+                                                        {!!item.firstName && (
+                                                            <Text style={styles.mentionFirstName}>{item.firstName}</Text>
+                                                        )}
+                                                    </View>
+                                                    <View style={styles.mentionBadgeWrap}>
+                                                        <DisplayBadge akcruBadge={item.badge} />
+                                                    </View>
+                                                </View>
+                                            </Pressable>
+                                        )}
+                                    />
+                                </View>
+                            )}
+                        </View>
+                        <Text style={styles.charCount}>{commentText.length}/200</Text>
 
                         {!isTagging && (
                             <View style={styles.mediaPreviewWrap}>

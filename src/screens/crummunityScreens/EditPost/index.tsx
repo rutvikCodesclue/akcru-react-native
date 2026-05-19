@@ -10,17 +10,16 @@ import {
     ScrollView,
     ActivityIndicator,
     StyleSheet,
-    Image,
 } from 'react-native';
+import {Image} from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
 import LinearGradient from 'react-native-linear-gradient';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants/theme';
+import {COLORS, FONTS, SIZES, isTablet} from '../../../../assets/constants/theme';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
-import AkcruLevels from '../../../components/akcruBadges';
 import useAuthStore from '../../../stores/auth.store';
 import imageindex from '../../../../assets/images/imageindex';
 import {editPost} from '../../../lib/api/post.lib';
@@ -32,6 +31,8 @@ import {sendTagNotification} from '../../../lib/api/notify.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
 import {extractUsernamesFromText, selectAvatarBorderColor} from '../../../util/util';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
+import AkcruButtons from '../../../components/akcruButtons';
 
 const EditPostScreen = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -109,52 +110,29 @@ const EditPostScreen = () => {
 
         fetchUserSuggestions();
     }, [currentTag, isTagging]);
+    const canSave = postText.trim().length > 0;
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View style={{zIndex: 100}}>
+            <SafeAreaView style={styles.safeArea}>
+                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                    <View style={styles.headerZIndex}>
                         <Header />
                     </View>
-                    <View
-                        style={{
-                            height: SIZES.ScreenHeight * 0.15,
-                            marginTop: -68,
-                            backgroundColor: COLORS.AKCRUBACKGROUND,
-                        }}>
+                    <View style={styles.topActionArea}>
                         <LinearGradient
-                            colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.AKCRUBACKGROUND]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                height: SIZES.ScreenHeight * 0.15,
-                            }}>
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    alignItems: 'center',
-                                    marginTop: '20%',
-                                    marginHorizontal: 15,
-                                }}>
+                            colors={['#0a1628', '#0d0d18', '#050508']}
+                            style={styles.topActionGradient}>
+                            <View style={styles.topActionRow}>
                                 <TouchableOpacity onPress={() => navigation.pop()}>
-                                    <View>
-                                        <Text style={{...FONTS.Title3, marginLeft: 5}}>Cancel</Text>
-                                    </View>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={OnPostPress} style={{marginLeft: 'auto'}}>
-                                    <View>
-                                        <Text style={styles.postButton}>Save Changes</Text>
-                                    </View>
+                                    <Text style={styles.cancelText}>Cancel</Text>
                                 </TouchableOpacity>
                             </View>
                         </LinearGradient>
                     </View>
-                    <View style={{marginTop: '5%', marginHorizontal: 15}}>
-                        <View style={{flexDirection: 'row'}}>
-                            <View style={{marginRight: 8}}>
+                    <View style={styles.composerWrap}>
+                        <View style={styles.authorRow}>
+                            <View style={styles.avatarWrap}>
                                 <TouchableOpacity>
                                     <HexAvatar
                                         source={
@@ -162,33 +140,15 @@ const EditPostScreen = () => {
                                                 ? {uri: user.profilePicture}
                                                 : imageindex.Akcruplaceholder
                                         }
-                                        size={45}
+                                        size={isTablet() ? 62 : 46}
                                         bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                        rotateFrameDegrees={90}
                                     />
                                 </TouchableOpacity>
                             </View>
-                            <View>
-                                <Text style={{...FONTS.Username}}>{user ? user?.username : 'Guest'}</Text>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
+                            <View style={styles.authorMeta}>
+                                <Text style={styles.usernameText}>{user ? user?.username : 'Guest'}</Text>
+                                <ProfileUserBadges user={user} variant="inline" style={styles.inlineBadge} />
                             </View>
                         </View>
                         <View style={styles.input}>
@@ -218,17 +178,18 @@ const EditPostScreen = () => {
                                 editable={true}
                             />
                         </View>
+                        <Text style={styles.charCount}>{postText.length}/200</Text>
                         {isTagging && suggestions.length > 0 && (
                             <FlatList
                                 data={suggestions}
                                 horizontal={false}
                                 showsHorizontalScrollIndicator={false}
                                 scrollEnabled={true}
-                                contentContainerStyle={{flexGrow: 1}}
                                 keyExtractor={item => item.id}
+                                style={styles.suggestionList}
                                 renderItem={({item}) => (
                                     <Pressable
-                                        style={{marginVertical: 5}}
+                                        style={styles.suggestionItem}
                                         onPress={() => {
                                             const newText =
                                                 postText.substring(0, postText.lastIndexOf('@')) + `@${item.username} `;
@@ -260,23 +221,15 @@ const EditPostScreen = () => {
                             />
                         )}
                         {!isTagging && (
-                            <View style={{marginTop: 10}}>
+                            <View style={styles.mediaPreviewWrap}>
                                 <FlatList
                                     data={initialImages}
                                     horizontal={true}
                                     showsHorizontalScrollIndicator={false}
                                     keyExtractor={(item, index) => index.toString()}
                                     renderItem={({item}) => (
-                                        <View>
-                                            <Image
-                                                source={{uri: item}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 3.55,
-                                                    height: SIZES.ScreenWidth / 2.35,
-                                                    margin: 5,
-                                                    borderRadius: 5,
-                                                }}
-                                            />
+                                        <View style={styles.previewImageCard}>
+                                            <Image source={{uri: item}} style={styles.previewImage} />
                                         </View>
                                     )}
                                 />
@@ -296,6 +249,16 @@ const EditPostScreen = () => {
                         )}
                     </View>
                 </ScrollView>
+                <View style={styles.bottomActionBar}>
+                    <AkcruButtons.LrgButton
+                        btnname="Save Changes"
+                        onPress={OnPostPress}
+                        color={COLORS.AKCRUBLUE}
+                        variant="auth"
+                        authButtonWidth={SIZES.ScreenWidth - 32}
+                        disabled={!canSave}
+                    />
+                </View>
                 <Modal transparent={true} visible={isPosting} animationType="fade">
                     <View style={styles.loadingOverlay}>
                         <ActivityIndicator size="large" color={COLORS.PINK} />

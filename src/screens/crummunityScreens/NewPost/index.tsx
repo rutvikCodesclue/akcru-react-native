@@ -35,7 +35,6 @@ import CalculateVideoDuration from '../../../util/calculatevideoduration';
 import Video from 'react-native-video';
 import {findAUser, searchForUsers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
-import UserTaggedCard from '../../../components/UserTaggedCard';
 import {sendTagNotification} from '../../../lib/api/notify.lib';
 import {Image as CompressorImage, Video as VideoCompressor} from 'react-native-compressor';
 import {ProgressView} from '@react-native-community/progress-view';
@@ -44,6 +43,7 @@ import { handleError } from '../../../util/handleError';
 import AkcruButtons from '../../../components/akcruButtons';
 import ProfileUserBadges from '../../../components/ProfileUserBadges';
 import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
+import DisplayBadge from '../../../components/General/akcrubadge';
 
 const NewPost = () => {
     const navigation = useNavigation<NativeStackNavigationProp<CrummunityStackParams>>();
@@ -401,7 +401,10 @@ const NewPost = () => {
     return (
         <TabContainer>
             <SafeAreaView style={styles.safeArea}>
-                <ScrollView stickyHeaderIndices={[0]} contentContainerStyle={styles.scrollContent}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    contentContainerStyle={styles.scrollContent}
+                    scrollEnabled={!isTagging}>
                     <View style={styles.headerZIndex}>
                         <Header />
                     </View>
@@ -435,74 +438,84 @@ const NewPost = () => {
                                 </View>
                             </View>
                         </View>
-                        <View style={styles.input}>
-                            <TextInput
-                                placeholder={'Tell us the "skinny" in 200 characters or less'}
-                                placeholderTextColor={COLORS.DARKGREY}
-                                style={styles.textinput}
-                                secureTextEntry={false}
-                                onChangeText={text => {
-                                    const parts = text.split(' ');
-                                    const lastPart = parts[parts.length - 1];
-                                    if (lastPart.startsWith('@')) {
-                                        setIsTagging(true);
-                                        setCurrentTag(lastPart.slice(1));
-                                    } else {
-                                        setIsTagging(false);
-                                        setCurrentTag('');
-                                    }
-
-                                    if (text.length <= 200) {
-                                        setPostText(text);
-                                    }
-                                }}
-                                value={postText}
-                                multiline={true}
-                                maxLength={200}
-                                editable={true}
-                            />
-                        </View>
-                        {isTagging && suggestions.length > 0 && (
-                            <FlatList
-                                data={suggestions}
-                                horizontal={false}
-                                showsHorizontalScrollIndicator={false}
-                                scrollEnabled={true}
-                                contentContainerStyle={{flexGrow: 1}}
-                                keyExtractor={item => item.id}
-                                renderItem={({item, index}) => (
-                                    <Pressable
-                                        style={styles.suggestionItem}
-                                        onPress={() => {
-                                            const newText =
-                                                postText.substring(0, postText.lastIndexOf('@')) + `@${item.username} `;
-                                            setPostText(newText);
+                        <View style={styles.inputAreaWrap}>
+                            <View style={styles.input}>
+                                <TextInput
+                                    placeholder={'Tell us the "skinny" in 200 characters or less'}
+                                    placeholderTextColor={COLORS.DARKGREY}
+                                    style={styles.textinput}
+                                    secureTextEntry={false}
+                                    onChangeText={text => {
+                                        const parts = text.split(' ');
+                                        const lastPart = parts[parts.length - 1];
+                                        if (lastPart.startsWith('@')) {
+                                            setIsTagging(true);
+                                            setCurrentTag(lastPart.slice(1));
+                                        } else {
                                             setIsTagging(false);
                                             setCurrentTag('');
-                                        }}>
-                                        <UserTaggedCard
-                                            userPicture={item.profilePicture}
-                                            userName={item.username}
-                                            onPress={() => {
-                                                const newText =
-                                                    postText.substring(0, postText.lastIndexOf('@')) +
-                                                    `@${item.username} `;
-                                                setPostText(newText);
-                                                setIsTagging(false);
-                                                setCurrentTag('');
-                                            }}
-                                            userID={item.id}
-                                            akcruBadge={item.badge}
-                                            firstName={item.firstName}
-                                            blackCloakStatus={item.blackCloakStatus}
-                                            ownerStatus={item.ownerStatus}
-                                            companyStatus={item.companyStatus}
-                                            influencer={item.influencerStatus}
-                                        />
-                                    </Pressable>
-                                )}
-                            />
-                        )}
+                                        }
+
+                                        if (text.length <= 200) {
+                                            setPostText(text);
+                                        }
+                                    }}
+                                    value={postText}
+                                    multiline={true}
+                                    maxLength={200}
+                                    editable={true}
+                                />
+                            </View>
+                            {isTagging && suggestions.length > 0 && (
+                                <View style={styles.suggestionPanel}>
+                                    <FlatList
+                                        data={suggestions}
+                                        horizontal={false}
+                                        showsVerticalScrollIndicator={true}
+                                        showsHorizontalScrollIndicator={false}
+                                        scrollEnabled={true}
+                                        nestedScrollEnabled={true}
+                                        keyExtractor={item => item.id}
+                                        style={styles.suggestionList}
+                                        keyboardShouldPersistTaps="handled"
+                                        renderItem={({item}) => (
+                                            <Pressable
+                                                style={styles.mentionRow}
+                                                onPress={() => {
+                                                    const newText =
+                                                        postText.substring(0, postText.lastIndexOf('@')) +
+                                                        `@${item.username} `;
+                                                    setPostText(newText);
+                                                    setIsTagging(false);
+                                                    setCurrentTag('');
+                                                }}>
+                                                <HexAvatar
+                                                    source={
+                                                        item.profilePicture
+                                                            ? {uri: item.profilePicture}
+                                                            : imageindex.Akcruplaceholder
+                                                    }
+                                                    size={38}
+                                                    bordercolor={selectAvatarBorderColor(item.badge ?? 'AKCRUIT')}
+                                                    rotateFrameDegrees={90}
+                                                />
+                                                <View style={styles.mentionMeta}>
+                                                    <View style={styles.mentionNameRow}>
+                                                        <Text style={styles.mentionUsername}>@{item.username}</Text>
+                                                        {!!item.firstName && (
+                                                            <Text style={styles.mentionFirstName}>{item.firstName}</Text>
+                                                        )}
+                                                    </View>
+                                                    <View style={styles.mentionBadgeWrap}>
+                                                        <DisplayBadge akcruBadge={item.badge} />
+                                                    </View>
+                                                </View>
+                                            </Pressable>
+                                        )}
+                                    />
+                                </View>
+                            )}
+                        </View>
                         {!isTagging && (
                             <>
                                 <View style={styles.uploadMediaRow}>

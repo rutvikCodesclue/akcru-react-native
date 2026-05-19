@@ -608,10 +608,20 @@ const SkinnyPostCard = ({
                         )}
                     </View>
 
-                    <Text style={{...FONTS.Username, color: 'rgba(255,255,255,0.35)', marginTop: 10, fontSize: 12}}>
-                        {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
-                        {post.edited && <Text style={{color: COLORS.PURPLE}}> (edited)</Text>}
-                    </Text>
+                    <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
+                        <Text style={{...FONTS.Username, color: 'rgba(255,255,255,0.35)', fontSize: 12}}>
+                            {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
+                        </Text>
+                        {post.edited ? (
+                            <Icon
+                                name="create-outline"
+                                type="ionicon"
+                                color={COLORS.PURPLE}
+                                size={16}
+                                style={{marginLeft: 6}}
+                            />
+                        ) : null}
+                    </View>
 
                     {headline ? (
                         onOpenPost ? (
