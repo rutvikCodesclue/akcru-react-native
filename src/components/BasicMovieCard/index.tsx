@@ -1,4 +1,4 @@
-import {View, TouchableOpacity, Image} from 'react-native';
+import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import React from 'react';
 
 type BasicMovieCardProps = {
@@ -8,24 +8,30 @@ type BasicMovieCardProps = {
 
 const BasicMovieCard = ({image, onPress}: BasicMovieCardProps) => {
     return (
-        <View>
+        <View style={styles.cardWrap}>
             <TouchableOpacity onPress={onPress}>
                 <View>
                     <Image
                         source={{
                             uri: image,
                         }}
-                        style={{
-                            width: 115,
-                            height: 170,
-                            borderRadius: 5,
-                            marginHorizontal: 4,
-                        }}
+                        style={styles.poster}
                     />
                 </View>
             </TouchableOpacity>
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    cardWrap: {
+        marginHorizontal: 4,
+    },
+    poster: {
+        width: 115,
+        height: 170,
+        borderRadius: 5,
+    },
+});
 
 export default BasicMovieCard;

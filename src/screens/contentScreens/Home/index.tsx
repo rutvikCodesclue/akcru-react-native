@@ -342,7 +342,25 @@ const HomeScreen = () => {
     };
 
     const handleSearchNavigation = () => {
-        navigation.navigate('SearchMovieScreen');
+        const navAny = navigation as any;
+        const routeNames: string[] = navAny?.getState?.()?.routeNames ?? [];
+        if (routeNames.includes('SearchMovieScreen')) {
+            navigation.navigate('SearchMovieScreen');
+            return;
+        }
+
+        const parent = navAny?.getParent?.();
+        const parentRouteNames: string[] = parent?.getState?.()?.routeNames ?? [];
+        if (parentRouteNames.includes('SearchMovieScreen')) {
+            parent.navigate('SearchMovieScreen');
+            return;
+        }
+
+        const rootParent = parent?.getParent?.();
+        const rootRouteNames: string[] = rootParent?.getState?.()?.routeNames ?? [];
+        if (rootRouteNames.includes('SearchMovieScreen')) {
+            rootParent.navigate('SearchMovieScreen');
+        }
     };
 
 

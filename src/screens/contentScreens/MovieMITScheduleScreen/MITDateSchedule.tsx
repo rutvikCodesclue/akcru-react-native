@@ -46,6 +46,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
 import useAuthStore from '../../../stores/auth.store';
 import OTPResultModal from '../../../components/CodeModals/OTPResultModal';
+import UserDiscoveryCard from '../../../components/UserDiscoveryCard';
 
 import {InterstitialAd, AdEventType, TestIds} from 'react-native-google-mobile-ads';
 
@@ -953,60 +954,31 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         ]}>
                                         {data.length > 0 ? (
                                             data.map(item => (
-                                                <Pressable
+                                                <UserDiscoveryCard
                                                     key={item.id}
-                                                    onPress={() =>
-                                                        {
-                                                            setDiscoverySelection(null);
-                                                            setSelectedInvitee({
-                                                                id: item.id,
-                                                                username: item.username,
-                                                                badge: item.badge ?? '',
-                                                                profilePicture: item.profilePicture ?? '',
-                                                                description: item.description,
-                                                            });
-                                                            setSelectedFromSearch(true);
-                                                            setSearchQuery('');
-                                                            setData([]);
-                                                        }
-                                                    }
+                                                    user={item}
+                                                    subtitle="Archetype Match"
+                                                    fallbackDescription="Tap to schedule invite"
+                                                    onPress={() => {
+                                                        setDiscoverySelection(null);
+                                                        setSelectedInvitee({
+                                                            id: item.id,
+                                                            username: item.username,
+                                                            badge: item.badge ?? '',
+                                                            profilePicture: item.profilePicture ?? '',
+                                                            description: item.description,
+                                                        });
+                                                        setSelectedFromSearch(true);
+                                                        setSearchQuery('');
+                                                        setData([]);
+                                                    }}
                                                     onLongPress={() =>
                                                         navigation.navigate('ViewUserScreen', {
                                                             userID: item.id,
                                                             imageURL: item.profilePicture ?? '',
                                                         })
                                                     }
-                                                    style={styles.defaultProfileGradient}>
-                                                    <LinearGradient
-                                                        colors={['#66D6FF', '#6D4DFF', '#D27BFF']}
-                                                        start={{x: 0, y: 0}}
-                                                        end={{x: 1, y: 1}}
-                                                        style={{borderRadius: 13}}>
-                                                        <View style={styles.defaultProfileInner}>
-                                                            <HexAvatar
-                                                                source={
-                                                                    item.profilePicture
-                                                                        ? {uri: item.profilePicture}
-                                                                        : imageindex.Akcruplaceholder
-                                                                }
-                                                                size={MULTISIZES.Xlarge60}
-                                                                borderThickness={5}
-                                                                bordercolor={selectAvatarBorderColor(item.badge ?? '')}
-                                                            />
-                                                            <View style={styles.defaultProfileInfo}>
-                                                                <Text style={styles.defaultProfileName}>
-                                                                    {item.username}
-                                                                </Text>
-                                                                <Text style={styles.defaultProfileMatch}>
-                                                                    Archetype Match
-                                                                </Text>
-                                                                <Text style={styles.defaultProfileDesc} numberOfLines={3}>
-                                                                    {item.description?.trim() || 'Tap to schedule invite'}
-                                                                </Text>
-                                                            </View>
-                                                        </View>
-                                                    </LinearGradient>
-                                                </Pressable>
+                                                />
                                             ))
                                         ) : (
                                             <Text style={styles.defaultSuggestionText}>No user found</Text>

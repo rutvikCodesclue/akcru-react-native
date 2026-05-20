@@ -1,22 +1,20 @@
-import {Text, View, Image, SafeAreaView, FlatList, ScrollView} from 'react-native';
+import {Text, View, SafeAreaView, FlatList, ScrollView} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
-import LinearGradient from 'react-native-linear-gradient';
-import {Avatar} from '@rneui/base';
+import {COLORS} from '../../../../assets/constants';
+import styles from './styles';
 import SendMITSearchInput from './SendMITSearchInput';
 import GenreCard from '../../../components/GenreCard';
-import AkcruLevels from '../../../components/akcruBadges';
-import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {RouteProp, useFocusEffect} from '@react-navigation/native';
 import {CrummunityStackParams} from '../../../navigation/CrummunityStack';
 import {getMovieGenres} from '../../../lib/api/movies.lib';
-import {capitalizeFirstLetterOfString, selectAvatarBorderColor} from '../../../util/util';
+import {capitalizeFirstLetterOfString} from '../../../util/util';
 import {IGenreItem, IUserProfile} from '../../../../types';
 import {findAUser} from '../../../lib/api/user.lib';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import BackButton from '../../../components/General/backbutton';
 import {DEFAULT_GENRE_IMAGE} from '../../../../assets/constants/Data';
+import UserDiscoveryCard from '../../../components/UserDiscoveryCard';
 type SendMITViewUserNavigationProp = StackNavigationProp<CrummunityStackParams, 'SendMITViewUser'>;
 
 type SendMITViewUserRouteProp = RouteProp<CrummunityStackParams, 'SendMITViewUser'>;
@@ -95,10 +93,10 @@ const SendMITViewUser = ({route, navigation}: Props) => {
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]}>
-                    <View>
-                        <View style={{marginHorizontal: 15}}>
+            <SafeAreaView style={styles.mitViewContainer}>
+                <ScrollView contentContainerStyle={styles.mitViewScrollContent}>
+                    <View style={styles.mitViewTopSection}>
+                        <View style={styles.mitViewBackWrap}>
                             <BackButton navigation={navigation} />
                         </View>
 
@@ -110,23 +108,23 @@ const SendMITViewUser = ({route, navigation}: Props) => {
                             currentMovieId={currentMovieId}
                         />
                     </View>
-                    <View>
-                        <Text
-                            style={{
-                                ...FONTS.Title2,
-                                marginHorizontal: SIZES.marginhorizontal,
-                                marginVertical: SIZES.marginvertical,
-                            }}>
-                            Choose Genre
-                        </Text>
+
+                    <View style={styles.mitViewSelectedUserRow}>
+                        <View style={styles.mitViewSelectedUserCard}>
+                            {user ? (
+                                <UserDiscoveryCard
+                                    user={user}
+                                    subtitle="Selected Invitee"
+                                    fallbackDescription="Ready to send MIT invite"
+                                    onPress={() => {}}
+                                />
+                            ) : null}
+                        </View>
                     </View>
-                    <View style={{marginBottom: 75}}>
-                        <View
-                            style={{
-                                alignItems: 'center',
-                                width: SIZES.ScreenWidth,
-                                alignSelf: 'center',
-                            }}>
+
+                    <View style={styles.mitViewGenresSection}>
+                        <Text style={styles.mitViewGenreTitle}>Choose Genre</Text>
+                        <View style={styles.mitViewGenresWrap}>
                             <FlatList
                                 data={loading ? [] : genres}
                                 horizontal={false}
@@ -152,77 +150,6 @@ const SendMITViewUser = ({route, navigation}: Props) => {
                         </View>
                     </View>
                 </ScrollView>
-
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        marginTop: 35,
-                    }}>
-                    <View
-                        style={{
-                            borderRadius: 5,
-                            backgroundColor: COLORS.TAGCOLOR,
-                            width: SIZES.ScreenWidth / 2,
-                            height: SIZES.ScreenHeight / 11.5,
-                            padding: 10,
-                        }}>
-                        <LinearGradient
-                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
-                            style={{
-                                position: 'absolute',
-                                left: 0,
-                                right: 0,
-                                top: 0,
-                                width: SIZES.ScreenWidth / 2,
-                                borderRadius: 5,
-                                height: SIZES.ScreenHeight / 11.5,
-                            }}
-                        />
-                        <View style={{flexDirection: 'row', justifyContent: 'center'}}>
-                            <View>
-                                <Avatar
-                                    rounded
-                                    size={40}
-                                    source={{
-                                        uri: user?.profilePicture ?? undefined,
-                                    }}
-                                    avatarStyle={{
-                                        borderWidth: 2,
-                                        borderColor: selectAvatarBorderColor(user?.badge ?? 'AKCRUIT'),
-                                    }}
-                                />
-                            </View>
-                            <View style={{marginLeft: 10}}>
-                                <Text style={{...FONTS.Title2}}>{user?.username}</Text>
-                                {user?.badge === 'AKCRUIT' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeAkcruit />
-                                    </View>
-                                )}
-                                {user?.badge === 'GUARDIAN' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeGuardian />
-                                    </View>
-                                )}
-                                {user?.badge === 'HERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeHero />
-                                    </View>
-                                )}
-                                {user?.badge === 'SUPERHERO' && (
-                                    <View>
-                                        <AkcruLevels.AkcruBadgeSuperHero />
-                                    </View>
-                                )}
-                            </View>
-                        </View>
-                    </View>
-                    <View style={{marginLeft: 10}}>
-                        <Image source={imageindex.MITticket} />
-                    </View>
-                </View>
             </SafeAreaView>
         </TabContainer>
     );
