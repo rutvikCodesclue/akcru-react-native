@@ -269,7 +269,7 @@ export default function CrummunitySendMITScreen() {
             setShowInsufficientAdModal(true);
             return;
         }
-        navigation.navigate('SendMITViewUser', {userID: recipientId, receiverUser: recipient});
+//         navigation.navigate('SendMITViewUser', {userid: recipientId, receiverUser: recipient});
     };
 
     if (!recipientId) {
@@ -494,6 +494,9 @@ export default function CrummunitySendMITScreen() {
                                             You have {mitTickets} MIT {mitTickets === 1 ? 'ticket' : 'tickets'}.
                                         </Text>
                                     ) : null}
+                                    <Text style={styles.bottomNote}>
+                                        *Note* : We&apos;ll use your MIT tickets first; if there aren&apos;t enough, 1000 AD will be deducted from your AD balance — buy more AD if needed.
+                                    </Text>
                                 </View>
                                 </LinearGradient>
                         </View>
@@ -825,5 +828,14 @@ const styles = StyleSheet.create({
         color: '#fff',
         textAlign: 'center',
         marginTop: 40,
+    },
+    bottomNote: {
+        marginTop: 10,
+        marginBottom: 4,
+        color: 'rgba(255,255,255,0.92)',
+        fontSize: 12,
+        fontFamily: 'Montserrat-Bold',
+        textAlign: 'center',
+        lineHeight: 18,
     },
 });

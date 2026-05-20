@@ -53,7 +53,7 @@ import type {PressableAndroidRippleConfig, StyleProp, ViewStyle, TextStyle} from
 import {Route} from 'react-native';
 
 // posts
-import {getPost, getPostsByUser, likePost, unlikePost, deletePost} from '../../../lib/api/post.lib';
+import {getPost, getPostsByUser, likePost, unlikePost, deletePost, pinPost} from '../../../lib/api/post.lib';
 import SkinnyPostCard from '../../../components/CrummunitySkinnyPost';
 
 // polls
@@ -63,6 +63,7 @@ import {
   likePoll,
   unlikePoll,
   deletePoll,
+  pinPoll,
   voteOnPoll,
   getPollsByUser,
 } from '../../../lib/api/poll.lib';
@@ -503,6 +504,16 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const [actRefreshing, setActRefreshing] = useState(false);
     const [pollCommentDrafts, setPollCommentDrafts] = useState<Record<string, string>>({});
     const [pollCommentSubmitting, setPollCommentSubmitting] = useState<Record<string, boolean>>({});
+    const sortActivityPinnedFirst = React.useCallback((items: any[]) => {
+        return [...items].sort((a: any, b: any) => {
+            const aPinned = !!a?.isPinned;
+            const bPinned = !!b?.isPinned;
+            if (aPinned !== bPinned) {
+                return aPinned ? -1 : 1;
+            }
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        });
+    }, []);
 
     const loadMoreActivity = async () => {
         if (!actHasMore || actLoadingMore) return;
@@ -667,6 +678,32 @@ export default function ViewUserScreen({route, navigation}: Props) {
             setActivity(prev => prev.filter((it: any) => it.id !== pollId));
         } catch (e) {
             console.warn('deletePoll failed', e);
+        }
+    };
+
+    const onTogglePinPost = async (postId: number, isPinned: boolean) => {
+        try {
+            await pinPost(postId, isPinned);
+            setActivity(prev => {
+                const updated = prev.map((it: any) =>
+                    +it.id === postId && it.type !== 'poll' ? {...it, isPinned} : it,
+                );
+                return sortActivityPinnedFirst(updated);
+            });
+        } catch (e) {
+            console.warn('pinPost failed', e);
+        }
+    };
+
+    const onTogglePinPoll = async (pollId: string, isPinned: boolean) => {
+        try {
+            await pinPoll(pollId, isPinned);
+            setActivity(prev => {
+                const updated = prev.map((it: any) => (it.id === pollId ? {...it, isPinned} : it));
+                return sortActivityPinnedFirst(updated);
+            });
+        } catch (e) {
+            console.warn('pinPoll failed', e);
         }
     };
 
@@ -922,6 +959,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         poll={item}
                         onVote={onVote}
                         onDeletePoll={onDeletePoll}
+                        onTogglePinPoll={onTogglePinPoll}
+                        showPinnedBadge={true}
                         currentUserID={currentuser?.id || ''}
                         akcruBadge={item.user?.badge}
                         akcruBadgeColor={selectAvatarBorderColor(item.user?.badge ?? 'AKCRUIT')}
@@ -955,6 +994,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             });
                         }}
                         onDeletePost={() => onDeletePost(+item.id)}
+                        onTogglePinPost={onTogglePinPost}
+                        showPinnedBadge={true}
                         currentUserID={currentuser?.id || ''}
                         akcruBadge={item.author?.badge}
                         isPostLiked={item.isLikedByCurrentUser}
@@ -979,8 +1020,10 @@ export default function ViewUserScreen({route, navigation}: Props) {
             openPost,
             onVote,
             onDeletePoll,
+            onTogglePinPoll,
             onLikePollToggle,
             onDeletePost,
+            onTogglePinPost,
             onLikePostToggle,
             pollCommentDrafts,
             pollCommentSubmitting,
@@ -1118,12 +1161,13 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 getPollsByUser(userID, pageNumber),
             ]);
 
-            const combined = [...posts, ...polls].sort(
-                (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-            );
+            const combined = sortActivityPinnedFirst([...posts, ...polls]);
 
-            if (pageNumber === 1) setActivity(combined);
-            else setActivity(prev => [...prev, ...combined]);
+            if (pageNumber === 1) {
+                setActivity(combined);
+            } else {
+                setActivity(prev => sortActivityPinnedFirst([...prev, ...combined]));
+            }
 
             setActHasMore(posts.length === 10 || polls.length === 10);
             setActPage(pageNumber);
@@ -1135,7 +1179,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
     // load when Tab 2 becomes active
     useEffect(() => {
         if (index === 1) fetchActivity(1);
-    }, [index, userID]);
+    }, [index, userID, sortActivityPinnedFirst]);
 
     return (
         <TabContainer>

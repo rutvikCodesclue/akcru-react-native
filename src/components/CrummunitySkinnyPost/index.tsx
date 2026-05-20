@@ -120,6 +120,8 @@ type PostProps = {
     reportUser?: () => void;
     isFollowing?: boolean;
     onDeletePost: (postId: number) => void;
+    onTogglePinPost?: (postId: number, isPinned: boolean) => void;
+    showPinnedBadge?: boolean;
     currentUserID?: string;
     akcruBadge?: string;
     onLikeOrUnlike: (postId: number) => void;
@@ -143,6 +145,8 @@ const SkinnyPostCard = ({
     reportUser = () => {},
     isFollowing = false,
     onDeletePost,
+    onTogglePinPost = () => {},
+    showPinnedBadge = false,
     currentUserID,
     akcruBadge,
     onLikeOrUnlike,
@@ -188,6 +192,13 @@ const SkinnyPostCard = ({
     const handleDeletePost = () => {
         closePostOptions();
         onDeletePost(+post.id);
+    };
+
+    const isPinned = !!(post as any)?.isPinned;
+
+    const handleTogglePinPost = () => {
+        closePostOptions();
+        onTogglePinPost(+post.id, !isPinned);
     };
 
     const openModal = (image: React.SetStateAction<string>) => {
@@ -287,7 +298,19 @@ const SkinnyPostCard = ({
     // Conditional rendering of options in option modal
     const renderDeleteSkinny = () => {
         if (isCurrentUserAuthor || isAdmin) {
-            return renderOptionRow('delete', 'Delete Skinny', 'trash-outline', 'ionicon', handleDeletePost);
+            return renderOptionRow('delete', 'Delete Post', 'trash-outline', 'ionicon', handleDeletePost);
+        }
+        return null;
+    };
+    const renderPinSkinny = () => {
+        if (isCurrentUserAuthor || isAdmin) {
+            return renderOptionRow(
+                'pin',
+                isPinned ? 'Unpin Post' : 'Pin Post',
+                isPinned ? 'pin-outline' : 'pin',
+                'ionicon',
+                handleTogglePinPost,
+            );
         }
         return null;
     };
@@ -545,6 +568,15 @@ const SkinnyPostCard = ({
                                     <Text style={styles.followBtnText}>{isFollowing ? 'Following' : 'Follow'}</Text>
                                 </Pressable>
                             )}
+                            {showPinnedBadge && isPinned ? (
+                                <Icon
+                                    name="pin"
+                                    type="material-community"
+                                    color={COLORS.STARGOLD}
+                                    size={18}
+                                    style={{marginRight: 8}}
+                                />
+                            ) : null}
                             <Pressable onPress={openPostOptions} hitSlop={8}>
                                 <Icon
                                     name="ellipsis-horizontal"
@@ -720,11 +752,12 @@ const SkinnyPostCard = ({
                             <View style={styles.mediaSheet}>
                                 <Text style={styles.mediaSheetTitle}>Post options</Text>
                                 <View style={styles.optionsList}>
+                                    {renderDeleteSkinny()}
+                                    {renderPinSkinny()}
                                     {renderFollowUser()}
                                     {renderBlockUser()}
                                     {renderReportSkinny()}
                                     {renderEditPostScreen()}
-                                    {renderDeleteSkinny()}
                                 </View>
                             </View>
                         </LinearGradient>

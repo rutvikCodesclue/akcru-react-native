@@ -44,6 +44,8 @@ type PollCardProps = {
     akcruBadge?: string;
     openProfile: () => void;
     onDeletePoll: (postId: string) => void;
+    onTogglePinPoll?: (pollId: string, isPinned: boolean) => void;
+    showPinnedBadge?: boolean;
     profilePicture?: string;
     isAdmin?: boolean;
     onLikeOrUnlike: (pollId: string) => void;
@@ -66,6 +68,8 @@ const PollCard = ({
     akcruBadge,
     openProfile,
     onDeletePoll,
+    onTogglePinPoll = () => {},
+    showPinnedBadge = false,
     profilePicture,
     isAdmin = false,
     onLikeOrUnlike,
@@ -87,6 +91,7 @@ const PollCard = ({
     const [totalVotes, setTotalVotes] = useState<number>(poll.totalVotes);
 
     const isCurrentUserAuthor = poll.user?.id === currentUserID;
+    const isPinned = !!(poll as any)?.isPinned;
     const navigation = useNavigation<NativeStackNavigationProp<NoBottomTabStackParams>>();
 
     const [isImageModalVisible, setImageModalVisible] = useState(false);
@@ -189,6 +194,11 @@ const PollCard = ({
 
     const handleDeletePoll = () => {
         onDeletePoll(poll.id);
+    };
+
+    const handleTogglePinPoll = () => {
+        closePollOptions();
+        onTogglePinPoll(poll.id, !isPinned);
     };
 
     const openPollOptions = () => {
@@ -456,6 +466,15 @@ const PollCard = ({
                                 </Pressable>
                             )}
                             <View style={styles.optionWrap}>
+                                {showPinnedBadge && isPinned ? (
+                                    <Icon
+                                        name="pin"
+                                        type="material-community"
+                                        color={COLORS.STARGOLD}
+                                        size={18}
+                                        style={{marginRight: 8}}
+                                    />
+                                ) : null}
                                 <Pressable onPress={openPollOptions} hitSlop={8}>
                                     <Icon
                                         name="ellipsis-horizontal"
@@ -556,10 +575,10 @@ const PollCard = ({
                     <View style={styles.mediaSheet}>
                         <Text style={styles.mediaSheetTitle}>Poll options</Text>
                         <View style={styles.optionsList}>
+                            {renderDeletePoll()}
                             {renderFollowUser()}
                             {renderBlockUser()}
                             {renderReportPoll()}
-                            {renderDeletePoll()}
                         </View>
                     </View>
                 </LinearGradient>

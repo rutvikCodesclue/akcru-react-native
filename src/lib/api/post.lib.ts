@@ -274,6 +274,23 @@ export async function unlikePost(id: number | string) {
     }
 }
 
+export async function pinPost(id: number | string, isPinned: boolean) {
+    const postId = normalizePostId(id);
+    try {
+        const {data} = await CRUMMUNITY.post('/v1/post/pin', {
+            id: postId,
+            isPinned,
+        });
+
+        if (data.success === false) {
+            throw new Error(data.message || 'Pin request rejected');
+        }
+    } catch (error) {
+        console.error('pinPost', postId, error);
+        throw new Error(messageFromAxiosError(error, 'Failed to update post pin status.'));
+    }
+}
+
 export async function likeComment(id: number) {
     try {
         const {data} = await CRUMMUNITY.post('/v1/post/comment/like', {

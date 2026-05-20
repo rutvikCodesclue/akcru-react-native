@@ -345,7 +345,7 @@ export default function PurchaseAdScreen() {
                                 </View>
                             </View>
                             <View style={styles.balanceDivider} />
-                            <View style={[styles.balanceCol, styles.balanceColRight]}>
+                            {/* <View style={[styles.balanceCol, styles.balanceColRight]}>
                                 {shortfall != null && shortfall > 0 ? (
                                     <Text style={styles.needMore}>
                                         Need {formatAd(shortfall)} AD more to unlock {passTitle}
@@ -357,9 +357,32 @@ export default function PurchaseAdScreen() {
                                         Use AD for matches, gifts, and premium features.
                                     </Text>
                                 )}
-                            </View>
+                            </View> */}
+                              <TouchableOpacity
+                                                    style={styles.purchaseCtaWrap}
+                                                    activeOpacity={0.88}
+                                                    disabled={!selectedTier || purchaseInProgress}
+                                                    onPress={() => setConfirmVis(true)}>
+                                                    <LinearGradient
+                                                        colors={[ACCENT_PURPLE, ACCENT_BLUE]}
+                                                        start={{x: 0, y: 0.5}}
+                                                        end={{x: 1, y: 0.5}}
+                                                        style={styles.purchaseCtaBtn}>
+                                                        {purchaseInProgress ? (
+                                                            <ActivityIndicator size="small" color={COLORS.WHITE} />
+                                                        ) : (
+                                                            <>
+                                                                <Icon name="cart-outline" type="ionicon" size={18} color={COLORS.WHITE} />
+                                                                <Text style={styles.purchaseCtaText}>
+                                                                    {formatAd(selectedTier?.adGiven ?? 0)} AD
+                                                                </Text>
+                                                            </>
+                                                        )}
+                                                    </LinearGradient>
+                                                </TouchableOpacity>
                         </View>
                     </View>
+
                       <View style={styles.secureFoot}>
                                                 <Icon name="lock-closed" type="ionicon" size={12} color="rgba(255,255,255,0.45)" />
                                                 <Text style={styles.secureFootText}>Your purchase is secure and encrypted</Text>
@@ -665,6 +688,27 @@ const styles = StyleSheet.create({
         gap: 6,
         marginTop: 0,
         marginBottom: 8,
+    },
+    purchaseCtaWrap: {
+        flex: 1,
+        marginTop: 0,
+        marginBottom: 0,
+    },
+    purchaseCtaBtn: {
+        minHeight: 40,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        gap: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+        paddingHorizontal: 10,
+    },
+    purchaseCtaText: {
+        ...FONTS.Title2,
+        fontSize: 13,
+        color: COLORS.WHITE,
     },
     secureFootText: {
         fontSize: 12,
