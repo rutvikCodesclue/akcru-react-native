@@ -9,6 +9,7 @@ const MIT_TYPES_FOR_HEX_BADGE: INotification['type'][] = [
     NotificationType.MITExpiringSoon,
     NotificationType.MITExpired,
     NotificationType.MITMovieChanged,
+    NotificationType.MITRescheduled,
 ];
 
 function isMitHexBadgeType(type: INotification['type']): boolean {
@@ -47,6 +48,7 @@ const NOTIFICATION_TYPES_FOR_BADGE: readonly string[] = [
     NotificationType.MITExpiringSoon,
     NotificationType.MITExpired,
     NotificationType.MITMovieChanged,
+    NotificationType.MITRescheduled,
     NotificationType.MITCanceled,
     'CruViewStarted',
     'CRUViewCanceled',

@@ -44,6 +44,7 @@ const Unread = () => {
             [NotificationType.MITExpiringSoon]: 'Your MIT is expiring soon',
             [NotificationType.MITExpired]: 'Your MIT has expired',
             [NotificationType.MITMovieChanged]: 'Your MIT movie was changed',
+            [NotificationType.MITRescheduled]: 'Your MIT was rescheduled',
             [NotificationType.MITCanceled]: 'Your MIT was canceled',
             CruInviteAccepted: 'Your Cru Invite was Accepted',
             CruInviteDeclined: 'Your Cru Invite was Declined',
@@ -74,6 +75,7 @@ const Unread = () => {
                 notification.type === NotificationType.MITExpiringSoon ||
                 notification.type === NotificationType.MITExpired ||
                 notification.type === NotificationType.MITMovieChanged ||
+                notification.type === NotificationType.MITRescheduled ||
                 notification.type === NotificationType.MITCanceled ||
                 notification.type === 'CruInviteAccepted' ||
                 notification.type === 'CruInviteDeclined' ||

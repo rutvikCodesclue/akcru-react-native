@@ -6,5 +6,6 @@ export enum NotificationType {
     MITExpiringSoon = 'MITExpiringSoon',
     MITExpired = 'MITExpired',
     MITMovieChanged = 'MITMovieChanged',
+    MITRescheduled = 'MITRescheduled',
     MITCanceled = 'MITCanceled',
 }

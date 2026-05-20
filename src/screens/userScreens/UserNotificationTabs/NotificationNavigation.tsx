@@ -33,6 +33,7 @@ export const NotificationNavigation = async (notification: any, userID: any) => 
             case NotificationType.MITExpiringSoon:
             case NotificationType.MITExpired:
             case NotificationType.MITMovieChanged:
+            case NotificationType.MITRescheduled:
                 navigateToUserMITHubScreen(undefined, {index: 1});
                 break;
             case NotificationType.MITCanceled:

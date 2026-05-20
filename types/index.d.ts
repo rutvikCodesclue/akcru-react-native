@@ -251,6 +251,7 @@ export type INotification = {
         | 'MITExpiringSoon'
         | 'MITExpired'
         | 'MITMovieChanged'
+        | 'MITRescheduled'
         | 'MITCanceled';
     userId: string;
     user?: IUserProfile;
@@ -480,6 +481,7 @@ export type INotification = {
         | 'MITExpiringSoon'
         | 'MITExpired'
         | 'MITMovieChanged'
+        | 'MITRescheduled'
         | 'MITCanceled';
     userId: string;
     user?: IUserProfile;

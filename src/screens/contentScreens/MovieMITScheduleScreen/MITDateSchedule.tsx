@@ -38,7 +38,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
 import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
-import {createAMITInvite, getMyMITs} from '../../../lib/api/mit.lib';
+import {changeMITInviteMovie, createAMITInvite, getMyMITs} from '../../../lib/api/mit.lib';
 import {getUnifiedMatches, UnifiedMatchUser} from '../../../lib/api/flickflirt.lib';
 import HexAvatar from '../../../components/HexAvatar';
 import {MULTISIZES} from '../../../../assets/constants/theme';
@@ -109,6 +109,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         }, []),
     );
     const loggedInUser = useAuthStore(state => state.user);
+    const rawIsFromChangeMovie = (route.params as any)?.isFromChangeMovie;
+    const isFromChangeMovie = rawIsFromChangeMovie === true || rawIsFromChangeMovie === 'true';
+    const inviteId: string | undefined = (route.params as any)?.inviteId
+        ? String((route.params as any).inviteId)
+        : undefined;
     const id: string | undefined = route.params?.id ?? null;
     const receiverUserFromParams: IUserProfile | undefined = (route.params as any)?.receiverUser;
     const [movie] = useState<IMovie | null>(() => {
@@ -762,19 +767,60 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     }, [navigation, showSendMITVideoOverlay]);
 
     const handleSetDateTime = async () => {
+        const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
+
+        if (isFromChangeMovie) {
+            if (
+                !hasSelectedTime ||
+                !hasSelectedTimeZone ||
+                !selectedTime ||
+                !selectedTimeZone?.trim() ||
+                !formattedSelectedDateTimeInISO ||
+                !movie?.id ||
+                !inviteId
+            ) {
+                return;
+            }
+            setIsSelectionDisabled(true);
+            setIsSendingInvite(true);
+            try {
+                const response = await changeMITInviteMovie({
+                    inviteId,
+                    newMovieId: movie.id,
+                    newStartDate: formattedSelectedDateTimeInISO,
+                    newTimezone: selectedTimeZone,
+                });
+
+                if (response.success) {
+                    playSendMITVideoThen(handleInviteSuccessFlow);
+                } else {
+                    setIsSelectionDisabled(false);
+                    setIsSendingInvite(false);
+                    const failedMessage =
+                        (response as {message?: string; data?: {message?: string}})?.message ??
+                        (response as {message?: string; data?: {message?: string}})?.data?.message ??
+                        'Unable to update MIT right now. Please try again.';
+                    setInviteResultMessage(failedMessage);
+                    setShowInviteResultModal(true);
+                }
+            } catch {
+                setIsSelectionDisabled(false);
+                setIsSendingInvite(false);
+                setInviteResultMessage('Unable to update MIT right now. Please try again.');
+                setShowInviteResultModal(true);
+            }
+            return;
+        }
+
         if (
             !hasSelectedTime ||
             !hasSelectedTimeZone ||
             !selectedTime ||
             !selectedTimeZone?.trim() ||
+            !formattedSelectedDateTimeInISO ||
             !movie?.id ||
             !selectedUserName?.trim()
         ) {
-            return;
-        }
-
-        const formattedSelectedDateTimeInISO = combineDateAndTime(selectedDate, selectedTime, selectedTimeZone);
-        if (!formattedSelectedDateTimeInISO) {
             return;
         }
 
@@ -1518,7 +1564,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                     ) : null}
                                     <AkcruButtons.SmallButton
                                         variant="auth"
-                                        btnname={'Send Invite'}
+                                        btnname={isFromChangeMovie ? 'Update MIT' : 'Send Invite'}
                                         color={COLORS.AKCRUBLUE}
                                         onPress={handleSetDateTime}
                                         loading={isSendingInvite}
@@ -1526,13 +1572,21 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         authLeftImage={{uri: MIT_SEND_INVITE_TICKET_ICON_URL}}
                                         authImagePosition="right"
                                         disabled={
-                                            !hasSelectedTime ||
-                                            !hasSelectedTimeZone ||
-                                            !selectedTime ||
-                                            !selectedTimeZone?.trim() ||
-                                            !movie?.id ||
-                                            !selectedUserName?.trim() ||
-                                            isSelectionDisabled
+                                            isFromChangeMovie
+                                                ? !hasSelectedTime ||
+                                                  !hasSelectedTimeZone ||
+                                                  !selectedTime ||
+                                                  !selectedTimeZone?.trim() ||
+                                                  !movie?.id ||
+                                                  !inviteId ||
+                                                  isSelectionDisabled
+                                                : !hasSelectedTime ||
+                                                  !hasSelectedTimeZone ||
+                                                  !selectedTime ||
+                                                  !selectedTimeZone?.trim() ||
+                                                  !movie?.id ||
+                                                  !selectedUserName?.trim() ||
+                                                  isSelectionDisabled
                                         }
                                     />
                                 </View>

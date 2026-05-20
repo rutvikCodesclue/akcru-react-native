@@ -72,6 +72,7 @@ const UserNotification = ({route}: Props) => {
             [NotificationType.MITExpiringSoon]: 'Your MIT is expiring soon',
             [NotificationType.MITExpired]: 'Your MIT has expired',
             [NotificationType.MITMovieChanged]: 'Your MIT movie was changed',
+            [NotificationType.MITRescheduled]: 'Your MIT was rescheduled',
             [NotificationType.MITCanceled]: 'Your MIT was canceled',
             CruInviteAccepted: 'Your Cru Invite was Accepted',
             CruInviteDeclined: 'Your Cru Invite was Declined',

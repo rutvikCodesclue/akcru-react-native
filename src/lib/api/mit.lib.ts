@@ -128,12 +128,14 @@ export const createAMITInvite = async (params: {
 export const changeMITInviteMovie = async (params: {
     inviteId: string;
     newMovieId: string;
+    newStartDate: string;
+    newTimezone: string;
 }): Promise<{success: boolean; message?: string; code?: string}> => {
     try {
-        const {inviteId, newMovieId} = params;
+        const {inviteId, newMovieId, newStartDate, newTimezone} = params;
         const {data} = await API.patch(
             '/v1/mit/invite/change-movie',
-            {inviteId, newMovieId},
+            {inviteId, newMovieId, newStartDate, newTimezone},
             {validateStatus: () => true},
         );
 
