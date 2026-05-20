@@ -21,7 +21,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import imageindex from '../../../../assets/images/imageindex';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
+import {CommonActions, RouteProp, useFocusEffect, useNavigation} from '@react-navigation/native';
 import {
     blockUser,
     findAUser,
@@ -469,13 +469,23 @@ export default function ViewUserScreen({route, navigation}: Props) {
             try {
                 const {success, message} = await blockUser(userID);
                 if (success) {
-                    setModalType('success');
-                    setBlockUserMessage('User successfully blocked');
-                    setBlockUserModal(true);
-                    setIconName('hand-back-left');
-
-                    fetchBlockedUsers();
                     setUserOptionModal(false);
+                    navigation.dispatch(
+                        CommonActions.reset({
+                            index: 0,
+                            routes: [
+                                {
+                                    name: 'ClientTabNavigator',
+                                    params: {
+                                        screen: 'CrummunityStack',
+                                        params: {
+                                            screen: 'CrummunityScreen',
+                                        },
+                                    },
+                                },
+                            ],
+                        }),
+                    );
                 } else {
                     setModalType('failed');
                     setBlockUserMessage('Failed to block user');
@@ -492,6 +502,47 @@ export default function ViewUserScreen({route, navigation}: Props) {
             }
         }
     };
+
+    const handleBlockUserFromActivity = React.useCallback(
+        async (targetUserId?: string) => {
+            if (!targetUserId) {
+                return;
+            }
+            try {
+                const {success} = await blockUser(targetUserId);
+                if (success) {
+                    navigation.dispatch(
+                        CommonActions.reset({
+                            index: 0,
+                            routes: [
+                                {
+                                    name: 'ClientTabNavigator',
+                                    params: {
+                                        screen: 'CrummunityStack',
+                                        params: {
+                                            screen: 'CrummunityScreen',
+                                        },
+                                    },
+                                },
+                            ],
+                        }),
+                    );
+                    return;
+                }
+                setModalType('failed');
+                setBlockUserMessage('Failed to block user');
+                setIconName('alert-circle');
+                setBlockUserModal(true);
+            } catch (error) {
+                console.error('Error on block from activity:', error);
+                setModalType('error');
+                setBlockUserMessage('An error occurred while trying to block the user.');
+                setBlockUserModal(true);
+                setIconName('alert-circle');
+            }
+        },
+        [navigation],
+    );
 
     const {tabKey = 'first'} = route.params || {};
     const [index, setIndex] = React.useState(tabKey === 'first' ? 0 : tabKey === 'second' ? 1 : 2);
@@ -973,10 +1024,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         onCommentInputChange={value => handlePollCommentInputChange(item.id, value)}
                         onCommentSend={() => handleInlinePollCommentSend(item.id)}
                         isCommentSending={pollCommentSubmitting[item.id] ?? false}
+                        onBlockUser={() => handleBlockUserFromActivity(item.user?.id)}
                     />
                 </Pressable>
             ) : (
-                <Pressable onPress={() => openPost(+item.id)} style={{marginBottom: 10}}>
+                <View style={{marginBottom: 10}}>
                     <SkinnyPostCard
                         post={item}
                         loading={false}
@@ -1003,13 +1055,14 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         CommentOnPostButton={() => navigateToNewComment(item.id)}
                         isFollowing={item.author?.isFollowed}
                         akcruBadgeColor={selectAvatarBorderColor(item.author?.badge ?? 'AKCRUIT')}
-                        onBlockUser={() => {}}
+                        onBlockUser={() => handleBlockUserFromActivity(item.author?.id)}
                         isOwner={item.author?.ownerStatus}
                         isPromo={item.author?.promoUser}
                         isAdmin={currentuser?.isAdmin}
                         visionaryStatus={currentuser?.visionaryStatus}
+                        onOpenPost={() => openPost(+item.id)}
                     />
-                </Pressable>
+                </View>
             ),
         [
             currentuser?.id,
@@ -1029,6 +1082,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
             pollCommentSubmitting,
             handlePollCommentInputChange,
             handleInlinePollCommentSend,
+            handleBlockUserFromActivity,
         ],
     );
 

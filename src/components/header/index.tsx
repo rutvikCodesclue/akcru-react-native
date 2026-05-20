@@ -6,7 +6,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import imageindex from '../../../assets/images/imageindex';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {AuthStackParams} from '../../navigation/AuthNavigation';
-import {useIsFocused, useNavigation} from '@react-navigation/native';
+import {CommonActions, useIsFocused, useNavigation} from '@react-navigation/native';
 import useAuthStore from '../../stores/auth.store';
 import {getNotifyMePayload} from '../../lib/api/notify.lib';
 import {navigateToUserNotificationScreen} from '../../util/RootNavigation';
@@ -45,6 +45,36 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
     } = UseTabMenu();
 
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
+    const handleSearchPress = () => {
+        const navAny = navigation as any;
+        const targetRoute = searchScreen;
+        const navigators = [navAny, navAny?.getParent?.(), navAny?.getParent?.()?.getParent?.()].filter(Boolean);
+
+        for (const nav of navigators) {
+            const state = nav?.getState?.();
+            const routeNames: string[] = state?.routeNames ?? [];
+            if (!routeNames.includes(targetRoute)) {
+                continue;
+            }
+            nav.dispatch({
+                ...CommonActions.navigate(targetRoute),
+                target: state.key,
+            });
+            return;
+        }
+
+        // First-load fallback: when nested routeNames are not yet fully hydrated.
+        if (targetRoute === 'SearchMovieScreen') {
+            try {
+                navAny.navigate('NoBottomStack', {screen: 'SearchMovieScreen'});
+            } catch (_error) {
+                navAny.navigate('ClientTabNavigator', {
+                    screen: 'ClientStack',
+                    params: {screen: 'SearchMovieScreen'},
+                });
+            }
+        }
+    };
 
     const pollingInterval = useRef<NodeJS.Timeout | null>(null);
     const appState = useRef(AppState.currentState); // Track the app state (active, background, etc.)
@@ -147,7 +177,7 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                                 type="material-community"
                                 color={COLORS.LIGHTGREY}
                                 size={isTablet() ? 32 : 25}
-                                onPress={() => navigation.navigate(searchScreen)}
+                                onPress={handleSearchPress}
                             />
                         </TouchableOpacity>
                     </View>
