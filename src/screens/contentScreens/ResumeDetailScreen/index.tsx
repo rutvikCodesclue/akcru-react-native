@@ -166,15 +166,19 @@ export default function ResumeDetailScreen({navigation}: Props) {
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
+            <SafeAreaView style={styles.screenContainer}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    showsVerticalScrollIndicator={false}
+                    style={styles.scrollContent}
+                    contentContainerStyle={styles.scrollContent}>
                     <View>
                         <Header />
                     </View>
 
                     {isMovieDataLoaded ? (
-                        <View style={{marginBottom: '5%'}}>
-                            <View style={{marginTop: -65, marginBottom: 10}}>
+                        <View style={styles.detailBody}>
+                            <View style={styles.heroCardWrap}>
                                 <MovieDetailCard
                                     reactions={reactions}
                                     portraitURL={portraitURL}
@@ -224,8 +228,9 @@ export default function ResumeDetailScreen({navigation}: Props) {
                             </View>
                             <View />
 
-                            <View style={{marginHorizontal: 15}}>
+                            <View style={styles.recommendedWrap}>
                                 <BasicListCategories
+                                    variant="highlight"
                                     Akcru_Content={{
                                         id: 'recommendedForYou',
                                         title: 'Recommended by Akcru',

@@ -2,6 +2,23 @@ import {StyleSheet} from 'react-native';
 import {COLORS, SIZES} from '../../../../assets/constants';
 
 export default StyleSheet.create({
+    screenContainer: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollContent: {
+        backgroundColor: COLORS.BLACK,
+    },
+    detailBody: {
+        marginBottom: '5%',
+    },
+    heroCardWrap: {
+        marginTop: -65,
+        marginBottom: 10,
+    },
+    recommendedWrap: {
+        marginHorizontal: 15,
+    },
     activitycontainer: {
         height: SIZES.ScreenHeight,
         width: SIZES.ScreenWidth,
