@@ -8,215 +8,166 @@ import {
     Keyboard,
     Image,
     FlatList,
+    ActivityIndicator,
+    SafeAreaView,
 } from 'react-native';
 import React, {useEffect, useRef, useState} from 'react';
-import {COLORS, FONTS, SIZES} from '../../../assets/constants';
+import {COLORS} from '../../../assets/constants';
 import {Icon} from '@rneui/base';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import styles from './styles';
 import LinearGradient from 'react-native-linear-gradient';
 import {ClientStackParams} from '../../navigation/ClientStack';
-import filter from 'lodash/filter';
 import {findMovies} from '../../lib/api/movies.lib';
 import {IMovie} from '../../../types';
-import {FlashList} from '@shopify/flash-list';
-import debounce from 'lodash/debounce';
-import {isTablet} from '../../../assets/constants/theme';
+import {capitalizeFirstLetterOfString} from '../../util/util';
 
 const SearchInput = () => {
-    //search input function
-    const [data, setData] = useState<IMovie[]>([]);
+    const [allMovies, setAllMovies] = useState<IMovie[]>([]);
+    const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
     const [textInputFocused, setTextInputFocused] = useState(false);
+    const [isLoadingMovies, setIsLoadingMovies] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const textInputRef = useRef<TextInput>(null);
 
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
-    const modalFontSize = isTablet() ? 18 : 12;
-
-    const contains = ({title}: {title: string}, query: string) => {
-        return title.toLowerCase().includes(query.toLowerCase());
-    };
-
     const handleSearch = (text: string) => {
         setSearchQuery(text);
-
-        if (text) {
-            const dataSearch = filter(data, movie => contains(movie, text));
-            setData([...dataSearch]);
-        } else {
-            fetchMovies('');
+        const query = text.trim().toLowerCase();
+        if (!query.length) {
+            setFilteredMovies(allMovies);
+            return;
         }
+        setFilteredMovies(allMovies.filter(movie => String(movie.title ?? '').toLowerCase().includes(query)));
     };
 
-    const fetchMovies = async (query: string) => {
+    const fetchMovies = async () => {
+        setIsLoadingMovies(true);
         try {
-            const fetchedMovies: IMovie[] = await findMovies(query);
-            setData(fetchedMovies);
+            const fetchedMovies: IMovie[] = await findMovies('');
+            setAllMovies(fetchedMovies);
+            setFilteredMovies(fetchedMovies);
         } catch (error) {
             console.error('Error fetching movies:', error);
+            setAllMovies([]);
+            setFilteredMovies([]);
+        } finally {
+            setIsLoadingMovies(false);
         }
     };
 
     useEffect(() => {
         if (modalVisible) {
-            fetchMovies('');
+            fetchMovies();
         }
     }, [modalVisible]);
 
+    const closeModal = () => {
+        setModalVisible(false);
+        setSearchQuery('');
+        setFilteredMovies(allMovies);
+        setTextInputFocused(false);
+        Keyboard.dismiss();
+    };
+
     return (
-        <View>
-            <LinearGradient
-                colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    right: 0,
-                    top: 0,
-                    height: 65,
-                    width: SIZES.ScreenWidth,
-                }}
-            />
-            <View style={{alignItems: 'center'}}>
-                <TouchableWithoutFeedback
-                    onPress={() => {
-                        setModalVisible(true);
-                    }}>
-                    <View style={styles.searchinput}>
-                        <Icon
-                            name="magnify"
-                            type="material-community"
-                            color={COLORS.DARKGREY}
-                            size={isTablet() ? 32 : 28}
-                            style={{marginRight: 10}}
-                        />
-                        <Text style={{...FONTS.Title2, color: COLORS.DARKGREY}}>What movie are you searching for?</Text>
+        <View style={styles.searchRoot}>
+            <LinearGradient colors={[COLORS.BLACK, 'transparent']} style={styles.topGradient} />
+            <View style={styles.searchLauncherWrap}>
+                <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
+                    <View style={styles.searchLauncher}>
+                        <Icon name="magnify" type="material-community" color={COLORS.DARKGREY} size={24} style={styles.launcherIcon} />
+                        <Text style={styles.launcherText}>What movie are you searching for?</Text>
                     </View>
                 </TouchableWithoutFeedback>
 
                 <Modal animationType="fade" transparent={false} visible={modalVisible}>
-                    <View style={{backgroundColor: COLORS.AKCRUBACKGROUND, flex: 1}}>
+                    <SafeAreaView style={styles.modalRoot}>
                         <View style={styles.backbutton}>
-                            <TouchableOpacity
-                                onPress={() => setModalVisible(false)}
-                                style={{
-                                    paddingHorizontal: isTablet() ? 0 : 15,
-                                    paddingVertical: 10,
-                                }}>
-                                <View
-                                    style={{
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                    }}>
-                                    <Icon
-                                        name="chevron-back"
-                                        type="ionicon"
-                                        size={isTablet() ? 30 : 20}
-                                        color={COLORS.LIGHTGREY}
-                                    />
-                                    <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
+                            <TouchableOpacity onPress={closeModal} style={styles.backTouch}>
+                                <View style={styles.backRow}>
+                                    <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
+                                    <Text style={styles.backText}>Back</Text>
                                 </View>
                             </TouchableOpacity>
                         </View>
+
                         <View style={styles.searchmodal}>
                             <View style={styles.searchinput}>
-                                <View>
-                                    <Icon
-                                        name={textInputFocused ? 'arrow-left' : 'magnify'}
-                                        onPress={() => {
-                                            if (textInputFocused) {
-                                                setModalVisible(false);
-                                            }
-                                            setTextInputFocused(true);
-                                        }}
-                                        iconStyle={{marginRight: 5}}
-                                        type="material-community"
-                                        style={styles.icon}
-                                        color={COLORS.DARKGREY}
-                                        size={isTablet() ? 35 : 28}
-                                    />
-                                </View>
+                                <Icon name="magnify" type="material-community" style={styles.icon} color={COLORS.DARKGREY} size={28} />
                                 <TextInput
-                                    textAlignVertical={'center'}
+                                    textAlignVertical="center"
                                     placeholder="Search Movie"
                                     placeholderTextColor={COLORS.DARKGREY}
                                     style={styles.textinput}
-                                    autoFocus={false}
+                                    autoFocus
                                     ref={textInputRef}
-                                    onFocus={() => {
-                                        setTextInputFocused(true);
-                                    }}
-                                    onBlur={() => {
-                                        setTextInputFocused(false);
-                                    }}
+                                    onFocus={() => setTextInputFocused(true)}
+                                    onBlur={() => setTextInputFocused(false)}
                                     onChangeText={handleSearch}
                                     value={searchQuery}
                                 />
-                                <TouchableWithoutFeedback
-                                    onPress={() => {
-                                        textInputRef?.current?.clear();
-                                        handleSearch('');
-                                        setSearchQuery('');
-                                        setTextInputFocused(true);
-                                    }}>
-                                    <Icon
-                                        name="close-circle"
-                                        type="material-community"
-                                        size={isTablet() ? 32 : 25}
-                                        color={COLORS.DARKGREY}
-                                        style={{marginLeft: SIZES.ScreenWidth / 2.2}}
-                                    />
+                                <TouchableWithoutFeedback onPress={() => handleSearch('')}>
+                                    <Icon name="close-circle" type="material-community" size={22} color={COLORS.DARKGREY} style={styles.clearIcon} />
                                 </TouchableWithoutFeedback>
                             </View>
+                            <Text style={styles.searchHint}>
+                                {textInputFocused ? 'Type to filter movie titles' : 'Pick a movie to continue'}
+                            </Text>
                         </View>
-                        <View style={{flex: 1, backgroundColor: COLORS.AKCRUBACKGROUND}}>
-                            <FlatList
-                                data={data}
-                                ListFooterComponent={<View style={{marginBottom: 70}} />}
-                                renderItem={({item}) => (
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            Keyboard.dismiss;
-                                            navigation.navigate('ContentDetailScreen', {
-                                                id: item.id,
-                                                movie: item.id,
-                                            });
-                                            setModalVisible(false);
-                                            setTextInputFocused(true);
-                                        }}>
-                                        <View
-                                            style={{
-                                                marginHorizontal: isTablet() ? 40 : 15,
-                                                backgroundColor: COLORS.AKCRUBACKGROUND,
-                                                marginBottom: 10,
-                                            }}>
-                                            <View style={{flexDirection: 'row'}}>
-                                                <Image
-                                                    source={{uri: item.portraitURL}}
-                                                    style={{
-                                                        width: isTablet() ? 60 : 30,
-                                                        height: isTablet() ? 100 : 50,
-                                                        borderRadius: 3,
-                                                    }}
-                                                />
-                                                <View style={{marginLeft: 10}}>
-                                                    <Text style={{...FONTS.Title2, fontSize: modalFontSize}}>
-                                                        {item.title}
-                                                    </Text>
-                                                    <Text style={{...FONTS.paragraph1, fontSize: modalFontSize}}>
-                                                        {item.year}
-                                                    </Text>
+
+                        <View style={styles.modalListWrap}>
+                            {isLoadingMovies ? (
+                                <View style={styles.loaderWrap}>
+                                    <ActivityIndicator size="small" color={COLORS.CATPURPLGT} />
+                                </View>
+                            ) : (
+                                <FlatList
+                                    data={filteredMovies}
+                                    ListFooterComponent={<View style={{marginBottom: 70}} />}
+                                    renderItem={({item}) => (
+                                        <TouchableOpacity
+                                            onPress={() => {
+                                                Keyboard.dismiss();
+                                                navigation.navigate('ContentDetailScreen', {
+                                                    id: item.id,
+                                                    movie: item.id,
+                                                });
+                                                closeModal();
+                                            }}
+                                            style={styles.movieRow}>
+                                            <Image source={{uri: item.portraitURL}} style={styles.moviePoster} />
+                                            <View style={styles.movieMeta}>
+                                                <Text style={styles.movieTitle} numberOfLines={1}>
+                                                    {item.title}
+                                                </Text>
+                                                <Text style={styles.movieYear}>{item.year}</Text>
+                                                <View style={styles.movieChipRow}>
+                                                    {item.genres?.[0] ? (
+                                                        <Text style={styles.movieChip}>
+                                                            {capitalizeFirstLetterOfString(String(item.genres[0]))}
+                                                        </Text>
+                                                    ) : null}
+                                                    {item.rating ? <Text style={styles.movieChip}>{item.rating}/10</Text> : null}
                                                 </View>
                                             </View>
+                                            <Icon name="chevron-forward" type="ionicon" size={16} color={COLORS.DARKGREY} />
+                                        </TouchableOpacity>
+                                    )}
+                                    keyExtractor={item => item.id}
+                                    keyboardShouldPersistTaps="handled"
+                                    ListEmptyComponent={
+                                        <View style={styles.emptyWrap}>
+                                            <Text style={styles.emptyText}>No movies found.</Text>
                                         </View>
-                                    </TouchableOpacity>
-                                )}
-                                keyExtractor={item => item.id}
-                            />
+                                    }
+                                />
+                            )}
                         </View>
-                    </View>
+                    </SafeAreaView>
                 </Modal>
             </View>
         </View>

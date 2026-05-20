@@ -1,6 +1,6 @@
 import {View, Text, FlatList, ScrollView, Pressable, ActivityIndicator, BackHandler, ToastAndroid} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {useIsFocused} from '@react-navigation/native';
+import {CommonActions, useIsFocused} from '@react-navigation/native';
 import BasicListCategories from '../../../components/BasicListCategories';
 import LargeListCategories from '../../../components/LargeListCategories';
 import Header from '../../../components/header';
@@ -343,23 +343,19 @@ const HomeScreen = () => {
 
     const handleSearchNavigation = () => {
         const navAny = navigation as any;
-        const routeNames: string[] = navAny?.getState?.()?.routeNames ?? [];
-        if (routeNames.includes('SearchMovieScreen')) {
-            navigation.navigate('SearchMovieScreen');
-            return;
-        }
+        const navigators = [navAny, navAny?.getParent?.(), navAny?.getParent?.()?.getParent?.()].filter(Boolean);
 
-        const parent = navAny?.getParent?.();
-        const parentRouteNames: string[] = parent?.getState?.()?.routeNames ?? [];
-        if (parentRouteNames.includes('SearchMovieScreen')) {
-            parent.navigate('SearchMovieScreen');
+        for (const nav of navigators) {
+            const state = nav?.getState?.();
+            const routeNames: string[] = state?.routeNames ?? [];
+            if (!routeNames.includes('SearchMovieScreen')) {
+                continue;
+            }
+            nav.dispatch({
+                ...CommonActions.navigate('SearchMovieScreen'),
+                target: state.key,
+            });
             return;
-        }
-
-        const rootParent = parent?.getParent?.();
-        const rootRouteNames: string[] = rootParent?.getState?.()?.routeNames ?? [];
-        if (rootRouteNames.includes('SearchMovieScreen')) {
-            rootParent.navigate('SearchMovieScreen');
         }
     };
 

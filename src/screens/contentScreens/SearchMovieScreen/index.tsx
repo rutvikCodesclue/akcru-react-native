@@ -41,7 +41,7 @@ const SearchMovieScreen = () => {
 
     return (
         <TabContainer>
-            <View style={{flex: 1}}>
+            <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
                 <View style={{marginHorizontal: isTablet() ? 30 : 15, marginTop: isTablet() ? 10 : 0}}>
                     <BackButton navigation={navigation} />
                 </View>
@@ -56,7 +56,7 @@ const SearchMovieScreen = () => {
                         Choose Genre
                     </Text>
                 </View>
-                <ScrollView>
+                <ScrollView style={{backgroundColor: COLORS.BLACK}} contentContainerStyle={{backgroundColor: COLORS.BLACK}}>
                     <View style={{marginBottom: 75}}>
                         <View
                             style={{

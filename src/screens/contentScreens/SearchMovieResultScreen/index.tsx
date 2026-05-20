@@ -1,14 +1,15 @@
-import {View, Text, FlatList, TouchableOpacity, Image, ActivityIndicator} from 'react-native';
-import React, {useEffect, useState} from 'react';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {View, Text, ScrollView, FlatList, SafeAreaView, StyleSheet, ActivityIndicator} from 'react-native';
+import React, {useEffect, useRef, useState} from 'react';
+import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import SearchInput from '../../../components/searchInput';
+import PreferenceChip from '../../../components/PreferenceChip';
+import BasicMovieCard from '../../../components/BasicMovieCard';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import {MOVIE_GENRES} from '../../../../assets/constants/Data';
 import {findMovies} from '../../../lib/api/movies.lib';
 import {IMovie} from '../../../../types';
 import TabContainer from '../../../components/TabContainer/TabContainer';
-import styles from '../PlayContentScreen/styles';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
 
@@ -24,12 +25,8 @@ type Props = {
 const SearchMovieResultScreen = ({navigation, route}: Props) => {
     const [selectedGenre, setSelectedGenre] = useState('');
     const [filteredMovies, setFilteredMovies] = useState<IMovie[]>([]);
-    const [displayMovies, setDisplayMovies] = useState<IMovie[]>([]);
-    const [page, setPage] = useState(1);
-    const [isLoadingMore, setIsLoadingMore] = useState(false);
-    const [hasMore, setHasMore] = useState(true);
-
-    const pageSize = 12;
+    const [isLoadingMovies, setIsLoadingMovies] = useState(false);
+    const genreListRef = useRef<FlatList<{id: string; genre: string}> | null>(null);
 
     useEffect(() => {
         if (route.params && route.params.genre) {
@@ -38,155 +35,164 @@ const SearchMovieResultScreen = ({navigation, route}: Props) => {
     }, [route.params]);
 
     useEffect(() => {
-        setDisplayMovies(filteredMovies.slice(0, pageSize));
-    }, [filteredMovies]);
+        if (!selectedGenre) {
+            return;
+        }
+        const selectedIndex = MOVIE_GENRES.findIndex(item => item.genre === selectedGenre);
+        if (selectedIndex < 0) {
+            return;
+        }
+        setTimeout(() => {
+            genreListRef.current?.scrollToIndex({
+                index: selectedIndex,
+                animated: true,
+                viewPosition: 0.5,
+            });
+        }, 80);
+    }, [selectedGenre]);
 
     const handleGenrePress = async (genre: string) => {
         setSelectedGenre(genre);
-        setPage(1);
-
-        let movies: IMovie[] = [];
-        if (genre === 'All') {
-            movies = await findMovies();
-        } else {
-            movies = await findMovies(genre);
-        }
-
-        if (movies.length === 0) {
+        setIsLoadingMovies(true);
+        try {
+            const movies = genre === 'All' ? await findMovies() : await findMovies(genre);
+            setFilteredMovies(movies.length > 0 ? movies : []);
+        } catch (error) {
+            console.error('SearchMovieResultScreen: failed to fetch movies by genre', error);
             setFilteredMovies([]);
-            return;
+        } finally {
+            setIsLoadingMovies(false);
         }
-
-        const sortedMovies = movies.sort((a, b) => {
-            const dateA = new Date(a.createdAt);
-            const dateB = new Date(b.createdAt);
-            return dateB.getTime() - dateA.getTime();
-        });
-
-        setFilteredMovies(sortedMovies);
-        setDisplayMovies(sortedMovies.slice(0, pageSize));
-        setHasMore(sortedMovies.length > pageSize);
-    };
-
-    const loadMoreMovies = () => {
-        if (isLoadingMore || !hasMore) {
-            return;
-        }
-
-        setIsLoadingMore(true);
-
-        setTimeout(() => {
-            const nextPage = page + 1;
-            const nextSet = filteredMovies.slice(page * pageSize, nextPage * pageSize);
-
-            if (nextSet.length > 0) {
-                setDisplayMovies([...displayMovies, ...nextSet]);
-                setPage(nextPage);
-                setHasMore(nextSet.length === pageSize);
-            }
-
-            setIsLoadingMore(false);
-        }, 300);
-    };
-
-    const renderFooterComponent = () => {
-        if (isLoadingMore) {
-            return <ActivityIndicator color={COLORS.PINK} style={{ marginVertical: 20 }} />;
-        }
-        return <View style={{ height: 10 }} />; // Add space at the bottom
-    };
-
-    const renderItem = ({item, index}: {item: any; index: number}) => {
-        const isActive = item.genre === selectedGenre;
-        return (
-            <View style={{marginHorizontal: 10}}>
-                <Text
-                    style={[
-                        {
-                            ...FONTS.Title2,
-                            color: isActive ? COLORS.AKCRUBLUE : COLORS.DARKGREY,
-                        },
-                    ]}
-                    onPress={() => handleGenrePress(item.genre)}>
-                    {item.genre}
-                </Text>
-            </View>
-        );
     };
 
     return (
         <TabContainer>
-            <View>
-                <View>
-                    <View style={styles.backbutton}>
-                        <View style={{marginHorizontal: 15}}>
-                            <BackButton navigation={navigation} />
-                        </View>
+            <SafeAreaView style={localStyles.container}>
+                <ScrollView contentContainerStyle={localStyles.scrollContent} stickyHeaderIndices={[1]}>
+                    <View style={localStyles.backWrap}>
+                        <BackButton navigation={navigation} />
+                    </View>
+
+                    <View style={localStyles.searchSection}>
                         <SearchInput />
-                        <View
-                            style={{
-                                backgroundColor: COLORS.TAGCOLOR,
-                                height: 30,
-                                borderRadius: 5,
-                                marginBottom: 10,
-                                marginHorizontal: 15,
-                                justifyContent: 'center',
-                            }}>
-                            <View>
-                                <FlatList
-                                    data={MOVIE_GENRES}
-                                    horizontal
-                                    showsHorizontalScrollIndicator={false}
-                                    keyExtractor={item => item.id}
-                                    renderItem={renderItem}
-                                    ItemSeparatorComponent={() => <Text style={{color: COLORS.DARKGREY}}> | </Text>}
-                                />
-                            </View>
+                        <View style={localStyles.genreBar}>
+                            <FlatList
+                                ref={genreListRef}
+                                data={MOVIE_GENRES}
+                                horizontal
+                                showsHorizontalScrollIndicator={false}
+                                keyExtractor={item => item.id}
+                                contentContainerStyle={localStyles.genreListContent}
+                                onScrollToIndexFailed={({index}) => {
+                                    genreListRef.current?.scrollToOffset({
+                                        offset: Math.max(0, index * 100),
+                                        animated: true,
+                                    });
+                                }}
+                                renderItem={({item}) => (
+                                    <PreferenceChip
+                                        selected={selectedGenre === item.genre}
+                                        label={item.genre}
+                                        onPress={() => handleGenrePress(item.genre)}
+                                    />
+                                )}
+                            />
                         </View>
                     </View>
 
-                    {displayMovies.length > 0 && (
-                        <View style={{alignItems: 'center', marginBottom: '100%'}}>
-                            <FlatList
-                                data={displayMovies}
-                                horizontal={false}
-                                numColumns={3}
-                                showsVerticalScrollIndicator={false}
-                                onEndReached={() => {
-                                    loadMoreMovies();
-                                }}
-                                onEndReachedThreshold={0.8}
-                                renderItem={({item}: {item: IMovie}) => (
-                                    <View>
-                                        <TouchableOpacity
-                                            onPress={() => {
-                                                navigation.navigate('ContentDetailScreen', {
-                                                    id: item.id,
-                                                    movie: item.title,
-                                                });
-                                            }}>
-                                            <Image
-                                                source={{uri: item.portraitURL}}
-                                                style={{
-                                                    width: SIZES.ScreenWidth / 3.5,
-                                                    height: SIZES.ScreenWidth / 2.35,
-                                                    borderRadius: 5,
-                                                    margin: 5,
-                                                    resizeMode: 'cover',
+                    <View style={localStyles.moviesSection}>
+                        <View style={localStyles.moviesGridWrap}>
+                            {isLoadingMovies ? (
+                                <View style={localStyles.loaderWrap}>
+                                    <ActivityIndicator size="small" color={COLORS.CATPURPLGT} />
+                                </View>
+                            ) : (
+                                <FlatList
+                                    data={filteredMovies}
+                                    horizontal={false}
+                                    showsHorizontalScrollIndicator={false}
+                                    numColumns={3}
+                                    scrollEnabled={false}
+                                    keyExtractor={(_, index) => index.toString()}
+                                    ListEmptyComponent={
+                                        <View style={localStyles.emptyWrap}>
+                                            <Text style={localStyles.emptyText}>No movies found.</Text>
+                                        </View>
+                                    }
+                                    renderItem={({item}) => (
+                                        <View style={localStyles.movieCardWrap}>
+                                            <BasicMovieCard
+                                                image={item.portraitURL}
+                                                onPress={() => {
+                                                    navigation.navigate('ContentDetailScreen', {
+                                                        id: item.id,
+                                                        movie: item.title,
+                                                    });
                                                 }}
                                             />
-                                        </TouchableOpacity>
-                                    </View>
-                                )}
-                                ListFooterComponent={renderFooterComponent}
-                                contentContainerStyle={{paddingBottom: 20}}
-                            />
+                                        </View>
+                                    )}
+                                />
+                            )}
                         </View>
-                    )}
-                </View>
-            </View>
+                    </View>
+                    <View />
+                </ScrollView>
+            </SafeAreaView>
         </TabContainer>
     );
 };
+
+const localStyles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    scrollContent: {
+        paddingBottom: 85,
+        backgroundColor: COLORS.BLACK,
+    },
+    backWrap: {
+        marginHorizontal: 15,
+        backgroundColor: COLORS.BLACK,
+    },
+    searchSection: {
+        backgroundColor: COLORS.BLACK,
+    },
+    genreBar: {
+        paddingBottom: 12,
+    },
+    genreListContent: {
+        paddingHorizontal: '4%',
+        gap: 10,
+        alignItems: 'center',
+    },
+    moviesSection: {
+        marginBottom: 75,
+        backgroundColor: COLORS.BLACK,
+    },
+    moviesGridWrap: {
+        alignItems: 'center',
+        width: SIZES.ScreenWidth,
+        alignSelf: 'center',
+    },
+    movieCardWrap: {
+        marginVertical: 4,
+    },
+    loaderWrap: {
+        paddingTop: 20,
+        alignItems: 'center',
+    },
+    emptyWrap: {
+        width: SIZES.ScreenWidth,
+        minHeight: 180,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    emptyText: {
+        ...FONTS.paragraph2,
+        color: COLORS.DARKGREY,
+    },
+});
 
 export default SearchMovieResultScreen;
