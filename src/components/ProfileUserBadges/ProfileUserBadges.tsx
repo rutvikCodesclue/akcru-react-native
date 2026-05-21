@@ -54,14 +54,16 @@ type Props = {
     style?: StyleProp<ViewStyle>;
     /** `inline`: status icons + level pill on one row (e.g. beside username). `stacked`: ViewUser-style two rows. */
     variant?: ProfileUserBadgesVariant;
+    size?: 'default' | 'compact';
 };
 
-export default function ProfileUserBadges({user, style, variant = 'stacked'}: Props) {
+export default function ProfileUserBadges({user, style, variant = 'stacked', size = 'default'}: Props) {
     if (!user) {
         return null;
     }
 
-    const nameBadgeIconSize = isTablet() ? 14 : 12;
+    const iconBase = isTablet() ? 14 : 12;
+    const nameBadgeIconSize = size === 'compact' ? Math.max(10, iconBase - 2) : iconBase;
     const badgeConfig = resolveAkcruBadgeConfig(user.badge);
     const title2FontSize =
         typeof FONTS.Title2 === 'object' && FONTS.Title2 !== null && 'fontSize' in FONTS.Title2
@@ -152,7 +154,7 @@ export default function ProfileUserBadges({user, style, variant = 'stacked'}: Pr
             <Text
                 style={{
                     ...FONTS.Akcrubadges,
-                    fontSize: title2FontSize - 1,
+                    fontSize: size === 'compact' ? title2FontSize - 3 : title2FontSize - 1,
                     color: badgeConfig.color,
                 }}>
                 {badgeConfig.label}

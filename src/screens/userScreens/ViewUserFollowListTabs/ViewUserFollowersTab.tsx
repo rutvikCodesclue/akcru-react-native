@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import UserSearchCard from '../../../components/UserSearchCard';
+import UserDiscoveryCard from '../../../components/UserDiscoveryCard';
 import {getFollowers} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 
@@ -33,23 +33,17 @@ const ViewUserFollowersTab = ({userID}) => {
                 scrollEnabled={true}
                 keyExtractor={item => item.id}
                 renderItem={({item, index}) => (
-                    <View style={{marginVertical: 5}}>
-                        <UserSearchCard
-                            userPicture={item.profilePicture}
-                            userName={item.username}
+                    <View style={{marginVertical: 0}}>
+                        <UserDiscoveryCard
+                            user={item}
+                            displayName={`${item.firstName ?? ''} ${item.lastName ?? ''}`.trim() || item.username}
+                            handle={`@${item.username ?? ''}`}
+                            fallbackDescription="Tap to view profile"
                             onPress={() => {
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.id,
                                 });
                             }}
-                            companyStatus={item?.companyStatus}
-                            ownerStatus={item?.ownerStatus}
-                            influencer={item.influencerStatus}
-                            userID={item.authId}
-                            akcruBadge={item.badge}
-                            userDesc={item.description}
-                            firstName={item.firstName}
-                            blackCloakStatus={item.blackCloakStatus}
                         />
                     </View>
                 )}

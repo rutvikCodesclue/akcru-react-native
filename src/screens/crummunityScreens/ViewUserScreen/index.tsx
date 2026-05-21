@@ -73,6 +73,7 @@ import {
     navigateToPollScreen,
     navigateToPostScreen,
     navigateToReportUser,
+    navigate as rootNavigate,
 } from '../../../util/RootNavigation';
 import {subscribeFeedPollRefresh, subscribeFeedPostRefresh} from '../../../util/feedRefreshEvents';
 import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
@@ -251,6 +252,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
               ? Number(userAgeFromApiRaw)
               : NaN;
     const userAge = Number.isFinite(userAgeFromApi) && userAgeFromApi > 0 ? userAgeFromApi : getAge(user?.dateOfBirth);
+    const profileFullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
+    const profilePrimaryName = profileFullName || user?.username || user?.firstName || '';
+    const profileUsername = user?.username ? `@${user.username}` : '';
     const metricItems = [
         {
                  key: 'gallery',
@@ -268,7 +272,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
             label: 'Followers',
             value: formatNumber(followersCount),
             gradientColors: ['rgba(102, 23, 72, 0.9)', 'rgba(179, 40, 122, 0.9)'],
-            onPress: () => navigation.navigate('ViewUserFollowList', {userID, tabKey: 'first'}),
+            onPress: () =>
+                rootNavigate('NoBottomStack', {
+                    screen: 'ViewUserFollowList',
+                    params: {userID, tabKey: 'first'},
+                }),
         },
         {
             key: 'following',
@@ -278,7 +286,11 @@ export default function ViewUserScreen({route, navigation}: Props) {
             label: 'Following',
             value: formatNumber(followingCount),
             gradientColors: ['rgba(88, 56, 10, 0.9)', 'rgba(167, 105, 15, 0.9)'],
-            onPress: () => navigation.navigate('ViewUserFollowList', {userID, tabKey: 'second'}),
+            onPress: () =>
+                rootNavigate('NoBottomStack', {
+                    screen: 'ViewUserFollowList',
+                    params: {userID, tabKey: 'second'},
+                }),
         },
         {
             key: 'watch-time',
@@ -382,6 +394,14 @@ export default function ViewUserScreen({route, navigation}: Props) {
         (user as any)?.cruName ||
         (user as any)?.cru_name ||
         (user as any)?.CruName ||
+        '';
+    const userDescription =
+        (user as any)?.description ||
+        (user as any)?.bio ||
+        (user as any)?.about ||
+        (user as any)?.user?.description ||
+        (user as any)?.user?.bio ||
+        (user as any)?.user?.about ||
         '';
     const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
 
@@ -882,11 +902,15 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     styles.refName,
                                     {marginBottom: 0, fontSize: usernameFontSize, flexShrink: 1, minWidth: 0},
                                 ]}>
-                                {user?.username || user?.firstName}
+                                {profilePrimaryName}
                                 {user?.showAge && userAge ? `, ${userAge}` : ''}
                             </Text>
                             <ProfileUserBadges user={user} variant="inline" style={{marginLeft: 6, flexShrink: 0}} />
                         </View>
+                        {!!profileUsername && <Text style={styles.refProfileUsername}>{profileUsername}</Text>}
+                        {!!String(userDescription).trim() && (
+                            <Text style={styles.refUserDescription}>{String(userDescription).trim()}</Text>
+                        )}
 
                         <View style={styles.refMetrics}>
                             {metricItems.map(item => (

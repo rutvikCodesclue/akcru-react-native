@@ -13,7 +13,7 @@ export default StyleSheet.create({
         paddingBottom: 110,
     },
     refCard: {
-        borderRadius: 24,
+        borderRadius: 14,
         borderWidth: 1.2,
         borderColor: '#AF62FF',
         paddingHorizontal: 14,
@@ -85,6 +85,22 @@ export default StyleSheet.create({
         textAlign: 'center',
         color: '#FFD2F5',
         marginBottom: 10,
+    },
+    refProfileUsername: {
+        ...FONTS.paragraph1,
+        textAlign: 'center',
+        color: '#8A94A9',
+        marginTop: 4,
+        marginBottom: 4,
+    },
+    refUserDescription: {
+        ...FONTS.paragraph1,
+        color: '#BFC6D8',
+        textAlign: 'center',
+        marginTop: 8,
+        marginBottom: 8,
+        lineHeight: 18,
+        paddingHorizontal: 10,
     },
     refMetrics: {
         flexDirection: 'row',

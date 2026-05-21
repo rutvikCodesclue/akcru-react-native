@@ -1,20 +1,18 @@
-import {View, PressableAndroidRippleConfig, StyleProp, useWindowDimensions, ViewStyle, TextStyle} from 'react-native';
+import {View, Text, useWindowDimensions} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import Header from '../../../components/header';
-import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
+import {COLORS} from '../../../../assets/constants';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
 import {RouteProp} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-import {Route} from 'react-native';
-import {TabView, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
+import {TabView, TabBar} from 'react-native-tab-view';
 import ViewUserFollowersTab from '../ViewUserFollowListTabs/ViewUserFollowersTab';
 import ViewUserFollowingTab from '../ViewUserFollowListTabs/ViewUserFollowingTab';
 import {getFollowers, getUserFollowing} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
-import styles from '../../contentScreens/PlayContentScreen/styles';
+import styles from './styles';
 import BackButton from '../../../components/General/backbutton';
 
 type ViewUserFollowListNavigationProp = StackNavigationProp<UserProfileStackParams, 'ViewUserFollowList'>;
@@ -27,13 +25,13 @@ type Props = {
 };
 
 const FirstRoute = ({userID}) => (
-    <View style={{marginBottom: '3%'}}>
+    <View style={styles.sceneContainer}>
         <ViewUserFollowersTab userID={userID} />
     </View>
 );
 
 const SecondRoute = ({userID}) => (
-    <View style={{marginBottom: '3%'}}>
+    <View style={styles.sceneContainer}>
         <ViewUserFollowingTab userID={userID} />
     </View>
 );
@@ -43,60 +41,17 @@ const ViewUserFollowList = ({route}: Props) => {
     const userID: string | undefined = route.params?.userID ?? null;
     const tabKey = route.params?.tabKey ?? 'first';
 
-    const renderTabBar = (
-        props: JSX.IntrinsicAttributes &
-            SceneRendererProps & {
-                navigationState: NavigationState<Route>;
-                scrollEnabled?: boolean | undefined;
-                bounces?: boolean | undefined;
-                activeColor?: string | undefined;
-                inactiveColor?: string | undefined;
-                pressColor?: string | undefined;
-                pressOpacity?: number | undefined;
-                getLabelText?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                getAccessible?: ((scene: Scene<Route>) => boolean | undefined) | undefined;
-                getAccessibilityLabel?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                getTestID?: ((scene: Scene<Route>) => string | undefined) | undefined;
-                renderLabel?:
-                    | ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode)
-                    | undefined;
-                renderIcon?: ((scene: Scene<Route> & {focused: boolean; color: string}) => React.ReactNode) | undefined;
-                renderBadge?: ((scene: Scene<Route>) => React.ReactNode) | undefined;
-                renderIndicator?: ((props: TabBarIndicatorProps<Route>) => React.ReactNode) | undefined;
-                renderTabBarItem?:
-                    | ((
-                          props: TabBarItemProps<Route> & {key: string},
-                      ) => React.ReactElement<any, string | React.JSXElementConstructor<any>>)
-                    | undefined;
-                onTabPress?: ((scene: Scene<Route> & Event) => void) | undefined;
-                onTabLongPress?: ((scene: Scene<Route>) => void) | undefined;
-                tabStyle?: StyleProp<ViewStyle>;
-                indicatorStyle?: StyleProp<ViewStyle>;
-                indicatorContainerStyle?: StyleProp<ViewStyle>;
-                labelStyle?: StyleProp<TextStyle>;
-                contentContainerStyle?: StyleProp<ViewStyle>;
-                style?: StyleProp<ViewStyle>;
-                gap?: number | undefined;
-                testID?: string | undefined;
-                android_ripple?: PressableAndroidRippleConfig | undefined;
-            },
-    ) => (
+    const renderTabBar = (props: any) => (
         <TabBar
             {...props}
-            indicatorStyle={{backgroundColor: COLORS.PURPLE}}
+            indicatorStyle={styles.tabIndicator}
             scrollEnabled={false}
-            tabStyle={{width: SIZES.ScreenWidth / 2}}
-            labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
-            style={{
-                backgroundColor: COLORS.AKCRUBACKGROUND,
-                justifyContent: 'space-between',
-            }}
-            contentContainerStyle={{
-                alignItems: 'center',
-                alignContent: 'center',
-                justifyContent: 'center',
-            }}
+            tabStyle={styles.tabItem}
+            labelStyle={styles.tabLabel}
+            style={styles.tabBar}
+            contentContainerStyle={styles.tabBarContent}
             activeColor={COLORS.PURPLE}
+            inactiveColor={COLORS.LIGHTGREY}
         />
     );
 
@@ -154,12 +109,12 @@ const ViewUserFollowList = ({route}: Props) => {
     };
 
     return (
-        <View style={{flex: 1}}>
-            <View>
-                <View style={styles.backbutton}>
+        <View style={styles.container}>
+            <View style={styles.headerShell}>
+                <View style={styles.headerWrap}>
                     <Header />
                 </View>
-                <View style={{marginHorizontal: 15}}>
+                <View style={styles.backButtonWrap}>
                     <BackButton navigation={navigation} />
                 </View>
             </View>

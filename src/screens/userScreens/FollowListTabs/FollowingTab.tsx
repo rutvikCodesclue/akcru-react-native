@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import UserSearchCard from '../../../components/UserSearchCard';
+import UserDiscoveryCard from '../../../components/UserDiscoveryCard';
 import {getUserFollowing} from '../../../lib/api/user.lib';
 import {IUserProfile} from '../../../../types';
 import useAuthStore from '../../../stores/auth.store';
@@ -49,25 +49,18 @@ const FollowingTab = () => {
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={true}
                 keyExtractor={item => item.id}
-                renderItem={({item, index}) => (
-                    <View style={{marginVertical: 5}}>
-                        <UserSearchCard
-                            userPicture={item.profilePicture}
-                            userName={item.username}
+                renderItem={({item}) => (
+                    <View style={{marginVertical: 0}}>
+                        <UserDiscoveryCard
+                            user={item}
+                            displayName={`${item.firstName ?? ''} ${item.lastName ?? ''}`.trim() || item.username}
+                            handle={`@${item.username ?? ''}`}
+                            fallbackDescription="Tap to view profile"
                             onPress={() => {
                                 navigation.navigate('ViewUserScreen', {
                                     userID: item.id,
                                 });
                             }}
-                            companyStatus={item?.companyStatus}
-                            ownerStatus={item?.ownerStatus}
-                            influencer={item.influencerStatus}
-                            blackCloakStatus={item.blackCloakStatus}
-                            userID={item.id}
-                            akcruBadge={item.badge}
-                            userDesc={item.description}
-                            firstName={item.firstName}
-                            isAdmin={item?.isAdmin}
                         />
                     </View>
                 )}

@@ -63,6 +63,8 @@ const UserSearchResultScreen = () => {
         return (
             <View style={styles.cardWrap}>
                 <UserDiscoveryCard
+                    handle={item.username}
+                    displayName={fullName}
                     user={item}
                     subtitle={fullName || item.firstName || item.username}
                     fallbackDescription="Tap to view profile"

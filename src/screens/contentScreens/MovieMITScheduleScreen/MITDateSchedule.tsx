@@ -1003,6 +1003,11 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 <UserDiscoveryCard
                                                     key={item.id}
                                                     user={item}
+                                                    displayName={
+                                                        `${item.firstName ?? ''} ${item.lastName ?? ''}`.trim() ||
+                                                        item.username
+                                                    }
+                                                    handle={`@${item.username ?? ''}`}
                                                     subtitle="Archetype Match"
                                                     fallbackDescription="Tap to schedule invite"
                                                     onPress={() => {
@@ -1054,6 +1059,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                     bordercolor={selectAvatarBorderColor(
                                                                         selectedInvitee.badge,
                                                                     )}
+                                                                    rotateFrameDegrees={90}
                                                                 />
                                                                 <View style={styles.defaultProfileInfo}>
                                                                     <Text style={styles.defaultProfileName}>
@@ -1105,15 +1111,16 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                 style={styles.profileCardGradientBorderOuter}>
                                                                 <View style={styles.profileCardGradientBorderInner}>
                                                                     <View style={styles.defaultProfileInner}>
-                                                                        <HexAvatar
-                                                                            source={{uri: profile.profilePicture}}
-                                                                            size={MULTISIZES.Xlarge60 + 6}
-                                                                            borderThickness={3}
-                                                                            imageZoom={1.12}
-                                                                            bordercolor={selectAvatarBorderColor(
-                                                                                profile.badge,
-                                                                            )}
-                                                                        />
+                                                                <HexAvatar
+                                                                    source={{uri: profile.profilePicture}}
+                                                                    size={MULTISIZES.Xlarge60 + 6}
+                                                                    borderThickness={3}
+                                                                    imageZoom={1.12}
+                                                                    bordercolor={selectAvatarBorderColor(
+                                                                        profile.badge,
+                                                                    )}
+                                                                    rotateFrameDegrees={90}
+                                                                />
                                                                         <View style={styles.defaultProfileInfo}>
                                                                             <Text style={styles.defaultProfileName}>
                                                                                 {profile.name}
@@ -1143,6 +1150,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                     bordercolor={selectAvatarBorderColor(
                                                                         profile.badge,
                                                                     )}
+                                                                    rotateFrameDegrees={90}
                                                                 />
                                                                 <View style={styles.defaultProfileInfo}>
                                                                     <Text style={styles.defaultProfileName}>
@@ -1204,6 +1212,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                             bordercolor={selectAvatarBorderColor(
                                                                                 profile.badge,
                                                                             )}
+                                                                            rotateFrameDegrees={90}
                                                                         />
                                                                         <View style={styles.defaultProfileInfo}>
                                                                             <Text style={styles.defaultProfileName}>
@@ -1234,6 +1243,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                                     bordercolor={selectAvatarBorderColor(
                                                                         profile.badge,
                                                                     )}
+                                                                    rotateFrameDegrees={90}
                                                                 />
                                                                 <View style={styles.defaultProfileInfo}>
                                                                     <Text style={styles.defaultProfileName}>
@@ -1407,6 +1417,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         size={MULTISIZES.Xlarge60 + 6}
                                                         borderThickness={3}
                                                         bordercolor={selectedBorderColor || '#C4B5FD'}
+                                                        rotateFrameDegrees={90}
                                                     />
                                                 </View>
                                                 <Text style={styles.scheduleUserName} numberOfLines={1}>
