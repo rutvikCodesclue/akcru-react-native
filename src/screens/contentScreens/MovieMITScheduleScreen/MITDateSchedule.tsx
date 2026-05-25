@@ -36,11 +36,11 @@ import {
 } from '../../../util/util';
 import LinearGradient from 'react-native-linear-gradient';
 import Video from 'react-native-video';
-import AkcruLevels from '../../../components/akcruBadges';
 import AkcruButtons from '../../../components/akcruButtons';
 import {changeMITInviteMovie, createAMITInvite, getMyMITs} from '../../../lib/api/mit.lib';
 import {getUnifiedMatches, UnifiedMatchUser} from '../../../lib/api/flickflirt.lib';
 import HexAvatar from '../../../components/HexAvatar';
+import ProfileUserBadges from '../../../components/ProfileUserBadges';
 import {MULTISIZES} from '../../../../assets/constants/theme';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import BackButton from '../../../components/General/backbutton';
@@ -305,12 +305,8 @@ const MITDateSchedule = ({route, navigation}: Props) => {
     );
 
     const [selectedUserName, setSelectedUserName] = useState('');
-    const [selectedAkcruBadgeAkcruit, setSelectedAkcruBadgeAkcruit] = useState('');
-    const [selectedAkcruBadgeGuardian, setSelectedAkcruBadgeGuardian] = useState('');
-    const [selectedAkcruBadgeHero, setSelectedAkcruBadgeHero] = useState('');
-    const [selectedAkcruBadgeSuperHero, setSelectedAkcruBadgeSuperHero] = useState('');
+    const [selectedUserBadge, setSelectedUserBadge] = useState('');
     const [selectedUserPicture, setSelectedUserPicture] = useState('');
-    const [selectedInfluencer, setSelectedInfluencer] = useState('');
     const [selectedUser, setSelectedUser] = useState(false);
     const [selectedBorderColor, setSelectedBorderColor] = useState('');
 
@@ -321,10 +317,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
         const borderColor = selectAvatarBorderColor(normalizedBadge);
 
         setSelectedUserName(username);
-        setSelectedAkcruBadgeAkcruit(normalizedBadge);
-        setSelectedAkcruBadgeGuardian(normalizedBadge);
-        setSelectedAkcruBadgeHero(normalizedBadge);
-        setSelectedAkcruBadgeSuperHero(normalizedBadge);
+        setSelectedUserBadge(normalizedBadge);
         setSelectedUserPicture(profilePicture);
         setSelectedUser(true);
 
@@ -1382,6 +1375,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                         size={MULTISIZES.Xlarge60 + 6}
                                                         borderThickness={3}
                                                         imageZoom={1.1}
+                                                        rotateFrameDegrees={90}
                                                         bordercolor={
                                                             loggedInUser?.badge
                                                                 ? selectAvatarBorderColor(loggedInUser.badge)
@@ -1392,10 +1386,12 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 <Text style={styles.scheduleUserName}>
                                                     {loggedInUser?.username || 'You'}
                                                 </Text>
-                                                {loggedInUser?.badge === 'AKCRUIT' && <AkcruLevels.AkcruBadgeAkcruit />}
-                                                {loggedInUser?.badge === 'GUARDIAN' && <AkcruLevels.AkcruBadgeGuardian />}
-                                                {loggedInUser?.badge === 'HERO' && <AkcruLevels.AkcruBadgeHero />}
-                                                {loggedInUser?.badge === 'SUPERHERO' && <AkcruLevels.AkcruBadgeSuperHero />}
+                                                <ProfileUserBadges
+                                                    user={loggedInUser}
+                                                    variant="inline"
+                                                    size="compact"
+                                                    style={{justifyContent: 'center', marginTop: 4}}
+                                                />
                                             </View>
                                             <View
                                                 style={styles.schedulePairUser}
@@ -1423,14 +1419,12 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                                 <Text style={styles.scheduleUserName} numberOfLines={1}>
                                                     {selectedUserName || 'Invitee'}
                                                 </Text>
-                                                {selectedAkcruBadgeAkcruit === 'AKCRUIT' && <AkcruLevels.AkcruBadgeAkcruit />}
-                                                {selectedAkcruBadgeGuardian === 'GUARDIAN' && (
-                                                    <AkcruLevels.AkcruBadgeGuardian />
-                                                )}
-                                                {selectedAkcruBadgeHero === 'HERO' && <AkcruLevels.AkcruBadgeHero />}
-                                                {selectedAkcruBadgeSuperHero === 'SUPERHERO' && (
-                                                    <AkcruLevels.AkcruBadgeSuperHero />
-                                                )}
+                                                <ProfileUserBadges
+                                                    user={{badge: selectedUserBadge || undefined}}
+                                                    variant="inline"
+                                                    size="compact"
+                                                    style={{justifyContent: 'center', marginTop: 4}}
+                                                />
                                             </View>
                                         </View>
                                     </LinearGradient>

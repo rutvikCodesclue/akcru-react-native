@@ -54,6 +54,7 @@ export default function MITInvitePairAnimation({
     ticketIconSource = imageindex.mitTicketImage,
     compact = false,
 }: Props) {
+    const HEXAGON_FRAME_ROTATION_DEG = 0;
     const lightTravelAnim = useRef(new Animated.Value(0)).current;
     const [leftHexCenterX, setLeftHexCenterX] = React.useState(42);
     const [rightHexCenterX, setRightHexCenterX] = React.useState(250);
@@ -144,6 +145,7 @@ export default function MITInvitePairAnimation({
                             size={compact ? MULTISIZES.Xlarge43 : MULTISIZES.Xlarge60 + 6}
                             borderThickness={3}
                             imageZoom={1.1}
+                            rotateFrameDegrees={HEXAGON_FRAME_ROTATION_DEG}
                             bordercolor={selectAvatarBorderColor(sender.badge ?? 'AKCRUIT')}
                         />
                     </View>
@@ -168,6 +170,7 @@ export default function MITInvitePairAnimation({
                             size={compact ? MULTISIZES.Xlarge43 : MULTISIZES.Xlarge60 + 6}
                             borderThickness={3}
                             imageZoom={1.1}
+                            rotateFrameDegrees={HEXAGON_FRAME_ROTATION_DEG}
                             bordercolor={selectAvatarBorderColor(receiver.badge ?? 'AKCRUIT')}
                         />
                     </View>

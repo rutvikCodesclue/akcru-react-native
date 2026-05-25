@@ -269,7 +269,7 @@ export default function CrummunitySendMITScreen() {
             setShowInsufficientAdModal(true);
             return;
         }
-//         navigation.navigate('SendMITViewUser', {userid: recipientId, receiverUser: recipient});
+        navigation.navigate('SendMITViewUser', {userid: recipientId, receiverUser: recipient});
     };
 
     if (!recipientId) {
