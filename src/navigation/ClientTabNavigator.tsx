@@ -170,6 +170,16 @@ function ClientTabBar(props: TabBarProps) {
     const active = state.routes[state.index];
     if (active?.name === 'UserProfileStack') {
         const nestedFocused = getFocusedRouteNameFromRoute(active);
+        if (
+            nestedFocused === 'WatchPartyPreview' ||
+            nestedFocused === 'StartWatchPartyView' ||
+            nestedFocused === 'VisionaryWatchParty'
+        ) {
+            logTabBarTouch('ClientTabBar render null', {
+                reason: `UserProfileStack + ${nestedFocused}`,
+            });
+            return null;
+        }
         if (nestedFocused === 'ViewChat') {
             logTabBarTouch('ClientTabBar render null', {
                 reason: 'UserProfileStack + ViewChat',

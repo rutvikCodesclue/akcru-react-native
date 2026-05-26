@@ -1,35 +1,35 @@
 import * as React from 'react';
 import { navigate } from '../../../util/RootNavigation';
 
-import {View, Text, TouchableOpacity, Image, SafeAreaView, Modal, ActivityIndicator, Pressable, StyleSheet} from 'react-native';
-import {UserProfileDetailsTab} from '../UserProfileTabs';
-import {hubTabFromProfileRouteParams} from '../UserProfileHubTabScreen';
-import {SIZES, COLORS, FONTS} from '../../../../assets/constants';
+import { View, Text, TouchableOpacity, Image, SafeAreaView, Modal, ActivityIndicator, Pressable, StyleSheet } from 'react-native';
+import { UserProfileDetailsTab } from '../UserProfileTabs';
+import { hubTabFromProfileRouteParams } from '../UserProfileHubTabScreen';
+import { SIZES, COLORS, FONTS } from '../../../../assets/constants';
 import LinearGradient from 'react-native-linear-gradient';
 import Header from '../../../components/header';
 import imageindex from '../../../../assets/images/imageindex';
-import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
-import {RouteProp, useFocusEffect} from '@react-navigation/native';
-import {StackNavigationProp} from '@react-navigation/stack';
+import { UserProfileStackParams } from '../../../navigation/UserProfileStack';
+import { RouteProp, useFocusEffect } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useState, useEffect} from 'react';
+import { useState, useEffect } from 'react';
 import useAuthStore from '../../../stores/auth.store';
-import {formatNumber, selectAvatarBorderColor} from '../../../util/util';
-import {ICruInvite, ICruView, IMITInvite, IUserProfile} from '../../../../types';
-import {getMyMITInvites} from '../../../lib/api/mit.lib';
-import {getCRUInvites, getMyCRUViews} from '../../../lib/api/cru.lib';
-import {isAfter, isBefore} from 'date-fns';
+import { formatNumber, selectAvatarBorderColor } from '../../../util/util';
+import { ICruInvite, ICruView, IMITInvite, IUserProfile } from '../../../../types';
+import { getMyMITInvites } from '../../../lib/api/mit.lib';
+import { getCRUInvites, getMyCRUViews } from '../../../lib/api/cru.lib';
+import { isAfter, isBefore } from 'date-fns';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import HexAvatar from '../../../components/HexAvatar';
-import {getFollowers, upgradeCRUView} from '../../../lib/api/user.lib';
+import { getFollowers, upgradeCRUView } from '../../../lib/api/user.lib';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import ProfileUserBadges from '../../../components/ProfileUserBadges';
 import ProfileAdWalletBar from '../../../components/ProfileAdWalletBar';
-import {Icon} from '@rneui/base';
-import {isTablet, MULTISIZES} from '../../../../assets/constants/theme';
-import {newVisitUserProfile, newVisitUserProfileUpdate} from '../../../lib/api/userProfile.lib';
+import { Icon } from '@rneui/base';
+import { isTablet, MULTISIZES } from '../../../../assets/constants/theme';
+import { newVisitUserProfile, newVisitUserProfileUpdate } from '../../../lib/api/userProfile.lib';
 import Video from 'react-native-video';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type UserProfileScreenNavigationProp = StackNavigationProp<UserProfileStackParams, 'UserProfileScreen'>;
 
@@ -40,9 +40,9 @@ type Props = {
     route: UserProfileScreenRouteProp;
 };
 
-export default function UserProfileScreen({navigation, route}: Props) {
+export default function UserProfileScreen({ navigation, route }: Props) {
     const insets = useSafeAreaInsets();
-    const {user, hydrateUser, walletBalance} = useAuthStore();
+    const { user, hydrateUser, walletBalance } = useAuthStore();
     /** Wallet API (`/v1/wallet/me`) is hydrated with the user; prefer it over `user.adAmount` for the bar. */
     const profileWalletAdAmount = React.useMemo(() => {
         const parsed = parseFloat(walletBalance ?? '');
@@ -87,7 +87,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            getMyMITInvites({pending: true}).then(mitInvites => {
+            getMyMITInvites({ pending: true }).then(mitInvites => {
                 if (mitInvites) {
                     const mitInviteCount = mitInvites.length;
 
@@ -112,7 +112,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 }
             });
 
-            return () => {};
+            return () => { };
         }, []),
     );
 
@@ -124,10 +124,10 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     useFocusEffect(
         React.useCallback(() => {
-            getCRUInvites({pending: true}).then(cruInvites => {
+            getCRUInvites({ pending: true }).then(cruInvites => {
                 if (cruInvites) {
                     const pendingCRUInvites = cruInvites.filter(
-                        (invite: {status: string}) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
+                        (invite: { status: string }) => invite.status !== 'ACCEPTED' && invite.status !== 'DECLINED',
                     );
 
                     setPendingCRUInviteCount(pendingCRUInvites.length);
@@ -136,7 +136,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                 }
             });
 
-            return () => {};
+            return () => { };
         }, []),
     );
 
@@ -146,8 +146,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
         React.useCallback(() => {
             const fetchMyEvents = async () => {
                 try {
-                    const myCRUViews = await getMyCRUViews({upcoming: true});
-                    const myMITs = await getMyMITInvites({accepted: true, me: true});
+                    const myCRUViews = await getMyCRUViews({ upcoming: true });
+                    const myMITs = await getMyMITInvites({ accepted: true, me: true });
 
                     if (myCRUViews && myMITs) {
                         let events = [...myCRUViews, ...myMITs];
@@ -185,8 +185,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
         if (!hub) {
             return;
         }
-        navigation.navigate('UserProfileHubTabScreen', {hubTab: hub});
-        navigation.setParams({tabKey: 'first', index: undefined} as UserProfileScreenRouteProp['params']);
+        navigation.navigate('UserProfileHubTabScreen', { hubTab: hub });
+        navigation.setParams({ tabKey: 'first', index: undefined } as UserProfileScreenRouteProp['params']);
     }, [navigation, route.params]);
 
     const [followersData, setFollowersData] = useState<IUserProfile[]>([]);
@@ -210,7 +210,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
             fetchData();
 
-            return () => {};
+            return () => { };
         }, [user?.id]),
     );
 
@@ -246,7 +246,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
         try {
             const updateResponse = await newVisitUserProfileUpdate();
             if (updateResponse.success) setFirstTimeVisit(false);
-        } catch {}
+        } catch { }
     }, []);
 
     const showSpinner = loading || firstTimeVisit === null;
@@ -254,7 +254,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     if (showSpinner) {
         return (
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <ActivityIndicator size="large" color="#0000ff" />
             </View>
         );
@@ -265,8 +265,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
             <TabContainer>
                 <SafeAreaView>
                     <Video
-                        source={{uri: 'https://d17ybuhl825fg.cloudfront.net/HelpVideo/Profile+Hub+Intro.mp4'}}
-                        style={{height: '100%', width: '100%'}}
+                        source={{ uri: 'https://d17ybuhl825fg.cloudfront.net/HelpVideo/Profile+Hub+Intro.mp4' }}
+                        style={{ height: '100%', width: '100%' }}
                         paused={false}
                         repeat={false}
                         resizeMode="cover"
@@ -286,7 +286,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                             setSkipped(true);
                             handleNewVisitVideoEnd();
                         }}>
-                        <Text style={{color: '#000', fontWeight: 'bold'}}>Skip</Text>
+                        <Text style={{ color: '#000', fontWeight: 'bold' }}>Skip</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
             </TabContainer>
@@ -329,18 +329,18 @@ export default function UserProfileScreen({navigation, route}: Props) {
 
     return (
         <TabContainer>
-            <View style={{flex: 1}}>
-                <SafeAreaView style={{flex: 1}}>
+            <View style={{ flex: 1 }}>
+                <SafeAreaView style={{ flex: 1 }}>
                     <View>
                         <View style={profileScreenStyles.profileTopSection}>
-                            <View style={{zIndex: 20}}>
+                            <View style={{ zIndex: 20 }}>
                                 <Header />
                             </View>
                             <LinearGradient
                                 colors={[COLORS.BLACK, COLORS.FADEDBLACK, COLORS.BLACK]}
                                 style={profileScreenStyles.profileTopGradient}
                             />
-                            <View style={{marginHorizontal: 15}}>
+                            <View style={{ marginHorizontal: 15 }}>
                                 <View
                                     style={{
                                         flexDirection: 'row',
@@ -349,26 +349,26 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         width: '100%',
                                     }}>
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate('ViewUserScreen', {userID: user?.id})}>
+                                        onPress={() => navigation.navigate('ViewUserScreen', { userID: user?.id })}>
                                         <HexAvatar
-                                            source={{uri: user?.profilePicture}}
+                                            source={{ uri: user?.profilePicture }}
                                             size={avatarSize}
                                             bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
                                             rotateFrameDegrees={90}
                                         />
                                     </TouchableOpacity>
                                     <TouchableOpacity
-                                        onPress={() => navigation.navigate('FollowList')}
+                                        onPress={() => navigation.navigate('ViewUserFollowList', {userID: user?.id, tabKey: 'first'})}
                                         style={{
                                             alignItems: 'center',
                                             paddingHorizontal: 4,
                                         }}>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>{followersCount}</Text>
-                                        <Text style={{...FONTS.Title2, color: COLORS.AKCRUBLUE}}>Followers</Text>
+                                        <Text style={{ ...FONTS.Title2, color: COLORS.AKCRUBLUE }}>{followersCount}</Text>
+                                        <Text style={{ ...FONTS.Title2, color: COLORS.AKCRUBLUE }}>Followers</Text>
                                     </TouchableOpacity>
                                     <TouchableOpacity
                                         onPress={() => setProfileMenuVisible(true)}
-                                        hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
+                                        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                                         accessibilityLabel="Open profile actions menu"
                                         style={{
                                             width: isTablet() ? 44 : 36,
@@ -404,7 +404,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                         ellipsizeMode="tail">
                                         {profileHandleDisplay}
                                     </Text>
-                                    <ProfileUserBadges user={user} variant="inline" style={{flexShrink: 0}} />
+                                    <ProfileUserBadges user={user} variant="inline" style={{ flexShrink: 0 }} />
                                 </View>
                             </View>
                             {/* User description (bio)
@@ -434,14 +434,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 <View style={profileScreenStyles.editProfileGlow}>
                                     <TouchableOpacity
                                         activeOpacity={0.9}
-                                        onPress={() => navigate('NoBottomStack', {screen: 'EditProfile'})}
+                                        onPress={() => navigate('NoBottomStack', { screen: 'EditProfile' })}
                                         accessibilityRole="button"
                                         accessibilityLabel="Edit profile"
                                         style={profileScreenStyles.editProfileTouchable}>
                                         <LinearGradient
                                             colors={['#172554', '#3730a3', '#7c3aed', '#c026d3']}
-                                            start={{x: 0, y: 0.5}}
-                                            end={{x: 1, y: 0.5}}
+                                            start={{ x: 0, y: 0.5 }}
+                                            end={{ x: 1, y: 0.5 }}
                                             style={profileScreenStyles.editProfileGradient}>
                                             <Icon
                                                 name="brush-outline"
@@ -457,8 +457,8 @@ export default function UserProfileScreen({navigation, route}: Props) {
                             </View>
                         </View>
                     </View>
-                    <View style={{marginTop: 4}} />
-                    <View style={{flex: 1, minHeight: 0}}>
+                    <View style={{ marginTop: 4 }} />
+                    <View style={{ flex: 1, minHeight: 0 }}>
                         <UserProfileDetailsTab hideProfileDetailsSection hideCruAffiliationsSection />
                     </View>
                 </SafeAreaView>
@@ -468,9 +468,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
                     transparent={true}
                     visible={profileMenuVisible}
                     onRequestClose={() => setProfileMenuVisible(false)}>
-                    <View style={{flex: 1}}>
+                    <View style={{ flex: 1 }}>
                         <Pressable
-                            style={[StyleSheet.absoluteFillObject, {backgroundColor: 'rgba(0, 0, 0, 0.45)'}]}
+                            style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0, 0, 0, 0.45)' }]}
                             onPress={() => setProfileMenuVisible(false)}
                         />
                         <View
@@ -496,13 +496,13 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                     setProfileMenuVisible(false);
                                     navigate('NoBottomStack', {
                                         screen: 'UserMITHubScreen',
-                                        params: {index: 0},
+                                        params: { index: 0 },
                                     });
                                 }}>
-                                <View style={{position: 'relative'}}>
+                                <View style={{ position: 'relative' }}>
                                     <Image
                                         source={imageindex.LrgMIT}
-                                        style={{width: isTablet() ? 56 : 44, height: isTablet() ? 28 : 22}}
+                                        style={{ width: isTablet() ? 56 : 44, height: isTablet() ? 28 : 22 }}
                                         resizeMode="contain"
                                     />
                                     <View
@@ -517,12 +517,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                             height: 20,
                                             borderRadius: 10,
                                         }}>
-                                        <Text style={{...FONTS.Title2, color: COLORS.WHITE, fontSize: 11}}>
+                                        <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, fontSize: 11 }}>
                                             {inviteCount}
                                         </Text>
                                     </View>
                                 </View>
-                                <Text style={{...FONTS.Title2, color: COLORS.WHITE, marginLeft: 10}}>MIT Hub</Text>
+                                <Text style={{ ...FONTS.Title2, color: COLORS.WHITE, marginLeft: 10 }}>MIT Hub</Text>
                             </TouchableOpacity>
                             <View
                                 style={{
@@ -690,12 +690,12 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 }}
                             />
                             <TouchableOpacity
-                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                style={{ paddingHorizontal: 14, paddingVertical: 12 }}
                                 onPress={() => {
                                     setProfileMenuVisible(false);
-                                    navigate('NoBottomStack', {screen: 'CruSoloTabsScreen'});
+                                    navigate('NoBottomStack', { screen: 'CruSoloTabsScreen' });
                                 }}>
-                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>Crummunity + Solo</Text>
+                                <Text style={{ ...FONTS.Title2, color: COLORS.WHITE }}>Crummunity + Solo</Text>
                             </TouchableOpacity>
                             <View
                                 style={{
@@ -706,14 +706,14 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 }}
                             />
                             <TouchableOpacity
-                                style={{paddingHorizontal: 14, paddingVertical: 12}}
+                                style={{ paddingHorizontal: 14, paddingVertical: 12 }}
                                 onPress={() => {
                                     setProfileMenuVisible(false);
                                     if (user?.id) {
-                                        navigation.navigate('ViewUserScreen', {userID: user.id, tabKey: 'second'});
+                                        navigation.navigate('ViewUserScreen', { userID: user.id, tabKey: 'second' });
                                     }
                                 }}>
-                                <Text style={{...FONTS.Title2, color: COLORS.WHITE}}>My activity</Text>
+                                <Text style={{ ...FONTS.Title2, color: COLORS.WHITE }}>My activity</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
@@ -778,9 +778,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 alignItems: 'center',
                                 marginHorizontal: 15,
                             }}>
-                            <Text style={{...FONTS.Title3, marginBottom: 20, textAlign: 'center'}}>
+                            <Text style={{ ...FONTS.Title3, marginBottom: 20, textAlign: 'center' }}>
                                 {'Upgrade your audio CRU view to '}
-                                <Text style={{color: COLORS.AKCRUBLUE}}>{'video'}</Text>
+                                <Text style={{ color: COLORS.AKCRUBLUE }}>{'video'}</Text>
                                 {' for 100 '}
                                 <Image
                                     source={imageindex.AkcruHexLogo}
@@ -795,9 +795,9 @@ export default function UserProfileScreen({navigation, route}: Props) {
                             </Text>
 
                             {/* Buttons Row */}
-                            <View style={{flexDirection: 'row', gap: 20}}>
+                            <View style={{ flexDirection: 'row', gap: 20 }}>
                                 <TouchableOpacity onPress={() => setShowUpgradeModal(false)} disabled={loadingUpgrade}>
-                                    <Text style={{...FONTS.Title2, color: COLORS.LIGHTGREY}}>Cancel</Text>
+                                    <Text style={{ ...FONTS.Title2, color: COLORS.LIGHTGREY }}>Cancel</Text>
                                 </TouchableOpacity>
 
                                 <TouchableOpacity onPress={handleUpgrade} disabled={loadingUpgrade}>
@@ -831,7 +831,7 @@ export default function UserProfileScreen({navigation, route}: Props) {
                                 alignItems: 'center',
                                 marginHorizontal: 15,
                             }}>
-                            <Text style={{...FONTS.Title3, marginBottom: 10, textAlign: 'center'}}>
+                            <Text style={{ ...FONTS.Title3, marginBottom: 10, textAlign: 'center' }}>
                                 {upgradeResult === 'success'
                                     ? 'Upgrade successful!'
                                     : 'Upgrade failed. Please try again.'}

@@ -1,7 +1,6 @@
-import {View, Platform, SafeAreaView} from 'react-native';
+import {View, Platform, SafeAreaView, StyleSheet} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
-import {SIZES} from '../../../../assets/constants';
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
 import {useState, useRef, useEffect} from 'react';
 import {findMovieById} from '../../../lib/api/movies.lib';
@@ -40,7 +39,7 @@ import MovieScreen from './MovieScreen';
 import UserVideos from './UserVideos';
 import UserControls from './UserControls';
 import TopContainer from './TopContainer';
-import {updateMITHostId} from '../../../lib/api/mit.lib';
+import {completeMITAttendance, updateMITHostId} from '../../../lib/api/mit.lib';
 import {updateCruViewHostId} from '../../../lib/api/cru.lib';
 import {VolumeManager} from 'react-native-volume-manager';
 import {MemberInfo, PeerTrackNode, WatchPartyViewProps} from './WatchPartyProps';
@@ -109,6 +108,7 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     const membersRef = useRef(members);
     const channelllRef = useRef(channelll);
     const isMoviePlayingRef = useRef(isMoviePlaying);
+    const hasSubmittedMitAttendanceRef = useRef(false);
 
     route.params = {
         ...route.params,
@@ -138,6 +138,58 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     useEffect(() => {
         isMoviePlayingRef.current = isMoviePlaying;
     }, [isMoviePlaying]);
+
+    useEffect(() => {
+        const inviteId = typeof viewId === 'string' ? viewId : '';
+        const bothParticipantsPresent = members.length >= 2;
+        const hasWatchedTenMinutes = (currentTime ?? 0) >= 600;
+
+        if (
+            viewtype !== 'MITInvite' ||
+            !inviteId ||
+            hasSubmittedMitAttendanceRef.current ||
+            !bothParticipantsPresent ||
+            !hasWatchedTenMinutes
+        ) {
+            return;
+        }
+
+        const storageKey = `mit_attendance_submitted_${inviteId}`;
+        let isCancelled = false;
+
+        const submitAttendanceOnce = async () => {
+            try {
+                const alreadySubmitted = await AsyncStorage.getItem(storageKey);
+                if (alreadySubmitted === '1') {
+                    hasSubmittedMitAttendanceRef.current = true;
+                    return;
+                }
+
+                hasSubmittedMitAttendanceRef.current = true;
+                const success = await completeMITAttendance(inviteId);
+
+                if (isCancelled) {
+                    return;
+                }
+
+                if (success) {
+                    await AsyncStorage.setItem(storageKey, '1');
+                } else {
+                    hasSubmittedMitAttendanceRef.current = false;
+                }
+            } catch (error) {
+                if (!isCancelled) {
+                    hasSubmittedMitAttendanceRef.current = false;
+                }
+            }
+        };
+
+        submitAttendanceOnce();
+
+        return () => {
+            isCancelled = true;
+        };
+    }, [currentTime, members.length, viewId, viewtype]);
 
     useEffect(() => {
         const channelA = supabase.channel(roomId);
@@ -266,11 +318,29 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
 
     useFocusEffect(
         React.useCallback(() => {
+            const navChain: any[] = [];
+            let cursor: any = navigation.getParent?.();
+            while (cursor) {
+                navChain.push(cursor);
+                cursor = cursor.getParent?.();
+            }
+            navChain.forEach(nav => {
+                nav?.setOptions?.({
+                    tabBarStyle: {display: 'none'},
+                });
+            });
+
             if (isMoviePlaying) {
                 startTimer();
             }
 
             return () => {
+                navChain.forEach(nav => {
+                    nav?.setOptions?.({
+                        tabBarStyle: undefined,
+                    });
+                });
+
                 if (isFocused) {
                     console.log('pausing timer...');
                     pauseTimer();
@@ -675,87 +745,129 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
         }
     };
     return (
-        <SafeAreaView style={{marginBottom: SIZES.ScreenHeight / 12}}>
+        <SafeAreaView style={[styles.safeArea, isFullscreen && styles.safeAreaFullscreen]}>
             {!isFullscreen && (
-                // eslint-disable-next-line react-native/no-inline-styles
-                <View style={{zIndex: 20}}>
+                <View style={styles.headerLayer}>
                     <WatchPartyHeader />
                 </View>
             )}
 
-            {!isFullscreen && (
-                <TopContainer
-                    currentRoomHost={currentRoomHost}
-                    user={user}
-                    members={members}
-                    handleRoomLeaving={handleRoomLeaving}
-                    handleEndRoom={handleEndRoom}
-                    handleChangeHost={onHostSelect}
-                />
-            )}
+            <View style={styles.contentWrap}>
+                {!isFullscreen && (
+                    <View style={styles.topContainerWrap}>
+                        <TopContainer
+                            currentRoomHost={currentRoomHost}
+                            user={user}
+                            members={members}
+                            handleRoomLeaving={handleRoomLeaving}
+                            handleEndRoom={handleEndRoom}
+                            handleChangeHost={onHostSelect}
+                        />
+                    </View>
+                )}
 
-            <MovieScreen
-                currentRoomHost={currentRoomHost}
-                user={user}
-                isStreamOpen={isStreamOpen}
-                movie={movie}
-                isSyncedWithHost={isSyncedWithHost}
-                isFullscreen={isFullscreen}
-                setIsFullscreen={setIsFullscreen}
-                isMoviePlaying={isMoviePlaying}
-                setIsMoviePlaying={setIsMoviePlaying}
-                hasLottieFirstLoopCompleted={hasLottieFirstLoopCompleted}
-                setHasLottieFirstLoopCompleted={setHasLottieFirstLoopCompleted}
-                setCurrentTime={setCurrentTime}
-                roomChannelRef={roomChannelRef}
-                videoPlayerRef={videoPlayerRef}
-                syncChannelRef={syncChannelRef}
-                videoRoomPrivileges={videoRoomPrivileges}
-            />
-
-            {currentRoomHost ? (
-                !isFullscreen ? (
-                    <UserVideos
-                        currentHmsInstance={hmsInstanceRef.current}
-                        peerTrackNodes={peerTrackNodes}
-                        expandedVideo={expandedVideo}
-                        setExpandedVideo={setExpandedVideo}
-                        peersMuteStatus={peersMuteStatus}
+                <View style={styles.movieStageWrap}>
+                    <MovieScreen
                         currentRoomHost={currentRoomHost}
-                        members={members}
+                        user={user}
+                        isStreamOpen={isStreamOpen}
+                        movie={movie}
+                        isSyncedWithHost={isSyncedWithHost}
+                        isFullscreen={isFullscreen}
+                        setIsFullscreen={setIsFullscreen}
+                        isMoviePlaying={isMoviePlaying}
+                        setIsMoviePlaying={setIsMoviePlaying}
+                        hasLottieFirstLoopCompleted={hasLottieFirstLoopCompleted}
+                        setHasLottieFirstLoopCompleted={setHasLottieFirstLoopCompleted}
+                        setCurrentTime={setCurrentTime}
+                        roomChannelRef={roomChannelRef}
+                        videoPlayerRef={videoPlayerRef}
+                        syncChannelRef={syncChannelRef}
                         videoRoomPrivileges={videoRoomPrivileges}
                     />
-                ) : (
-                    <WatchPartyDocker
-                        members={members}
-                        hmsInstanceRef={hmsInstanceRef}
-                        peersMuteStatus={peersMuteStatus}
-                        currentRoomHost={currentRoomHost}
-                        peerTrackNodes={peerTrackNodes}
-                        videoRoomPrivileges={videoRoomPrivileges}
-                    />
-                )
-            ) : null}
+                </View>
 
-            {currentRoomHost && !isFullscreen ? (
-                <UserControls
-                    channel={channelll}
-                    currentRoomHost={currentRoomHost}
-                    members={members}
-                    user={user}
-                    requestingUser={requestingUser}
-                    showUnmuteModal={showUnmuteModal}
-                    setShowUnmuteModal={setShowUnmuteModal}
-                    isUserVideoOn={isUserVideoOn}
-                    setIsUserVideoOn={setIsUserVideoOn}
-                    isMicOn={isMicOn}
-                    setIsMicOn={setIsMicOn}
-                    currentHmsInstance={hmsInstanceRef.current}
-                    videoRoomPrivileges={videoRoomPrivileges}
-                />
-            ) : null}
+                {currentRoomHost ? (
+                    !isFullscreen ? (
+                        <View style={styles.userVideosWrap}>
+                            <UserVideos
+                                currentHmsInstance={hmsInstanceRef.current}
+                                peerTrackNodes={peerTrackNodes}
+                                expandedVideo={expandedVideo}
+                                setExpandedVideo={setExpandedVideo}
+                                peersMuteStatus={peersMuteStatus}
+                                currentRoomHost={currentRoomHost}
+                                members={members}
+                                videoRoomPrivileges={videoRoomPrivileges}
+                            />
+                        </View>
+                    ) : (
+                        <View style={styles.dockerWrap}>
+                            <WatchPartyDocker
+                                members={members}
+                                hmsInstanceRef={hmsInstanceRef}
+                                peersMuteStatus={peersMuteStatus}
+                                currentRoomHost={currentRoomHost}
+                                peerTrackNodes={peerTrackNodes}
+                                videoRoomPrivileges={videoRoomPrivileges}
+                            />
+                        </View>
+                    )
+                ) : null}
+
+                {currentRoomHost && !isFullscreen ? (
+                    <View style={styles.controlsWrap}>
+                        <UserControls
+                            channel={channelll}
+                            currentRoomHost={currentRoomHost}
+                            members={members}
+                            user={user}
+                            requestingUser={requestingUser}
+                            showUnmuteModal={showUnmuteModal}
+                            setShowUnmuteModal={setShowUnmuteModal}
+                            isUserVideoOn={isUserVideoOn}
+                            setIsUserVideoOn={setIsUserVideoOn}
+                            isMicOn={isMicOn}
+                            setIsMicOn={setIsMicOn}
+                            currentHmsInstance={hmsInstanceRef.current}
+                            videoRoomPrivileges={videoRoomPrivileges}
+                        />
+                    </View>
+                ) : null}
+            </View>
         </SafeAreaView>
     );
 };
 
 export default StartWatchPartyView;
+
+const styles = StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: '#050508',
+    },
+    safeAreaFullscreen: {
+        backgroundColor: '#000000',
+    },
+    headerLayer: {
+        zIndex: 20,
+    },
+    contentWrap: {
+        flex: 1,
+    },
+    topContainerWrap: {
+        zIndex: 15,
+    },
+    movieStageWrap: {
+        flex: 1,
+    },
+    userVideosWrap: {
+        zIndex: 10,
+    },
+    dockerWrap: {
+        zIndex: 25,
+    },
+    controlsWrap: {
+        zIndex: 12,
+    },
+});

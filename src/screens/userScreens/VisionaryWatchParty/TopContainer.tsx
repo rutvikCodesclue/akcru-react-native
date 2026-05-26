@@ -138,7 +138,7 @@ const TopContainer = ({
             >
               <Text style={styles.optionText}>View Participants</Text>
             </TouchableOpacity>
-            
+
             {user?.id === currentRoomHost && (
               <TouchableOpacity
                 style={styles.optionButton}
@@ -149,7 +149,7 @@ const TopContainer = ({
               >
                 <Text style={styles.optionText}>{`${participantMicAccess ? 'Take' : 'Give'} mic access ${participantMicAccess ? 'from' : 'to'} participants`}</Text>
               </TouchableOpacity>
-            )} 
+            )}
           </View>
         </TouchableOpacity>
       </Modal>

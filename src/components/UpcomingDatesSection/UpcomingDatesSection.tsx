@@ -95,10 +95,10 @@ const UpcomingDatesSection = ({
             const res: any = await API.get(
                 `/v1/user/checkUserPartyTimeZone?scheduleDate=${scheduleDate}&movietime=${movieTime}&movie_timezone=${timezone}`,
             );
-            if (res?.data?.success === false) {
-                Alert.alert('Unable to start date', res?.data?.message ?? "You can't join the party before time.");
-                return;
-            }
+//             if (res?.data?.success === false) {
+//                 Alert.alert('Unable to start date', res?.data?.message ?? "You can't join the party before time.");
+//                 return;
+//             }
 
             navigation.navigate('WatchPartyPreview', {
                 id: payload.id,
@@ -113,11 +113,24 @@ const UpcomingDatesSection = ({
                 invitee: payload.invitee,
             });
         } catch (error: any) {
-            const apiMessage =
-                error?.response?.data?.message ||
-                error?.message ||
-                "You can't join the party before time.";
-            Alert.alert('Unable to start date', apiMessage);
+//             const apiMessage =
+//                 error?.response?.data?.message ||
+//                 error?.message ||
+//                 "You can't join the party before time.";
+//             Alert.alert('Unable to start date', apiMessage);
+
+  navigation.navigate('WatchPartyPreview', {
+                id: payload.id,
+                type,
+                userId: user?.id,
+                movieId: payload.movieId,
+                isHost: payload.isHost,
+                scheduleTime,
+                timezone,
+                creator: payload.creator,
+                creatorId: payload.creatorId,
+                invitee: payload.invitee,
+            });
         }
     };
 

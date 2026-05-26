@@ -253,6 +253,20 @@ export const declineAMITInvite = async (params: {inviteId: string}): Promise<IMI
     }
 };
 
+export const completeMITAttendance = async (inviteId: string): Promise<boolean> => {
+    try {
+        if (!inviteId) {
+            return false;
+        }
+
+        const {data} = await API.post('/v1/mit/attendance/complete', {inviteId}, {validateStatus: () => true});
+        return Boolean(data?.success);
+    } catch (error) {
+        console.error('Error completing MIT attendance:', error);
+        return false;
+    }
+};
+
 export const getMITHostId = async (mITInviteId: string | null): Promise<string | undefined> => {
     try {
         const {data} = await API.post('/v1/mit/get-mit-host', {mITInviteId});

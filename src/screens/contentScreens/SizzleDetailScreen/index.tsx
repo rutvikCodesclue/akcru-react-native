@@ -1,19 +1,19 @@
-import {View, ScrollView, SafeAreaView, ActivityIndicator} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import { View, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import styles from './styles';
 import Header from '../../../components/header';
-import {COLORS} from '../../../../assets/constants';
-import {StackNavigationProp} from '@react-navigation/stack';
-import {RouteProp} from '@react-navigation/native';
-import {useRoute} from '@react-navigation/native';
-import {useNavigation} from '@react-navigation/native';
-import {findMovies, getUserReactions} from '../../../lib/api/movies.lib';
-import {IMovie, ITrailer} from '../../../../types';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
+import { COLORS } from '../../../../assets/constants';
+import { StackNavigationProp } from '@react-navigation/stack';
+import { RouteProp } from '@react-navigation/native';
+import { useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { findMovies, getUserReactions } from '../../../lib/api/movies.lib';
+import { IMovie, ITrailer } from '../../../../types';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
-import {getTrailerById} from '../../../lib/api/sizzles.lib';
+import { getTrailerById } from '../../../lib/api/sizzles.lib';
 import SizzleDetailCard from '../../../components/SizzleDetailCard';
 
 type SizzleDetailScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'SizzleDetailScreen'>;
@@ -25,7 +25,7 @@ type Props = {
     route: SizzleDetailScreenRouteProp;
 };
 
-export default function SizzleDetailScreen({navigation}: Props) {
+export default function SizzleDetailScreen({ navigation }: Props) {
     const [sizzle, setSizzle] = useState<ITrailer[]>([]);
     const [isSizzleDataLoaded, setIsSizzleDataLoaded] = useState(false);
     const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'SizzleDetailScreen'>>();
@@ -75,7 +75,7 @@ export default function SizzleDetailScreen({navigation}: Props) {
         fetchSizzle();
     }, [routeParams.params?.id]);
 
-    const {id, title, description, portraitURL, landscapeURL, duration, trailerURL} = sizzle[0] || {};
+    const { id, title, description, portraitURL, landscapeURL, duration, trailerURL } = sizzle[0] || {};
 
     const [reactions, setReactions] = useState<string[]>([]);
 
@@ -98,8 +98,8 @@ export default function SizzleDetailScreen({navigation}: Props) {
                     </View>
 
                     {isSizzleDataLoaded ? (
-                        <View style={{marginBottom: '5%'}}>
-                            <View style={{marginTop: -65, marginBottom: 10}}>
+                        <View style={{ marginBottom: '5%' }}>
+                            <View style={{ marginTop: -65, marginBottom: 10 }}>
                                 <SizzleDetailCard
                                     reactions={reactions}
                                     portraitURL={portraitURL}

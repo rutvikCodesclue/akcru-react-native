@@ -183,10 +183,14 @@ const styles = StyleSheet.create({
     },
     bottombtn: {
         paddingTop: 10,
+        paddingBottom: 20,
+        marginBottom: 8,
+        paddingHorizontal: 16,
         position: 'relative',
     },
     rowContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
+        alignItems: 'center',
     },
 });

@@ -16,6 +16,8 @@ import EditWatchList from '../screens/userScreens/EditWatchList';
 import {COLORS} from '../../assets/constants';
 import UserNotifications from '../screens/userScreens/UserNotifications';
 import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
+import StartWatchPartyView from '../screens/userScreens/StartWatchPartyView';
+import VisionaryWatchParty from '../screens/userScreens/VisionaryWatchParty';
 import ContentDetailScreen from '../screens/contentScreens/contentDetailScreen';
 import ViewUserDetailScreen from '../screens/crummunityScreens/ViewUserDetailScreen';
 import UserWalletSearch from '../screens/userScreens/UserWalletSearch';
@@ -50,7 +52,9 @@ export type UserProfileStackParams = {
     FollowList: any;
     UserNotifications: any;
     EditWatchList: any;
-    WatchPartyPreviewScreen: any;
+    WatchPartyPreview: any;
+    StartWatchPartyView: any;
+    VisionaryWatchParty: any;
     ContentDetailScreen: any;
     ViewUserDetailScreen: any;
     UserWalletSearch: any;
@@ -195,13 +199,27 @@ export function UserProfileStack() {
                     headerShown: false,
                 })}
             />
-            {/* <UserProfile.Screen
+            <UserProfile.Screen
                 name="WatchPartyPreview"
                 component={WatchPartyPreview}
                 options={() => ({
                     headerShown: false,
                 })}
-            /> */}
+            />
+            <UserProfile.Screen
+                name="StartWatchPartyView"
+                component={StartWatchPartyView}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
+            <UserProfile.Screen
+                name="VisionaryWatchParty"
+                component={VisionaryWatchParty}
+                options={() => ({
+                    headerShown: false,
+                })}
+            />
 
             {/* <UserProfile.Screen
                 name="FollowList"
