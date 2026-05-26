@@ -966,6 +966,7 @@ const UserProfileDetailsTab = ({
                                         closeModal={toggleEnlargeModal}
                                         image={selectedImage}
                                         deleteImage={removeFromGallery}
+                                        square
                                     />
                                 </Modal>
                                 <Modal animationType="fade" transparent={true} visible={!!confirmationModal}>

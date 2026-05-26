@@ -1,56 +1,167 @@
-import { StyleSheet } from 'react-native';
-import { COLORS, SIZES, FONTS } from '../../../assets/constants';
+import {StyleSheet} from 'react-native';
+import {COLORS, SIZES, FONTS} from '../../../assets/constants';
 
 export default StyleSheet.create({
-    video: {
+    heroSection: {
+        paddingTop: 36,
+    },
+    heroFrameWrap: {
         alignSelf: 'center',
-        width: SIZES.ScreenWidth,
-        height: 200,
+        width: '100%',
+        paddingHorizontal: 14,
+        marginTop: 14,
+        marginBottom: 14,
+        borderRadius: 18,
     },
-    buttons: {
+    heroFrameGradient: {
+        borderRadius: 18,
+        padding: 2,
+    },
+    heroImage: {
+        width: '100%',
+        height: SIZES.ScreenWidth / 1.8,
+        borderRadius: 16,
+    },
+    heroBottomOverlay: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: SIZES.ScreenHeight / 3.4,
+    },
+    heroBackButtonWrap: {
+        position: 'absolute',
+        left: 12,
+        top: 58,
+        marginHorizontal: 15,
+        zIndex: 25,
+        elevation: 8,
+    },
+    heroBackButtonInner: {
         flexDirection: 'row',
-        justifyContent: 'center',
         alignItems: 'center',
+        alignSelf: 'flex-start',
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 14,
+        backgroundColor: 'rgba(0,0,0,0.52)',
     },
-
-    drawfonttag: {
-        ...FONTS.Title2Orange,
-        color: COLORS.BLACK,
-        backgroundColor: COLORS.STARGOLD,
-        paddingHorizontal: 4,
-        paddingVertical: 1,
-        marginHorizontal: 2,
-        marginVertical: 2,
-        borderRadius: 3,
-        textAlign: 'center',
-        justifyContent: 'center',
-    },
-    bigTitle: {
+    heroBackButtonText: {
         ...FONTS.Title3,
-        fontSize: 25,
-        width: 250,
+        marginLeft: 6,
+        color: COLORS.WHITE,
     },
-    desc: {
-        ...FONTS.Title2,
+    detailsContainer: {
+        marginTop: 10,
+        marginBottom: 18,
+        marginHorizontal: 14,
+        paddingBottom: 8,
+    },
+    titleWrap: {
+        width: '100%',
+        alignItems: 'center',
         marginBottom: 10,
     },
-    videocontain: {
-        flex: 1,
-        zIndex: 1,
-        justifyContent: 'center',
+    titleText: {
+        ...FONTS.ContentTitle,
+        textAlign: 'center',
+        color: COLORS.WHITE,
     },
-    videoplayer: {
-        alignSelf: 'center',
-        aspectRatio: 16 / 9,
+    metaRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 6,
+        flexWrap: 'wrap',
+    },
+    metaInfoText: {
+        ...FONTS.paragraph1,
+        color: COLORS.LIGHTGREY,
+        marginHorizontal: 6,
+    },
+    tagsWrap: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginBottom: 10,
+    },
+    reactionsRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
         width: '100%',
+        alignItems: 'center',
+        marginVertical: 12,
+    },
+    reactionText: {
+        ...FONTS.paragraph1,
+        color: COLORS.LIGHTGREY,
+    },
+    ctaRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginVertical: 12,
+        gap: 10,
+    },
+    heroActionRow: {
+        marginHorizontal: 14,
     },
     MITbutton: {
-        borderColor: COLORS.AKCRUBLUE,
-        borderWidth: 1,
-        borderRadius: 5,
-        height: 40,
+        flex: 1,
+        borderColor: '#B55BFF',
+        borderWidth: 1.2,
+        borderRadius: 12,
+        height: 42,
         alignItems: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
+        paddingHorizontal: 4,
+        backgroundColor: 'rgba(77, 34, 120, 0.4)',
+        overflow: 'hidden',
+    },
+    VisionaryButton: {
+        flex: 1,
+        borderColor: COLORS.AKCRUBLUE,
+        borderWidth: 1.2,
+        borderRadius: 12,
+        height: 42,
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexDirection: 'row',
+        backgroundColor: 'rgba(0, 100, 180, 0.35)',
+    },
+    buttonText: {
+        ...FONTS.Title2AkcruBlue,
+        color: COLORS.WHITE,
+        fontWeight: 'bold',
+        fontSize: 13,
+    },
+    descriptionWrap: {
+        marginTop: 12,
+    },
+    descriptionText: {
+        ...FONTS.Title2,
+        color: COLORS.LIGHTGREY,
+        lineHeight: 22,
+        marginBottom: 12,
+    },
+    metaChipGradientBorder: {
+        borderRadius: 8,
+        padding: 1,
+        marginHorizontal: 4,
+        marginVertical: 4,
+    },
+    metaChipInner: {
+        borderRadius: 7,
+        backgroundColor: COLORS.BLACK,
+    },
+    drawfonttag: {
+        ...FONTS.Title2,
+        color: COLORS.LIGHTGREY,
+        paddingHorizontal: 10,
+        paddingVertical: 2,
+        marginHorizontal: 4,
+        marginVertical: 3,
+        borderRadius: 6,
+        textAlign: 'center',
     },
 });

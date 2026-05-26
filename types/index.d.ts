@@ -60,6 +60,12 @@ interface IUserProfile {
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
 
+export enum IUserProfilePersona {
+    MAIN_CHARACTER = 'MAIN_CHARACTER',
+    SHOW_STOPPER = 'SHOW_STOPPER',
+    OFF_GRID = 'OFF_GRID',
+}
+
 export type IAgeBracket = 'AGE_18_24' | 'AGE_25_34' | 'AGE_35_39' | 'AGE_40_49' | 'AGE_50_PLUS';
 interface IUserWatching {
     id: string;

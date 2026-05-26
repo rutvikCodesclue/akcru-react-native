@@ -15,6 +15,7 @@ import TabContainer from '../../../components/TabContainer/TabContainer';
 import useAuthStore from '../../../stores/auth.store';
 import { getTrailerById } from '../../../lib/api/sizzles.lib';
 import SizzleDetailCard from '../../../components/SizzleDetailCard';
+import BasicListCategories from '../../../components/BasicListCategories';
 
 type SizzleDetailScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'SizzleDetailScreen'>;
 
@@ -91,15 +92,15 @@ export default function SizzleDetailScreen({ navigation }: Props) {
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
-                    <View>
+            <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.BLACK }}>
+                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false} style={{ backgroundColor: COLORS.BLACK }}>
+                    <View style={{ backgroundColor: COLORS.BLACK }}>
                         <Header />
                     </View>
 
                     {isSizzleDataLoaded ? (
                         <View style={{ marginBottom: '5%' }}>
-                            <View style={{ marginTop: -65, marginBottom: 10 }}>
+                            <View style={{ marginTop: -50, marginBottom: 10 }}>
                                 <SizzleDetailCard
                                     reactions={reactions}
                                     portraitURL={portraitURL}
@@ -109,14 +110,6 @@ export default function SizzleDetailScreen({ navigation }: Props) {
                                     id={id}
                                     trailerURL={trailerURL}
                                     landscapeURL={landscapeURL}
-                                    contentButtonName="Play Movie"
-                                    playContent={() => {
-                                        navigation2.navigate('ContentPlayer', {
-                                            id: id,
-                                            movieURL: movieURL,
-                                            landscapeURL: landscapeURL,
-                                        });
-                                    }}
                                     PlayTrailer={() => {
                                         navigation2.navigate('SizzlePlayer', {
                                             id: id,
@@ -126,7 +119,16 @@ export default function SizzleDetailScreen({ navigation }: Props) {
                                     }}
                                 />
                             </View>
-                            <View />
+                            <View style={{marginHorizontal: 15}}>
+                                <BasicListCategories
+                                    variant="highlight"
+                                    Akcru_Content={{
+                                        id: 'recommendedForYou',
+                                        title: 'Recommended by Akcru',
+                                        movies: randomMovies,
+                                    }}
+                                />
+                            </View>
                         </View>
                     ) : (
                         <View style={styles.activitycontainer}>

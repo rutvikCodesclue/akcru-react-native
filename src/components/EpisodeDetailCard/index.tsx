@@ -46,6 +46,7 @@ type EpisodeDetailCardProps = {
     seriesId: string; // Add this field if not already present
     episodeNumber: number;
     seasonNumber?: number;
+    showPlayButton?: boolean;
 };
 
 const EpisodeDetailCard = ({
@@ -72,7 +73,8 @@ const EpisodeDetailCard = ({
     seriesId, // Add this field if not already present
     episodeNumber,
     seasonNumber,
-    season
+    season,
+    showPlayButton = true,
 }: EpisodeDetailCardProps) => {
     const navigation = useNavigation<NativeStackNavigationProp<ClientStackParams>>();
 
@@ -165,14 +167,63 @@ const EpisodeDetailCard = ({
     return (
         <View>
             <View>
-                <View>
-                    <Image
-                        source={{uri: landscapeURL}}
+                <View style={{paddingTop: 20}}>
+                    <View
                         style={{
-                            height: SIZES.ScreenHeight / 1.6,
+                            alignSelf: 'center',
+                            width: '100%',
+                            paddingHorizontal: 14,
+                            marginTop: 6,
+                            marginBottom: 14,
+                            borderRadius: 18,
+                        }}>
+                        <LinearGradient
+                            colors={['#7DD3FC', COLORS.AKCRUBLUE, COLORS.PINK, '#C026D3']}
+                            locations={[0, 0.32, 0.68, 1]}
+                            start={{x: 0, y: 0}}
+                            end={{x: 1, y: 1}}
+                            style={{
+                                borderRadius: 18,
+                                padding: 2,
+                            }}>
+                            <Image
+                                source={{uri: landscapeURL || portraitURL}}
+                                style={{
+                                    width: '100%',
+                                    height: SIZES.ScreenWidth / 1.8,
+                                    borderRadius: 16,
+                                }}
+                                resizeMode="cover"
+                            />
+                        </LinearGradient>
+                    </View>
+                    <TouchableOpacity
+                        onPress={() => {
+                            Orientation.lockToPortrait();
+                            navigation.pop();
                         }}
-                        resizeMode="cover"
-                    />
+                        style={{
+                            position: 'absolute',
+                            left: 12,
+                            top: 58,
+                            marginHorizontal: 15,
+                            zIndex: 25,
+                            elevation: 8,
+                        }}>
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                alignSelf: 'flex-start',
+                                paddingHorizontal: 10,
+                                paddingVertical: 6,
+                                borderRadius: 14,
+                                backgroundColor: 'rgba(0,0,0,0.52)',
+                            }}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.WHITE} />
+                            <Text style={{...FONTS.Title3, marginLeft: 6, color: COLORS.WHITE}}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
                 <View
@@ -185,37 +236,15 @@ const EpisodeDetailCard = ({
                         bottom: 0,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.BLACK, 'transparent', COLORS.AKCRUBACKGROUND]}
+                        colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
                         style={{
                             position: 'absolute',
                             left: 0,
                             right: 0,
                             bottom: 0,
-                            height: SIZES.ScreenHeight / 1.5,
+                            height: SIZES.ScreenHeight / 3.4,
                         }}
                     />
-                    <TouchableOpacity
-                        onPress={() => {
-                            Orientation.lockToPortrait();
-                            navigation.pop();
-                        }}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-
-                            top: SIZES.ScreenHeight * -0.32,
-                            marginHorizontal: 15,
-                        }}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
                     {/* <View style={{marginBottom: 10, alignItems: 'flex-end', marginRight: 5}}>
                         <View
                             style={{
@@ -250,36 +279,21 @@ const EpisodeDetailCard = ({
                         />
                     </Modal> */}
 
-                    <View
-                        style={{
-                            marginHorizontal: 10,
-                            alignItems: 'center'
-                        }}>
-                        <AkcruButtons.LrgButton
-                            btnname={playButtonName}
-                            onPress={playEpisode}
-                            color={COLORS.AKCRUBLUE}
-                            disabled={false}
-                        />
-
-                        {/* <AkcruButtons.MedButton
-                            btnname={'Watch Trailer'}
-                            onPress={() => {
-                                console.log({
-                                    id: movieId,
-                                    trailerURL: trailerURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                                navigation.navigate('TrailerPlayer', {
-                                    id: movieId,
-                                    trailerURL: trailerURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                            }}
-                            color={COLORS.CATPURPDRK}
-                            disabled={false}
-                        /> */}
-                    </View>
+                    {showPlayButton && (
+                        <View
+                            style={{
+                                marginHorizontal: 10,
+                                alignItems: 'center',
+                            }}>
+                            <AkcruButtons.LrgButton
+                                btnname={playButtonName}
+                                onPress={playEpisode}
+                                color={COLORS.AKCRUBLUE}
+                                disabled={false}
+                                variant="auth"
+                            />
+                        </View>
+                    )}
                 </View>
             </View>
 

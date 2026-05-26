@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import {View, ScrollView, SafeAreaView, ActivityIndicator, Modal} from 'react-native';
+import {View, ScrollView, SafeAreaView, ActivityIndicator, Modal, Text} from 'react-native';
 import {useRoute, useNavigation, useFocusEffect} from '@react-navigation/native';
 import {RouteProp} from '@react-navigation/native';
 import useAuthStore from '../../../stores/auth.store';
@@ -15,6 +15,7 @@ import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import {COLORS} from '../../../../assets/constants';
 import ComfirmationModal from '../../../components/ConfirmationModal';
 import Orientation from 'react-native-orientation-locker';
+import styles from './styles';
 
 type SeriesDetailScreenRouteProp = RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>;
 
@@ -89,7 +90,18 @@ export default function SeriesDetailScreen() {
         }, [refetchSeasonStatus]),
     );
 
-    if (!series || !selectedSeasonId) return null;
+    if (!series || !selectedSeasonId) {
+        return (
+            <TabContainer>
+                <SafeAreaView style={styles.screenContainer}>
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                        <Text style={styles.helperText}>Loading series details...</Text>
+                    </View>
+                </SafeAreaView>
+            </TabContainer>
+        );
+    }
 
     // 5) derive flags & costs
     const cur = series.seasons.find(s => s.id === selectedSeasonId)!;
@@ -118,13 +130,7 @@ export default function SeriesDetailScreen() {
               ? buyLabel!
               : 'Buy or Rent';
 
-    // 6) helper to play first ep
-    // Debug the episode structure
-    console.log('Current season:', cur);
-    console.log('Episodes in season:', cur.episodes);
-    console.log('First episode:', cur.episodes[0]);
-    console.log('First episode ID:', cur.episodes[0]?.id);
-
+    // 6) helper to play first episode for the selected season
     const playFirstEpisode = () => {
         const ep = cur.episodes[0];
         if (!ep || !ep.id) {
@@ -132,7 +138,6 @@ export default function SeriesDetailScreen() {
             return;
         }
 
-        console.log('Navigating with episode:', ep);
         navigation.navigate('EpisodePlayer', {
             seriesId: series.id,
             seasonId: cur.id,
@@ -172,46 +177,53 @@ export default function SeriesDetailScreen() {
         }
     };
 
-    console.log('Season status:', purchaseStatus);
-
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
-                    <Header />
+            <SafeAreaView style={styles.screenContainer}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                    style={styles.screenContainer}>
+                    <View style={styles.headerContainer}>
+                        <Header />
+                    </View>
                     {isSeriesDataLoaded ? (
-                        <SeriesDetailCard
-                            portraitURL={series.portraitURL}
-                            title={series.title}
-                            years={series.years}
-                            yearsActive={series.yearsActive}
-                            rated={series.rated}
-                            rating={series.rating}
-                            description={series.description}
-                            actors={series.actors.map(a => a.name).join(', ')}
-                            directors={series.director.map(d => d.name).join(', ')}
-                            id={series.id}
-                            seriesTrailerURL={series.seriesTrailerURL}
-                            landscapeURL={series.landscapeURL}
-                            seasons={series.seasons}
-                            episodes={series.seasons.flatMap(s => s.episodes)}
-                            genre1={series.genres[0]}
-                            genre2={series.genres[1]}
-                            reactions={reactions}
-                            contentButtonName={isProcessing ? 'Processing…' : primaryText}
-                            playSeries={handlePrimary}
-                            onLockedPress={() => setShowPurchaseModal(true)}
-                            selectedSeasonId={selectedSeasonId}
-                            onSelectSeason={setSelectedSeasonId}
-                            seasonUnlocked={unlocked}
-                            onRent={handleRent}
-                            onBuy={handleBuy}
-                            rentalLabel={rentalLabel}
-                            buyLabel={buyLabel}
-                        />
+                        <View style={styles.detailsCardContainer}>
+                            <SeriesDetailCard
+                                portraitURL={series.portraitURL}
+                                title={series.title}
+                                years={series.years}
+                                yearsActive={series.yearsActive}
+                                rated={series.rated}
+                                rating={series.rating}
+                                description={series.description}
+                                actors={series.actors.map(a => a.name).join(', ')}
+                                directors={series.director.map(d => d.name).join(', ')}
+                                id={series.id}
+                                seriesTrailerURL={series.seriesTrailerURL}
+                                landscapeURL={series.landscapeURL}
+                                seasons={series.seasons}
+                                episodes={series.seasons.flatMap(s => s.episodes)}
+                                genre1={series.genres[0]}
+                                genre2={series.genres[1]}
+                                reactions={reactions}
+                                contentButtonName={isProcessing ? 'Processing…' : primaryText}
+                                playSeries={handlePrimary}
+                                onLockedPress={() => setShowPurchaseModal(true)}
+                                selectedSeasonId={selectedSeasonId}
+                                onSelectSeason={setSelectedSeasonId}
+                                seasonUnlocked={unlocked}
+                                onRent={handleRent}
+                                onBuy={handleBuy}
+                                rentalLabel={rentalLabel}
+                                buyLabel={buyLabel}
+                            />
+                        </View>
                     ) : (
-                        <View style={styles.activitycontainer}>
+                        <View style={styles.loadingContainer}>
                             <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
+                            <Text style={styles.helperText}>Loading series details...</Text>
                         </View>
                     )}
                 </ScrollView>

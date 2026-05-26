@@ -296,17 +296,48 @@ const SeriesDetailCard = ({
         }
     }, [reactions, reactionStats]);
 
+    const renderMetaChip = (label: string) => (
+        <LinearGradient
+            colors={['#7DD3FC', COLORS.AKCRUBLUE, COLORS.PINK, '#C026D3']}
+            locations={[0, 0.32, 0.68, 1]}
+            start={{x: 0, y: 0}}
+            end={{x: 1, y: 1}}
+            style={styles.metaChipGradientBorder}>
+            <View style={styles.metaChipInner}>
+                <Text style={styles.drawfonttag}>{label}</Text>
+            </View>
+        </LinearGradient>
+    );
+
+    const handleBackPress = () => {
+        Orientation.lockToPortrait();
+        navigation.pop();
+    };
+
     return (
         <View>
             <View>
-                <View>
-                    <Image
-                        source={{uri: portraitURL}}
-                        style={{
-                            height: SIZES.ScreenHeight / 1.6,
-                        }}
-                        resizeMode="cover"
-                    />
+                <View style={styles.heroSection}>
+                    <View style={styles.heroFrameWrap}>
+                        <LinearGradient
+                            colors={['#7DD3FC', COLORS.AKCRUBLUE, COLORS.PINK, '#C026D3']}
+                            locations={[0, 0.32, 0.68, 1]}
+                            start={{x: 0, y: 0}}
+                            end={{x: 1, y: 1}}
+                            style={styles.heroFrameGradient}>
+                            <Image
+                                source={{uri: landscapeURL || portraitURL}}
+                                style={styles.heroImage}
+                                resizeMode="cover"
+                            />
+                        </LinearGradient>
+                    </View>
+                    <TouchableOpacity onPress={handleBackPress} style={styles.heroBackButtonWrap}>
+                        <View style={styles.heroBackButtonInner}>
+                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.WHITE} />
+                            <Text style={styles.heroBackButtonText}>Back</Text>
+                        </View>
+                    </TouchableOpacity>
                 </View>
 
                 <View
@@ -319,157 +350,93 @@ const SeriesDetailCard = ({
                         bottom: 0,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.BLACK, 'transparent', COLORS.AKCRUBACKGROUND]}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                            height: SIZES.ScreenHeight / 1.5,
-                        }}
+                        colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
+                        style={styles.heroBottomOverlay}
                     />
-                    <TouchableOpacity
-                        onPress={() => {
-                            Orientation.lockToPortrait();
-                            navigation.pop();
-                        }}
-                        style={{
-                            position: 'absolute',
-                            left: 0,
-                            right: 0,
-                            top: SIZES.ScreenHeight * -0.4,
-                            marginHorizontal: 15,
-                        }}>
-                        <View
-                            style={{
-                                flexDirection: 'row',
-                                alignItems: 'center',
-                            }}>
-                            <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.LIGHTGREY} />
-                            <Text style={{...FONTS.Title3, marginLeft: 5}}>Back</Text>
-                        </View>
-                    </TouchableOpacity>
-
-                    <View
-                        style={{
-                            flexDirection: 'row',
-                            justifyContent: 'space-between',
-                            marginHorizontal: 10,
-                        }}>
-                        <AkcruButtons.MedButton
-                            btnname={contentButtonName}
-                            onPress={playSeries}
-                            color={COLORS.AKCRUBLUE}
-                            disabled={false}
-                        />
-
-                        <AkcruButtons.MedButton
-                            btnname={'Watch Trailer'}
-                            onPress={() => {
-                                console.log({
-                                    id: seriesId,
-                                    seriesTrailerURL: seriesTrailerURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                                navigation.navigate('SeriesTrailerPlayer', {
-                                    id: seriesId,
-                                    trailerURL: seriesTrailerURL,
-                                    landscapeURL: landscapeURL,
-                                });
-                            }}
-                            color={COLORS.CATPURPDRK}
-                            disabled={false}
-                        />
-                    </View>
                 </View>
             </View>
 
-            <View style={{marginTop: 20, marginBottom: 15}}>
-                <View
-                    style={{
-                        marginHorizontal: 15,
-                        justifyContent: 'space-between',
-                        marginBottom: 10,
-                    }}>
-                    <View style={{width: '100%'}}>
-                        <Text style={{...FONTS.ContentTitle}}>{title}</Text>
+            <View style={[styles.ctaRow, styles.heroActionRow]}>
+                <TouchableOpacity style={{flex: 1}} onPress={playSeries}>
+                    <View style={styles.VisionaryButton}>
+                        <Text style={styles.buttonText}>{contentButtonName || 'Play Series'}</Text>
                     </View>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={{flex: 1}}
+                    onPress={() => {
+                        console.log({
+                            id: seriesId,
+                            seriesTrailerURL: seriesTrailerURL,
+                            landscapeURL: landscapeURL,
+                        });
+                        navigation.navigate('SeriesTrailerPlayer', {
+                            id: seriesId,
+                            trailerURL: seriesTrailerURL,
+                            landscapeURL: landscapeURL,
+                        });
+                    }}>
+                    <View style={styles.MITbutton}>
+                        <Text style={styles.buttonText}>Watch Trailer</Text>
+                    </View>
+                </TouchableOpacity>
+            </View>
+
+            <View style={styles.detailsContainer}>
+                <View style={styles.titleWrap}>
+                    <Text style={styles.titleText}>{title}</Text>
                 </View>
-                <View
-                    style={{
-                        marginHorizontal: 15,
-                        flexDirection: 'row',
-                        marginVertical: 5,
-                        alignItems: 'center',
-                    }}>
-                    <View style={{marginRight: 10}}>
-                        <Text style={{...FONTS.paragraph1}}>{yearsActive}</Text>
-                    </View>
-                    <View style={{marginRight: 10}}>
-                        <Text style={{...FONTS.paragraph1}}>Seasons {seasons.length}</Text>
-                    </View>
-                    <View
-                        style={{
-                            flex: 1,
-                            flexDirection: 'row',
-                            flexWrap: 'wrap',
-                        }}>
-                        <Text style={styles.drawfonttag}>{rated}</Text>
-                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre1)}</Text>
-                        <Text style={styles.drawfonttag}>{capitalizeFirstLetterOfString(genre2)}</Text>
-                        <Text style={styles.drawfonttag}>{rating}/10</Text>
-                    </View>
+
+                <View style={styles.tagsWrap}>
+                    {renderMetaChip(yearsActive)}
+                    {renderMetaChip(`Seasons ${seasons.length}`)}
+                    {renderMetaChip(rated)}
+                    {renderMetaChip(capitalizeFirstLetterOfString(genre1))}
+                    {genre2 && renderMetaChip(capitalizeFirstLetterOfString(genre2))}
                 </View>
-                <View
-                    style={{
-                        flexDirection: 'row',
-                        justifyContent: 'space-evenly',
-                        width: '100%',
-                        alignContent: 'center',
-                        marginVertical: 10,
-                    }}>
+
+                <View style={styles.metaRow}>
+                    <Icon name="star" type="ionicon" size={16} color={COLORS.STARGOLD} />
+                    <Text style={styles.descriptionText}>{rating ? ` ${rating.toFixed(1)} / 10 ` : '  '}</Text>
+                     <Icon name="star" type="ionicon" size={16} color={COLORS.STARGOLD} />
+                </View>
+
+                <View style={styles.descriptionWrap}>
+                    <Text style={styles.descriptionText}>
+                        {description}
+                    </Text>
+                    {!!actors?.trim() && (
+                        <View style={{flexDirection: 'row', marginBottom: 5}}>
+                            <Text style={styles.castText}>
+                                <Text style={styles.castLabel}>Cast:</Text> {actors}
+                            </Text>
+                        </View>
+                    )}
+                    {!!directors?.trim() && (
+                        <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                            <Text style={styles.castText}>
+                                <Text style={styles.castLabel}>Directors:</Text> {directors}
+                            </Text>
+                        </View>
+                    )}
+                </View>
+
+                <View style={styles.reactionsRow}>
                     {combinedReactions.map(reaction => (
                         <TouchableOpacity
                             onPress={() => handleReactionClick(reaction.type)}
                             key={reaction.type}
                             style={{alignItems: 'center'}}>
                             {getIconForReaction(reaction.type)}
-                            <Text style={{...FONTS.paragraph1}}>
+                            <Text style={styles.reactionText}>
                                 {capitalizeFirstLetterOfString(reaction.type)} {reaction.percentage}%
                             </Text>
                         </TouchableOpacity>
                     ))}
                 </View>
 
-                <View style={{marginHorizontal: 15, marginTop: 15}}>
-                    <Text
-                        style={{
-                            ...FONTS.Title2Orange,
-                            color: COLORS.LIGHTGREY,
-                            lineHeight: 18,
-                            marginBottom: 10,
-                        }}>
-                        {description}
-                    </Text>
-                    <View style={{flexDirection: 'row', marginBottom: 5}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
-                            }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Cast:</Text> {actors}
-                        </Text>
-                    </View>
-                    <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                        <Text
-                            style={{
-                                ...FONTS.Title2Orange,
-                                color: COLORS.AKCRUBLUE,
-                            }}>
-                            <Text style={{color: COLORS.DARKGREY}}>Directors:</Text> {directors}
-                        </Text>
-                    </View>
-                    <View style={{marginTop: 20}}>
+                <View style={{marginTop: 20}}>
                         <FlatList
                             data={seasons}
                             renderItem={renderSeasonButton}
@@ -484,10 +451,8 @@ const SeriesDetailCard = ({
                         renderItem={renderEpisode}
                         keyExtractor={item => item.id}
                         contentContainerStyle={{marginTop: 10}}
-                        ItemSeparatorComponent={renderSeparator}
                     />
                 </View>
-            </View>
         </View>
     );
 };

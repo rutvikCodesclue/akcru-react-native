@@ -11,16 +11,17 @@ import {
 import React, {useState} from 'react';
 import ConfirmationModal from '../ConfirmationModal';
 import { COLORS, FONTS } from '../../../assets/constants';
+import {Icon} from '@rneui/base';
 
 type EnlargeGalleryProps = {
     closeModal: () => void;
     deleteImage: (image: string) => Promise<void>;
     image: string;
+    square?: boolean;
 };
 
-const EnlargeGalleryModal = ({closeModal, image, deleteImage}: EnlargeGalleryProps) => {
+const EnlargeGalleryModal = ({closeModal, image, deleteImage, square = false}: EnlargeGalleryProps) => {
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    const [showDropdown, setShowDropdown] = useState(false);
 
     const handleDeletePress = () => {
         setShowConfirmationModal(true);
@@ -32,32 +33,19 @@ const EnlargeGalleryModal = ({closeModal, image, deleteImage}: EnlargeGalleryPro
         closeModal();
     };
 
-    const toggleDropdown = () => {
-        setShowDropdown(!showDropdown);
-    };
-
     return (
         <Pressable onPress={closeModal} style={styles.overlay}>
             <TouchableWithoutFeedback onLongPress={handleDeletePress}>
-                <View style={styles.imageContainer}>
-                    <Image source={{uri: image}} style={styles.image} resizeMode="cover" />
-                    <Pressable onPress={toggleDropdown} style={styles.ellipsisButton}>
-                        <Text style={styles.ellipsis}>⋮</Text>
+                <View style={square ? styles.imageContainerSquare : styles.imageContainer}>
+                    <Image source={{uri: image}} style={styles.image} resizeMode="contain" />
+                    <Pressable onPress={handleDeletePress} style={styles.deleteButton}>
+                        <Icon name="trash" type="ionicon" color={COLORS.WHITE} size={18} />
                     </Pressable>
-                    {showDropdown && (
-                        <View style={styles.dropdownMenu}>
-                            <TouchableOpacity
-                                onPress={() => {
-                                    setShowDropdown(false);
-                                    handleDeletePress();
-                                }}
-                                style={styles.dropdownItem}>
-                                <Text style={styles.dropdownText}>Delete</Text>
-                            </TouchableOpacity>
-                        </View>
-                    )}
                 </View>
             </TouchableWithoutFeedback>
+            <TouchableOpacity onPress={closeModal} style={styles.closeButton}>
+                <Text style={styles.closeButtonText}>Close</Text>
+            </TouchableOpacity>
 
             <Modal visible={showConfirmationModal} transparent={true} animationType="fade">
                 <ConfirmationModal
@@ -81,41 +69,44 @@ const styles = StyleSheet.create({
         position: 'relative',
         width: '90%',
         height: '75%',
+        borderRadius: 8,
+        overflow: 'hidden',
+        backgroundColor: '#111111',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    imageContainerSquare: {
+        position: 'relative',
+        width: '90%',
+        aspectRatio: 1,
+        borderRadius: 8,
+        overflow: 'hidden',
+        backgroundColor: '#111111',
+        alignItems: 'center',
+        justifyContent: 'center',
     },
     image: {
-        borderRadius: 5,
         width: '100%',
         height: '100%',
     },
-    ellipsisButton: {
+    deleteButton: {
         position: 'absolute',
         top: 10,
         right: 10,
         backgroundColor: COLORS.PURPLE,
         borderRadius: 15,
-        padding: 3,
+        padding: 8,
     },
-    ellipsis: {
-        fontSize: 30,
-        color: 'white',
+    closeButton: {
+        marginTop: 16,
+        paddingHorizontal: 16,
+        paddingVertical: 8,
+        borderRadius: 8,
+        backgroundColor: 'rgba(0,0,0,0.45)',
     },
-    dropdownMenu: {
-        position: 'absolute',
-        top: 40,
-        right: 0,
-        backgroundColor: COLORS.PINK,
-        borderRadius: 5,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.8,
-        shadowRadius: 2,
-        zIndex: 20,
-    },
-    dropdownItem: {
-        padding: 10,
-    },
-    dropdownText: {
-        ...FONTS.Title2
+    closeButtonText: {
+        ...FONTS.Title2,
+        color: COLORS.WHITE,
     },
 });
 

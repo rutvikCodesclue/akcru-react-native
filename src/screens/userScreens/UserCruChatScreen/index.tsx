@@ -224,7 +224,7 @@ const UserCruChatScreen = () => {
                                 )}
                             </View>
                         </View>
-                        <Pressable onPress={() => navigation.navigate('FollowList')}>
+                        <Pressable onPress={() => navigation.navigate('ViewUserFollowList', {userID: user?.id, tabKey: 'first'})}>
                             <View
                                 style={{
                                     borderLeftWidth: 2,

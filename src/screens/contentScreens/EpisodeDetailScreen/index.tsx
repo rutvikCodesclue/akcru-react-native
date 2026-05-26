@@ -13,17 +13,14 @@ import {findEpisodeById} from '../../../lib/api/series.lib';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import EpisodeDetailCard from '../../../components/EpisodeDetailCard';
 import {navigateToMITDateSchedule} from '../../../util/RootNavigation';
+import AkcruButtons from '../../../components/akcruButtons';
 
 type EpisodeDetailScreenRouteProp = RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>;
 
-type Props = {
-    route: EpisodeDetailScreenRouteProp;
-};
-
-export default function EpisodeDetailScreen({route}: Props) {
+export default function EpisodeDetailScreen() {
     const [episode, setEpisode] = useState<IEpisode | null>(null);
     const [isEpisodeDataLoaded, setIsEpisodeDataLoaded] = useState(false);
-    const routeParams = useRoute<RouteProp<NoBottomTabStackParams, 'SeriesDetailScreen'>>();
+    const routeParams = useRoute<EpisodeDetailScreenRouteProp>();
     const user = useAuthStore(state => state.user);
 
     useEffect(() => {
@@ -60,17 +57,31 @@ export default function EpisodeDetailScreen({route}: Props) {
     }, []);
 
     const navigation = useNavigation();
+    const handlePlayEpisode = () => {
+        if (!episode) return;
+        console.log('Episode URL:', episode.episodeURL);
+        navigation.navigate('EpisodePlayer', {
+            seriesId: episode.seriesId,
+            seasonId: episode.seasonId,
+            episodeId: episode.id,
+            episodeURL: episode.episodeURL,
+            landscapeURL: episode.landscapeURL,
+        });
+    };
 
     return (
         <TabContainer>
-            <SafeAreaView>
-                <ScrollView stickyHeaderIndices={[0]} showsVerticalScrollIndicator={false}>
-                    <View>
+            <SafeAreaView style={styles.screenContainer}>
+                <ScrollView
+                    stickyHeaderIndices={[0]}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                    style={styles.screenContainer}>
+                    <View style={styles.headerContainer}>
                         <Header />
                     </View>
                     {isEpisodeDataLoaded && episode ? (
-                        <View style={{marginBottom: '5%'}}>
-                            <View style={{marginTop: -65, marginBottom: 10}}>
+                        <View style={styles.detailsCardContainer}>
                                 <EpisodeDetailCard
                                     reactions={reactions}
                                     portraitURL={episode.portraitURL}
@@ -86,23 +97,17 @@ export default function EpisodeDetailScreen({route}: Props) {
                                     trailerURL={episode.trailerURL}
                                     landscapeURL={episode.landscapeURL}
                                     movieURL={episode.episodeURL}
+                                    seasonId={episode.seasonId}
+                                    seriesId={episode.seriesId}
                                     episodeNumber={episode.episodeNumber}
                                     playButtonName="Play Episode"
-                                    playEpisode={() => {
-                                        console.log('Episode URL:', episode.episodeURL);
-                                        navigation.navigate('EpisodePlayer', {
-                                            seriesId: episode.seriesId, // Pass seriesId
-                                            seasonId: episode.seasonId, // Pass seasonId
-                                            episodeId: episode.id,
-                                            episodeURL: episode.episodeURL,
-                                            landscapeURL: episode.landscapeURL,
-                                        });
-                                    }}
+                                    playEpisode={handlePlayEpisode}
+                                    showPlayButton={false}
                                     PlayTrailer={() => {
                                         navigation.navigate('TrailerPlayer', {
-                                            id: id,
-                                            trailerURL: trailerURL,
-                                            landscapeURL: landscapeURL,
+                                            id: episode.id,
+                                            trailerURL: episode.trailerURL || episode.episodeURL,
+                                            landscapeURL: episode.landscapeURL || episode.portraitURL,
                                         });
                                     }}
                                     onPress={() => {
@@ -119,14 +124,25 @@ export default function EpisodeDetailScreen({route}: Props) {
                                         );
                                     }}
                                 />
-                            </View>
                         </View>
                     ) : (
-                        <View style={styles.activitycontainer}>
+                        <View style={styles.loadingContainer}>
                             <ActivityIndicator size="large" color={COLORS.CATPURPLGT} />
                         </View>
                     )}
                 </ScrollView>
+
+                {isEpisodeDataLoaded && episode ? (
+                    <View style={styles.bottomActionContainer}>
+                        <AkcruButtons.LrgButton
+                            btnname="Play Episode"
+                            onPress={handlePlayEpisode}
+                            color={COLORS.AKCRUBLUE}
+                            disabled={false}
+                            variant="auth"
+                        />
+                    </View>
+                ) : null}
             </SafeAreaView>
         </TabContainer>
     );

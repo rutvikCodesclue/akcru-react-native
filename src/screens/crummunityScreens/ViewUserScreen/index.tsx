@@ -26,14 +26,17 @@ import {
     blockUser,
     findAUser,
     followUser,
+    getGalleryLikesList,
     getBlockedUsers,
+    likeGalleryItem,
     getFollowers,
     getUserCurrentWatching,
     getUserFollowing,
+    unlikeGalleryItem,
     unblockUser,
     unfollowUser,
 } from '../../../lib/api/user.lib';
-import {IPoll, IPost, IUserProfile} from '../../../../types';
+import type {IPoll, IPost, IUserProfile} from '../../../../types';
 import {formatNumber, selectAvatarBorderColor} from '../../../util/util';
 import {checkUserMembership, createACRUInvite, getCruInviteStatus} from '../../../lib/api/cru.lib';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
@@ -47,6 +50,7 @@ import BlockUserResultModal from '../../../components/BlockUserResultModal/Block
 import {isTablet} from '../../../../assets/constants/theme';
 import GalleryPic from '../../../components/GalleryPic';
 import BackButton from '../../../components/General/backbutton';
+import ViewUserOptionModal from '../../../components/ViewUserOptionModal/ViewUserOptionModal';
 import {TabView, SceneMap, TabBar, TabBarItemProps, TabBarIndicatorProps} from 'react-native-tab-view';
 import {NavigationState, Scene, SceneRendererProps} from 'react-native-tab-view/lib/typescript/src/types';
 import type {PressableAndroidRippleConfig, StyleProp, ViewStyle, TextStyle} from 'react-native';
@@ -69,7 +73,6 @@ import {
 } from '../../../lib/api/poll.lib';
 import PollCard from '../../../components/SkinnyPollCard';
 import {
-    navigateToNewComment,
     navigateToPollScreen,
     navigateToPostScreen,
     navigateToReportUser,
@@ -80,6 +83,7 @@ import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalD
 import AkcruButtons from '../../../components/akcruButtons';
 import ProfileMetricChip from '../../../components/ProfileMetricChip';
 import ProfileUserBadges, {resolveAkcruBadgeConfig} from '../../../components/ProfileUserBadges';
+import ReliabilityTag from '../../../components/ReliabilityTag';
 
 
 type ViewUserScreenNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'ViewUserScreen'>;
@@ -255,6 +259,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
     const profileFullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
     const profilePrimaryName = profileFullName || user?.username || user?.firstName || '';
     const profileUsername = user?.username ? `@${user.username}` : '';
+    const reliabilityEligible = (user as any)?.reliabilityEligible === true;
+    const reliabilityPercent = (user as any)?.reliabilityPercent;
     const metricItems = [
         {
                  key: 'gallery',
@@ -385,7 +391,50 @@ export default function ViewUserScreen({route, navigation}: Props) {
         }
     };
 
+    const toggleFollowByUserId = async (targetUserId?: string, currentlyFollowing?: boolean) => {
+        if (!targetUserId) return;
+        const shouldUnfollow = !!currentlyFollowing;
+        try {
+            const success = shouldUnfollow
+                ? await unfollowUser({userId: targetUserId})
+                : await followUser({userId: targetUserId});
+
+            if (!success) {
+                console.error(`${shouldUnfollow ? 'Unfollow' : 'Follow'} failed`);
+                return;
+            }
+
+            if (targetUserId === userID) {
+                setFollow(!shouldUnfollow);
+            }
+
+            setActivity(prev =>
+                prev.map((it: any) => {
+                    if (it?.author?.id === targetUserId) {
+                        return {
+                            ...it,
+                            author: {...it.author, isFollowed: !shouldUnfollow},
+                        };
+                    }
+                    if (it?.user?.id === targetUserId) {
+                        return {
+                            ...it,
+                            user: {...it.user, isFollowed: !shouldUnfollow},
+                        };
+                    }
+                    return it;
+                }),
+            );
+        } catch (error) {
+            console.error(`Error on ${shouldUnfollow ? 'unfollow' : 'follow'}:`, error);
+        }
+    };
+
     const [selectedPhotoUri, setSelectedPhotoUri] = useState(route.params?.imageURL || null);
+    const [selectedPhotoKind, setSelectedPhotoKind] = useState<'gallery' | 'archetype'>('gallery');
+    const [selectedPhotoHeartFilled, setSelectedPhotoHeartFilled] = useState(false);
+    const [selectedPhotoHeartCount, setSelectedPhotoHeartCount] = useState(0);
+    const [isGalleryLikeLoading, setIsGalleryLikeLoading] = useState(false);
     const cruName =
         (user as any)?.Cru?.name ||
         (user as any)?.user?.Cru?.name ||
@@ -405,8 +454,29 @@ export default function ViewUserScreen({route, navigation}: Props) {
         '';
     const selectedPhotoAnimatedOpacity = useRef(new Animated.Value(0)).current;
 
-    const openPhoto = (photoItem: any) => {
+    const openPhoto = (photoItem: any, kind: 'gallery' | 'archetype' = 'gallery') => {
         setSelectedPhotoUri(photoItem.imageURL);
+        setSelectedPhotoKind(kind);
+        setSelectedPhotoHeartFilled(false);
+        const countFromItem =
+            typeof photoItem?.likesCount === 'number'
+                ? photoItem.likesCount
+                : Array.isArray(photoItem?.galleryLikes)
+                  ? photoItem.galleryLikes.length
+                  : 0;
+        setSelectedPhotoHeartCount(countFromItem);
+        if (kind === 'gallery' && photoItem?.imageURL) {
+            getGalleryLikesList(photoItem.imageURL)
+                .then(res => {
+                    if (!res?.success || !Array.isArray(res.users)) return;
+                    const liked = res.users.some(u => u?.id === currentuser?.id || u?.id === currentuser?.authId);
+                    setSelectedPhotoHeartFilled(liked);
+                    setSelectedPhotoHeartCount(res.users.length);
+                })
+                .catch(error => {
+                    console.error('Error fetching gallery likes list:', error);
+                });
+        }
         Animated.timing(selectedPhotoAnimatedOpacity, {
             toValue: 1,
             duration: 300,
@@ -419,7 +489,12 @@ export default function ViewUserScreen({route, navigation}: Props) {
             toValue: 0,
             duration: 300,
             useNativeDriver: true,
-        }).start(() => setSelectedPhotoUri(null));
+        }).start(() => {
+            setSelectedPhotoUri(null);
+            setSelectedPhotoKind('gallery');
+            setSelectedPhotoHeartFilled(false);
+            setSelectedPhotoHeartCount(0);
+        });
     };
 
     const [isAvatarModalVisible, setAvatarModalVisible] = useState(false);
@@ -908,6 +983,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             <ProfileUserBadges user={user} variant="inline" style={{marginLeft: 6, flexShrink: 0}} />
                         </View>
                         {!!profileUsername && <Text style={styles.refProfileUsername}>{profileUsername}</Text>}
+                        {reliabilityEligible ? <ReliabilityTag reliabilityPercent={reliabilityPercent} /> : <ReliabilityTag reliabilityPercent={null} />}
                         {!!String(userDescription).trim() && (
                             <Text style={styles.refUserDescription}>{String(userDescription).trim()}</Text>
                         )}
@@ -963,7 +1039,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                             <ArchetypeHorizontalDivider />
                             <Text style={styles.refSectionValue}>{archetype ? archetype.name : 'No Archetype Selected'}</Text>
                             {archetype?.image ? (
-                                <TouchableOpacity onPress={() => openPhoto({imageURL: archetype.image})} activeOpacity={0.85}>
+                                <TouchableOpacity onPress={() => openPhoto({imageURL: archetype.image}, 'archetype')} activeOpacity={0.85}>
                                     <Image source={{uri: archetype.image}} style={styles.refArchetypeImage} />
                                 </TouchableOpacity>
                             ) : null}
@@ -996,7 +1072,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                                     {user.userGallery.map((item, idx) => (
                                         <TouchableOpacity
                                             key={`gallery-${idx.toString()}`}
-                                            onPress={() => openPhoto(item)}
+                                            onPress={() => openPhoto(item, 'gallery')}
                                             activeOpacity={0.8}
                                             style={styles.refGalleryGridThreeColItem}>
                                             <Image source={{uri: item.imageURL}} style={styles.refGalleryGridThreeColImage} />
@@ -1048,6 +1124,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         onCommentInputChange={value => handlePollCommentInputChange(item.id, value)}
                         onCommentSend={() => handleInlinePollCommentSend(item.id)}
                         isCommentSending={pollCommentSubmitting[item.id] ?? false}
+                        onFollow={() => toggleFollowByUserId(item.user?.id, !!item.user?.isFollowed)}
+                        isFollowing={!!item.user?.isFollowed}
                         onBlockUser={() => handleBlockUserFromActivity(item.user?.id)}
                     />
                 </Pressable>
@@ -1076,7 +1154,8 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         akcruBadge={item.author?.badge}
                         isPostLiked={item.isLikedByCurrentUser}
                         onLikeOrUnlike={() => onLikePostToggle(+item.id, !!item.isLikedByCurrentUser)}
-                        CommentOnPostButton={() => navigateToNewComment(item.id)}
+                        onFollow={() => toggleFollowByUserId(item.author?.id, !!item.author?.isFollowed)}
+                        onCommentIconPress={() => openPost(+item.id)}
                         isFollowing={item.author?.isFollowed}
                         akcruBadgeColor={selectAvatarBorderColor(item.author?.badge ?? 'AKCRUIT')}
                         onBlockUser={() => handleBlockUserFromActivity(item.author?.id)}
@@ -1276,9 +1355,9 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         alignItems: 'center',
                     }}>
                     <BackButton navigation={navigation} />
-                    {/* <TouchableOpacity onPress={() => setUserOptionModal(true)}>
+                    <TouchableOpacity onPress={() => setUserOptionModal(true)}>
                         <Icon name="ellipsis-vertical" type="ionicon" size={isTablet() ? 32 : 20} color={COLORS.LIGHTGREY} />
-                    </TouchableOpacity> */}
+                    </TouchableOpacity>
                 </View>
                 <TabView
                     style={{flex: 1}}
@@ -1337,7 +1416,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         </View>
                     </View>
                 </Modal>
-                {/* <Modal visible={userOptionModal} transparent={true} animationType="fade">
+                <Modal visible={userOptionModal} transparent={true} animationType="fade">
                     <ViewUserOptionModal
                         username={user?.username}
                         closeModal={() => setUserOptionModal(false)}
@@ -1356,10 +1435,53 @@ export default function ViewUserScreen({route, navigation}: Props) {
                         cruInviteUser={() => setShowConfirmationModal(true)}
                         blockToggleText={isUserBlocked ? 'Unblock' : 'Block'}
                     />
-                </Modal> */}
+                </Modal>
                 {selectedPhotoUri && (
                     <TouchableOpacity style={styles.selectedPhotoContainer} activeOpacity={1}>
                         <GalleryPic image={selectedPhotoUri} />
+                        {selectedPhotoKind === 'gallery' && (
+                        <View style={{marginTop: 16, alignItems: 'center'}}>
+                            <TouchableOpacity
+                                onPress={async () => {
+                                    if (!selectedPhotoUri || isGalleryLikeLoading) return;
+                                    setIsGalleryLikeLoading(true);
+                                    const prevFilled = selectedPhotoHeartFilled;
+                                    const prevCount = selectedPhotoHeartCount;
+                                    const nextFilled = !prevFilled;
+
+                                    setSelectedPhotoHeartFilled(nextFilled);
+                                    setSelectedPhotoHeartCount(count =>
+                                        Math.max(0, count + (nextFilled ? 1 : -1)),
+                                    );
+
+                                    try {
+                                        const result = nextFilled
+                                            ? await likeGalleryItem(selectedPhotoUri)
+                                            : await unlikeGalleryItem(selectedPhotoUri);
+                                        if (!result) {
+                                            setSelectedPhotoHeartFilled(prevFilled);
+                                            setSelectedPhotoHeartCount(prevCount);
+                                        }
+                                    } catch (error) {
+                                        setSelectedPhotoHeartFilled(prevFilled);
+                                        setSelectedPhotoHeartCount(prevCount);
+                                        console.error('Error toggling gallery like:', error);
+                                    } finally {
+                                        setIsGalleryLikeLoading(false);
+                                    }
+                                }}
+                                disabled={isGalleryLikeLoading}
+                                style={{flexDirection: 'row', alignItems: 'center'}}>
+                                <Icon
+                                    name={selectedPhotoHeartFilled ? 'heart' : 'heart-outline'}
+                                    type="ionicon"
+                                    color={selectedPhotoHeartFilled ? COLORS.CATREDLGT : COLORS.LIGHTGREY}
+                                    size={28}
+                                />
+                                <Text style={{...FONTS.Title2, marginLeft: 8}}>{selectedPhotoHeartCount}</Text>
+                            </TouchableOpacity>
+                        </View>
+                        )}
                         <View style={{marginTop: '10%'}}>
                             <TouchableOpacity onPress={closePhoto}>
                                 <Text style={{...FONTS.Title2}}>Close</Text>
