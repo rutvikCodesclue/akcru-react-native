@@ -9,10 +9,14 @@ import {AUTH_BUTTON_THEME, AUTH_TEXT_THEME} from '../../../../assets/constants/a
 import Svg, {G, Path, Polygon} from 'react-native-svg';
 import MaskedView from '@react-native-masked-view/masked-view';
 import imageindex from '../../../../assets/images/imageindex';
+import FindMyMatchSvg from '../../../../assets/images/find_my_match.svg';
+import JustAVibeSvg from '../../../../assets/images/just_a_vibe.svg';
+import DontJustWatchInviteSvg from '../../../../assets/images/dont-just-watch-invite-converted.svg';
 import onboardStyles from '../../loginScreens/Onboard/styles';
 import {navigate} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 import {AppLoadingModal} from '../../../components/Loading';
+import ArchetypeHorizontalDivider from '../../../components/ArchetypeHorizontalDivider';
 
 type Props = NativeStackScreenProps<UserProfileStackParams, 'UserMatchModesScreen'>;
 
@@ -70,14 +74,18 @@ const orbitSources = [
 ];
 
 const FIXED_CARD_WIDTH = 320;
-const FIXED_FIND_MY_MATCH_CLUSTER_WIDTH = 260;
-const FIXED_JUST_A_VIBE_CLUSTER_WIDTH = 220;
 /** Half-cycle duration for emphasized Find My Match pulse (ms). */
 const EMPHASIZED_PULSE_PHASE_MS = 1000;
 /** Half-cycle for second card pulse — slower so it feels calmer than the top card. */
 const SECONDARY_PULSE_PHASE_MS = 1700;
 
-function HexMaskedImage({source, size}: {source: any; size: number}) {
+function HexMaskedImage({
+    source,
+    size,
+}: {
+    source: any;
+    size: number;
+}) {
     return (
         <MaskedView
             style={{width: size, height: size}}
@@ -94,7 +102,13 @@ function HexMaskedImage({source, size}: {source: any; size: number}) {
 /** Fixed 5-of-6 edge midpoints so both cards share identical mini-hex positions. */
 const FIXED_OUTER_EDGE_INDICES: readonly number[] = [0, 1, 2, 4, 5];
 
-function HexCluster({centerImage, clusterWidth}: {centerImage: any; clusterWidth: number}) {
+function HexCluster({
+    centerImage,
+    clusterWidth,
+}: {
+    centerImage: any;
+    clusterWidth: number;
+}) {
     const ringW = clusterWidth;
     const ringH = (ringW * 234) / 270;
     const centerSize = ringW * 0.58;
@@ -361,6 +375,118 @@ function ModeCard({
     );
 }
 
+function AnimatedImageModeCard({
+    onPress: onNavigate,
+    accessibilityLabel,
+    SvgComponent,
+    pulsePhaseMs = EMPHASIZED_PULSE_PHASE_MS,
+    imageScale = 1,
+    imageScaleX,
+    imageScaleY,
+}: {
+    onPress: () => void;
+    accessibilityLabel: string;
+    SvgComponent: React.ComponentType<any>;
+    pulsePhaseMs?: number;
+    imageScale?: number;
+    imageScaleX?: number;
+    imageScaleY?: number;
+}) {
+    const idlePulseScale = React.useRef(new Animated.Value(1)).current;
+    const pressScale = React.useRef(new Animated.Value(1)).current;
+    const glowBoost = React.useRef(new Animated.Value(0)).current;
+    const navigationFiredRef = React.useRef(false);
+
+    const combinedScale = React.useMemo(
+        () => Animated.multiply(idlePulseScale, pressScale),
+        [idlePulseScale, pressScale],
+    );
+
+    React.useEffect(() => {
+        const loop = Animated.loop(
+            Animated.sequence([
+                Animated.timing(idlePulseScale, {
+                    toValue: 1.018,
+                    duration: pulsePhaseMs,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+                Animated.timing(idlePulseScale, {
+                    toValue: 1,
+                    duration: pulsePhaseMs,
+                    easing: Easing.inOut(Easing.ease),
+                    useNativeDriver: true,
+                }),
+            ]),
+        );
+        loop.start();
+        return () => loop.stop();
+    }, [idlePulseScale, pulsePhaseMs]);
+
+    const handlePress = () => {
+        if (navigationFiredRef.current) {
+            return;
+        }
+        navigationFiredRef.current = true;
+        Animated.sequence([
+            Animated.parallel([
+                Animated.spring(pressScale, {
+                    toValue: 1.07,
+                    friction: 4,
+                    tension: 320,
+                    useNativeDriver: true,
+                }),
+                Animated.timing(glowBoost, {
+                    toValue: 1,
+                    duration: 140,
+                    easing: Easing.out(Easing.cubic),
+                    useNativeDriver: true,
+                }),
+            ]),
+            Animated.delay(100),
+        ]).start(({finished}) => {
+            if (finished) {
+                onNavigate();
+            } else {
+                navigationFiredRef.current = false;
+            }
+        });
+    };
+
+    const pressGlowOpacity = glowBoost.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 0.85],
+    });
+
+    return (
+        <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={accessibilityLabel}
+            android_ripple={null}
+            delayLongPress={600000}
+            onPress={handlePress}
+            style={styles.findMyMatchImageCardPressable}>
+            <Animated.View style={styles.findMyMatchImageCardAnimated}>
+                <Animated.View
+                    pointerEvents="none"
+                    style={[styles.findMyMatchImageCardGlow, {opacity: pressGlowOpacity}]}
+                />
+                <Animated.View style={{transform: [{scale: combinedScale}]}}>
+                    <View style={styles.findMyMatchImageCard}>
+                        <View
+                            style={[
+                                styles.modeImageScaleWrap,
+                                {transform: [{scaleX: imageScaleX ?? imageScale}, {scaleY: imageScaleY ?? imageScale}]},
+                            ]}>
+                            <SvgComponent width="100%" height="100%" />
+                        </View>
+                    </View>
+                </Animated.View>
+            </Animated.View>
+        </Pressable>
+    );
+}
+
 export default function UserMatchModesScreen({navigation}: Props) {
     useHideBottomTabBarWhileFocused(navigation as any);
     const [showArchetypeLoader, setShowArchetypeLoader] = React.useState(true);
@@ -379,13 +505,6 @@ export default function UserMatchModesScreen({navigation}: Props) {
         return () => clearTimeout(timer);
     }, []);
 
-    const clusterScale = React.useMemo(() => {
-        const halfBudget = SIZES.ScreenHeight * 0.46 - 72;
-        const targetCard = 300;
-        return Math.min(1, Math.max(0.55, halfBudget / targetCard));
-    }, []);
-    const findMyMatchClusterWidth = Math.round(FIXED_FIND_MY_MATCH_CLUSTER_WIDTH * clusterScale);
-    const justAVibeClusterWidth = Math.round(FIXED_JUST_A_VIBE_CLUSTER_WIDTH * clusterScale);
     const openFindMyMatch = () => {
         navigation.popToTop();
         navigate('NoBottomStack', {
@@ -415,30 +534,51 @@ export default function UserMatchModesScreen({navigation}: Props) {
                 }>
                 <SafeAreaView style={styles.safe}>
                     {!showArchetypeLoader && (
-                        <LinearGradient colors={['#04103D', '#1C1666', '#0B2A7A', '#1B0E4E']} style={styles.container}>
+                        <LinearGradient colors={['#000000', '#000000']} style={styles.container}>
                             {floatingDots.map((dot, i) => (
                                 <View key={i} style={[styles.dot, dot]} />
                             ))}
                             <View style={styles.body}>
+                                <View style={styles.heroHeaderWrap}>
+                                    <Text style={styles.heroHeaderTitleLine}>How do you want</Text>
+                                    <View style={styles.heroHeaderLine2Wrap}>
+                                        <Text style={styles.heroHeaderTitleLine}>to show up </Text>
+                                        <Text style={styles.heroHeaderTonight}>tonight?</Text>
+                                    </View>
+                                    <View style={styles.heroHeaderSubtitleWrap}>
+                                        <Text style={styles.heroHeaderStar}>✦</Text>
+                                        <Text style={styles.heroHeaderSubtitle}>
+                                            Every movie. Every invite. Real connections.
+                                        </Text>
+                                        <Text style={styles.heroHeaderStar}>✦</Text>
+                                    </View>
+                                </View>
                                 <View style={[styles.sectionBlock, styles.primarySection]}>
-                                    <ModeCard
-                                        emphasized
-                                        title="Find My Match"
-                                        subtitle="Connect Through Film"
-                                        centerImage={imageindex.FindMyMatch}
-                                        clusterWidth={findMyMatchClusterWidth}
-                                         onPress={openFindMyMatch}
+                                    <AnimatedImageModeCard
+                                        accessibilityLabel="Find My Match"
+                                        SvgComponent={FindMyMatchSvg}
+                                        onPress={openFindMyMatch}
                                     />
                                 </View>
+                                <ArchetypeHorizontalDivider
+                                    title="OR"
+                                    containerStyle={styles.modeDividerWrap}
+                                    titleStyle={styles.modeDividerText}
+                                />
                                 <View style={[styles.sectionBlock, styles.secondarySection]}>
-                                    <ModeCard
-                                        emphasized
+                                    <AnimatedImageModeCard
+                                        accessibilityLabel="Just A Vibe"
+                                        SvgComponent={JustAVibeSvg}
                                         pulsePhaseMs={SECONDARY_PULSE_PHASE_MS}
-                                        title="Just A Vibe"
-                                        subtitle="Watch. Explore. Join The Crummunity"
-                                        centerImage={imageindex.JustAVibe}
-                                        clusterWidth={justAVibeClusterWidth}
+                                        imageScaleX={1.02}
+                                        imageScaleY={1.02}
                                         onPress={openJustAVibe}
+                                    />
+                                </View>
+                                <View style={styles.bottomTaglineWrap}>
+                                    <DontJustWatchInviteSvg
+                                        width={Math.min(SIZES.ScreenWidth * 0.92, 330)}
+                                        height={44}
                                     />
                                 </View>
                             </View>
@@ -482,6 +622,56 @@ const styles = StyleSheet.create({
         width: '100%',
         paddingHorizontal: 8,
     },
+    heroHeaderWrap: {
+        alignItems: 'center',
+        paddingTop: 26,
+        paddingBottom: 10,
+    },
+    heroHeaderTitleLine: {
+        ...FONTS.Title2,
+        color: '#F8F8FC',
+        textAlign: 'center',
+        lineHeight: 24,
+        fontSize: 28,
+        letterSpacing: 0.2,
+        textShadowColor: 'rgba(0,0,0,0.6)',
+        textShadowOffset: {width: 0, height: 2},
+        textShadowRadius: 6,
+    },
+    heroHeaderLine2Wrap: {
+        flexDirection: 'row',
+        alignItems: 'baseline',
+        justifyContent: 'center',
+        marginTop: -4,
+    },
+    heroHeaderTonight: {
+        color: '#FF4DB6',
+        fontStyle: 'italic',
+        fontSize: 26,
+        lineHeight: 26,
+        textShadowColor: 'rgba(0,0,0,0.6)',
+        textShadowOffset: {width: 0, height: 2},
+        textShadowRadius: 6,
+    },
+    heroHeaderSubtitleWrap: {
+        marginTop: 6,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    heroHeaderSubtitle: {
+        ...FONTS.paragraph1,
+        color: '#D9DAE7',
+        textAlign: 'center',
+        fontSize: 11,
+        lineHeight: 14,
+        marginHorizontal: 8,
+    },
+    heroHeaderStar: {
+        color: '#FF4DB6',
+        fontSize: 18,
+        lineHeight: 18,
+    },
     sectionBlock: {
         flex: 1,
         width: '100%',
@@ -494,6 +684,47 @@ const styles = StyleSheet.create({
     },
     secondarySection: {
         paddingBottom: 4,
+    },
+    modeDividerWrap: {
+        marginTop: 2,
+        marginBottom: 2,
+        width: Math.min(SIZES.ScreenWidth * 0.9, 360),
+        alignSelf: 'center',
+    },
+    modeDividerText: {
+        color: '#FF63C3',
+    },
+    findMyMatchImageCardPressable: {
+        alignSelf: 'center',
+    },
+    findMyMatchImageCardAnimated: {
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    findMyMatchImageCardGlow: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        top: 0,
+        bottom: 0,
+        borderRadius: 20,
+        backgroundColor: 'rgba(160, 90, 220, 0.45)',
+    },
+    findMyMatchImageCard: {
+        width: Math.min(SIZES.ScreenWidth * 0.95, 360),
+        height: Math.min(SIZES.ScreenHeight * 0.36, 320),
+        borderRadius: 20,
+        overflow: 'hidden',
+        alignSelf: 'center',
+    },
+    modeImageScaleWrap: {
+        width: '100%',
+        height: '100%',
+    },
+    bottomTaglineWrap: {
+        alignItems: 'center',
+        paddingBottom: 10,
+        marginTop: 4,
     },
     cardWrap: {
         alignItems: 'center',
