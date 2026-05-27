@@ -507,6 +507,7 @@ export default function EditProfile({session}: {session: Session}) {
                                             source={{uri: selectImage}}
                                             size={isTablet() ? 140 : 100}
                                             bordercolor={selectAvatarBorderColor(user?.badge ?? 'AKCRUIT')}
+                                            rotateFrameDegrees={90}
                                         />
                                         {isSelectingImage && (
                                             <View
