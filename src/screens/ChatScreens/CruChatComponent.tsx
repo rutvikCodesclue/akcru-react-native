@@ -4,6 +4,9 @@ import {
     View,
     TouchableOpacity,
     Image,
+    Modal,
+    Pressable,
+    StyleSheet,
     TextInput,
     Alert,
     Text,
@@ -42,6 +45,7 @@ const CruChatComponent = ({route}: any) => {
     const [selectedMessages, setSelectedMessages] = useState<any[]>([]);
 
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
     const [imageMessageText, setImageMessageText] = useState('');
     const [text, setText] = useState('');
     const initialMessage: string = route.params?.initialMessage ?? '';
@@ -355,6 +359,7 @@ const CruChatComponent = ({route}: any) => {
     };
 
     const screenContent = (
+        <>
             <View style={{flex: 1, backgroundColor: COLORS.BLACK}}>
                 {selectedMessages.length > 0 && (
                     <View
@@ -511,6 +516,7 @@ const CruChatComponent = ({route}: any) => {
                                                     ? user?.profilePicture
                                                     : profilePicture,
                                         }}
+                                        rotateFrameDegrees={90}
                                         {...props}
                                     />
 
@@ -551,17 +557,21 @@ const CruChatComponent = ({route}: any) => {
                                                 </Text>
                                             ) : null}
                                             {props.currentMessage?.image ? (
-                                                <Image
-                                                    source={{uri: props.currentMessage.image}}
-                                                    style={{
-                                                        width: 220,
-                                                        height: 220,
-                                                        borderRadius: 12,
-                                                        marginTop: props.currentMessage?.text ? 8 : 0,
-                                                        backgroundColor: 'rgba(255,255,255,0.08)',
-                                                    }}
-                                                    resizeMode="cover"
-                                                />
+                                                <TouchableOpacity
+                                                    activeOpacity={0.9}
+                                                    onPress={() => setPreviewImageUri(props.currentMessage?.image ?? null)}>
+                                                    <Image
+                                                        source={{uri: props.currentMessage.image}}
+                                                        style={{
+                                                            width: 220,
+                                                            height: 220,
+                                                            borderRadius: 12,
+                                                            marginTop: props.currentMessage?.text ? 8 : 0,
+                                                            backgroundColor: 'rgba(255,255,255,0.08)',
+                                                        }}
+                                                        resizeMode="cover"
+                                                    />
+                                                </TouchableOpacity>
                                             ) : null}
                                             <Text
                                                 style={{
@@ -586,6 +596,46 @@ const CruChatComponent = ({route}: any) => {
                     )}
                 </View>
             </View>
+            <Modal
+                visible={!!previewImageUri}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setPreviewImageUri(null)}>
+                <View
+                    style={{
+                        flex: 1,
+                        backgroundColor: 'rgba(0,0,0,0.9)',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        paddingHorizontal: 16,
+                    }}>
+                    <Pressable
+                        style={{...StyleSheet.absoluteFillObject}}
+                        onPress={() => setPreviewImageUri(null)}
+                    />
+                    {previewImageUri ? (
+                        <Image
+                            source={{uri: previewImageUri}}
+                            style={{width: '92%', height: '70%', borderRadius: 12}}
+                            resizeMode="contain"
+                        />
+                    ) : null}
+                    <TouchableOpacity
+                        onPress={() => setPreviewImageUri(null)}
+                        style={{
+                            marginTop: 16,
+                            paddingHorizontal: 20,
+                            paddingVertical: 10,
+                            borderRadius: 22,
+                            backgroundColor: 'rgba(255,255,255,0.18)',
+                            borderWidth: 1,
+                            borderColor: 'rgba(255,255,255,0.45)',
+                        }}>
+                        <Text style={{color: COLORS.WHITE, fontSize: 14, fontWeight: '600'}}>Close</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+        </>
     );
 
     return screenContent;

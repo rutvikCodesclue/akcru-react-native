@@ -439,6 +439,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                                 : 'OTHER_USER_BADGE',
                                         )}
                                         source={{uri: membersData[props.currentMessage?.user?._id]?.profilePicture}}
+                                        rotateFrameDegrees={90}
                                     />
                                 </TouchableOpacity>
                             )}

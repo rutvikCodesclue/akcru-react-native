@@ -102,16 +102,25 @@ const CruChat = ({route}: Props) => {
                     <View style={styles.backRow}>
                         <BackButton navigation={navigation} showLabel={false} />
                     </View>
-                    <View style={styles.userRow}>
+                    <TouchableOpacity
+                        activeOpacity={0.8}
+                        style={styles.userRow}
+                        onPress={() => {
+                            if (!route.params?.userId) {
+                                return;
+                            }
+                            navigation.navigate('ViewUserScreen', {userID: route.params.userId});
+                        }}>
                         <HexAvatar
                             source={{uri: route.params?.profilePicture}}
                             size={36}
                             bordercolor={selectAvatarBorderColor('AKCRUIT')}
+                            rotateFrameDegrees={90}
                         />
                         <Text style={styles.usernameText} numberOfLines={1}>
                             {route.params?.username ?? 'User'}
                         </Text>
-                    </View>
+                    </TouchableOpacity>
                 </View>
                 <LinearGradient
                     colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}

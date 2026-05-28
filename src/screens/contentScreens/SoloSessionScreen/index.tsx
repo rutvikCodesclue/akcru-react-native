@@ -46,9 +46,6 @@ import type { IMovie } from '../../../../types';
 /** Cap the deck so we don't render hundreds of items in memory. */
 const TOP_RATED_LIMIT = 20;
 
-/** Temporary: every card shows the badge. Set to `false` for top-4 + ties only. */
-const TEMP_SHOW_POPULAR_FOR_INVITES_ON_ALL_CARDS = true;
-
 /** Fallback poster used when a movie has no `portraitURL`. */
 const FALLBACK_PORTRAIT = imageindex.JustAVibe;
 
@@ -96,27 +93,19 @@ const formatSecondsLabel = (seconds: number): string => {
 const normalizeMitAcceptCount = (movie: IMovie): number =>
     Math.max(0, Number(movie.mitAcceptCount ?? 0) || 0);
 
-/**
- * Solo Session deck: badge every title whose `mitAcceptCount` is at least the
- * value at the 4th rank when sorted descending (so ties on that cutoff all
- * qualify). If every count is 0, no badges.
- */
+/** Solo Session deck: badge only top 3 titles by `mitAcceptCount` (count > 0). */
 const computePopularForInviteRanking = (movies: IMovie[]): Set<string> => {
     if (movies.length === 0) {
         return new Set();
     }
-    const rows = movies.map(m => ({id: m.id, c: normalizeMitAcceptCount(m)}));
-    const sorted = [...rows].sort((a, b) => b.c - a.c);
-    const cutoff = sorted[Math.min(3, sorted.length - 1)].c;
-    const ids = new Set<string>();
-    if (cutoff > 0) {
-        for (const r of rows) {
-            if (r.c >= cutoff) {
-                ids.add(r.id);
-            }
-        }
-    }
-    return ids;
+    return new Set(
+        movies
+            .map(movie => ({id: movie.id, count: normalizeMitAcceptCount(movie)}))
+            .filter(row => row.count > 0)
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 3)
+            .map(row => row.id),
+    );
 };
 
 export default function SoloSessionScreen({route}: Props) {
@@ -614,8 +603,8 @@ export default function SoloSessionScreen({route}: Props) {
                         renderItem={({item, index}) => {
                             const portraitSource = item.portraitURL ? {uri: item.portraitURL} : FALLBACK_PORTRAIT;
                             const tags = (item.genres ?? []).slice(0, 3);
-                            const showPopularForInvites =
-                                TEMP_SHOW_POPULAR_FOR_INVITES_ON_ALL_CARDS || popularForInviteIds.has(item.id);
+                            const showPopularForInvites = popularForInviteIds.has(item.id);
+                            const mitAcceptCount = normalizeMitAcceptCount(item);
                             const trailerUrl = item.trailerURL?.trim() ?? '';
                             const canPlayTrailer = trailerUrl.length > 0;
                             const isActiveCard = index === activeIndex;
@@ -838,7 +827,7 @@ export default function SoloSessionScreen({route}: Props) {
                                                     <Text style={styles.popularTagEmoji}>🔥</Text>
                                                     <View style={styles.popularTagTextContainer}>
                                                         <Text style={styles.popularText}>Popular</Text>
-                                                        <Text style={styles.subPopularText}>for invites</Text>
+                                                        <Text style={styles.subPopularText}>{mitAcceptCount} invites</Text>
                                                     </View>
                                                 </View>
                                             </View>

@@ -1,4 +1,4 @@
-import {Image, Text, View} from 'react-native';
+import {Image, Text, TouchableOpacity, View} from 'react-native';
 import React from 'react';
 import styles from './styles';
 import HexAvatar from '../HexAvatar';
@@ -21,6 +21,8 @@ export type UserCruChatCardProps = {
     isOnline?: boolean;
     /** When `mitStatus`, preview line reads "MIT status: …" instead of "Message: …". */
     previewKind?: 'message' | 'mitStatus';
+    /** Optional avatar tap handler for preview/gallery behavior. */
+    onAvatarPress?: () => void;
 };
 
 const UserCruChatCard = ({
@@ -34,6 +36,7 @@ const UserCruChatCard = ({
     badge,
     isOnline = false,
     previewKind = 'message',
+    onAvatarPress,
 }: UserCruChatCardProps) => {
     const movieTitle = movie?.trim() ?? '';
     const hasMovieMeta = Boolean(movieTitle || moviePoster?.trim());
@@ -52,11 +55,14 @@ const UserCruChatCard = ({
             <View style={styles.card}>
                 <View style={styles.cardContent}>
                     <View style={styles.avatarWrap}>
-                        <HexAvatar
-                            source={{uri: userPicture}}
-                            size={58}
-                            bordercolor={selectAvatarBorderColor(badge ?? 'AKCRUIT')}
-                        />
+                        <TouchableOpacity activeOpacity={0.9} onPress={onAvatarPress} disabled={!onAvatarPress}>
+                            <HexAvatar
+                                source={{uri: userPicture}}
+                                size={58}
+                                bordercolor={selectAvatarBorderColor(badge ?? 'AKCRUIT')}
+                                rotateFrameDegrees={90}
+                            />
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.body}>

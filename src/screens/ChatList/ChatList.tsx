@@ -2,7 +2,10 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {
     ActivityIndicator,
     FlatList,
+    Image,
     ImageBackground,
+    Modal,
+    Pressable,
     SafeAreaView,
     StyleSheet,
     Text,
@@ -34,6 +37,7 @@ const ChatList = () => {
     const [chatUsersData, setChatUsersData] = useState<IChatUser[]>([]);
     const [isListLoaded, setIsListLoaded] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
+    const [previewImageUri, setPreviewImageUri] = useState<string | null>(null);
     const {user} = useAuthStore();
     const navigation = useNavigation<StackNavigationProp<UserProfileStackParams, 'ChatList'>>();
     const {syncNotificationBadgeCounts} = UseTabMenu();
@@ -115,6 +119,13 @@ const ChatList = () => {
         return receiverUsername.toLowerCase().includes(query) || lastMessage.toLowerCase().includes(query);
     });
 
+    const openAvatarPreview = useCallback((uri?: string | null) => {
+        if (!uri?.trim()) {
+            return;
+        }
+        setPreviewImageUri(uri);
+    }, []);
+
     const renderItem = ({item, index}: {item: IChatUser; index: number}) => {
         const {receiverUserId, receiver} = getReceiverInfo(item);
         const receiverProfilePicture = receiver?.profilePicture;
@@ -161,6 +172,7 @@ const ChatList = () => {
                         CRUChat={item.lastMessage}
                         userPicture={receiverProfilePicture}
                         badge={receiver?.badge}
+                        onAvatarPress={() => openAvatarPreview(receiverProfilePicture)}
                     />
                 </TouchableOpacity>
             </View>
@@ -234,28 +246,39 @@ const ChatList = () => {
                                         const {receiverUserId, receiver} = getReceiverInfo(item);
                                         const receiverName = receiver?.username ?? 'User';
                                         return (
-                                            <TouchableOpacity
-                                                style={styles.avatarItem}
-                                                onPress={() =>
-                                                    navigation.navigate('ViewChat', {
-                                                        mItInviteId: item.id,
-                                                        userId: receiverUserId,
-                                                        profilePicture: receiver?.profilePicture ?? '',
-                                                        username: receiverName,
-                                                        movie: item.movie,
-                                                        schedule: item.startDate,
-                                                        timezone: item.timezone,
-                                                    })
-                                                }>
+                                            <View style={styles.avatarItem}>
+                                                <TouchableOpacity
+                                                    activeOpacity={0.9}
+                                                    onPress={() =>
+                                                        navigation.navigate('ViewUserScreen', {
+                                                            userID: receiverUserId,
+                                                        })
+                                                    }>
                                                 <HexAvatar
                                                     source={{uri: receiver?.profilePicture}}
                                                     size={52}
                                                     bordercolor={selectAvatarBorderColor(receiver?.badge ?? 'AKCRUIT')}
+                                                    rotateFrameDegrees={90}
                                                 />
-                                                <Text style={styles.avatarName} numberOfLines={1}>
+                                                </TouchableOpacity>
+                                                <TouchableOpacity
+                                                    activeOpacity={0.8}
+                                                    onPress={() =>
+                                                        navigation.navigate('ViewChat', {
+                                                            mItInviteId: item.id,
+                                                            userId: receiverUserId,
+                                                            profilePicture: receiver?.profilePicture ?? '',
+                                                            username: receiverName,
+                                                            movie: item.movie,
+                                                            schedule: item.startDate,
+                                                            timezone: item.timezone,
+                                                        })
+                                                    }>
+                                                    <Text style={styles.avatarName} numberOfLines={1}>
                                                     {receiverName}
-                                                </Text>
-                                            </TouchableOpacity>
+                                                    </Text>
+                                                </TouchableOpacity>
+                                            </View>
                                         );
                                     }}
                                 />
@@ -312,6 +335,17 @@ const ChatList = () => {
                     )}
                 </SafeAreaView>
             </ImageBackground>
+            <Modal
+                visible={!!previewImageUri}
+                transparent
+                animationType="fade"
+                onRequestClose={() => setPreviewImageUri(null)}>
+                <Pressable style={styles.previewOverlay} onPress={() => setPreviewImageUri(null)}>
+                    {previewImageUri ? (
+                        <Image source={{uri: previewImageUri}} style={styles.previewImage} resizeMode="contain" />
+                    ) : null}
+                </Pressable>
+            </Modal>
         </View>
     );
 };
@@ -357,6 +391,19 @@ const styles = StyleSheet.create({
         color: 'rgba(255,255,255,0.9)',
         fontSize: 12,
         marginTop: 4,
+        textAlign: 'center',
+    },
+    previewOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0,0,0,0.88)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingHorizontal: 16,
+    },
+    previewImage: {
+        width: '92%',
+        height: '72%',
+        borderRadius: 12,
     },
     chatPanel: {
         overflow: 'hidden',
