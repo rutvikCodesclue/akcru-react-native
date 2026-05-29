@@ -4,7 +4,9 @@
  */
 export enum NotificationType {
     MITExpiringSoon = 'MITExpiringSoon',
+    MITSessionStartingSoon = 'MITSessionStartingSoon',
     MITExpired = 'MITExpired',
+    MITNoShow = 'MITNoShow',
     MITMovieChanged = 'MITMovieChanged',
     MITRescheduled = 'MITRescheduled',
     MITCanceled = 'MITCanceled',
