@@ -1,4 +1,4 @@
-import {View, Platform, SafeAreaView, StyleSheet} from 'react-native';
+import {View, Platform, SafeAreaView, StyleSheet, BackHandler} from 'react-native';
 import React from 'react';
 import WatchPartyHeader from '../../../components/WatchPartyHeader/WatchPartyHeader';
 import {useFocusEffect, useIsFocused} from '@react-navigation/native';
@@ -110,6 +110,46 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     const isMoviePlayingRef = useRef(isMoviePlaying);
     const hasSubmittedMitAttendanceRef = useRef(false);
 
+    const submitMitAttendance = async (allowEarlyOnExit: boolean = false) => {
+        const inviteId = typeof viewId === 'string' ? viewId : '';
+        const bothParticipantsPresent = membersRef.current.length >= 2;
+        const hasWatchedTenMinutes = (currentTimeRef.current ?? 0) >= 600;
+
+        if (
+            viewtype !== 'MITInvite' ||
+            !inviteId ||
+            hasSubmittedMitAttendanceRef.current ||
+            !bothParticipantsPresent ||
+            (!hasWatchedTenMinutes && !allowEarlyOnExit)
+        ) {
+            return false;
+        }
+
+        const storageKey = `mit_attendance_submitted_${inviteId}`;
+
+        try {
+            const alreadySubmitted = await AsyncStorage.getItem(storageKey);
+            if (alreadySubmitted === '1') {
+                hasSubmittedMitAttendanceRef.current = true;
+                return true;
+            }
+
+            hasSubmittedMitAttendanceRef.current = true;
+            const success = await completeMITAttendance(inviteId);
+
+            if (success) {
+                await AsyncStorage.setItem(storageKey, '1');
+                return true;
+            }
+
+            hasSubmittedMitAttendanceRef.current = false;
+            return false;
+        } catch (error) {
+            hasSubmittedMitAttendanceRef.current = false;
+            return false;
+        }
+    };
+
     route.params = {
         ...route.params,
         additionalParam: 'Additional Value',
@@ -140,56 +180,25 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     }, [isMoviePlaying]);
 
     useEffect(() => {
-        const inviteId = typeof viewId === 'string' ? viewId : '';
-        const bothParticipantsPresent = members.length >= 2;
-        const hasWatchedTenMinutes = (currentTime ?? 0) >= 600;
-
-        if (
-            viewtype !== 'MITInvite' ||
-            !inviteId ||
-            hasSubmittedMitAttendanceRef.current ||
-            !bothParticipantsPresent ||
-            !hasWatchedTenMinutes
-        ) {
-            return;
-        }
-
-        const storageKey = `mit_attendance_submitted_${inviteId}`;
-        let isCancelled = false;
-
         const submitAttendanceOnce = async () => {
-            try {
-                const alreadySubmitted = await AsyncStorage.getItem(storageKey);
-                if (alreadySubmitted === '1') {
-                    hasSubmittedMitAttendanceRef.current = true;
-                    return;
-                }
-
-                hasSubmittedMitAttendanceRef.current = true;
-                const success = await completeMITAttendance(inviteId);
-
-                if (isCancelled) {
-                    return;
-                }
-
-                if (success) {
-                    await AsyncStorage.setItem(storageKey, '1');
-                } else {
-                    hasSubmittedMitAttendanceRef.current = false;
-                }
-            } catch (error) {
-                if (!isCancelled) {
-                    hasSubmittedMitAttendanceRef.current = false;
-                }
-            }
+            await submitMitAttendance(false);
         };
 
         submitAttendanceOnce();
+    }, [currentTime, members.length, viewId, viewtype]);
+
+    useEffect(() => {
+        const onBackPress = () => {
+            void handleRoomLeaving();
+            return true;
+        };
+
+        const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
 
         return () => {
-            isCancelled = true;
+            subscription.remove();
         };
-    }, [currentTime, members.length, viewId, viewtype]);
+    }, []);
 
     useEffect(() => {
         const channelA = supabase.channel(roomId);
@@ -471,6 +480,8 @@ const StartWatchPartyView = ({navigation, route}: WatchPartyViewProps) => {
     };
 
     const handleRoomLeaving = async () => {
+        await submitMitAttendance(true);
+
         console.log('Nav start');
         Orientation.lockToPortrait();
         navigation.navigate('ClientTabNavigator', {screen: 'UserProfileScreen', params: {tabKey: 4}});
