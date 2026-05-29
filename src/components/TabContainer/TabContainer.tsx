@@ -28,7 +28,7 @@ const TabContainer = ({children}: any) => {
                         {
                             backgroundColor: animation.interpolate({
                                 inputRange: [0, 1],
-                                outputRange: ['transparent', COLORS.BLACK],
+                                outputRange: [COLORS.TRANSPARENT, COLORS.BLACK],
                             }),
                         },
                     ]}

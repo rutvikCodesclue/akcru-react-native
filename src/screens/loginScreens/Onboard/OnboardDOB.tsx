@@ -217,7 +217,7 @@ const OnboardDOB = () => {
                                         mode="date"
                                         value={date}
                                         onChange={onChange}
-                                        textColor="white"
+                                        textColor={COLORS.WHITE}
                                     />
                                     <View
                                         style={{
@@ -290,7 +290,7 @@ const OnboardDOB = () => {
                             iconcolor={resetResultType.iconcolor}
                         />
                     </Modal>
-                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                    <Text style={{...FONTS.paragraph2, color: COLORS.OVERLAY_WHITE_55, textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
                 </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>

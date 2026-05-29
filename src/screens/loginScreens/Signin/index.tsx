@@ -172,7 +172,7 @@ height={isTablet()?90:60}
 <Text
 style={{
 ...FONTS.paragraph2,
-color:'rgba(255,255,255,0.9)',
+color:COLORS.OVERLAY_WHITE_90,
 fontSize:isTablet()?20:16,
 marginBottom:15
 }}
@@ -349,7 +349,7 @@ width:SIZES.ScreenWidth*0.9,
 height:inputHeight,
 borderRadius:12,
 borderWidth:1,
-borderColor:'rgba(255,255,255,0.25)',
+borderColor:COLORS.OVERLAY_WHITE_25,
 overflow:'hidden',
 marginVertical:8
 },

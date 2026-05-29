@@ -41,7 +41,7 @@ export default StyleSheet.create({
     },
     handleText: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         fontSize: isTablet() ? 15 : 14,
         marginTop: 0,
     },
@@ -68,7 +68,7 @@ export default StyleSheet.create({
     },
     descText: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         marginTop: 6,
         lineHeight: 20,
     },
@@ -96,7 +96,7 @@ export default StyleSheet.create({
         borderTopColor: 'rgba(155, 89, 182, 0.25)',
     },
     engagementLabel: {
-        color: 'rgba(255,255,255,0.5)',
+        color: COLORS.OVERLAY_WHITE_50,
         fontSize: 12,
         marginTop: 6,
         textAlign: 'center',
@@ -114,7 +114,7 @@ export default StyleSheet.create({
     },
     commentPlaceholder: {
         flex: 1,
-        color: 'rgba(255,255,255,0.4)',
+        color: COLORS.OVERLAY_WHITE_40,
         fontSize: 15,
     },
     mediaCarouselWrap: {
@@ -178,7 +178,7 @@ export default StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
     videoStyle: {width: '100%', height: '100%', borderRadius: 0},
 });

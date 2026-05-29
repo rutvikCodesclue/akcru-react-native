@@ -105,7 +105,7 @@ export default function MITInvitePairAnimation({
             end={{x: 1, y: 1}}
             style={[styles.outer, containerStyle]}>
             <LinearGradient
-                colors={['transparent', '#5EDBFF', '#D883FF', 'transparent']}
+                colors={[COLORS.TRANSPARENT, '#5EDBFF', '#D883FF', COLORS.TRANSPARENT]}
                 start={{x: 0, y: 0.5}}
                 end={{x: 1, y: 0.5}}
                 style={styles.pairBeam}

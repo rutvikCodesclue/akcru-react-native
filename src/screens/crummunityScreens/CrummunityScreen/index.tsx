@@ -785,7 +785,7 @@ const CrummunityScreen = ({navigation, route}: Props) => {
                                                         size={isTablet() ? 32 : 25}
                                                         style={{marginRight: '2%'}}
                                                     />
-                                                    <Text style={{...FONTS.Title2, color: 'rgba(255,255,255,0.45)'}}>
+                                                    <Text style={{...FONTS.Title2, color: COLORS.OVERLAY_WHITE_45}}>
                                                         Search users
                                                     </Text>
                                                 </View>

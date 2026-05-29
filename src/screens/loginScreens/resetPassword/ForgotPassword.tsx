@@ -174,7 +174,7 @@ const ForgotPassword = () => {
                         ...FONTS.paragraph2,
                         marginBottom: 20,
                         textAlign: 'center',
-                        color: 'rgba(255,255,255,0.9)',
+                        color: COLORS.OVERLAY_WHITE_90,
                     }}>Enter your email below</Text>
                     <View style={{marginBottom: 10, width: '100%'}}>
                         <View style={AUTH_TEXT_FIELD_THEME.getBlurWrapperStyle()}>

@@ -53,7 +53,7 @@ const styles = StyleSheet.create({
     },
     modalDim: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
         justifyContent: 'center',
         alignItems: 'center',
     },

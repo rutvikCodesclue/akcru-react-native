@@ -238,7 +238,7 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                 <View
                     style={{
                         ...StyleSheet.absoluteFillObject,
-                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_40,
                         justifyContent: 'center',
                         alignItems: 'center',
                         zIndex: 10,
@@ -498,7 +498,7 @@ const VisionaryRoomSchedule = ({route, navigation}: Props) => {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0,0,0,0.6)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_60,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>

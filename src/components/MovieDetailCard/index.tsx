@@ -252,7 +252,7 @@ const MovieDetailCard = ({
                         bottom: 0,
                     }}>
                     <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
+                        colors={[COLORS.TRANSPARENT, 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
                         style={styles.heroBottomOverlay}
                     />
                     <View style={{marginBottom: 36, alignItems: 'flex-end', marginRight: 20}}>

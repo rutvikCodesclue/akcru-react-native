@@ -931,7 +931,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 <ScrollView
                     contentContainerStyle={[styles.refCardScroll, styles.refCardScrollWithPinnedFooter]}
                     showsVerticalScrollIndicator={false}>
-                    <LinearGradient colors={['#000000', '#000000', '#000000']} style={styles.refCard}>
+                    <LinearGradient colors={[COLORS.BLACK, COLORS.BLACK, COLORS.BLACK]} style={styles.refCard}>
                         <View style={styles.refTopRow}>
                             {!isOwnProfile && (
                                 <TouchableOpacity onPress={handleFollowPress} style={styles.refFollowPill}>
@@ -1291,7 +1291,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
             tabStyle={{width: SIZES.ScreenWidth / 2}}
             labelStyle={{...FONTS.Title2, color: COLORS.LIGHTGREY}}
             style={{
-                backgroundColor: '#000000',
+                backgroundColor: COLORS.BLACK,
                 justifyContent: 'space-between',
             }}
             contentContainerStyle={{
@@ -1344,7 +1344,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 <View style={{zIndex: 20}}>
                     <Header />
                 </View>
-                <View style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: '#000000'}} />
+                <View style={{position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, backgroundColor: COLORS.BLACK}} />
                 <View
                     style={{
                         marginTop: 2,
@@ -1361,7 +1361,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                 </View>
                 <TabView
                     style={{flex: 1}}
-                    sceneContainerStyle={{backgroundColor: '#000000'}}
+                    sceneContainerStyle={{backgroundColor: COLORS.BLACK}}
                     initialLayout={{width: layout.width}}
                     navigationState={{index, routes}}
                     renderScene={renderScene}
@@ -1398,7 +1398,7 @@ export default function ViewUserScreen({route, navigation}: Props) {
                     <View
                         style={{
                             flex: 1,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>

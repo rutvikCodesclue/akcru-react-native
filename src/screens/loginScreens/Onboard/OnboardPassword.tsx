@@ -146,7 +146,7 @@ const OnboardPassword = ({route}) => {
         <ScrollView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                           <LinearGradient
-                                            colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                            colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                                             style={{
                                                 position: 'absolute',
                                                 left: 0,
@@ -294,7 +294,7 @@ const OnboardPassword = ({route}) => {
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_50,
                             }}>
                             <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
                             <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>Signing up...</Text>

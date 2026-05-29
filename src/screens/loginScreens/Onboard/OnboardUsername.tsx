@@ -375,7 +375,7 @@ const OnboardUsername = ({route}) => {
                                     style={{
                                         ...FONTS.paragraph2,
                                         textAlign: 'center',
-                                        color: 'rgba(255,255,255,0.65)',
+                                        color: COLORS.OVERLAY_WHITE_65,
                                         marginTop: 5,
                                         marginBottom: 8,
                                     }}>
@@ -405,7 +405,7 @@ const OnboardUsername = ({route}) => {
                                     style={{
                                         ...FONTS.paragraph2,
                                         textAlign: 'center',
-                                        color: 'rgba(255,255,255,0.65)',
+                                        color: COLORS.OVERLAY_WHITE_65,
                                         marginBottom: 8,
                                     }}>
                                     Username must be unique and at least 3 characters long.
@@ -429,7 +429,7 @@ const OnboardUsername = ({route}) => {
                                             mode="date"
                                             value={date}
                                             onChange={onChange}
-                                            textColor="white"
+                                            textColor={COLORS.WHITE}
                                         />
                                         <View
                                             style={{
@@ -477,7 +477,7 @@ const OnboardUsername = ({route}) => {
                                     style={{
                                         ...FONTS.paragraph2,
                                         textAlign: 'center',
-                                        color: 'rgba(255,255,255,0.65)',
+                                        color: COLORS.OVERLAY_WHITE_65,
                                         marginTop: 5,
                                     }}>
                                     You must be at least 17 years old to use this app.
@@ -518,7 +518,7 @@ const OnboardUsername = ({route}) => {
                             iconcolor={resetResultType.iconcolor}
                         />
                     </Modal>
-                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                    <Text style={{...FONTS.paragraph2, color: COLORS.OVERLAY_WHITE_55, textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
                 </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>

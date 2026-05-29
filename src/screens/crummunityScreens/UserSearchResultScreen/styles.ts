@@ -26,7 +26,7 @@ export default StyleSheet.create({
         alignItems: 'center',
         height: 44,
         justifyContent: 'space-between',
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
     },
     searchInputInner: {
         flexDirection: 'row',

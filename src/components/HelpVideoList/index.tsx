@@ -72,7 +72,7 @@ const HelpVideoList = (props: HelpVideoListProps) => {
                                     right: 0,
                                     bottom: 0,
                                     left: 0,
-                                    backgroundColor: 'rgba(0,0,0,0.38)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_38,
                                     alignItems: 'center',
                                     justifyContent: 'center',
                                 }}>
@@ -80,7 +80,7 @@ const HelpVideoList = (props: HelpVideoListProps) => {
                                     name="play"
                                     type="ionicon"
                                     size={34}
-                                    color="rgba(255,255,255,0.72)"
+                                    color={COLORS.OVERLAY_WHITE_72}
                                     style={{marginLeft: 2}}
                                 />
                             </View>
@@ -97,7 +97,7 @@ const HelpVideoList = (props: HelpVideoListProps) => {
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Video
                         ref={modalVideoRef}

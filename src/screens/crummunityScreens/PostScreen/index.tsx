@@ -604,7 +604,7 @@ const PostScreen = ({navigation, route}: Props) => {
                         ) : // You can customize the size and color
                         comments.length === 0 ? (
                             <View>
-                                <Text style={[styles.noCommentsText, {color: 'rgba(255,255,255,0.45)'}]}>
+                                <Text style={[styles.noCommentsText, {color: COLORS.OVERLAY_WHITE_45}]}>
                                     No comments yet
                                 </Text>
                             </View>

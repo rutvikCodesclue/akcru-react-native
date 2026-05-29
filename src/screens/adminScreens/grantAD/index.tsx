@@ -131,7 +131,7 @@ export default function AdminGrantADScreen() {
                     <View style={styles.inputContainer2}>
                         <TextInput
                             placeholder={'To'}
-                            placeholderTextColor={'transparent'}
+                            placeholderTextColor={COLORS.TRANSPARENT}
                             style={{color: COLORS.WHITE, width: '100%'}}
                             editable={false}
                             secureTextEntry={false}
@@ -145,7 +145,7 @@ export default function AdminGrantADScreen() {
                 <View style={styles.inputContainer2}>
                     <TextInput
                         placeholder={'Amount'}
-                        placeholderTextColor={'transparent'}
+                        placeholderTextColor={COLORS.TRANSPARENT}
                         style={{color: COLORS.WHITE, width: '100%'}}
                         keyboardType="numeric" // Set keyboard type to phone-pad
                         value={amount}

@@ -63,8 +63,8 @@ export default StyleSheet.create({
         marginTop: 10,
     },
     cardcontainer: {
-        backgroundColor: '#1C202A',
-        borderColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
+        borderColor: COLORS.SURFACE_ELEVATED,
         borderWidth: 0.5,
         borderRadius: 5,
         padding: 15,

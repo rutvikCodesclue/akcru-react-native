@@ -808,7 +808,7 @@ export default function ClientTabNavigator() {
                                                 {formatDatestamp(centerSheetLatestNotification.createdAt)}
                                             </Text>
                                         </View>
-                                        <Icon name="chevron-right" type="material-community" color="rgba(255,255,255,0.5)" size={22} />
+                                        <Icon name="chevron-right" type="material-community" color={COLORS.OVERLAY_WHITE_50} size={22} />
                                     </Pressable>
                                 </View>
                             ) : null}
@@ -899,7 +899,7 @@ const styles = StyleSheet.create({
         borderColor: 'rgba(190, 146, 255, 0.4)',
     },
     centerSheetIndicator: {
-        backgroundColor: 'rgba(255,255,255,0.5)',
+        backgroundColor: COLORS.OVERLAY_WHITE_50,
         width: 52,
     },
     centerSheetScroll: {
@@ -975,7 +975,7 @@ const styles = StyleSheet.create({
     },
     actionSubtitle: {
         marginTop: 4,
-        color: 'rgba(255,255,255,0.75)',
+        color: COLORS.OVERLAY_WHITE_75,
         fontSize: 11,
         textAlign: 'center',
     },
@@ -994,7 +994,7 @@ const styles = StyleSheet.create({
     },
     latestNotificationBlockTitle: {
         flex: 1,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         fontSize: 13,
         fontWeight: '600',
     },
@@ -1042,7 +1042,7 @@ const styles = StyleSheet.create({
     },
     latestNotificationDate: {
         marginTop: 4,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         fontSize: 11,
     },
     redDot: {

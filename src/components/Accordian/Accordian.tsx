@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
         marginVertical: 5,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
         overflow: 'hidden',
     },
     contentContainer: {
@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
     },
     paragraphcontainer: {
         padding: 15,
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        backgroundColor: COLORS.OVERLAY_WHITE_05,
     },
 });

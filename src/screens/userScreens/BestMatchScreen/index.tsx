@@ -354,14 +354,14 @@ const styles = StyleSheet.create({
     },
     gradientMaskInner: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         justifyContent: 'center',
         alignItems: 'center',
     },
     gradientTitleText: {
         ...FONTS.Title2,
         fontWeight: '800',
-        color: '#000',
+        color: COLORS.BLACK,
     },
     subtitle: {
         ...FONTS.paragraph1,
@@ -402,7 +402,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.PURPLE,
     },
     dotInactive: {
-        backgroundColor: 'rgba(255,255,255,0.22)',
+        backgroundColor: COLORS.OVERLAY_WHITE_22,
     },
     cardGlowWrap: {
         alignSelf: 'center',
@@ -533,7 +533,7 @@ const styles = StyleSheet.create({
     },
     actionSubLight: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.72)',
+        color: COLORS.OVERLAY_WHITE_72,
         marginTop: 2,
         fontSize: 11,
         textAlign: 'left',
@@ -554,7 +554,7 @@ const styles = StyleSheet.create({
     },
     mitSub: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         marginTop: 2,
         fontSize: 11,
         textAlign: 'left',

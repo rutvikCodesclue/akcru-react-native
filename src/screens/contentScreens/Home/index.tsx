@@ -405,8 +405,8 @@ const HomeScreen = () => {
     return (
         <TabContainer>
             <LinearGradient
-               colors={['#0D2E6D', '#071325', '#000000']}
-//                 colors={['#000000', '#060606', '#000000']}
+               colors={['#0D2E6D', '#071325', COLORS.BLACK]}
+//                 colors={[COLORS.BLACK, '#060606', COLORS.BLACK]}
                 start={{x: 0, y: 0}}
                 end={{x: 1, y: 1}}
                 style={{flex: 1}}>
@@ -437,7 +437,7 @@ const HomeScreen = () => {
                             <Text
                                 style={{
                                     marginLeft: 8,
-                                    color: 'rgba(255,255,255,0.8)',
+                                    color: COLORS.OVERLAY_WHITE_80,
                                     fontSize: isTablet() ? 16 : 13,
                                     fontWeight: '500',
                                 }}>
@@ -539,7 +539,7 @@ const HomeScreen = () => {
                                     </View>
                                     <View>
                                         <LinearGradient
-                                            colors={['transparent', COLORS.AKCRUBACKGROUND]}
+                                            colors={[COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                                             style={{
                                                 position: 'absolute',
                                                 left: 0,

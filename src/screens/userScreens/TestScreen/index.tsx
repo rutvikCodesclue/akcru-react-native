@@ -1012,7 +1012,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                         <View style={styles.moviecontainer}>
                             <LinearGradient
                                 // Background Linear Gradient
-                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -1206,7 +1206,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                                             height: isExpanded
                                                 ? (SIZES.ScreenWidth / 3) * 2.6
                                                 : SIZES.ScreenWidth / 2.6,
-                                            backgroundColor: '#000',
+                                            backgroundColor: COLORS.BLACK,
                                         }}>
                                         {/* CAMERA SCREEN */}
                                         {item.peer.videoTrack ? (
@@ -1216,7 +1216,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                                                 style={{
                                                     width: '100%',
                                                     height: '100%',
-                                                    backgroundColor: 'black',
+                                                    backgroundColor: COLORS.BLACK,
                                                     borderRadius: 5,
                                                 }}
                                                 scaleType={HMSVideoViewMode.ASPECT_BALANCED}
@@ -1327,7 +1327,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                             }}
                         />
                     ) : (
-                        <View style={{backgroundColor: '#fff', width: 200, height: 200}}>
+                        <View style={{backgroundColor: COLORS.WHITE, width: 200, height: 200}}>
                             <Text>Loading...</Text>
                         </View>
                     )}
@@ -1374,7 +1374,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                         <View style={styles.input}>
                             <TextInput
                                 placeholder={'placeholder'}
-                                placeholderTextColor={'transparent'}
+                                placeholderTextColor={COLORS.TRANSPARENT}
                                 style={styles.textinput}
                             />
 
@@ -1529,7 +1529,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                         }}>
                         <View
                             style={{
@@ -1577,7 +1577,7 @@ const StartWatchPartyView2 = ({navigation, route}: Props) => {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                         }}>
                         <View
                             style={{
@@ -1648,7 +1648,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 15,
         padding: 10,
         flexDirection: 'row',
-        backgroundColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
         borderRadius: 5,
         height: SIZES.ScreenHeight * 0.18,
         alignItems: 'center',

@@ -83,7 +83,7 @@ const EditWatchList = () => {
                                         padding: 5,
                                     }}>
                                     <LinearGradient
-                                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                                         style={{
                                             position: 'absolute',
                                             left: 0,
@@ -141,7 +141,7 @@ const EditWatchList = () => {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                 }}>
                                 <View
                                     style={{

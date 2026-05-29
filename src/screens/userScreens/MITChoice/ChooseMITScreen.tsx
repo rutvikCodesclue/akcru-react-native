@@ -634,7 +634,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                 <View
                     style={[
                         styles.inviteInfoCard,
-                        {backgroundColor: 'transparent', paddingHorizontal: 0, paddingVertical: 0},
+                        {backgroundColor: COLORS.TRANSPARENT, paddingHorizontal: 0, paddingVertical: 0},
                     ]}>
                     <View style={styles.inviteAvatarWrap}>
                         <HexAvatar
@@ -675,11 +675,11 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                     <Text style={styles.inviteFollowerLabel}>Followers</Text>
                 </View>
             </View>
-                <View style={{height: 1, backgroundColor: 'rgba(255,255,255,0.12)', marginVertical: 8}} />
+                <View style={{height: 1, backgroundColor: COLORS.OVERLAY_WHITE_12, marginVertical: 8}} />
                 <View
                     style={[
                         styles.inviteMovieCard,
-                        {marginTop: 0, backgroundColor: 'transparent', paddingHorizontal: 0},
+                        {marginTop: 0, backgroundColor: COLORS.TRANSPARENT, paddingHorizontal: 0},
                     ]}>
                     <Image
                         source={{uri: movie?.portraitURL || movie?.landscapeURL}}
@@ -964,10 +964,10 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                 ]}>
                                 <LinearGradient
                                     colors={[
-                                        'rgba(255,255,255,0.22)',
+                                        COLORS.OVERLAY_WHITE_22,
                                         'rgba(160,150,200,0.55)',
                                         'rgba(90,85,120,0.5)',
-                                        'rgba(255,255,255,0.18)',
+                                        COLORS.OVERLAY_WHITE_18,
                                     ]}
                                     locations={[0, 0.35, 0.65, 1]}
                                     start={{x: 0.2, y: 0}}
@@ -1368,7 +1368,7 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                                                                     style={styles.ticketImage}
                                                                     resizeMode="cover">
                                                                     <LinearGradient
-                                                                        colors={['transparent', COLORS.BLACK]}
+                                                                        colors={[COLORS.TRANSPARENT, COLORS.BLACK]}
                                                                         style={styles.linearGradient}>
                                                                         <View
                                                                             style={[
@@ -1689,10 +1689,10 @@ const ChooseMITScreen = ({navigation, route}: Props) => {
                         ]}>
                         <LinearGradient
                             colors={[
-                                'rgba(255,255,255,0.22)',
+                                COLORS.OVERLAY_WHITE_22,
                                 'rgba(160,150,200,0.55)',
                                 'rgba(90,85,120,0.5)',
-                                'rgba(255,255,255,0.18)',
+                                COLORS.OVERLAY_WHITE_18,
                             ]}
                             locations={[0, 0.35, 0.65, 1]}
                             start={{x: 0.2, y: 0}}

@@ -227,7 +227,7 @@ const FlickFlirtUnlockMatches = () => {
                 <Text style={styles.subtitle}>{"See who's waiting & connect at a deeper level."}</Text>
 
                 <View style={styles.trustPill}>
-                    <Icon name="shield-checkmark" type="ionicon" size={14} color="rgba(255,255,255,0.85)" />
+                    <Icon name="shield-checkmark" type="ionicon" size={14} color={COLORS.OVERLAY_WHITE_85} />
                     <Text style={styles.trustPillText}>Secure · Private · Worth It</Text>
                 </View>
 
@@ -375,7 +375,7 @@ const FlickFlirtUnlockMatches = () => {
                 </View>
             </View>
              <View style={styles.secureFoot}>
-                            <Icon name="lock-closed" type="ionicon" size={12} color="rgba(255,255,255,0.45)" />
+                            <Icon name="lock-closed" type="ionicon" size={12} color={COLORS.OVERLAY_WHITE_45} />
                             <Text style={styles.secureFootText}>Your purchase is secure and encrypted</Text>
                         </View>
         </SafeAreaView>
@@ -405,7 +405,7 @@ const styles = StyleSheet.create({
     subtitle: {
         ...FONTS.Title3,
         fontSize: 14,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         textAlign: 'center',
         marginBottom: 16,
         paddingHorizontal: 8,
@@ -419,12 +419,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.22)',
+        borderColor: COLORS.OVERLAY_WHITE_22,
         marginBottom: 22,
     },
     trustPillText: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.75)',
+        color: COLORS.OVERLAY_WHITE_75,
         fontSize: 15,
     },
     cards: {
@@ -437,7 +437,7 @@ const styles = StyleSheet.create({
     cardPlainShell: {
         borderRadius: CARD_RADIUS,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.12)',
+        borderColor: COLORS.OVERLAY_WHITE_12,
         backgroundColor: 'rgba(8,8,28,0.6)',
         overflow: 'hidden',
     },
@@ -498,7 +498,7 @@ const styles = StyleSheet.create({
     },
     passTag: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         marginTop: 4,
         fontSize: 14,
     },
@@ -517,7 +517,7 @@ const styles = StyleSheet.create({
         height: 26,
         borderRadius: 13,
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.25)',
+        borderColor: COLORS.OVERLAY_WHITE_25,
     },
     benefitsBar: {
         flexDirection: 'row',
@@ -530,7 +530,7 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         backgroundColor: 'rgba(8,8,20,0.92)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
     },
     benefitCol: {
         flex: 1,
@@ -556,13 +556,13 @@ const styles = StyleSheet.create({
         width: 0.2,
         alignSelf: 'center',
         height: '90%',
-        backgroundColor: 'rgba(255,255,255,0.16)',
+        backgroundColor: COLORS.OVERLAY_WHITE_16,
     },
     benefitBarText: {
         ...FONTS.paragraph2,
         fontSize: 11,
         lineHeight: 15,
-        color: 'rgba(255,255,255,0.92)',
+        color: COLORS.OVERLAY_WHITE_92,
         textAlign: 'center',
     },
     secureFootDivider: {
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         marginTop: 10,
         marginBottom: 10,
-        backgroundColor: 'rgba(255,255,255,0.14)',
+        backgroundColor: COLORS.OVERLAY_WHITE_14,
     },
     secureFoot: {
         flexDirection: 'row',
@@ -581,14 +581,14 @@ const styles = StyleSheet.create({
     },
     secureFootText: {
         fontSize: 13,
-        color: 'rgba(255,255,255,0.4)',
+        color: COLORS.OVERLAY_WHITE_40,
     },
     footer: {
         paddingHorizontal: 20,
         paddingTop: 12,
         paddingBottom: 8,
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: COLORS.OVERLAY_WHITE_08,
         backgroundColor: COLORS.AKCRUBACKGROUND,
     },
     footerRow: {
@@ -603,7 +603,7 @@ const styles = StyleSheet.create({
     },
     balanceLabel: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         fontSize: 15,
         marginBottom: 4,
     },

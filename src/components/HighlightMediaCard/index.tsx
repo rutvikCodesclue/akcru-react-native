@@ -30,7 +30,7 @@ const HighlightMediaCard = ({active, onPress, uri, imageStyle}: HighlightMediaCa
                 <View style={[styles.inactiveWrap, styles.inactiveScale]}>
                     <Image source={{uri}} style={imageStyle} />
                     <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                        colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                         start={{x: 0, y: 1}}
                         end={{x: 1, y: 0}}
                         style={styles.inactiveOverlay}

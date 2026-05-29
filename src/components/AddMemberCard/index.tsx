@@ -40,7 +40,7 @@ const AddMemberCard = ({
         <View style={{width: SIZES.ScreenWidth / 2.1}}>
             <View style={styles.container}>
                 <LinearGradient
-                    colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                    colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                     style={styles.subContainer}
                 />
                 <View style={styles.pd10}>

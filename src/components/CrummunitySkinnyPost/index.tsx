@@ -581,7 +581,7 @@ const SkinnyPostCard = ({
                                 <Icon
                                     name="ellipsis-horizontal"
                                     type="ionicon"
-                                    color="rgba(255,255,255,0.7)"
+                                    color={COLORS.OVERLAY_WHITE_70}
                                     size={isTablet() ? 28 : 22}
                                 />
                             </Pressable>
@@ -641,7 +641,7 @@ const SkinnyPostCard = ({
                     </View>
 
                     <View style={{flexDirection: 'row', alignItems: 'center', marginTop: 10}}>
-                        <Text style={{...FONTS.Username, color: 'rgba(255,255,255,0.35)', fontSize: 12}}>
+                        <Text style={{...FONTS.Username, color: COLORS.OVERLAY_WHITE_35, fontSize: 12}}>
                             {post.edited ? `Edited ${timeSince(post.updatedAt)}` : `Posted ${timeSince(post.createdAt)}`}
                         </Text>
                         {post.edited ? (
@@ -809,7 +809,7 @@ const SkinnyPostCard = ({
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_90,
                             }}>
                             <TouchableWithoutFeedback>
                                 <Image
@@ -833,7 +833,7 @@ const SkinnyPostCard = ({
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_60,
                         justifyContent: 'center',
                         alignItems: 'center',
                         zIndex: 1,

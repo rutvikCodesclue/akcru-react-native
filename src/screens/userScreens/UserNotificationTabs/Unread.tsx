@@ -162,7 +162,7 @@ const Unread = () => {
                                 <Pressable key={index} onPress={() => NotificationNavigation(notification, userID)}>
                                     <View key={index} style={styles.cardcontainer}>
                                         <LinearGradient
-                                            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                            colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                                             style={{
                                                 position: 'absolute',
                                                 left: 0,

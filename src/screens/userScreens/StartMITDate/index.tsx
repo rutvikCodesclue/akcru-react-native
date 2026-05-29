@@ -99,7 +99,7 @@ const StartMITDate = ({navigation, route, dateID}: Props) => {
                     {isStreamOpen ? (
                         <View style={styles.moviecontainer}>
                             <LinearGradient
-                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -270,7 +270,7 @@ const StartMITDate = ({navigation, route, dateID}: Props) => {
                         <View style={styles.input}>
                             <TextInput
                                 placeholder={'placeholder'}
-                                placeholderTextColor={'transparent'}
+                                placeholderTextColor={COLORS.TRANSPARENT}
                                 style={styles.textinput}
                             />
 
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 15,
         padding: 10,
         flexDirection: 'row',
-        backgroundColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
         borderRadius: 5,
         height: SIZES.ScreenHeight / 7,
         alignItems: 'center',

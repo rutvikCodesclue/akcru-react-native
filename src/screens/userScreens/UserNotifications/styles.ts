@@ -3,8 +3,8 @@ import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 
 export default StyleSheet.create({
     cardcontainer: {
-        backgroundColor: '#1C202A',
-        borderColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
+        borderColor: COLORS.SURFACE_ELEVATED,
         borderWidth: 0.5,
         borderRadius: 5,
         padding: 15,
@@ -40,7 +40,7 @@ export default StyleSheet.create({
         width: '100%',
     },
     chatListPanel: {
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     emptyStateContainer: {
         flex: 1,
@@ -50,7 +50,7 @@ export default StyleSheet.create({
     },
     emptyStateText: {
         ...FONTS.Title2,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         textAlign: 'center',
     },
 });

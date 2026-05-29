@@ -643,7 +643,7 @@ export default function SoloSessionScreen({route}: Props) {
                                         blurRadius={isActiveCard && isTrailerHorizontal ? 2 : 0}>
                                         {isActiveCard && isTrailerHorizontal && (
                                             <LinearGradient
-                                                colors={['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.3)', 'rgba(0,0,0,0.9)']}
+                                                colors={['rgba(0,0,0,0.85)', 'rgba(0,0,0,0.3)', COLORS.OVERLAY_BLACK_90]}
                                                 style={StyleSheet.absoluteFillObject}
                                             />
                                         )}
@@ -758,7 +758,7 @@ export default function SoloSessionScreen({route}: Props) {
                                                         <Icon
                                                             name="film-outline"
                                                             type="ionicon"
-                                                            color="rgba(255,255,255,0.72)"
+                                                            color={COLORS.OVERLAY_WHITE_72}
                                                             size={14}
                                                         />
                                                     </View>
@@ -914,7 +914,7 @@ export default function SoloSessionScreen({route}: Props) {
                 onRequestClose={() => setShowTopMenu(false)}>
                 <View style={{flex: 1}}>
                     <Pressable
-                        style={[StyleSheet.absoluteFillObject, {backgroundColor: 'rgba(0, 0, 0, 0.45)'}]}
+                        style={[StyleSheet.absoluteFillObject, {backgroundColor: COLORS.OVERLAY_BLACK_45}]}
                         onPress={() => setShowTopMenu(false)}
                     />
                     <View
@@ -971,7 +971,7 @@ const styles = StyleSheet.create({
     },
     emptyStateText: {
         ...FONTS.paragraph4,
-        color: 'rgba(255,255,255,0.7)',
+        color: COLORS.OVERLAY_WHITE_70,
         textAlign: 'center',
     },
     topBar: {
@@ -1012,7 +1012,7 @@ const styles = StyleSheet.create({
         height: 4,
         width: '100%',
         borderRadius: 999,
-        backgroundColor: 'rgba(255,255,255,0.35)',
+        backgroundColor: COLORS.OVERLAY_WHITE_35,
         overflow: 'hidden',
     },
     trailerProgressBarFill: {
@@ -1064,7 +1064,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.4)',
+        borderColor: COLORS.OVERLAY_WHITE_40,
         backgroundColor: 'rgba(15, 12, 28, 0.8)',
     },
     roundActionPrimary: {
@@ -1113,7 +1113,7 @@ const styles = StyleSheet.create({
     description: {
         ...FONTS.paragraph5,
         marginTop: 8,
-        color: 'rgba(255,255,255,0.82)',
+        color: COLORS.OVERLAY_WHITE_82,
         lineHeight: 18,
         maxWidth: '90%',
     },
@@ -1125,7 +1125,7 @@ const styles = StyleSheet.create({
     },
     footerMeta: {
         ...FONTS.paragraph6,
-        color: 'rgba(255,255,255,0.8)',
+        color: COLORS.OVERLAY_WHITE_80,
     },
     popularTag: {
         position: 'absolute',

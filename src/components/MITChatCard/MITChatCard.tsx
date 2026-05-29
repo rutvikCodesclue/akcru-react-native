@@ -30,7 +30,7 @@ export default MITChatCard;
 
 const styles = StyleSheet.create({
     cardcontainer: {
-        backgroundColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
         borderRadius: 5,
         padding: 10,
 

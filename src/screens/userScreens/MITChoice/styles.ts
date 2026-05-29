@@ -20,13 +20,13 @@ export default StyleSheet.create({
     },
     fogOrb: {
         position: 'absolute',
-        backgroundColor: 'rgba(255,255,255,0.22)',
+        backgroundColor: COLORS.OVERLAY_WHITE_22,
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.35)',
+        borderColor: COLORS.OVERLAY_WHITE_35,
     },
     acceptedScrollContent: {
         flexGrow: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     acceptedInnerContent: {
         paddingHorizontal: 14,
@@ -155,7 +155,7 @@ export default StyleSheet.create({
         width: '100%',
         borderWidth: 0,
         borderRadius: 0,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         minHeight: 42,
         paddingLeft: 0,
         paddingRight: 52,
@@ -317,7 +317,7 @@ export default StyleSheet.create({
         bottom: 0,
         paddingHorizontal: 14,
         paddingTop: 10,
-        backgroundColor: '#000000',
+        backgroundColor: COLORS.BLACK,
         borderTopWidth: 0,
         elevation: 0,
         shadowOpacity: 0,
@@ -370,7 +370,7 @@ export default StyleSheet.create({
     },
     sheetcontainer: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     screenGlowBackground: {
         ...StyleSheet.absoluteFillObject,
@@ -397,7 +397,7 @@ export default StyleSheet.create({
         marginHorizontal: 14,
     },
     chooseMitBottomBar: {
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         paddingTop: 0,
         position: 'absolute',
         top: 70,
@@ -468,7 +468,7 @@ export default StyleSheet.create({
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
         borderStyle: 'dashed',
-        borderColor: '#000000',
+        borderColor: COLORS.BLACK,
         borderBottomWidth: 2,
     },
     ticketImage: {
@@ -517,12 +517,12 @@ export default StyleSheet.create({
         marginTop: 0,
         alignItems: 'center',
         marginBottom: 12,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         borderRadius: 22,
         borderWidth: 0,
-        borderColor: 'transparent',
+        borderColor: COLORS.TRANSPARENT,
         marginHorizontal: 5,
-        shadowColor: 'transparent',
+        shadowColor: COLORS.TRANSPARENT,
         shadowOpacity: 0,
         shadowRadius: 0,
         shadowOffset: {width: 0, height: 0},
@@ -611,7 +611,7 @@ export default StyleSheet.create({
         justifyContent: 'center',
         padding: 3,
         zIndex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     countdownDialCenter: {
         width: '101%',
@@ -619,7 +619,7 @@ export default StyleSheet.create({
         borderRadius: COUNTDOWN_RING_RADIUS,
         backgroundColor: 'rgba(10, 4, 20, 0.94)',
         borderWidth: 2,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: COLORS.OVERLAY_WHITE_10,
         alignItems: 'center',
         justifyContent: 'center',
         paddingTop: 10,
@@ -686,7 +686,7 @@ export default StyleSheet.create({
         width: '100%',
         borderRadius: MIT_COMBINED_CARD_RADIUS,
         borderWidth: 0,
-        borderColor: 'transparent',
+        borderColor: COLORS.TRANSPARENT,
         backgroundColor: 'rgba(0, 0, 0, 0.72)',
         paddingHorizontal: 8,
         paddingVertical: 0,
@@ -728,7 +728,7 @@ export default StyleSheet.create({
     },
     inviteInfoMetaText: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.88)',
+        color: COLORS.OVERLAY_WHITE_88,
         marginLeft: 6,
     },
     inviteInfoStatusRow: {
@@ -755,7 +755,7 @@ export default StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         borderLeftWidth: 1,
-        borderLeftColor: 'rgba(255,255,255,0.2)',
+        borderLeftColor: COLORS.OVERLAY_WHITE_20,
         paddingLeft: 8,
     },
     inviteFollowerCount: {
@@ -771,7 +771,7 @@ export default StyleSheet.create({
         width: '100%',
         borderRadius: MIT_COMBINED_CARD_RADIUS,
         borderWidth: 0,
-        borderColor: 'transparent',
+        borderColor: COLORS.TRANSPARENT,
         backgroundColor: 'rgba(0, 0, 0, 0.72)',
         paddingHorizontal: 8,
         paddingVertical: 10,
@@ -795,7 +795,7 @@ export default StyleSheet.create({
         height: 78,
         borderRadius: 8,
         marginRight: 10,
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: COLORS.OVERLAY_WHITE_08,
     },
     inviteMovieInfo: {
         flex: 1,
@@ -805,7 +805,7 @@ export default StyleSheet.create({
     inviteTrailerWrap: {
         minWidth: 76,
         borderLeftWidth: 1,
-        borderLeftColor: 'rgba(255,255,255,0.2)',
+        borderLeftColor: COLORS.OVERLAY_WHITE_20,
         paddingLeft: 8,
         justifyContent: 'center',
         alignItems: 'center',
@@ -1014,7 +1014,7 @@ export default StyleSheet.create({
     },
     declinedActionTitle: {
         ...FONTS.Title2,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
     },
     declinedActionSubtitle: {
         ...FONTS.paragraph2,
@@ -1062,7 +1062,7 @@ export default StyleSheet.create({
     },
     declinedUpsellCtaText: {
         ...FONTS.Title2,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
     },
     declinedFooterRow: {
         flexDirection: 'row',
@@ -1110,9 +1110,9 @@ export default StyleSheet.create({
         width: 120,
         height: 78,
         borderRadius: 12,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         borderWidth: 0,
-        borderColor: 'transparent',
+        borderColor: COLORS.TRANSPARENT,
         alignItems: 'center',
         justifyContent: 'center',
         alignSelf: 'center',
@@ -1124,7 +1124,7 @@ export default StyleSheet.create({
     },
     acceptedHeading: {
         ...FONTS.ContentTitle,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
         textAlign: 'center',
         marginTop: 12,
     },
@@ -1186,7 +1186,7 @@ export default StyleSheet.create({
     },
     sharedInviteUsername: {
         ...FONTS.Title2,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
         marginBottom: 2,
     },
     sharedMetaRow: {
@@ -1213,7 +1213,7 @@ export default StyleSheet.create({
         height: 78,
         borderRadius: 8,
         marginRight: 10,
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: COLORS.OVERLAY_WHITE_08,
     },
     sharedMovieBody: {
         flex: 1,
@@ -1280,14 +1280,14 @@ export default StyleSheet.create({
         height: 62,
         borderRadius: 12,
         marginRight: 10,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: COLORS.OVERLAY_WHITE_10,
     },
     acceptedInviteCardBody: {
         flex: 1,
     },
     acceptedInviteUsername: {
         ...FONTS.Title2,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
         marginBottom: 2,
     },
     acceptedMetaRow: {
@@ -1356,7 +1356,7 @@ export default StyleSheet.create({
     },
     acceptedPromptChipText: {
         ...FONTS.paragraph2,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
     },
     acceptedComposerWrap: {
         marginTop: 14,

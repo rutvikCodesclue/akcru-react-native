@@ -48,7 +48,7 @@ export default StyleSheet.create({
     logoContainerOverlay: {
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     tagline: {
         ...FONTS.paragraph2,

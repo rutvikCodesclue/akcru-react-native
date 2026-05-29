@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
     },
     inviteText: {
         ...FONTS.paragraph6,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
     },
 });
 

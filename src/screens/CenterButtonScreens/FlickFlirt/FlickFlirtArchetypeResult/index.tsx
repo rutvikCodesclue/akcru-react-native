@@ -289,7 +289,7 @@ const FlickFlirtArchetypeResult = () => {
                                         transform: [{translateY: cardRise}, {scale: cardsScale}],
                                     }}>
                                     <ImageBackground source={image ? {uri: image} : imageindex.FLickFlirt} resizeMode="cover" style={{flex: 1}}>
-                                        <LinearGradient colors={['rgba(120,67,255,0.6)', 'rgba(120,67,255,0.25)', 'rgba(0,0,0,0.35)']} style={{flex: 1}} />
+                                        <LinearGradient colors={['rgba(120,67,255,0.6)', 'rgba(120,67,255,0.25)', COLORS.OVERLAY_BLACK_35]} style={{flex: 1}} />
                                     </ImageBackground>
                                 </Animated.View>
                             </View>
@@ -336,7 +336,7 @@ const FlickFlirtArchetypeResult = () => {
                                                     {
                                                         textAlign: 'center',
                                                         color: ARCHETYPE_NAME_COLOR,
-                                                        textShadowColor: 'rgba(0,0,0,0.55)',
+                                                        textShadowColor: COLORS.OVERLAY_BLACK_55,
                                                         textShadowOffset: {width: 0, height: 1},
                                                         textShadowRadius: 10,
                                                     },

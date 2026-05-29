@@ -70,7 +70,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
     modalContainer: {
         backgroundColor: COLORS.AKCRUBACKGROUND,
@@ -106,6 +106,6 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         ...FONTS.Title3,
-        color: 'white', // Assuming white text for buttons, adjust as needed
+        color: COLORS.WHITE, // Assuming white text for buttons, adjust as needed
     },
 });

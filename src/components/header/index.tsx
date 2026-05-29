@@ -150,7 +150,7 @@ const Header = ({searchScreen = 'SearchMovieScreen'}) => {
                 width: SIZES.ScreenWidth,
             }}>
             <LinearGradient
-                colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
+                colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT]}
                 style={{position: 'absolute', left: 0, right: 0, top: 0, height: 65}}
             />
             <View
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
     notificationBadgeText: {
         fontFamily: 'Montserrat-SemiBold',
         fontSize: 9,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
         textAlign: 'center',
         includeFontPadding: false,
     },

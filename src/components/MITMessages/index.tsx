@@ -180,7 +180,7 @@ const MITMessages = ({post, InviterUserName, InviterPicture}: MessageProps) => {
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Image source={{uri: selectedImage}} style={{width: '95%', height: '95%'}} resizeMode="contain" />
                     <TouchableOpacity onPress={closeModal}>

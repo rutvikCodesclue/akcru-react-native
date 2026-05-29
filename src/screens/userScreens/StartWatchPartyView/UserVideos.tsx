@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     hmsView: {
         width: '100%',
         height: '100%',
-        backgroundColor: 'black',
+        backgroundColor: COLORS.BLACK,
     },
     hostBadge: {
         position: 'absolute',
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
     },
     loadingContainer: {
-        backgroundColor: '#fff',
+        backgroundColor: COLORS.WHITE,
         width: 200,
         height: 200,
     },

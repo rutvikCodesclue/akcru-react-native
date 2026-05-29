@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.AKCRUBACKGROUND,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 3,
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
         justifyContent: 'center',
         alignItems: 'center',
     },

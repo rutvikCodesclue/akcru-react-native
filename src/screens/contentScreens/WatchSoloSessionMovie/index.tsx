@@ -442,7 +442,7 @@ export default function WatchSoloSessionMovie({navigation}: Props) {
                             <Text style={{...FONTS.paragraph1, marginTop: 8}}>Loading ad…</Text>
                         </View>
                     ) : (
-                        <View style={{flex: 1, backgroundColor: 'black'}} />
+                        <View style={{flex: 1, backgroundColor: COLORS.BLACK}} />
                     )
                 ) : !hasLottieFirstLoopCompleted ? (
                     <AkcruOpener

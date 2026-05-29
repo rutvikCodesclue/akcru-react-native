@@ -409,7 +409,7 @@ const OnboardContactList = () => {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
@@ -451,7 +451,7 @@ const OnboardContactList = () => {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
@@ -504,7 +504,7 @@ const style = StyleSheet.create({
     title: {
         fontSize: 32,
         fontWeight: '700',
-        color: '#fff',
+        color: COLORS.WHITE,
         marginBottom: 12,
         marginTop: 10,
     },
@@ -553,7 +553,7 @@ const style = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#fff',
+        color: COLORS.WHITE,
     },
     cardPhone: {
         ...FONTS.paragraph1,
@@ -596,13 +596,13 @@ const style = StyleSheet.create({
     noContactHeading: {
         fontSize: 30,
         fontWeight: '700',
-        color: '#fff',
+        color: COLORS.WHITE,
         paddingTop: 40,
     },
     noContactPara: {
         fontSize: 15,
         fontWeight: '400',
-        color: '#fff',
+        color: COLORS.WHITE,
         width: '90%',
         textAlign: 'center',
         marginTop: 10,

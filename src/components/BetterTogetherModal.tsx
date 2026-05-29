@@ -171,7 +171,7 @@ const BetterTogetherModal = ({
 const styles = StyleSheet.create({
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.85)',
+        backgroundColor: COLORS.OVERLAY_BLACK_85,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 20,
@@ -244,11 +244,11 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.15)',
+        borderColor: COLORS.OVERLAY_WHITE_15,
     },
     tagText: {
         ...FONTS.paragraph6,
-        color: 'rgba(255,255,255,0.8)',
+        color: COLORS.OVERLAY_WHITE_80,
         fontSize: 12,
         fontWeight: '600',
     },
@@ -261,7 +261,7 @@ const styles = StyleSheet.create({
     },
     subheading: {
         ...FONTS.paragraph4,
-        color: 'rgba(255,255,255,0.5)',
+        color: COLORS.OVERLAY_WHITE_50,
         textAlign: 'center',
         marginBottom: 24,
         lineHeight: 18,
@@ -299,13 +299,13 @@ const styles = StyleSheet.create({
         height: 52,
         borderRadius: 26,
         borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.15)',
+        borderColor: COLORS.OVERLAY_WHITE_15,
         justifyContent: 'center',
         alignItems: 'center',
     },
     dismissButtonText: {
         ...FONTS.Title2,
-        color: 'rgba(255,255,255,0.4)',
+        color: COLORS.OVERLAY_WHITE_40,
         fontSize: 16,
     },
 });

@@ -146,7 +146,7 @@ const MovieScreen = ({
             {isStreamOpen ? (
                 <View style={styles.moviecontainer}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={styles.gradient}
                     />
                     <View style={styles.movieDetailsContainer}>
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 15,
         padding: 10,
         flexDirection: 'row',
-        backgroundColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
         borderRadius: 5,
         height: SIZES.ScreenHeight * 0.18,
         alignItems: 'center',

@@ -707,7 +707,7 @@ const NewPoll = () => {
                             <View
                                 style={{
                                     flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }}>
@@ -799,7 +799,7 @@ const stylesProgress = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
     modalContainer: {
         width: '80%',

@@ -277,7 +277,7 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                             position: 'absolute',
                             top: 30,
                             right: 20,
-                            backgroundColor: '#ffffff',
+                            backgroundColor: COLORS.WHITE,
                             paddingVertical: 10,
                             paddingHorizontal: 20,
                             borderRadius: 20,
@@ -286,7 +286,7 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                             setSkipped(true);
                             handleNewVisitVideoEnd();
                         }}>
-                        <Text style={{ color: '#000', fontWeight: 'bold' }}>Skip</Text>
+                        <Text style={{ color: COLORS.BLACK, fontWeight: 'bold' }}>Skip</Text>
                     </TouchableOpacity>
                 </SafeAreaView>
             </TabContainer>
@@ -470,7 +470,7 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                     onRequestClose={() => setProfileMenuVisible(false)}>
                     <View style={{ flex: 1 }}>
                         <Pressable
-                            style={[StyleSheet.absoluteFillObject, { backgroundColor: 'rgba(0, 0, 0, 0.45)' }]}
+                            style={[StyleSheet.absoluteFillObject, { backgroundColor: COLORS.OVERLAY_BLACK_45 }]}
                             onPress={() => setProfileMenuVisible(false)}
                         />
                         <View
@@ -723,7 +723,7 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                     <View
                         style={{
                             flex: 1,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>
@@ -766,7 +766,7 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                     <View
                         style={{
                             flex: 1,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>
@@ -819,7 +819,7 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                     <View
                         style={{
                             flex: 1,
-                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                             justifyContent: 'center',
                             alignItems: 'center',
                         }}>

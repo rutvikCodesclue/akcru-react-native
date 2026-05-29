@@ -123,7 +123,7 @@ const OTPVerification = ({route}) => {
         <View style={{flex: 1}}>
             <ImageBackground style={[styles.bgimage, {flex: 1}]} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
                         left: 0,

@@ -33,7 +33,7 @@ const SmlMemberCard = ({userPicture, userName, influencer, akcruBadge, onPress, 
                         height: SIZES.ScreenHeight * 0.08,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,

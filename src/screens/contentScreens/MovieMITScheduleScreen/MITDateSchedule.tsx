@@ -885,7 +885,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                             source={{uri: movie?.portraitURL}}
                             style={styles.ticketImage}
                             resizeMode="cover">
-                            <LinearGradient colors={['transparent', COLORS.AKCRUBLUE]} style={styles.linearGradient}>
+                            <LinearGradient colors={[COLORS.TRANSPARENT, COLORS.AKCRUBLUE]} style={styles.linearGradient}>
                                 <View style={[styles.ticketCircle, {position: 'absolute', bottom: -40, left: -40}]} />
                                 <View style={[styles.ticketCircle, {position: 'absolute', bottom: -40, right: -40}]} />
                             </LinearGradient>
@@ -1333,7 +1333,7 @@ const MITDateSchedule = ({route, navigation}: Props) => {
                                         end={{x: 1, y: 1}}
                                         style={styles.schedulePairOuter}>
                                         <LinearGradient
-                                            colors={['transparent', '#5EDBFF', '#D883FF', 'transparent']}
+                                            colors={[COLORS.TRANSPARENT, '#5EDBFF', '#D883FF', COLORS.TRANSPARENT]}
                                             start={{x: 0, y: 0.5}}
                                             end={{x: 1, y: 0.5}}
                                             style={styles.schedulePairBeam}

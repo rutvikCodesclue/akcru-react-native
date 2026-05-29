@@ -45,9 +45,9 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.PINK,
     },
     dotInactive: {
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.3)',
+        borderColor: COLORS.OVERLAY_WHITE_30,
     },
 });
 

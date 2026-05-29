@@ -19,10 +19,10 @@ export const clientTabBarStyle = {
     /** Must stay visible so `AkcruCenterButton` satellite hexes can animate above the pill */
     overflow: 'visible' as const,
     /** Frosted look comes from `tabBarBackground` BlurView; keep bar shell transparent */
-    backgroundColor: 'transparent' as const,
+    backgroundColor: COLORS.TRANSPARENT as const,
     borderWidth: 0 as const,
     borderTopWidth: 0 as const,
-    borderTopColor: 'transparent' as const,
+    borderTopColor: COLORS.TRANSPARENT as const,
     shadowColor: COLORS.FADEDBLACK,
     shadowOffset: {
         height: 6,

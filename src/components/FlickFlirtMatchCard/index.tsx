@@ -109,8 +109,8 @@ const FlickFlirtMatchCard = ({
             <LinearGradient
                 colors={
                     showActions
-                        ? ['rgba(0,0,0,0.2)', 'rgba(0,0,0,0.45)', 'rgba(0,0,0,0.92)']
-                        : [COLORS.BLACK, 'transparent', COLORS.BLACK]
+                        ? ['rgba(0,0,0,0.2)', COLORS.OVERLAY_BLACK_45, 'rgba(0,0,0,0.92)']
+                        : [COLORS.BLACK, COLORS.TRANSPARENT, COLORS.BLACK]
                 }
                 style={StyleSheet.absoluteFill}
             />
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.18)',
+        borderColor: COLORS.OVERLAY_WHITE_18,
     },
     cardTouchableSelected: {
         borderWidth: 2,
@@ -275,7 +275,7 @@ const styles = StyleSheet.create({
     placeholderLetter: {
         ...FONTS.HeroTitle,
         position: 'absolute',
-        color: 'rgba(255,255,255,0.35)',
+        color: COLORS.OVERLAY_WHITE_35,
         fontSize: isTablet() ? 48 : 36,
     },
     overlayRoot: {
@@ -292,7 +292,7 @@ const styles = StyleSheet.create({
     },
     vibeInsideCard: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.95)',
+        color: COLORS.OVERLAY_WHITE_95,
         fontSize: isTablet() ? 10 : 8,
         lineHeight: isTablet() ? 14 : 12,
         marginTop: 6,
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
         borderRadius: INNER_ACTION_BUTTON_RADIUS,
         borderWidth: 1.5,
         borderColor: COLORS.AKCRUBLUE,
-        backgroundColor: 'rgba(0,0,0,0.35)',
+        backgroundColor: COLORS.OVERLAY_BLACK_35,
     },
     outlineChatBtnTextInside: {
         ...FONTS.Title2,
@@ -373,14 +373,14 @@ const styles = StyleSheet.create({
     },
     tagChipGradientText: {
         ...FONTS.Title2Orange,
-        color: 'rgba(255,255,255,0.95)',
+        color: COLORS.OVERLAY_WHITE_95,
         fontSize: isTablet() ? 12 : 9,
     },
     /** FlickFlirtSwipe `styles.desc` */
     desc: {
         ...FONTS.paragraph1,
         marginBottom: 6,
-        color: 'rgba(255,255,255,0.92)',
+        color: COLORS.OVERLAY_WHITE_92,
         fontSize: isTablet() ? 12 : 10,
         lineHeight: isTablet() ? 16 : 14,
     },

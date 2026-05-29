@@ -256,7 +256,7 @@ const OnboardArchetype = () => {
                             flex: 1,
                             justifyContent: 'center',
                             alignItems: 'center',
-                            backgroundColor: 'rgba(0,0,0,0.55)',
+                            backgroundColor: COLORS.OVERLAY_BLACK_55,
                         }}>
                         <Text style={{...FONTS.Title1}}>Your Archetype is:</Text>
 

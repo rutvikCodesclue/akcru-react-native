@@ -486,7 +486,7 @@ const WatchPartyPreview = ({navigation, route}: Props) => {
                 <View style={styles.contentWrap}>
                     <View style={styles.movieCard}>
                         <LinearGradient
-                            colors={['rgba(255,255,255,0.08)', 'rgba(255,255,255,0.02)']}
+                            colors={[COLORS.OVERLAY_WHITE_08, COLORS.OVERLAY_WHITE_02]}
                             start={{x: 0, y: 0}}
                             end={{x: 1, y: 1}}
                             style={styles.movieCardOverlay}
@@ -613,11 +613,11 @@ const styles = StyleSheet.create({
     },
     movieCard: {
         padding: 12,
-        backgroundColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
         borderRadius: 12,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.12)',
+        borderColor: COLORS.OVERLAY_WHITE_12,
     },
     movieCardOverlay: {
         ...StyleSheet.absoluteFillObject,
@@ -677,7 +677,7 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.16)',
+        borderColor: COLORS.OVERLAY_WHITE_16,
         backgroundColor: '#0B0715',
         flex: 1,
         minHeight: 240,
@@ -715,7 +715,7 @@ const styles = StyleSheet.create({
     },
     previewFrame: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: COLORS.BLACK,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -740,9 +740,9 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 10,
         borderRadius: 14,
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: COLORS.OVERLAY_WHITE_08,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.16)',
+        borderColor: COLORS.OVERLAY_WHITE_16,
     },
     videoToggleText: {
         ...FONTS.Title2,

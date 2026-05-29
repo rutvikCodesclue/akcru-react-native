@@ -36,12 +36,12 @@ export default StyleSheet.create({
     },
     fullName: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.8)',
+        color: COLORS.OVERLAY_WHITE_80,
         marginTop: 2,
     },
     metaText: {
         ...FONTS.Username,
-        color: 'rgba(255,255,255,0.4)',
+        color: COLORS.OVERLAY_WHITE_40,
         fontSize: 11,
     },
     metaRow: {
@@ -59,7 +59,7 @@ export default StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 7,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
     },
     badgePillText: {
         ...FONTS.Akcrubadges,
@@ -77,13 +77,13 @@ export default StyleSheet.create({
     },
     post: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.95)',
+        color: COLORS.OVERLAY_WHITE_95,
         lineHeight: 18,
         fontSize: 13,
     },
     footStats: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         fontSize: 11,
     },
     cardcontainer: {
@@ -91,7 +91,7 @@ export default StyleSheet.create({
         borderRadius: 10,
         padding: 10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.06)',
+        borderColor: COLORS.OVERLAY_WHITE_06,
     },
     stamps: {
         ...FONTS.Title2Orange,
@@ -151,13 +151,13 @@ export default StyleSheet.create({
     },
     sheetBackdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
     },
     mediaSheetGradientBorder: {
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         padding: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     mediaSheet: {
         backgroundColor: COLORS.BLACK,
@@ -176,14 +176,14 @@ export default StyleSheet.create({
     },
     optionsList: {
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: COLORS.OVERLAY_WHITE_08,
     },
     optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        borderBottomColor: COLORS.OVERLAY_WHITE_08,
     },
     optionIconWrap: {
         width: 28,
@@ -200,6 +200,6 @@ export default StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
 });

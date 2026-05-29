@@ -5,7 +5,7 @@ export default StyleSheet.create({
     panelBody: {
         width: '100%',
         alignSelf: 'stretch',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     cardTouch: {
         width: '100%',
@@ -104,7 +104,7 @@ export default StyleSheet.create({
     dateLine: {
         ...FONTS.paragraph1,
         fontSize: 12,
-        color: 'rgba(255,255,255,0.72)',
+        color: COLORS.OVERLAY_WHITE_72,
         fontWeight: '600',
         textAlign: 'right',
     },
@@ -119,7 +119,7 @@ export default StyleSheet.create({
     previewText: {
         ...FONTS.paragraph1,
         fontSize: 14,
-        color: 'rgba(255,255,255,0.82)',
+        color: COLORS.OVERLAY_WHITE_82,
         lineHeight: 18,
     },
     footerRow: {

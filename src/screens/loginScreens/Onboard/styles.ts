@@ -8,7 +8,7 @@ export default StyleSheet.create({
     // Modal styles matching Welcome/Signin
     tosmodal: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.55)',
+        backgroundColor: COLORS.OVERLAY_BLACK_55,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -136,8 +136,8 @@ export default StyleSheet.create({
         paddingVertical: 12,
         borderRadius: 24,
         borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.3)',
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: COLORS.OVERLAY_WHITE_30,
+        backgroundColor: COLORS.OVERLAY_WHITE_05,
     },
     chipSelected: {
         paddingHorizontal: 20,
@@ -149,7 +149,7 @@ export default StyleSheet.create({
     },
     chipText: {
         ...FONTS.Title2,
-        color: 'rgba(255,255,255,0.9)',
+        color: COLORS.OVERLAY_WHITE_90,
     },
     chipTextSelected: {
         ...FONTS.Title2,
@@ -166,7 +166,7 @@ export default StyleSheet.create({
         height: inputHeight,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.25)',
+        borderColor: COLORS.OVERLAY_WHITE_25,
         overflow: 'hidden',
         marginVertical: 8,
     },
@@ -182,7 +182,7 @@ export default StyleSheet.create({
     },
     datepickios: {
         width: 320,
-        backgroundColor: 'white',
+        backgroundColor: COLORS.WHITE,
     },
 
     iosbutton: {
@@ -210,7 +210,7 @@ export default StyleSheet.create({
     input: {
         width: SIZES.ScreenWidth * 0.9,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.25)',
+        borderColor: COLORS.OVERLAY_WHITE_25,
         borderRadius: 12,
         marginTop: 8,
         alignSelf: 'center',
@@ -244,13 +244,13 @@ export default StyleSheet.create({
         position: 'absolute',
         top: 30,
         right: 20,
-        backgroundColor: '#ffffff',
+        backgroundColor: COLORS.WHITE,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
     },
     skipButtonText: {
-        color: '#000',
+        color: COLORS.BLACK,
         fontWeight: 'bold',
     },
     progress: {
@@ -258,7 +258,7 @@ export default StyleSheet.create({
     },
     stepIndicator: {
         ...FONTS.Title2,
-        color: 'rgba(255,255,255,0.7)',
+        color: COLORS.OVERLAY_WHITE_70,
         marginLeft: 8,
     },
     contentScrollCenter: {

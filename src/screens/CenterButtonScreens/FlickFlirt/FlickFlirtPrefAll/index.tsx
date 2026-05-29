@@ -298,7 +298,7 @@ const FlickFlirtPrefAll = () => {
                             paddingTop: 12,
                             paddingBottom: Math.max(insets.bottom, 12) + 70,
                             borderTopWidth: StyleSheet.hairlineWidth,
-                            borderTopColor: 'rgba(255,255,255,0.12)',
+                            borderTopColor: COLORS.OVERLAY_WHITE_12,
                             backgroundColor: 'rgba(5,3,35,0.35)',
                         }}>
                         <AkcruButtons.LrgButton

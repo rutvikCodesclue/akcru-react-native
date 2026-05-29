@@ -11,8 +11,8 @@ export default StyleSheet.create({
     },
     chipShellUnselected: {
         borderWidth: 1.5,
-        borderColor: 'rgba(255,255,255,0.3)',
-        backgroundColor: 'rgba(255,255,255,0.05)',
+        borderColor: COLORS.OVERLAY_WHITE_30,
+        backgroundColor: COLORS.OVERLAY_WHITE_05,
         paddingHorizontal: 20,
     },
     chipGradientBg: {
@@ -30,7 +30,7 @@ export default StyleSheet.create({
     },
     chipText: {
         ...FONTS.Title2,
-        color: 'rgba(255,255,255,0.9)',
+        color: COLORS.OVERLAY_WHITE_90,
     },
     chipTextSelected: {
         ...FONTS.Title2,

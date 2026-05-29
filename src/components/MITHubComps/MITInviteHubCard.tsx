@@ -26,13 +26,13 @@ const MITInviteHubCard = ({movie, creator, onPress, scheduleDate, scheduleTime, 
     return (
         <View
             style={{
-                backgroundColor: '#1C202A',
+                backgroundColor: COLORS.SURFACE_ELEVATED,
                 borderRadius: 5,
                 borderWidth: 1,
                 borderColor: COLORS.AKCRUBLUE,
             }}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,

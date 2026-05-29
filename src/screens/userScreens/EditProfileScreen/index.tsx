@@ -519,7 +519,7 @@ export default function EditProfile({session}: {session: Session}) {
                                                     bottom: 0,
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                                    backgroundColor: COLORS.OVERLAY_BLACK_40,
                                                     borderRadius: 8,
                                                 }}>
                                                 <ActivityIndicator size="large" color={COLORS.PINK} />
@@ -571,7 +571,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <View
                                 style={{
                                     flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }}>
@@ -720,7 +720,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                 }}>
                                 <View
                                     style={{
@@ -892,7 +892,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                 }}>
                                 <View
                                     style={{
@@ -1079,7 +1079,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                 }}>
                                 <View
                                     style={{
@@ -1168,7 +1168,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <Switch
                                 value={showAge}
                                 onValueChange={handleToggleShowAge}
-                                trackColor={{false: 'rgba(255,255,255,0.2)', true: 'rgba(52,152,219,0.45)'}}
+                                trackColor={{false: COLORS.OVERLAY_WHITE_20, true: 'rgba(52,152,219,0.45)'}}
                                 thumbColor={showAge ? COLORS.AKCRUBLUE : COLORS.LIGHTGREY}
                             />
                         </View>
@@ -1177,7 +1177,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <Switch
                                 value={allowFollowersToSendMIT}
                                 onValueChange={handleToggleFollowersCanSendMIT}
-                                trackColor={{false: 'rgba(255,255,255,0.2)', true: 'rgba(52,152,219,0.45)'}}
+                                trackColor={{false: COLORS.OVERLAY_WHITE_20, true: 'rgba(52,152,219,0.45)'}}
                                 thumbColor={allowFollowersToSendMIT ? COLORS.AKCRUBLUE : COLORS.LIGHTGREY}
                             />
                         </View>
@@ -1186,7 +1186,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <Switch
                                 value={showActiveStatus}
                                 onValueChange={handleToggleShowActiveStatus}
-                                trackColor={{false: 'rgba(255,255,255,0.2)', true: 'rgba(52,152,219,0.45)'}}
+                                trackColor={{false: COLORS.OVERLAY_WHITE_20, true: 'rgba(52,152,219,0.45)'}}
                                 thumbColor={showActiveStatus ? COLORS.AKCRUBLUE : COLORS.LIGHTGREY}
                             />
                         </View>
@@ -1271,7 +1271,7 @@ export default function EditProfile({session}: {session: Session}) {
                             <View
                                 style={{
                                     flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }}>
@@ -1301,7 +1301,7 @@ export default function EditProfile({session}: {session: Session}) {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                 }}>
                                 <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
                                 <Text style={{...FONTS.Title3, color: COLORS.AKCRUBLUE, marginTop: 10}}>

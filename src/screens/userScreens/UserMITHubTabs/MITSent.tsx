@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         alignSelf: 'stretch',
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     chatPanelBodyLast: {
         paddingBottom: 8,

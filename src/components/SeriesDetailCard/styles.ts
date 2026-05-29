@@ -44,7 +44,7 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: 14,
-        backgroundColor: 'rgba(0,0,0,0.52)',
+        backgroundColor: COLORS.OVERLAY_BLACK_52,
     },
     heroBackButtonText: {
         ...FONTS.Title3,

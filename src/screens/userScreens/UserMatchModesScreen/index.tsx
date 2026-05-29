@@ -91,7 +91,7 @@ function HexMaskedImage({
             style={{width: size, height: size}}
             maskElement={
                 <Svg height={size} width={size} viewBox="0 0 270 234">
-                    <Path d={HEX_PATH} fill="black" transform="rotate(90 135 117)" />
+                    <Path d={HEX_PATH} fill={COLORS.BLACK} transform="rotate(90 135 117)" />
                 </Svg>
             }>
             <Image source={source} style={{width: size, height: size}} resizeMode="cover" />
@@ -534,7 +534,7 @@ export default function UserMatchModesScreen({navigation}: Props) {
                 }>
                 <SafeAreaView style={styles.safe}>
                     {!showArchetypeLoader && (
-                        <LinearGradient colors={['#000000', '#000000']} style={styles.container}>
+                        <LinearGradient colors={[COLORS.BLACK, COLORS.BLACK]} style={styles.container}>
                             {floatingDots.map((dot, i) => (
                                 <View key={i} style={[styles.dot, dot]} />
                             ))}
@@ -611,7 +611,7 @@ const styles = StyleSheet.create({
     },
     safe: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     container: {
         flex: 1,
@@ -634,7 +634,7 @@ const styles = StyleSheet.create({
         lineHeight: 24,
         fontSize: 28,
         letterSpacing: 0.2,
-        textShadowColor: 'rgba(0,0,0,0.6)',
+        textShadowColor: COLORS.OVERLAY_BLACK_60,
         textShadowOffset: {width: 0, height: 2},
         textShadowRadius: 6,
     },
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         fontSize: 26,
         lineHeight: 26,
-        textShadowColor: 'rgba(0,0,0,0.6)',
+        textShadowColor: COLORS.OVERLAY_BLACK_60,
         textShadowOffset: {width: 0, height: 2},
         textShadowRadius: 6,
     },

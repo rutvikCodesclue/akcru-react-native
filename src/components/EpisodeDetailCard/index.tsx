@@ -218,7 +218,7 @@ const EpisodeDetailCard = ({
                                 paddingHorizontal: 10,
                                 paddingVertical: 6,
                                 borderRadius: 14,
-                                backgroundColor: 'rgba(0,0,0,0.52)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_52,
                             }}>
                             <Icon name="chevron-back" type="ionicon" size={20} color={COLORS.WHITE} />
                             <Text style={{...FONTS.Title3, marginLeft: 6, color: COLORS.WHITE}}>Back</Text>
@@ -236,7 +236,7 @@ const EpisodeDetailCard = ({
                         bottom: 0,
                     }}>
                     <LinearGradient
-                        colors={['transparent', 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
+                        colors={[COLORS.TRANSPARENT, 'rgba(0,0,0,0.18)', 'rgba(0,0,0,0.62)']}
                         style={{
                             position: 'absolute',
                             left: 0,

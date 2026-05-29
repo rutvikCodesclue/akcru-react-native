@@ -263,8 +263,8 @@ const styles = StyleSheet.create({
     sectionCard: {
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderColor: COLORS.OVERLAY_WHITE_10,
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
         padding: 12,
         marginTop: 10,
     },
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
         minHeight: 100,
         textAlignVertical: 'top',
         color: COLORS.LIGHTGREY,
-        backgroundColor: 'rgba(0,0,0,0.35)',
+        backgroundColor: COLORS.OVERLAY_BLACK_35,
         textAlign: 'left',
     },
     charCount: {
@@ -327,7 +327,7 @@ const styles = StyleSheet.create({
         margin: 5,
         borderRadius: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
     },
 });
 

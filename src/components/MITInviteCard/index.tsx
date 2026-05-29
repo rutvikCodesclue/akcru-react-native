@@ -41,11 +41,11 @@ const MITInviteCard = ({MITInviteID, movie, creator, inviteDate}: MITInviteCardP
     return (
         <View
             style={{
-                backgroundColor: '#1C202A',
+                backgroundColor: COLORS.SURFACE_ELEVATED,
                 borderRadius: 5,
             }}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,

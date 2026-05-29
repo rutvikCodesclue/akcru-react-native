@@ -1,4 +1,6 @@
 import {Dimensions, PixelRatio, Platform} from 'react-native';
+import {DefaultTheme as PaperDefaultTheme} from 'react-native-paper';
+import {DefaultTheme as NavigationDefaultTheme} from '@react-navigation/native';
 const ScreenWidth = Dimensions.get('window').width;
 const ScreenHeight = Dimensions.get('window').height;
 const {width, height} = Dimensions.get('window');
@@ -53,7 +55,9 @@ export const SIZES = {
 };
 
 export const COLORS = {
+    TRANSPARENT: 'transparent',
     WHITE: '#FFFFFF',
+    WHITE_HEX_SHORT: '#fff',
     DARKORANGE: '#A74640',
     MIDORANGE: '#FE6345',
     LIGHTORANGE: '#F88163',
@@ -76,7 +80,52 @@ export const COLORS = {
    // TRANSPURPLE: '#6530FB80',
     // TRANSPURPLE: '#FE50E580',
     BLACK: '#000000',
+    BLACK_HEX_SHORT: '#000',
     FADEDBLACK: '#00000070',
+    SURFACE_ELEVATED: '#1C202A',
+    OVERLAY_BLACK_90: 'rgba(0, 0, 0, 0.9)',
+    OVERLAY_BLACK_85: 'rgba(0, 0, 0, 0.85)',
+    OVERLAY_BLACK_60: 'rgba(0, 0, 0, 0.6)',
+    OVERLAY_BLACK_55: 'rgba(0, 0, 0, 0.55)',
+    OVERLAY_BLACK_52: 'rgba(0,0,0,0.52)',
+    OVERLAY_BLACK_50: 'rgba(0, 0, 0, 0.5)',
+    OVERLAY_BLACK_45: 'rgba(0,0,0,0.45)',
+    OVERLAY_BLACK_40: 'rgba(0,0,0,0.4)',
+    OVERLAY_BLACK_38: 'rgba(0,0,0,0.38)',
+    OVERLAY_BLACK_35: 'rgba(0,0,0,0.35)',
+    OVERLAY_WHITE_95: 'rgba(255,255,255,0.95)',
+    OVERLAY_WHITE_92: 'rgba(255,255,255,0.92)',
+    OVERLAY_WHITE_90: 'rgba(255,255,255,0.9)',
+    OVERLAY_WHITE_88: 'rgba(255,255,255,0.88)',
+    OVERLAY_WHITE_85: 'rgba(255,255,255,0.85)',
+    OVERLAY_WHITE_82: 'rgba(255,255,255,0.82)',
+    OVERLAY_WHITE_80: 'rgba(255,255,255,0.8)',
+    OVERLAY_WHITE_75: 'rgba(255,255,255,0.75)',
+    OVERLAY_WHITE_72: 'rgba(255,255,255,0.72)',
+    OVERLAY_WHITE_70: 'rgba(255,255,255,0.7)',
+    OVERLAY_WHITE_65: 'rgba(255,255,255,0.65)',
+    OVERLAY_WHITE_60: 'rgba(255,255,255,0.6)',
+    OVERLAY_WHITE_55: 'rgba(255,255,255,0.55)',
+    OVERLAY_WHITE_50: 'rgba(255,255,255,0.5)',
+    OVERLAY_WHITE_45: 'rgba(255,255,255,0.45)',
+    OVERLAY_WHITE_40: 'rgba(255,255,255,0.4)',
+    OVERLAY_WHITE_35: 'rgba(255,255,255,0.35)',
+    OVERLAY_WHITE_30: 'rgba(255,255,255,0.3)',
+    OVERLAY_WHITE_25: 'rgba(255,255,255,0.25)',
+    OVERLAY_WHITE_22: 'rgba(255,255,255,0.22)',
+    OVERLAY_WHITE_20: 'rgba(255,255,255,0.2)',
+    OVERLAY_WHITE_18: 'rgba(255,255,255,0.18)',
+    OVERLAY_WHITE_16: 'rgba(255,255,255,0.16)',
+    OVERLAY_WHITE_15: 'rgba(255,255,255,0.15)',
+    OVERLAY_WHITE_14: 'rgba(255,255,255,0.14)',
+    OVERLAY_WHITE_12: 'rgba(255,255,255,0.12)',
+    OVERLAY_WHITE_10: 'rgba(255,255,255,0.1)',
+    OVERLAY_WHITE_08: 'rgba(255,255,255,0.08)',
+    OVERLAY_WHITE_06: 'rgba(255,255,255,0.06)',
+    OVERLAY_WHITE_05: 'rgba(255,255,255,0.05)',
+    OVERLAY_WHITE_04: 'rgba(255,255,255,0.04)',
+    OVERLAY_WHITE_03: 'rgba(255,255,255,0.03)',
+    OVERLAY_WHITE_02: 'rgba(255,255,255,0.02)',
     PUREGOLD: '#DB9D00',
     STARGOLD: '#E99401',
 
@@ -211,6 +260,64 @@ export const AKCRUBADGES = {
     },
 };
 
-const appTheme = {COLORS, SIZES, FONTS, AKCRUBADGES};
+export const THEME = {
+    colors: {
+        brand: {
+            primary: COLORS.AKCRUBLUE,
+            secondary: COLORS.PURPLE,
+            accent: COLORS.PINK,
+        },
+        text: {
+            primary: COLORS.LIGHTGREY,
+            secondary: COLORS.DARKGREY,
+            inverse: COLORS.BLACK,
+        },
+        background: {
+            app: COLORS.AKCRUBACKGROUND,
+            surface: COLORS.BLACK,
+            card: COLORS.TAGCOLOR,
+            overlay: COLORS.FADEDBLACK,
+        },
+        feedback: {
+            success: COLORS.GREEN,
+            warning: COLORS.MIDORANGE,
+            error: COLORS.CATREDLGT,
+        },
+        border: {
+            default: COLORS.TRANSDARKGREY,
+            subtle: COLORS.TRANSLIGHTGREY,
+        },
+    },
+    typography: FONTS,
+    spacing: SIZES,
+    badges: AKCRUBADGES,
+} as const;
+
+export const PAPER_THEME = {
+    ...PaperDefaultTheme,
+    colors: {
+        ...PaperDefaultTheme.colors,
+        primary: THEME.colors.brand.primary,
+        secondary: THEME.colors.brand.secondary,
+        background: THEME.colors.background.app,
+        surface: THEME.colors.background.surface,
+        text: THEME.colors.text.primary,
+        error: THEME.colors.feedback.error,
+    },
+};
+
+export const NAVIGATION_THEME = {
+    ...NavigationDefaultTheme,
+    colors: {
+        ...NavigationDefaultTheme.colors,
+        primary: THEME.colors.brand.primary,
+        background: THEME.colors.background.app,
+        card: THEME.colors.background.surface,
+        text: THEME.colors.text.primary,
+        border: THEME.colors.border.default,
+    },
+};
+
+const appTheme = {COLORS, SIZES, FONTS, AKCRUBADGES, THEME, PAPER_THEME, NAVIGATION_THEME};
 
 export default appTheme;

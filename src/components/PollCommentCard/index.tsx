@@ -273,7 +273,7 @@ const PollCommentCard = ({
     return (
         <View style={styles.cardcontainer}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,
@@ -427,7 +427,7 @@ const PollCommentCard = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Image source={{uri: selectedImage}} style={{width: '95%', height: '95%'}} resizeMode="contain" />
                     <TouchableOpacity onPress={closeModal}>
@@ -441,7 +441,7 @@ const PollCommentCard = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Video
                         ref={modalVideoRef}

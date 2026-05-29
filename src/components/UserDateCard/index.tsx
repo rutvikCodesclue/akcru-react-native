@@ -356,12 +356,12 @@ const UserDatesCard = ({
     return (
         <View
             style={{
-                backgroundColor: '#1C202A',
+                backgroundColor: COLORS.SURFACE_ELEVATED,
                 borderRadius: 5,
                 justifyContent: 'center',
             }}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,
@@ -541,7 +541,7 @@ const UserDatesCard = ({
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>

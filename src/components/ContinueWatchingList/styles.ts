@@ -42,7 +42,7 @@ export default StyleSheet.create({
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: 'rgba(255,255,255,0.18)',
+        borderTopColor: COLORS.OVERLAY_WHITE_18,
     },
     actionHit: {
         padding: 4,

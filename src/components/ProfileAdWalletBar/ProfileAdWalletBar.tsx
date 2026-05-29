@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
         marginLeft: 6,
     },
     plusBlock: {
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         paddingHorizontal: 6,
         paddingVertical: 0,
         justifyContent: 'center',

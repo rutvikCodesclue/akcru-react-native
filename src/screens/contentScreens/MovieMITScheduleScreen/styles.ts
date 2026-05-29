@@ -262,7 +262,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     dayTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     dayOfWeekText: {
         ...FONTS.Title2,
@@ -292,7 +292,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     timeTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     timeZonePickerContainer: {
         flexDirection: 'row',
@@ -355,7 +355,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     timeZoneTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     selectedDateTimeContainer: {
         marginTop: 20,
@@ -408,7 +408,7 @@ export default StyleSheet.create({
         borderTopLeftRadius: 14,
         borderTopRightRadius: 14,
         borderStyle: 'dashed',
-        borderColor: '#000000',
+        borderColor: COLORS.BLACK,
         borderBottomWidth: 2,
     },
     ticketImage: {
@@ -451,7 +451,7 @@ export default StyleSheet.create({
     defaultDiscoveryWrapEmpty: {
         borderWidth: 0,
         padding: 0,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     discoverySectionTitleRow: {
         flexDirection: 'row',
@@ -590,7 +590,7 @@ export default StyleSheet.create({
     },
     cinematicModalBackdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
     },
     cinematicFullScreenLayer: {
         flex: 1,
@@ -621,8 +621,8 @@ export default StyleSheet.create({
         width: 0,
         height: 0,
         borderRadius: 46,
-        backgroundColor: 'transparent',
-        shadowColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
+        shadowColor: COLORS.TRANSPARENT,
         shadowOpacity: 0,
         shadowRadius: 0,
         shadowOffset: {width: 0, height: 0},
@@ -664,7 +664,7 @@ export default StyleSheet.create({
     },
     cinematicConfirmTitle: {
         ...FONTS.Title3,
-        color: '#FFFFFF',
+        color: COLORS.WHITE,
         textAlign: 'center',
     },
     cinematicConfirmSubtitle: {

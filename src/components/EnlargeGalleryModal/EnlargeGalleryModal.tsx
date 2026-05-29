@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
     imageContainer: {
         position: 'relative',
@@ -102,7 +102,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 8,
-        backgroundColor: 'rgba(0,0,0,0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
     },
     closeButtonText: {
         ...FONTS.Title2,

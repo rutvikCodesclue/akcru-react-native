@@ -220,7 +220,7 @@ return(
 
 <View style={styles.root}>
 
-<StatusBar translucent backgroundColor="transparent" barStyle="light-content"/>
+<StatusBar translucent backgroundColor={COLORS.TRANSPARENT} barStyle="light-content"/>
 
 <ImageBackground
 source={imageindex.BgImageSM}
@@ -383,7 +383,7 @@ lineHeight:42
 subtitle:{
 ...FONTS.paragraph2,
 fontSize:16,
-color:'rgba(255,255,255,0.75)',
+color:COLORS.OVERLAY_WHITE_75,
 textAlign:'center',
 marginTop:14,
 lineHeight:22,
@@ -397,7 +397,7 @@ width:'100%'
 buttonShadow:{
 borderRadius:12,
 marginBottom:16,
-shadowColor:'#000',
+shadowColor:COLORS.BLACK,
 shadowOffset:{width:0,height:12},
 shadowOpacity:0.35,
 shadowRadius:20,
@@ -418,9 +418,9 @@ textAlign:'center'
 },
 
 secondaryButtonWrapper:{
-backgroundColor:'rgba(255,255,255,0.08)',
+backgroundColor:COLORS.OVERLAY_WHITE_08,
 borderWidth:1,
-borderColor:'rgba(255,255,255,0.18)',
+borderColor:COLORS.OVERLAY_WHITE_18,
 overflow:'hidden'
 },
 
@@ -429,19 +429,19 @@ flex:1,
 borderRadius:12,
 alignItems:'center',
 justifyContent:'center',
-backgroundColor:'rgba(255,255,255,0.06)'
+backgroundColor:COLORS.OVERLAY_WHITE_06
 },
 
 footerText:{
 ...FONTS.paragraph2,
-color:'rgba(255,255,255,0.55)',
+color:COLORS.OVERLAY_WHITE_55,
 textAlign:'center',
 marginTop:10
 },
 
 modalBackdrop:{
 flex:1,
-backgroundColor:'rgba(0,0,0,0.55)',
+backgroundColor:COLORS.OVERLAY_BLACK_55,
 justifyContent:'center',
 alignItems:'center',
 paddingHorizontal:20

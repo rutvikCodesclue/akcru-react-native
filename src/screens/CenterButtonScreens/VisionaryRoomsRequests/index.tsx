@@ -228,7 +228,7 @@ const VisionaryRoomsRequests = () => {
                             <View
                                 style={{
                                     ...StyleSheet.absoluteFillObject,
-                                    backgroundColor: 'rgba(0,0,0,0.6)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_60,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     zIndex: 20,
@@ -253,7 +253,7 @@ const VisionaryRoomsRequests = () => {
                     <View
                         style={{
                             ...StyleSheet.absoluteFillObject,
-                            backgroundColor: 'rgba(0,0,0,0.4)', // semi-transparent backdrop
+                            backgroundColor: COLORS.OVERLAY_BLACK_40, // semi-transparent backdrop
                             justifyContent: 'center',
                             alignItems: 'center',
                             zIndex: 999, // make sure it's above everything
@@ -263,7 +263,7 @@ const VisionaryRoomsRequests = () => {
                             style={{
                                 marginTop: 10,
                                 color: COLORS.WHITE,
-                                backgroundColor: 'transparent', // prevents the black box
+                                backgroundColor: COLORS.TRANSPARENT, // prevents the black box
                             }}>
                             {accepted ? 'Accepting...' : 'Declining...'}
                         </Text>
@@ -391,7 +391,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.AKCRUBACKGROUND,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: '#000',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 3,
@@ -408,7 +408,7 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
         justifyContent: 'center',
         alignItems: 'center',
     },

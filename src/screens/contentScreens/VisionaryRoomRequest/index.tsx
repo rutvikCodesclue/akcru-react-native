@@ -390,7 +390,7 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
                                                             style={styles.ticketImage}
                                                             resizeMode="cover">
                                                             <LinearGradient
-                                                                colors={['transparent', COLORS.AKCRUBLUE]}
+                                                                colors={[COLORS.TRANSPARENT, COLORS.AKCRUBLUE]}
                                                                 style={styles.linearGradient}>
                                                                 <View
                                                                     style={[
@@ -534,7 +534,7 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
                             <View
                                 style={{
                                     ...StyleSheet.absoluteFillObject,
-                                    backgroundColor: 'rgba(0,0,0,0.4)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_40,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     zIndex: 10,
@@ -547,7 +547,7 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
                             <View
                                 style={{
                                     ...StyleSheet.absoluteFillObject,
-                                    backgroundColor: 'rgba(0,0,0,0.6)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_60,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                     zIndex: 20,
@@ -571,7 +571,7 @@ const VisionaryRoomRequest = ({navigation, route}: Props) => {
                         <View
                             style={{
                                 ...StyleSheet.absoluteFillObject,
-                                backgroundColor: 'rgba(0,0,0,0.6)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_60,
                                 justifyContent: 'center',
                                 alignItems: 'center',
                                 zIndex: 30,

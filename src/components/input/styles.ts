@@ -9,7 +9,7 @@ export default StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         height: '100%',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     textinput: {
         flex: 1,

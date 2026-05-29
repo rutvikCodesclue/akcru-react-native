@@ -46,7 +46,7 @@ export default StyleSheet.create({
         width: SIZES.ScreenWidth / 1.2,
         height: SIZES.ScreenHeight / 1.6,
         borderRadius: 7,
-        shadowColor: '#000000',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {
             width: 0,
             height: 6,

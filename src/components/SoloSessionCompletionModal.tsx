@@ -109,7 +109,7 @@ const SoloSessionCompletionModal = ({
                         <Icon
                             name="close"
                             type="material"
-                            color="rgba(255,255,255,0.85)"
+                            color={COLORS.OVERLAY_WHITE_85}
                             size={18}
                         />
                     </View>
@@ -135,7 +135,7 @@ const SoloSessionCompletionModal = ({
                                     resizeMode="cover"
                                 />
                                 <LinearGradient
-                                    colors={['transparent', 'rgba(10,0,18,0.85)']}
+                                    colors={[COLORS.TRANSPARENT, 'rgba(10,0,18,0.85)']}
                                     style={styles.posterGradient}
                                 />
                             </View>
@@ -182,7 +182,7 @@ const SoloSessionCompletionModal = ({
                                 <Icon
                                     name="chevron-right"
                                     type="material"
-                                    color="rgba(255,255,255,0.55)"
+                                    color={COLORS.OVERLAY_WHITE_55}
                                     size={20}
                                 />
                             </LinearGradient>
@@ -204,7 +204,7 @@ const SoloSessionCompletionModal = ({
                                 <Icon
                                     name="chevron-right"
                                     type="material"
-                                    color="rgba(255,255,255,0.4)"
+                                    color={COLORS.OVERLAY_WHITE_40}
                                     size={20}
                                 />
                             </View>
@@ -226,7 +226,7 @@ const SoloSessionCompletionModal = ({
                                 <Icon
                                     name="chevron-right"
                                     type="material"
-                                    color="rgba(255,255,255,0.4)"
+                                    color={COLORS.OVERLAY_WHITE_40}
                                     size={20}
                                 />
                             </View>
@@ -269,9 +269,9 @@ const styles = StyleSheet.create({
         width: 34,
         height: 34,
         borderRadius: 17,
-        backgroundColor: 'rgba(255,255,255,0.1)',
+        backgroundColor: COLORS.OVERLAY_WHITE_10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.18)',
+        borderColor: COLORS.OVERLAY_WHITE_18,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -313,7 +313,7 @@ const styles = StyleSheet.create({
     },
     movieTitle: {
         ...FONTS.Title2,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         fontSize: 16,
         fontWeight: '700',
         letterSpacing: 0.3,

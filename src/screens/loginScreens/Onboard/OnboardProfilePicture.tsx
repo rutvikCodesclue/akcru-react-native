@@ -250,7 +250,7 @@ const OnboardProfilePicture = () => {
                         <View
                             style={{
                                 flex: 1,
-                                backgroundColor: 'rgba(0,0,0,0.55)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_55,
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }}>
@@ -288,7 +288,7 @@ const OnboardProfilePicture = () => {
                         </View>
                     </Modal>
                     <Modal animationType="fade" transparent={true} visible={archetypeModal}>
-                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.55)'}}>
+                        <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: COLORS.OVERLAY_BLACK_55}}>
                             <Text style={{...FONTS.Title1}}>Your Archetype is:</Text>
                             {archetypeName ? (
                                 <Text style={{...FONTS.Title3, textAlign: 'center', marginVertical: 10, color: COLORS.PURPLE}}>
@@ -316,7 +316,7 @@ const OnboardProfilePicture = () => {
                             ) : null}
                         </View>
                     </Modal>
-                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                    <Text style={{...FONTS.paragraph2, color: COLORS.OVERLAY_WHITE_55, textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
                 </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>

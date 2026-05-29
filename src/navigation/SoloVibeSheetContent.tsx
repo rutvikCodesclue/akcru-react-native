@@ -53,7 +53,7 @@ export default function SoloVibeSheetContent({
                         ]}
                         onPress={() => onSelectSoloVibe(option.id)}>
                         <LinearGradient
-                            colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+                            colors={['rgba(255,255,255,0)', COLORS.OVERLAY_WHITE_45, 'rgba(255,255,255,0)']}
                             start={{x: 0, y: 0.5}}
                             end={{x: 1, y: 0.5}}
                             style={styles.soloVibeTextLine}
@@ -132,7 +132,7 @@ const styles = StyleSheet.create({
     },
     soloHeaderSubtitle: {
         marginTop: 4,
-        color: 'rgba(255,255,255,0.72)',
+        color: COLORS.OVERLAY_WHITE_72,
         fontSize: 13,
         textAlign: 'center',
     },

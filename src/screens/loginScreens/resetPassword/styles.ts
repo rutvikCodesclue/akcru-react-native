@@ -32,7 +32,7 @@ export default StyleSheet.create({
         height: inputHeight,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.25)',
+        borderColor: COLORS.OVERLAY_WHITE_25,
         overflow: 'hidden',
         marginVertical: 8,
     },

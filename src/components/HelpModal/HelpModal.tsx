@@ -78,7 +78,7 @@ const HelpModal = ({closeModal, faq, bugReport, suggestion, question}: HelpModal
 const styles = StyleSheet.create({
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: 14,
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
         width: '100%',
         maxWidth: 540,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: COLORS.OVERLAY_WHITE_10,
     },
     headerRow: {
         flexDirection: 'row',
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     },
     listWrap: {
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.16)',
+        borderColor: COLORS.OVERLAY_WHITE_16,
         borderRadius: 12,
         overflow: 'hidden',
         backgroundColor: 'rgba(211,211,211,0.08)',
@@ -148,7 +148,7 @@ const styles = StyleSheet.create({
     },
     separator: {
         height: StyleSheet.hairlineWidth,
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: COLORS.OVERLAY_WHITE_20,
     },
 });
 

@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     dotInactive: {
-        backgroundColor: 'rgba(255,255,255,0.35)',
+        backgroundColor: COLORS.OVERLAY_WHITE_35,
     },
 });
 

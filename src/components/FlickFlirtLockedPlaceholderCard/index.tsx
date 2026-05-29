@@ -50,7 +50,7 @@ const FlickFlirtLockedPlaceholderCard = ({
                         <Icon
                             name="lock-closed"
                             type="ionicon"
-                            color="rgba(255,255,255,0.85)"
+                            color={COLORS.OVERLAY_WHITE_85}
                             size={lockIconSize}
                         />
                     ) : (
@@ -97,7 +97,7 @@ const stylesFull = StyleSheet.create({
         borderRadius: 16,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -122,8 +122,8 @@ const stylesFull = StyleSheet.create({
         height: 52,
         borderRadius: 26,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.35)',
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_35,
+        backgroundColor: COLORS.OVERLAY_WHITE_08,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 10,
@@ -142,7 +142,7 @@ const stylesFull = StyleSheet.create({
     },
     lockedSubTitle: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         textAlign: 'center',
         marginTop: 6,
     },
@@ -160,7 +160,7 @@ const stylesCompact = StyleSheet.create({
         borderRadius: 12,
         overflow: 'hidden',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -185,8 +185,8 @@ const stylesCompact = StyleSheet.create({
         height: isTablet() ? 34 : 28,
         borderRadius: isTablet() ? 17 : 14,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.35)',
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_35,
+        backgroundColor: COLORS.OVERLAY_WHITE_08,
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 4,
@@ -209,7 +209,7 @@ const stylesCompact = StyleSheet.create({
         ...FONTS.paragraph2,
         fontSize: isTablet() ? 8 : 6,
         lineHeight: isTablet() ? 10 : 8,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         textAlign: 'center',
         marginTop: 2,
     },

@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
         padding: 25,
         width: '90%',
         maxWidth: 400,
-        shadowColor: '#000',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {
             width: 0,
             height: 2,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
         backgroundColor: COLORS.AKCRUBLUE,
     },
     secondaryButton: {
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         borderWidth: 1,
         borderColor: COLORS.LIGHTGREY,
     },

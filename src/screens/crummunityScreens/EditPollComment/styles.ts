@@ -40,7 +40,7 @@ export default StyleSheet.create({
         backgroundColor: '#121722',
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
         padding: 12,
     },
     authorRow: {
@@ -86,7 +86,7 @@ export default StyleSheet.create({
     },
     charCount: {
         ...FONTS.paragraph3,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         alignSelf: 'flex-end',
         marginTop: 6,
     },
@@ -110,7 +110,7 @@ export default StyleSheet.create({
         backgroundColor: '#0b1019',
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
         maxHeight: 260,
         overflow: 'hidden',
         zIndex: 100,
@@ -125,8 +125,8 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 9,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.05)',
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        borderBottomColor: COLORS.OVERLAY_WHITE_05,
+        backgroundColor: COLORS.OVERLAY_WHITE_02,
     },
     mentionMeta: {
         marginLeft: 10,
@@ -144,7 +144,7 @@ export default StyleSheet.create({
     },
     mentionFirstName: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.65)',
+        color: COLORS.OVERLAY_WHITE_65,
         marginLeft: 8,
     },
     mentionBadgeWrap: {
@@ -173,7 +173,7 @@ export default StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
     loadingText: {
         ...FONTS.Title2,

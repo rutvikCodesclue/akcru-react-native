@@ -33,9 +33,9 @@ export default StyleSheet.create({
         marginTop: containerMargin,
     },
     profileCard: {
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
         borderRadius: 14,
         paddingHorizontal: 12,
         paddingVertical: 14,
@@ -156,7 +156,7 @@ export default StyleSheet.create({
         marginTop: 18,
         paddingTop: 14,
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: COLORS.OVERLAY_WHITE_08,
     },
     bodyCopy: {
         ...FONTS.paragraph2,
@@ -196,7 +196,7 @@ export default StyleSheet.create({
     },
     archetypeNameText: {
         ...FONTS.Title2,
-        color: 'black',
+        color: COLORS.BLACK,
         textAlign: 'center',
         fontSize: 24,
     },
@@ -223,9 +223,9 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.14)',
+        borderColor: COLORS.OVERLAY_WHITE_14,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.04)',
+        backgroundColor: COLORS.OVERLAY_WHITE_04,
         paddingHorizontal: 12,
         paddingVertical: 10,
     },
@@ -258,7 +258,7 @@ export default StyleSheet.create({
     settingsSeparator: {
         width: SIZES.ScreenWidth * 0.9,
         height: StyleSheet.hairlineWidth,
-        backgroundColor: 'rgba(255,255,255,0.22)',
+        backgroundColor: COLORS.OVERLAY_WHITE_22,
         marginVertical: 2,
     },
     settingsDangerSeparator: {

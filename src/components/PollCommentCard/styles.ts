@@ -21,7 +21,7 @@ export default StyleSheet.create({
         paddingTop: 3,
     },
     cardcontainer: {
-        backgroundColor: '#1C202A',
+        backgroundColor: COLORS.SURFACE_ELEVATED,
         borderRadius: 5,
         padding: 10,
     },
@@ -79,6 +79,6 @@ export default StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
 });

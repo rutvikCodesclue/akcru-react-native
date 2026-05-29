@@ -115,7 +115,7 @@ const MitMovieUserPreviewCard = ({
                 <View
                     style={[
                         chooseMitStyles.inviteInfoCard,
-                        {backgroundColor: 'transparent', paddingHorizontal: 0, paddingVertical: 0},
+                        {backgroundColor: COLORS.TRANSPARENT, paddingHorizontal: 0, paddingVertical: 0},
                     ]}>
                     <View style={chooseMitStyles.inviteAvatarWrap}>
                         <TouchableOpacity
@@ -174,11 +174,11 @@ const MitMovieUserPreviewCard = ({
                         <Text style={chooseMitStyles.inviteFollowerLabel}>Followers</Text>
                     </View>
                 </View>
-                <View style={{height: 1, backgroundColor: 'rgba(255,255,255,0.12)', marginVertical: 8}} />
+                <View style={{height: 1, backgroundColor: COLORS.OVERLAY_WHITE_12, marginVertical: 8}} />
                 <View
                     style={[
                         chooseMitStyles.inviteMovieCard,
-                        {marginTop: 0, backgroundColor: 'transparent', paddingHorizontal: 0},
+                        {marginTop: 0, backgroundColor: COLORS.TRANSPARENT, paddingHorizontal: 0},
                     ]}>
                     <TouchableOpacity
                         activeOpacity={0.9}

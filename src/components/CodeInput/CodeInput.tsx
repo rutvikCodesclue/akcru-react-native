@@ -64,16 +64,16 @@ const CodeInput = ({maxLength, code, setCode, setPinReady}: CodeInputProps) => {
                     height: 60,
                     borderRadius: 12,
                     borderWidth: 2,
-                    borderColor: inputFocused && isDigitFocused ? COLORS.PINK : 'rgba(255,255,255,0.3)',
+                    borderColor: inputFocused && isDigitFocused ? COLORS.PINK : COLORS.OVERLAY_WHITE_30,
                     overflow: 'hidden',
-                    backgroundColor: 'rgba(255,255,255,0.05)',
+                    backgroundColor: COLORS.OVERLAY_WHITE_05,
                 }}
                 key={index}>
                 <BlurView
                     style={StyleSheet.absoluteFill}
                     blurType="light"
                     blurAmount={10}
-                    reducedTransparencyFallbackColor="rgba(255,255,255,0.1)"
+                    reducedTransparencyFallbackColor={COLORS.OVERLAY_WHITE_10}
                 />
                 <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
                     <Text style={{...FONTS.Title2, fontSize: 24, textAlign: 'center', color: COLORS.WHITE}}>

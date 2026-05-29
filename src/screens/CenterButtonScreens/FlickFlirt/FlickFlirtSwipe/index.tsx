@@ -131,7 +131,7 @@ const FlickFlirtSwipe = () => {
                         colors={
                             showLoader
                                 ? [...FLICK_FLIRT_IMAGE_OVERLAY_FULL_COLORS]
-                                : [COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]
+                                : [COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]
                         }
                         style={{position: 'absolute', left: 0, right: 0, top: 0, height: SIZES.ScreenHeight}}
                     />
@@ -158,7 +158,7 @@ const FlickFlirtSwipe = () => {
                                             borderRadius: 3,
                                             marginHorizontal: 2,
                                             backgroundColor:
-                                                index <= currentCardIndex ? COLORS.AKCRUBLUE : 'rgba(255,255,255,0.35)',
+                                                index <= currentCardIndex ? COLORS.AKCRUBLUE : COLORS.OVERLAY_WHITE_35,
                                         }}
                                     />
                                 ))}
@@ -197,7 +197,7 @@ const FlickFlirtSwipe = () => {
                                             resizeMode="contain"
                                             style={styles.cardImage}>
                                             <LinearGradient
-                                                colors={[COLORS.BLACK, 'transparent', COLORS.BLACK]}
+                                                colors={[COLORS.BLACK, COLORS.TRANSPARENT, COLORS.BLACK]}
                                                 style={{
                                                     position: 'absolute',
                                                     left: 0,
@@ -241,7 +241,7 @@ const FlickFlirtSwipe = () => {
                                     handleSwipe(movies[cardIndex].id, 'LIKE', movies[cardIndex]);
                                     setTimeout(() => setSwipeResult(null), 1200);
                                 }}
-                                backgroundColor="transparent"
+                                backgroundColor={COLORS.TRANSPARENT}
                                 stackSize={4}
                                 cardIndex={0}
                                 verticalSwipe={false}
@@ -256,7 +256,7 @@ const FlickFlirtSwipe = () => {
                                         title: 'NOPE',
                                         style: {
                                             label: {
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: COLORS.TRANSPARENT,
                                                 borderColor: 'red',
                                                 color: 'red',
                                                 fontSize: 38,
@@ -277,7 +277,7 @@ const FlickFlirtSwipe = () => {
                                         title: 'LIKE',
                                         style: {
                                             label: {
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: COLORS.TRANSPARENT,
                                                 borderColor: '#00BFFF',
                                                 color: '#00BFFF',
                                                 fontSize: 38,

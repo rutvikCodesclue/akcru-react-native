@@ -43,7 +43,7 @@ export default StyleSheet.create({
     },
     handleText: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         fontSize: isTablet() ? 15 : 14,
         marginTop: 0,
     },
@@ -54,7 +54,7 @@ export default StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 7,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
     },
     badgePillText: {
         ...FONTS.Akcrubadges,
@@ -83,7 +83,7 @@ export default StyleSheet.create({
     },
     descText: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         marginTop: 6,
         lineHeight: 20,
     },
@@ -111,7 +111,7 @@ export default StyleSheet.create({
         borderTopColor: 'rgba(155, 89, 182, 0.25)',
     },
     engagementLabel: {
-        color: 'rgba(255,255,255,0.5)',
+        color: COLORS.OVERLAY_WHITE_50,
         fontSize: 12,
         marginTop: 6,
         textAlign: 'center',
@@ -176,13 +176,13 @@ export default StyleSheet.create({
     },
     sheetBackdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
     },
     mediaSheetGradientBorder: {
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         padding: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     mediaSheet: {
         backgroundColor: COLORS.BLACK,
@@ -201,14 +201,14 @@ export default StyleSheet.create({
     },
     optionsList: {
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: COLORS.OVERLAY_WHITE_08,
     },
     optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        borderBottomColor: COLORS.OVERLAY_WHITE_08,
     },
     optionIconWrap: {
         width: 28,
@@ -225,7 +225,7 @@ export default StyleSheet.create({
         flex: 1,
         alignItems: 'center',
         justifyContent: 'flex-end',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
     },
     videoStyle: {width: '100%', height: '100%', borderRadius: 10},
     playButton: {
@@ -233,7 +233,7 @@ export default StyleSheet.create({
         top: '50%',
         left: '50%',
         transform: [{translateX: -25}, {translateY: -25}], // Center the button
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',  // Semi-transparent background
+        backgroundColor: COLORS.OVERLAY_BLACK_50,  // Semi-transparent background
         borderRadius: 50,
         width: 50,
         height: 50,
@@ -241,7 +241,7 @@ export default StyleSheet.create({
         alignItems: 'center',
     },
     playButtonText: {
-        color: '#fff',
+        color: COLORS.WHITE,
         fontSize: 30,
     },
 });

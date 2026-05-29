@@ -100,7 +100,7 @@ export default function PurchaseMITScreen() {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
@@ -134,7 +134,7 @@ export default function PurchaseMITScreen() {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>

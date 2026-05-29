@@ -190,14 +190,14 @@ const ChatList = () => {
                     {isListLoaded ? (
                         <View style={styles.screenContainer}>
                             <View style={styles.headerContainer}>
-                                <View style={{zIndex: 20, backgroundColor: 'transparent'}}>
+                                <View style={{zIndex: 20, backgroundColor: COLORS.TRANSPARENT}}>
                                     <Header />
                                 </View>
                                 <View
                                     style={{
                                         marginBottom: 10,
                                         zIndex: 21,
-                                        backgroundColor: 'transparent',
+                                        backgroundColor: COLORS.TRANSPARENT,
                                         paddingBottom: 10,
                                     }}>
                                     <BackButton
@@ -363,7 +363,7 @@ const styles = StyleSheet.create({
         height: 50,
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.25)',
+        borderColor: COLORS.OVERLAY_WHITE_25,
         overflow: 'hidden',
         marginVertical: 8,
     },
@@ -388,7 +388,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     avatarName: {
-        color: 'rgba(255,255,255,0.9)',
+        color: COLORS.OVERLAY_WHITE_90,
         fontSize: 12,
         marginTop: 4,
         textAlign: 'center',
@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
         paddingBottom: 8,
     },
     chatPanelTitle: {
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         fontSize: 32 / 2,
         fontWeight: '600',
     },
@@ -475,7 +475,7 @@ const styles = StyleSheet.create({
         marginBottom: 8,
     },
     emptyChatSubtitle: {
-        color: 'rgba(255,255,255,0.75)',
+        color: COLORS.OVERLAY_WHITE_75,
         fontSize: 14,
         textAlign: 'center',
     },

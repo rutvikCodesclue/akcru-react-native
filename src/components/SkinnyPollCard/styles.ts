@@ -57,7 +57,7 @@ export default StyleSheet.create({
     },
     handleText: {
         ...FONTS.paragraph1,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         fontSize: isTablet() ? 15 : 14,
     },
     badgePill: {
@@ -67,7 +67,7 @@ export default StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 7,
         borderWidth: StyleSheet.hairlineWidth,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
     },
     badgePillText: {
         ...FONTS.Akcrubadges,
@@ -100,7 +100,7 @@ export default StyleSheet.create({
     },
     timeText: {
         ...FONTS.Username,
-        color: 'rgba(255,255,255,0.35)',
+        color: COLORS.OVERLAY_WHITE_35,
         marginTop: 10,
         fontSize: 12,
     },
@@ -179,13 +179,13 @@ export default StyleSheet.create({
     },
     sheetBackdrop: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
     },
     mediaSheetGradientBorder: {
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
         padding: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     mediaSheet: {
         backgroundColor: COLORS.BLACK,
@@ -204,14 +204,14 @@ export default StyleSheet.create({
     },
     optionsList: {
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: COLORS.OVERLAY_WHITE_08,
     },
     optionRow: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: 12,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        borderBottomColor: COLORS.OVERLAY_WHITE_08,
     },
     optionIconWrap: {
         width: 28,
@@ -232,7 +232,7 @@ export default StyleSheet.create({
         marginBottom: 10,
         backgroundColor: COLORS.WHITE,
         borderRadius: 5,
-        shadowColor: '#000',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {
             width: 0,
             height: 1,

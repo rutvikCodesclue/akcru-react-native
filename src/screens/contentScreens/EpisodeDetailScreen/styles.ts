@@ -33,6 +33,6 @@ export default StyleSheet.create({
         paddingBottom: 14,
         backgroundColor: 'rgba(0,0,0,0.92)',
         borderTopWidth: 1,
-        borderTopColor: 'rgba(255,255,255,0.08)',
+        borderTopColor: COLORS.OVERLAY_WHITE_08,
     },
 });

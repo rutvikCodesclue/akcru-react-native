@@ -47,7 +47,7 @@ const HexAvatar = ({
             width={innerSize}
             viewBox={'0 0 270 234'}
             style={{overflow: 'hidden'}}>
-            <Path d={hexagonPath} fill="black" />
+            <Path d={hexagonPath} fill={COLORS.BLACK} />
         </Svg>
     );
 

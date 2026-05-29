@@ -47,7 +47,7 @@ export default StyleSheet.create({
         width: isTablet() ? SIZES.ScreenWidth / 1.6 : SIZES.ScreenWidth / 1.2,
         height: isTablet() ? SIZES.ScreenHeight / 1.7 : SIZES.ScreenHeight / 1.6,
         borderRadius: 7,
-        shadowColor: '#000000',
+        shadowColor: COLORS.BLACK,
         shadowOffset: {
             width: 0,
             height: 6,
@@ -85,7 +85,7 @@ export default StyleSheet.create({
     gotToStartWrapper: {paddingTop: 20, alignItems: 'center'},
     unlockText: {...FONTS.Title3, color: COLORS.LIGHTGREY, marginBottom: 10},
 
-    modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'},
+    modalOverlay: {flex: 1, backgroundColor: COLORS.OVERLAY_BLACK_50, justifyContent: 'center', alignItems: 'center'},
     modalContent: {width: '80%', backgroundColor: COLORS.AKCRUBACKGROUND, borderRadius: 8, padding: 20},
     modalTitle: {...FONTS.Title2, marginBottom: 15, textAlign: 'center'},
     modalLabel: {...FONTS.Title3, marginBottom: 10},

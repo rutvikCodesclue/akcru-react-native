@@ -87,7 +87,7 @@ const UserCruBuilderCard = ({
                 width: SIZES.ScreenWidth,
             }}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,
@@ -192,7 +192,7 @@ const UserCruBuilderCard = ({
                             <View
                                 style={{
                                     flex: 1,
-                                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_50,
                                     justifyContent: 'center',
                                     alignItems: 'center',
                                 }}>

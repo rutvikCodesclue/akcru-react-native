@@ -98,7 +98,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     dayTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     dayOfWeekText: {
         ...FONTS.Title2,
@@ -124,7 +124,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     timeTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     timeZonePickerContainer: {
         flexDirection: 'row',
@@ -146,7 +146,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     timeZoneTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     selectedDateTimeContainer: {
         marginTop: 20,
@@ -193,7 +193,7 @@ export default StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         borderStyle: 'dashed',
-        borderColor: '#000000',
+        borderColor: COLORS.BLACK,
         borderBottomWidth: 2,
     },
     ticketImage: {
@@ -252,7 +252,7 @@ export default StyleSheet.create({
         marginVertical: 10,
         alignItems: 'center',
         height: 46,
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
     },
     mitSearchLauncherIcon: {
         marginRight: 10,
@@ -296,7 +296,7 @@ export default StyleSheet.create({
         paddingHorizontal: 10,
         alignItems: 'center',
         height: 46,
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
     },
     mitSearchIcon: {
         marginRight: 8,
@@ -330,10 +330,10 @@ export default StyleSheet.create({
         paddingVertical: 12,
         paddingHorizontal: 10,
         minHeight: 84,
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        backgroundColor: COLORS.OVERLAY_WHITE_02,
         borderRadius: 10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.06)',
+        borderColor: COLORS.OVERLAY_WHITE_06,
         flexDirection: 'row',
         alignItems: 'center',
     },

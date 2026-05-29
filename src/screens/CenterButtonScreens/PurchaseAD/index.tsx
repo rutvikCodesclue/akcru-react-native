@@ -224,11 +224,11 @@ export default function PurchaseAdScreen() {
 
                         <View style={styles.trustRow}>
                             <View style={styles.trustPill}>
-                                <Icon name="lock-closed" type="ionicon" size={14} color="rgba(255,255,255,0.85)" />
+                                <Icon name="lock-closed" type="ionicon" size={14} color={COLORS.OVERLAY_WHITE_85} />
                                 <Text style={styles.trustPillText}>Secure Payment</Text>
                             </View>
                             <View style={styles.trustPill}>
-                                <Icon name="flash" type="ionicon" size={14} color="rgba(255,255,255,0.85)" />
+                                <Icon name="flash" type="ionicon" size={14} color={COLORS.OVERLAY_WHITE_85} />
                                 <Text style={styles.trustPillText}>Instant Delivery</Text>
                             </View>
                         </View>
@@ -384,7 +384,7 @@ export default function PurchaseAdScreen() {
                     </View>
 
                       <View style={styles.secureFoot}>
-                                                <Icon name="lock-closed" type="ionicon" size={12} color="rgba(255,255,255,0.45)" />
+                                                <Icon name="lock-closed" type="ionicon" size={12} color={COLORS.OVERLAY_WHITE_45} />
                                                 <Text style={styles.secureFootText}>Your purchase is secure and encrypted</Text>
                                             </View>
                     </View>
@@ -410,11 +410,11 @@ export default function PurchaseAdScreen() {
 const styles = StyleSheet.create({
     tabWrap: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: COLORS.BLACK,
     },
     safe: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: COLORS.BLACK,
     },
     loaderWrap: {
         flex: 1,
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
     },
     headerTrustBlock: {
         paddingHorizontal: 20,
-        backgroundColor: '#000000',
+        backgroundColor: COLORS.BLACK,
     },
     scrollFlex: {
         flex: 1,
@@ -440,8 +440,8 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 10,
         borderTopWidth: StyleSheet.hairlineWidth,
-        borderTopColor: 'rgba(255,255,255,0.1)',
-        backgroundColor: '#000000',
+        borderTopColor: COLORS.OVERLAY_WHITE_10,
+        backgroundColor: COLORS.BLACK,
     },
     headerTitleRow: {
         flexDirection: 'row',
@@ -462,7 +462,7 @@ const styles = StyleSheet.create({
     subtitle: {
         ...FONTS.Title3,
         fontSize: 14,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         textAlign: 'center',
         marginBottom: 16,
         paddingHorizontal: 8,
@@ -482,12 +482,12 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         borderRadius: 999,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.18)',
-        backgroundColor: 'rgba(255,255,255,0.04)',
+        borderColor: COLORS.OVERLAY_WHITE_18,
+        backgroundColor: COLORS.OVERLAY_WHITE_04,
     },
     trustPillText: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.75)',
+        color: COLORS.OVERLAY_WHITE_75,
         fontSize: 13,
     },
     cards: {
@@ -514,7 +514,7 @@ const styles = StyleSheet.create({
     },
     cardInnerUnselectedOutline: {
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.12)',
+        borderColor: COLORS.OVERLAY_WHITE_12,
     },
     cardInnerMicro: {
         backgroundColor: '#07071c',
@@ -569,7 +569,7 @@ const styles = StyleSheet.create({
     },
     packTag: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         marginTop: 4,
         fontSize: 13,
     },
@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         backgroundColor: 'rgba(44,44,46,0.95)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.12)',
+        borderColor: COLORS.OVERLAY_WHITE_12,
     },
     priceBtnText: {
         ...FONTS.Title3,
@@ -594,9 +594,9 @@ const styles = StyleSheet.create({
         paddingVertical: 16,
         paddingHorizontal: 12,
         borderRadius: CARD_RADIUS,
-        backgroundColor: 'rgba(255,255,255,0.04)',
+        backgroundColor: COLORS.OVERLAY_WHITE_04,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
     },
     balanceCol: {
         flex: 1,
@@ -608,12 +608,12 @@ const styles = StyleSheet.create({
     balanceDivider: {
         width: 1,
         alignSelf: 'stretch',
-        backgroundColor: 'rgba(255,255,255,0.2)',
+        backgroundColor: COLORS.OVERLAY_WHITE_20,
         marginHorizontal: 10,
     },
     balanceLabel: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         fontSize: 13,
         marginBottom: 6,
     },
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
     },
     needMore: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         fontSize: 13,
         lineHeight: 18,
     },
@@ -669,7 +669,7 @@ const styles = StyleSheet.create({
     },
     whyPassSub: {
         ...FONTS.paragraph2,
-        color: 'rgba(255,255,255,0.5)',
+        color: COLORS.OVERLAY_WHITE_50,
         marginTop: 4,
         fontSize: 13,
     },
@@ -702,7 +702,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 6,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
         paddingHorizontal: 10,
     },
     purchaseCtaText: {
@@ -712,6 +712,6 @@ const styles = StyleSheet.create({
     },
     secureFootText: {
         fontSize: 12,
-        color: 'rgba(255,255,255,0.4)',
+        color: COLORS.OVERLAY_WHITE_40,
     },
 });

@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     panelBody: {
         width: '100%',
         alignSelf: 'stretch',
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     panelBodyLast: {
         paddingBottom: 8,

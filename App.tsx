@@ -1,8 +1,8 @@
 import React, {useEffect, useRef} from 'react';
-import {StatusBar, StyleSheet, View, Platform} from 'react-native';
+import {StatusBar, StyleSheet, Platform} from 'react-native';
 import {Provider as PaperProvider} from 'react-native-paper';
 import RootNavigator from './src/navigation/RootNavigator';
-import {COLORS} from './assets/constants';
+import {PAPER_THEME, THEME} from './assets/constants';
 import messaging, {FirebaseMessagingTypes} from '@react-native-firebase/messaging';
 import notifee, {EventType} from '@notifee/react-native';
 import {getPushToken, setupForceLogoutListeners} from './lib/pushNotifications';
@@ -229,10 +229,10 @@ function App(): JSX.Element {
                     <NoInternetAlert />
                     <StatusBar
                         barStyle={'light-content'}
-                        backgroundColor={COLORS.AKCRUBACKGROUND}
+                        backgroundColor={THEME.colors.background.app}
                         translucent={false} // Keep this false to maintain your current design
                     />
-                    <PaperProvider>
+                    <PaperProvider theme={PAPER_THEME}>
                         <RootNavigator />
                     </PaperProvider>
                 </SafeAreaView>
@@ -247,7 +247,7 @@ const styles = StyleSheet.create({
     },
     container: {
         flex: 1,
-        backgroundColor: COLORS.AKCRUBACKGROUND,
+        backgroundColor: THEME.colors.background.app,
         // iPad-specific adjustments
         ...(isTablet() && {
             paddingHorizontal: 20,

@@ -251,7 +251,7 @@ const OnboardCruName = () => {
                                                 bottom: 0,
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                backgroundColor: 'rgba(0,0,0,0.4)',
+                                                backgroundColor: COLORS.OVERLAY_BLACK_40,
                                                 borderRadius: 8,
                                             }}>
                                             <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
@@ -283,7 +283,7 @@ const OnboardCruName = () => {
                         <View
                             style={{
                                 flex: 1,
-                                backgroundColor: 'rgba(0,0,0,0.55)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_55,
                                 justifyContent: 'center',
                                 alignItems: 'center',
                             }}>
@@ -330,7 +330,7 @@ const OnboardCruName = () => {
                             iconcolor={resetResultType.iconcolor}
                         />
                     </Modal>
-                    <Text style={{...FONTS.paragraph2, color: 'rgba(255,255,255,0.55)', textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
+                    <Text style={{...FONTS.paragraph2, color: COLORS.OVERLAY_WHITE_55, textAlign: 'center', marginBottom: 8, marginTop: 10}}>version {appVersion[0].version}</Text>
                 </ScrollView>
                 </KeyboardAvoidingView>
             </ImageBackground>

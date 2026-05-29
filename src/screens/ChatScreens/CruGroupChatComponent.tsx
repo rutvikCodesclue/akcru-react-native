@@ -388,7 +388,7 @@ const CruGroupChatComponent = ({cru, members}: any) => {
                                 <TextInput
                                     placeholder="Type a message..."
                                     value={imageMessageText}
-                                    placeholderTextColor={'black'}
+                                    placeholderTextColor={COLORS.BLACK}
                                     onChangeText={setImageMessageText}
                                     style={styles.textInput}
                                 />

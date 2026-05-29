@@ -265,7 +265,7 @@ export default function UnlockingMatchesScreen() {
                         </View>
 
                         <View style={styles.footerTrust}>
-                            <Icon name="shield-checkmark" type="ionicon" size={14} color="rgba(255,255,255,0.45)" />
+                            <Icon name="shield-checkmark" type="ionicon" size={14} color={COLORS.OVERLAY_WHITE_45} />
                             <Text style={styles.footerTrustText}>Secure • Private • Just for you</Text>
                         </View>
                     </View>
@@ -278,11 +278,11 @@ export default function UnlockingMatchesScreen() {
 const styles = StyleSheet.create({
     safe: {
         flex: 1,
-        backgroundColor: '#000000',
+        backgroundColor: COLORS.BLACK,
     },
     bgGlowTop: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         opacity: 0.35,
     },
     /** Fills space below back button: top 40% hero image, bottom ~60% for copy, cards, progress. */
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
         marginHorizontal: -20,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#000000',
+        backgroundColor: COLORS.BLACK,
     },
     /** Full asset visible (no crop); scales uniformly inside the 40% band. */
     heroImage: {
@@ -353,12 +353,12 @@ const styles = StyleSheet.create({
         height: 34,
     },
     titleMaskText: {
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
     },
     subtitle: {
         ...FONTS.Title3,
         fontSize: 15,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         textAlign: 'center',
         marginTop: 10,
         marginBottom: 10,
@@ -413,7 +413,7 @@ const styles = StyleSheet.create({
         padding: 16,
         backgroundColor: 'rgba(10,10,28,0.94)',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
+        borderColor: COLORS.OVERLAY_WHITE_10,
     },
     progressHead: {
         flexDirection: 'row',
@@ -427,7 +427,7 @@ const styles = StyleSheet.create({
     progressTitle: {
         ...FONTS.Title3,
         fontSize: 15,
-        color: 'rgba(255,255,255,0.92)',
+        color: COLORS.OVERLAY_WHITE_92,
         lineHeight: 21,
     },
     progressHint: {
@@ -445,7 +445,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 8,
         borderRadius: 6,
-        backgroundColor: 'rgba(255,255,255,0.08)',
+        backgroundColor: COLORS.OVERLAY_WHITE_08,
         overflow: 'hidden',
         minWidth: 0,
     },
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
         ...FONTS.Title3,
         fontSize: 14,
         fontVariant: ['tabular-nums'],
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         minWidth: 40,
         textAlign: 'right',
     },

@@ -123,7 +123,7 @@ const CruChat = ({route}: Props) => {
                     </TouchableOpacity>
                 </View>
                 <LinearGradient
-                    colors={['rgba(255,255,255,0)', 'rgba(255,255,255,0.45)', 'rgba(255,255,255,0)']}
+                    colors={['rgba(255,255,255,0)', COLORS.OVERLAY_WHITE_45, 'rgba(255,255,255,0)']}
                     start={{x: 0, y: 0.5}}
                     end={{x: 1, y: 0.5}}
                     style={styles.headerDivider}
@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
         height: 22,
         borderRadius: 11,
         borderWidth: 1,
-        borderColor: '#FFFFFF',
+        borderColor: COLORS.WHITE,
         overflow: 'hidden',
     },
     movieCloseButtonGradient: {

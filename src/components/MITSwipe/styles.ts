@@ -20,7 +20,7 @@ export default StyleSheet.create({
         zIndex: 20,
     },
     buttonText: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     accept: {
         ...FONTS.Title2,

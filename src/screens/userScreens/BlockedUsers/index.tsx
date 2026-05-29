@@ -131,8 +131,8 @@ const styles = StyleSheet.create({
         marginTop: 14,
         borderRadius: 14,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        borderColor: COLORS.OVERLAY_WHITE_10,
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
         padding: 10,
     },
     listContent: {

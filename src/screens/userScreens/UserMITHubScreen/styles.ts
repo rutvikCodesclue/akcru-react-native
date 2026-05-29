@@ -41,7 +41,7 @@ export default StyleSheet.create({
         fontSize: 14,
     },
     /* modal styles */
-    modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'},
+    modalOverlay: {flex: 1, backgroundColor: COLORS.OVERLAY_BLACK_50, justifyContent: 'center', alignItems: 'center'},
     modalContent: {width: '80%', backgroundColor: COLORS.AKCRUBACKGROUND, padding: 20, borderRadius: 8},
     modalTitle: {...FONTS.Title2, textAlign: 'center', marginBottom: 12},
     optionRow: {padding: 10, borderWidth: 1, borderColor: COLORS.LIGHTGREY, borderRadius: 4, marginVertical: 4},

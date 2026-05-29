@@ -137,7 +137,7 @@ const styles = {
         paddingVertical: 4,
         borderRadius: 7,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.2)',
+        borderColor: COLORS.OVERLAY_WHITE_20,
     },
     badgePillText: {
         ...FONTS.Akcrubadges,

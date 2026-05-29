@@ -283,7 +283,7 @@ const UserNotifications = () => {
                                     <TouchableOpacity key={index} onPress={() => navigateToContent(notification)}>
                                         <View key={index} style={styles.cardcontainer}>
                                             <LinearGradient
-                                                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                                                 style={{
                                                     position: 'absolute',
                                                     left: 0,

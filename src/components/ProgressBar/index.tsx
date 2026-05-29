@@ -24,7 +24,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     totalSteps,
     height = 6,
     fillColor = COLORS.PINK,
-    trackColor = 'rgba(255,255,255,0.2)',
+    trackColor = COLORS.OVERLAY_WHITE_20,
     style,
 }) => {
     // Calculate progress (1-based step)

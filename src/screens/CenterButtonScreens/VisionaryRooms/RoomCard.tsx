@@ -47,12 +47,12 @@ const UserDatesCard = ({
     return (
         <View
             style={{
-                backgroundColor: '#1C202A',
+                backgroundColor: COLORS.SURFACE_ELEVATED,
                 borderRadius: 5,
                 justifyContent: 'center',
             }}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,

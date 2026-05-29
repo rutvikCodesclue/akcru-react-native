@@ -16,7 +16,7 @@ const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmai
     const [targetTime, setTargetTime] = useState<number | null>(null);
     const resendTimerInterval = useRef<NodeJS.Timeout | null>(null);
 
-    const resendButtonColor = 'rgba(255,255,255,0.9)';
+    const resendButtonColor = COLORS.OVERLAY_WHITE_90;
 
     const calculateTimeLeft = useCallback(
         (finalTime: number) => {
@@ -62,7 +62,7 @@ const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmai
     return (
         <View style={{alignItems: 'center', marginTop: 10}}>
             <View style={{flexDirection: 'row'}}>
-                <Text style={{...FONTS.Title2Orange, color: 'rgba(255,255,255,0.7)'}}>Didn't receive a code? </Text>
+                <Text style={{...FONTS.Title2Orange, color: COLORS.OVERLAY_WHITE_70}}>Didn't receive a code? </Text>
                 <Pressable
                     onPress={() => resendEmail(triggerTimer)}
                     disabled={!activeResend || resendingEmail}
@@ -81,10 +81,10 @@ const ResendTimer = ({activeResend, setActiveResend, targetTimeInSec, resendEmai
             </View>
 
             {resendingEmail && (
-                <Text style={{...FONTS.Title2Orange, color: 'rgba(255,255,255,0.6)', minHeight: 24}}>Sending new code…</Text>
+                <Text style={{...FONTS.Title2Orange, color: COLORS.OVERLAY_WHITE_60, minHeight: 24}}>Sending new code…</Text>
             )}
             {!activeResend && !resendingEmail && (
-                <Text style={{...FONTS.Title2Orange, color: 'rgba(255,255,255,0.6)', minHeight: 24}}>
+                <Text style={{...FONTS.Title2Orange, color: COLORS.OVERLAY_WHITE_60, minHeight: 24}}>
                     In <Text style={{...FONTS.Title1, color: COLORS.PINK}}>{timeLeft ?? targetTime ?? targetTimeInSec}</Text>{' '}
                     second(s)
                 </Text>

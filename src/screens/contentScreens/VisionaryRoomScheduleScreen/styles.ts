@@ -98,7 +98,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     dayTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     dayOfWeekText: {
         ...FONTS.Title2,
@@ -124,7 +124,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     timeTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     timeZonePickerContainer: {
         flexDirection: 'row',
@@ -146,7 +146,7 @@ export default StyleSheet.create({
         ...FONTS.Title2,
     },
     timeZoneTextSelected: {
-        color: 'white',
+        color: COLORS.WHITE,
     },
     selectedDateTimeContainer: {
         marginTop: 20,
@@ -199,7 +199,7 @@ export default StyleSheet.create({
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
         borderStyle: 'dashed',
-        borderColor: '#000000',
+        borderColor: COLORS.BLACK,
         borderBottomWidth: 2,
     },
     ticketImage: {

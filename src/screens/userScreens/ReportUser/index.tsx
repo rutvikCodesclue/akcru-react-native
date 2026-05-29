@@ -237,14 +237,14 @@ const ReportUser = ({route}) => {
 const styles = StyleSheet.create({
     safeArea: {
         flex: 1,
-        backgroundColor: '#000',
+        backgroundColor: COLORS.BLACK,
     },
     scrollContent: {
         paddingBottom: 120,
     },
     headerWrap: {
         zIndex: 20,
-        backgroundColor: '#000',
+        backgroundColor: COLORS.BLACK,
         paddingBottom: 10,
     },
     screenContent: {
@@ -254,7 +254,7 @@ const styles = StyleSheet.create({
     reportCard: {
         borderRadius: 12,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
         padding: 12,
     },
     title: {
@@ -285,11 +285,11 @@ const styles = StyleSheet.create({
         textAlignVertical: 'top',
         color: COLORS.LIGHTGREY,
         width: '100%',
-        backgroundColor: 'rgba(255,255,255,0.02)',
+        backgroundColor: COLORS.OVERLAY_WHITE_02,
     },
     charCount: {
         ...FONTS.paragraph3,
-        color: 'rgba(255,255,255,0.45)',
+        color: COLORS.OVERLAY_WHITE_45,
         alignSelf: 'flex-end',
         marginTop: 6,
     },
@@ -330,7 +330,7 @@ const styles = StyleSheet.create({
         paddingBottom: 16,
         borderTopWidth: 1,
         borderTopColor: COLORS.FADEDBLACK,
-        backgroundColor: '#000',
+        backgroundColor: COLORS.BLACK,
         width: '100%',
     },
     gallerycontainer: {

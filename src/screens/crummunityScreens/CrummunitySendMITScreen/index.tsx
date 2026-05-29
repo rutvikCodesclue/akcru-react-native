@@ -277,7 +277,7 @@ export default function CrummunitySendMITScreen() {
             <View style={styles.root}>
                 <StatusBar
                     barStyle="light-content"
-                    backgroundColor="transparent"
+                    backgroundColor={COLORS.TRANSPARENT}
                     translucent={Platform.OS === 'android'}
                 />
                 <ImageBackground
@@ -309,7 +309,7 @@ export default function CrummunitySendMITScreen() {
         <View style={styles.root}>
             <StatusBar
                 barStyle="light-content"
-                backgroundColor="transparent"
+                backgroundColor={COLORS.TRANSPARENT}
                 translucent={Platform.OS === 'android'}
             />
             <ImageBackground
@@ -325,7 +325,7 @@ export default function CrummunitySendMITScreen() {
                 />
                 <LinearGradient
                     pointerEvents="none"
-                    colors={['rgba(168,85,247,0.2)', 'rgba(236,72,153,0.08)', 'transparent']}
+                    colors={['rgba(168,85,247,0.2)', 'rgba(236,72,153,0.08)', COLORS.TRANSPARENT]}
                     locations={[0, 0.45, 1]}
                     style={styles.topAtmosphereGlow}
                 />
@@ -450,7 +450,7 @@ export default function CrummunitySendMITScreen() {
                                                 <Icon
                                                     name="paper-plane"
                                                     type="ionicon"
-                                                    color="#fff"
+                                                    color={COLORS.WHITE}
                                                     size={22}
                                                 />
                                                 <Text style={styles.sendText}>Send MIT</Text>
@@ -471,7 +471,7 @@ export default function CrummunitySendMITScreen() {
                                             <Icon
                                                 name="lock-closed"
                                                 type="ionicon"
-                                                color="rgba(255,255,255,0.4)"
+                                                color={COLORS.OVERLAY_WHITE_40}
                                                 size={13}
                                             />
                                             <Text style={styles.disclaimer}>
@@ -570,7 +570,7 @@ const styles = StyleSheet.create({
     },
     mainCardInner: {
         borderRadius: 25,
-        backgroundColor: 'transparent',
+        backgroundColor: COLORS.TRANSPARENT,
         paddingHorizontal: 16,
         paddingTop: 14,
         paddingBottom: 20,
@@ -601,7 +601,7 @@ const styles = StyleSheet.create({
     },
     cardCaption: {
         textAlign: 'center',
-        color: 'rgba(255,255,255,0.88)',
+        color: COLORS.OVERLAY_WHITE_88,
         fontSize: 12,
         marginBottom: 12,
         fontFamily: 'Montserrat-Regular',
@@ -649,7 +649,7 @@ const styles = StyleSheet.create({
         flexWrap: 'wrap',
     },
     profileName: {
-        color: '#fff',
+        color: COLORS.WHITE,
         fontSize: 18,
         fontFamily: 'Montserrat-Bold',
         flexShrink: 1,
@@ -659,13 +659,13 @@ const styles = StyleSheet.create({
     },
     profileSectionDivider: {
         height: StyleSheet.hairlineWidth,
-        backgroundColor: 'rgba(255,255,255,0.12)',
+        backgroundColor: COLORS.OVERLAY_WHITE_12,
         width: '100%',
         marginTop: 18,
         marginBottom: 16,
     },
     sectionTitle: {
-        color: '#fff',
+        color: COLORS.WHITE,
         fontSize: 15,
         fontFamily: 'Montserrat-Bold',
         marginBottom: 14,
@@ -684,7 +684,7 @@ const styles = StyleSheet.create({
     },
     featureDivider: {
         width: 1,
-        backgroundColor: 'rgba(255,255,255,0.14)',
+        backgroundColor: COLORS.OVERLAY_WHITE_14,
         alignSelf: 'stretch',
         marginVertical: 12,
     },
@@ -753,7 +753,7 @@ const styles = StyleSheet.create({
         flexShrink: 1,
     },
     sendText: {
-        color: '#fff',
+        color: COLORS.WHITE,
         marginLeft: 12,
         fontSize: 17,
         fontFamily: 'Montserrat-Bold',
@@ -766,7 +766,7 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     sendCost: {
-        color: '#fff',
+        color: COLORS.WHITE,
         fontSize: 17,
         fontFamily: 'Montserrat-Bold',
         ...Platform.select({
@@ -799,7 +799,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     balanceLabelInline: {
-        color: 'rgba(255,255,255,0.65)',
+        color: COLORS.OVERLAY_WHITE_65,
         fontSize: 15,
         fontFamily: 'Montserrat-SemiBold',
         flexShrink: 0,
@@ -825,14 +825,14 @@ const styles = StyleSheet.create({
         fontFamily: 'Montserrat-SemiBold',
     },
     errorText: {
-        color: '#fff',
+        color: COLORS.WHITE,
         textAlign: 'center',
         marginTop: 40,
     },
     bottomNote: {
         marginTop: 10,
         marginBottom: 4,
-        color: 'rgba(255,255,255,0.92)',
+        color: COLORS.OVERLAY_WHITE_92,
         fontSize: 12,
         fontFamily: 'Montserrat-Bold',
         textAlign: 'center',

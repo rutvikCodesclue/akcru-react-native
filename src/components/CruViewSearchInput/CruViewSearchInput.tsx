@@ -64,7 +64,7 @@ const CruViewSearchInput = () => {
     return (
         <View>
             <LinearGradient
-                colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
+                colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT]}
                 style={{
                     position: 'absolute',
                     left: 0,

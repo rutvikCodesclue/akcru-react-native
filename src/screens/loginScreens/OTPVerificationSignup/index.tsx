@@ -162,7 +162,7 @@ const OTPVerificationSignup = ({route}) => {
                         <TouchableOpacity onPress={() => navigation.pop()} style={styles.backButton}>
                             <Icon name="chevron-back" type="ionicon" size={smlIconSize} color={COLORS.LIGHTGREY} />
                         </TouchableOpacity>
-                        <Text style={{...FONTS.Title2, color: 'rgba(255,255,255,0.7)', marginLeft: 8}}>
+                        <Text style={{...FONTS.Title2, color: COLORS.OVERLAY_WHITE_70, marginLeft: 8}}>
                             {CURRENT_STEP}/{TOTAL_STEPS}
                         </Text>
                     </View>
@@ -209,7 +209,7 @@ const OTPVerificationSignup = ({route}) => {
                                 />
                             </View>
                             <View style={{marginBottom: 30, paddingHorizontal: 16}}>
-                                <Text style={[AUTH_TEXT_THEME.instruction, {textAlign: 'center', color: 'rgba(255,255,255,0.9)'}]}>
+                                <Text style={[AUTH_TEXT_THEME.instruction, {textAlign: 'center', color: COLORS.OVERLAY_WHITE_90}]}>
                                     Enter the 6-digit code sent to your email
                                 </Text>
                             </View>

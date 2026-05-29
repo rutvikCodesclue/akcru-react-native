@@ -339,7 +339,7 @@ const styles = StyleSheet.create({
     unlockText: {...FONTS.Title3, color: COLORS.LIGHTGREY, marginBottom: 10},
 
     // modal styles
-    modalOverlay: {flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center'},
+    modalOverlay: {flex: 1, backgroundColor: COLORS.OVERLAY_BLACK_50, justifyContent: 'center', alignItems: 'center'},
     modalContent: {width: '80%', backgroundColor: COLORS.AKCRUBACKGROUND, borderRadius: 8, padding: 20},
     modalTitle: {...FONTS.Title2, marginBottom: 15, textAlign: 'center'},
     modalLabel: {...FONTS.Title3, marginBottom: 10},

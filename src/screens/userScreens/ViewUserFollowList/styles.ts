@@ -9,7 +9,7 @@ export default StyleSheet.create({
     headerShell: {
         backgroundColor: COLORS.BLACK,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        borderBottomColor: COLORS.OVERLAY_WHITE_08,
         paddingBottom: 8,
     },
     headerWrap: {
@@ -38,7 +38,7 @@ export default StyleSheet.create({
         backgroundColor: COLORS.BLACK,
         justifyContent: 'space-between',
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.08)',
+        borderBottomColor: COLORS.OVERLAY_WHITE_08,
         elevation: 0,
         shadowOpacity: 0,
     },

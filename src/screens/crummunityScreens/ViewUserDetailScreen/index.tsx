@@ -131,7 +131,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                             resizeMode="cover"
                             style={{height: SIZES.ScreenHeight / 5}}>
                             <LinearGradient
-                                colors={['transparent', 'transparent', COLORS.AKCRUBACKGROUND]}
+                                colors={[COLORS.TRANSPARENT, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                                 style={{
                                     position: 'absolute',
                                     left: 0,
@@ -157,7 +157,7 @@ const ViewUserDetailScreen = ({route, navigation}: Props) => {
                                     flex: 1,
                                     justifyContent: 'center',
                                     alignItems: 'center',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                                    backgroundColor: COLORS.OVERLAY_BLACK_90,
                                 }}>
                                 <Image
                                     source={

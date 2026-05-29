@@ -299,7 +299,7 @@ const AkcruNetworkPost = ({
         <View style={styles.cardcontainer}>
             <LinearGradient
                 // Background Linear Gradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,
@@ -412,7 +412,7 @@ const AkcruNetworkPost = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <TouchableWithoutFeedback>
                         <Image
@@ -430,7 +430,7 @@ const AkcruNetworkPost = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Video
                         ref={modalVideoRef}

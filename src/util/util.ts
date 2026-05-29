@@ -112,7 +112,7 @@ export function getShortenedTimezone(timezone: string): string {
 export function mitStatusValueColor(statusText: string): string {
     const trimmed = statusText.trim();
     if (!trimmed || trimmed === '—') {
-        return 'rgba(255,255,255,0.82)';
+        return COLORS.OVERLAY_WHITE_82;
     }
     const statusUpper = trimmed.toUpperCase();
     if (statusUpper === 'PENDING') {
@@ -127,7 +127,7 @@ export function mitStatusValueColor(statusText: string): string {
 if (statusUpper === 'CANCELLED') {
         return COLORS.AKCRUBLUE;
     }
-    return 'rgba(255,255,255,0.82)';
+    return COLORS.OVERLAY_WHITE_82;
 }
 
 export function formatDatestamp(timestamp: string | number | Date) {

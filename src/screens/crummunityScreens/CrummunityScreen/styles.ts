@@ -114,19 +114,19 @@ export default StyleSheet.create({
         marginBottom: 10,
         marginTop: '25%',
         textAlign: 'center',
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
     },
     skipButton: {
         position: 'absolute',
         top: 30,
         right: 20,
-        backgroundColor: '#ffffff',
+        backgroundColor: COLORS.WHITE,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
     },
     skipButtonText: {
-        color: '#000',
+        color: COLORS.BLACK,
         fontWeight: 'bold',
     },
 });

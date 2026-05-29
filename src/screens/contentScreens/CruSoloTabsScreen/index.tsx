@@ -225,7 +225,7 @@ export default function CruSoloTabsScreen() {
                         />
 
                         <LinearGradient
-                            colors={['transparent', 'rgba(0,0,0,0.88)']}
+                            colors={[COLORS.TRANSPARENT, 'rgba(0,0,0,0.88)']}
                             style={styles.videoOverlay}
                         />
                         <View style={styles.videoMeta}>
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
     },
     tabLabel: {
         ...FONTS.paragraph4,
-        color: 'rgba(255,255,255,0.7)',
+        color: COLORS.OVERLAY_WHITE_70,
         textTransform: 'none',
     },
     tabLabelActive: {
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(0,0,0,0.45)',
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
     },
     videoContainer: {
         width: '100%',
@@ -385,7 +385,7 @@ const styles = StyleSheet.create({
     },
     sectionDivider: {
         height: 1,
-        backgroundColor: 'rgba(255,255,255,0.14)',
+        backgroundColor: COLORS.OVERLAY_WHITE_14,
         marginHorizontal: 10,
         marginBottom: 8,
     },

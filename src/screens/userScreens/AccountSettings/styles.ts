@@ -55,9 +55,9 @@ export default StyleSheet.create({
         marginTop: Platform.OS === 'ios' ? '-2%' : '-1%',
     },
     profileCard: {
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
         borderRadius: 14,
         paddingHorizontal: 12,
         paddingVertical: 14,
@@ -140,7 +140,7 @@ export default StyleSheet.create({
     },
     datepickios: {
         width: 320,
-        backgroundColor: 'white',
+        backgroundColor: COLORS.WHITE,
     },
     modalBtn: {
         flex: 1,
@@ -176,7 +176,7 @@ export default StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -193,9 +193,9 @@ export default StyleSheet.create({
         paddingHorizontal: SIZES.ScreenWidth * 0.04,
     },
     editModalCard: {
-        backgroundColor: 'rgba(255,255,255,0.03)',
+        backgroundColor: COLORS.OVERLAY_WHITE_03,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.08)',
+        borderColor: COLORS.OVERLAY_WHITE_08,
         borderRadius: 14,
         paddingHorizontal: 14,
         paddingVertical: 16,
@@ -255,9 +255,9 @@ export default StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.14)',
+        borderColor: COLORS.OVERLAY_WHITE_14,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,255,255,0.04)',
+        backgroundColor: COLORS.OVERLAY_WHITE_04,
         paddingHorizontal: 12,
         paddingVertical: 10,
     },

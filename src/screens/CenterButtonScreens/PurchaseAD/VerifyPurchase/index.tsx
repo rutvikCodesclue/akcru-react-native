@@ -88,7 +88,7 @@ const styles = StyleSheet.create({
     text: {marginTop: 16, fontSize: 16, color: '#444'},
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
     },
     modalButtonText: {
         ...FONTS.Title1,
-        color: '#fff',
+        color: COLORS.WHITE,
         textAlign: 'center',
     },
 });

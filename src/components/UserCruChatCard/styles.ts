@@ -72,7 +72,7 @@ export default StyleSheet.create({
     dateAboveTime: {
         ...FONTS.paragraph1,
         fontSize: 11,
-        color: 'rgba(255,255,255,0.72)',
+        color: COLORS.OVERLAY_WHITE_72,
         fontWeight: '600',
         marginBottom: 2,
         textAlign: 'right',
@@ -104,7 +104,7 @@ export default StyleSheet.create({
         backgroundColor: COLORS.TRANSDARKGREY,
         marginLeft: 10,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.16)',
+        borderColor: COLORS.OVERLAY_WHITE_16,
     },
     movieTitle: {
         ...FONTS.paragraph1,
@@ -116,7 +116,7 @@ export default StyleSheet.create({
     preview: {
         ...FONTS.paragraph1,
         fontSize: 14,
-        color: 'rgba(255,255,255,0.82)',
+        color: COLORS.OVERLAY_WHITE_82,
         lineHeight: 18,
     },
 });

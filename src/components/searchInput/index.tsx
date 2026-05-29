@@ -75,7 +75,7 @@ const SearchInput = () => {
 
     return (
         <View style={styles.searchRoot}>
-            <LinearGradient colors={[COLORS.BLACK, 'transparent']} style={styles.topGradient} />
+            <LinearGradient colors={[COLORS.BLACK, COLORS.TRANSPARENT]} style={styles.topGradient} />
             <View style={styles.searchLauncherWrap}>
                 <TouchableWithoutFeedback onPress={() => setModalVisible(true)}>
                     <View style={styles.searchLauncher}>

@@ -131,7 +131,7 @@ const PostCommentCard = ({
     const [showSkipButton, setShowSkipButton] = useState(false);
 
     const isLiked = !!post.isLikedByCurrentUser;
-    const likeIconColor = isLiked ? '#ff3b30' : 'rgba(255,255,255,0.6)';
+    const likeIconColor = isLiked ? '#ff3b30' : COLORS.OVERLAY_WHITE_60;
     const author = post?.author ?? null;
 
     const topVideoRef = useRef(null);
@@ -387,7 +387,7 @@ const PostCommentCard = ({
                 </View>
                 <View style={styles.menuWrap}>
                     <Pressable onPress={openPostOptions}>
-                        <Icon name="ellipsis-horizontal" type="ionicon" color="rgba(255,255,255,0.72)" size={20} />
+                        <Icon name="ellipsis-horizontal" type="ionicon" color={COLORS.OVERLAY_WHITE_72} size={20} />
                     </Pressable>
                 </View>
                 <Modal visible={isPostOptionsVisible} transparent={true} animationType="slide">
@@ -457,7 +457,7 @@ const PostCommentCard = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Image source={{uri: selectedImage}} style={{width: '95%', height: '95%'}} resizeMode="contain" />
                     <TouchableOpacity onPress={closeModal}>
@@ -472,7 +472,7 @@ const PostCommentCard = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Video
                         ref={modalVideoRef}

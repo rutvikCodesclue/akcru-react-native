@@ -126,7 +126,7 @@ const SmallButton: React.FC<BtnProps> = ({
                         borderRadius: 5,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -158,7 +158,7 @@ const MedButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) => {
                         borderRadius: 5,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -232,7 +232,7 @@ const LrgButton: React.FC<BtnProps> = ({
                         borderRadius: 5,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -306,7 +306,7 @@ const XlLrgButton: React.FC<BtnProps> = ({
                         borderRadius: 5,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -337,7 +337,7 @@ const XSmallButton = ({btnname, onPress, disabled, color}: BtnProps) => {
                         alignItems: 'center',
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -368,7 +368,7 @@ const AutoButton = ({btnname, onPress, color, width}: Props) => {
                         alignItems: 'center',
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -400,7 +400,7 @@ const FollowButton: React.FC<BtnProps> = ({btnname, onPress, color, disabled}) =
                         borderRadius: 5,
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,
@@ -442,7 +442,7 @@ const CustomButton = ({
                       opacity: disabled ?1: 1,
           }}>
           <LinearGradient
-            colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+            colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
             style={{
               position: 'absolute',
               left: 0,
@@ -485,7 +485,7 @@ const IconMedButton: React.FC<IconBtnProps> = ({btnname, onPress, color, disable
                         alignItems: 'center'
                     }}>
                     <LinearGradient
-                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                         style={{
                             position: 'absolute',
                             left: 0,

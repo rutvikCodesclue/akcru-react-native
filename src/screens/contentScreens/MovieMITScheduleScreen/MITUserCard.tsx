@@ -46,11 +46,11 @@ const MITUserSearchCard = ({
                 width: SIZES.ScreenWidth,
                 height: SIZES.ScreenHeight / 9.3,
                 borderWidth: pressed ? 2.5 : 0,
-                borderColor: pressed ? COLORS.AKCRUBLUE : 'transparent',
+                borderColor: pressed ? COLORS.AKCRUBLUE : COLORS.TRANSPARENT,
                 transform: [{scale: pressed ? 1.03 : 1}],
             }}>
             <LinearGradient
-                colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                 style={{
                     position: 'absolute',
                     left: 0,

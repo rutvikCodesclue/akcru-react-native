@@ -479,7 +479,7 @@ const PollCard = ({
                                     <Icon
                                         name="ellipsis-horizontal"
                                         type="ionicon"
-                                        color="rgba(255,255,255,0.72)"
+                                        color={COLORS.OVERLAY_WHITE_72}
                                         size={isTablet() ? 28 : 22}
                                     />
                                 </Pressable>
@@ -591,7 +591,7 @@ const PollCard = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <TouchableWithoutFeedback>
                         <Image
@@ -612,7 +612,7 @@ const PollCard = ({
                         flex: 1,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        backgroundColor: 'rgba(0, 0, 0, 0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                     }}>
                     <Video
                         ref={modalVideoRef}

@@ -446,7 +446,7 @@ const AccountSettings = () => {
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_50,
                             }}>
                             <View
                                 style={{
@@ -582,7 +582,7 @@ const AccountSettings = () => {
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_50,
                             }}>
                             <View
                                 style={{
@@ -736,7 +736,7 @@ const AccountSettings = () => {
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_50,
                             }}>
                             <View
                                 style={{
@@ -986,7 +986,7 @@ const AccountSettings = () => {
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_50,
                             }}>
                             <View
                                 style={{
@@ -1061,7 +1061,7 @@ const AccountSettings = () => {
                                 flex: 1,
                                 justifyContent: 'center',
                                 alignItems: 'center',
-                                backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                backgroundColor: COLORS.OVERLAY_BLACK_50,
                             }}>
                             <View
                                 style={{

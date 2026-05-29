@@ -134,7 +134,7 @@ const SendMITSearchInput = ({
         <TabContainer>
             <View style={styles.mitSearchRoot}>
                 <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent']}
+                    colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT]}
                     style={styles.mitSearchTopGradient}
                 />
                 <View style={styles.mitSearchLauncherWrap}>

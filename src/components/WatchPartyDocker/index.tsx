@@ -75,7 +75,7 @@ const WatchPartyDocker = ({hmsInstanceRef, members, peersMuteStatus, currentRoom
                                 style={{
                                     width: '100%',
                                     height: '100%',
-                                    backgroundColor: 'black',
+                                    backgroundColor: COLORS.BLACK,
                                 }}
                                 scaleType={HMSVideoViewMode.ASPECT_BALANCED}
                                 mirror={true}
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
     hmsView: {
         width: '100%',
         height: '100%',
-        backgroundColor: 'black',
+        backgroundColor: COLORS.BLACK,
     },
 });
 

@@ -216,7 +216,7 @@ const ContactList = () => {
         <SafeAreaView>
             <ImageBackground style={styles.bgimage} source={imageindex.BgImageSM} resizeMode={'cover'}>
                 <LinearGradient
-                    colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                    colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                     style={{
                         position: 'absolute',
                         left: 0,
@@ -410,7 +410,7 @@ const ContactList = () => {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
@@ -452,7 +452,7 @@ const ContactList = () => {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_50,
                         justifyContent: 'center',
                         alignItems: 'center',
                     }}>
@@ -545,7 +545,7 @@ const style = StyleSheet.create({
     cardAvatarText: {
         fontSize: 19,
         fontWeight: 'bold',
-        color: '#fff',
+        color: COLORS.WHITE,
     },
     cardBody: {
         marginRight: 'auto',
@@ -554,13 +554,13 @@ const style = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: '700',
-        color: '#fff',
+        color: COLORS.WHITE,
     },
     cardPhone: {
         fontSize: 15,
         lineHeight: 20,
         fontWeight: '500',
-        color: '#fff',
+        color: COLORS.WHITE,
         marginTop: 3,
         width: '20%',
     },
@@ -605,7 +605,7 @@ const style = StyleSheet.create({
     noContactPara: {
         fontSize: 15,
         fontWeight: '400',
-        color: '#fff',
+        color: COLORS.WHITE,
         width: '90%',
         textAlign: 'center',
         marginTop: 10,

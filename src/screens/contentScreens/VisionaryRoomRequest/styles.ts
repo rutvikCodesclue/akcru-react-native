@@ -86,7 +86,7 @@ export default StyleSheet.create({
         borderTopLeftRadius: 5,
         borderTopRightRadius: 5,
         borderStyle: 'dashed',
-        borderColor: '#000000',
+        borderColor: COLORS.BLACK,
         borderBottomWidth: 2,
     },
     ticketImage: {

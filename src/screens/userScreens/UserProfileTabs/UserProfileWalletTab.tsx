@@ -164,7 +164,7 @@ const UserProfileWalletTab = () => {
                             <View style={styles.inputContainer2}>
                                 <TextInput
                                     placeholder={'To'}
-                                    placeholderTextColor={'transparent'}
+                                    placeholderTextColor={COLORS.TRANSPARENT}
                                     style={{color: COLORS.WHITE, width: '100%'}}
                                     editable={false}
                                     secureTextEntry={false}
@@ -177,7 +177,7 @@ const UserProfileWalletTab = () => {
                             <View style={styles.inputContainer2}>
                                 <TextInput
                                     placeholder={'To'}
-                                    placeholderTextColor={'transparent'}
+                                    placeholderTextColor={COLORS.TRANSPARENT}
                                     style={{color: COLORS.WHITE, width: '100%'}}
                                     editable={false}
                                     secureTextEntry={false}
@@ -192,7 +192,7 @@ const UserProfileWalletTab = () => {
                     <View style={styles.inputContainer2}>
                         <TextInput
                             placeholder={'Amount'}
-                            placeholderTextColor={'transparent'}
+                            placeholderTextColor={COLORS.TRANSPARENT}
                             style={{color: COLORS.WHITE, width: '100%'}}
                             keyboardType="phone-pad" // Set keyboard type to phone-pad
                             value={adAmount}

@@ -568,7 +568,7 @@ const UserProfileDetailsTab = ({
                                                 hitSlop={{top: 6, bottom: 6, left: 6, right: 6}}
                                                 style={{
                                                     marginRight: 4,
-                                                    backgroundColor: 'rgba(0,0,0,0.55)',
+                                                    backgroundColor: COLORS.OVERLAY_BLACK_55,
                                                     borderRadius: 12,
                                                     padding: 4,
                                                 }}>
@@ -587,7 +587,7 @@ const UserProfileDetailsTab = ({
                                                 accessibilityLabel="Move photo later in gallery"
                                                 hitSlop={{top: 6, bottom: 6, left: 6, right: 6}}
                                                 style={{
-                                                    backgroundColor: 'rgba(0,0,0,0.55)',
+                                                    backgroundColor: COLORS.OVERLAY_BLACK_55,
                                                     borderRadius: 12,
                                                     padding: 4,
                                                 }}>
@@ -612,7 +612,7 @@ const UserProfileDetailsTab = ({
                                             right: 6,
                                             flexDirection: 'row',
                                             alignItems: 'center',
-                                            backgroundColor: 'rgba(0,0,0,0.5)',
+                                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                                             borderRadius: 12,
                                             paddingHorizontal: 6,
                                             paddingVertical: 2,
@@ -787,7 +787,7 @@ const UserProfileDetailsTab = ({
                                                             : SIZES.ScreenWidth * 0.75,
                                                     }}>
                                                     <LinearGradient
-                                                        colors={[COLORS.FADEDBLACK, 'transparent', COLORS.FADEDBLACK]}
+                                                        colors={[COLORS.FADEDBLACK, COLORS.TRANSPARENT, COLORS.FADEDBLACK]}
                                                         style={{
                                                             position: 'absolute',
                                                             left: 0,
@@ -1026,7 +1026,7 @@ const UserProfileDetailsTab = ({
                                     <View
                                         style={{
                                             flex: 1,
-                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                         }}>
@@ -1098,7 +1098,7 @@ const UserProfileDetailsTab = ({
                                     <View
                                         style={{
                                             flex: 1,
-                                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                                            backgroundColor: COLORS.OVERLAY_BLACK_50,
                                             justifyContent: 'center',
                                             alignItems: 'center',
                                         }}>

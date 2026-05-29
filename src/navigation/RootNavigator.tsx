@@ -1,5 +1,5 @@
-import React, {useEffect, useRef} from 'react';
-import {DefaultTheme, NavigationContainer, NavigationContainerRef} from '@react-navigation/native';
+import React, {useEffect} from 'react';
+import {NavigationContainer} from '@react-navigation/native';
 import AuthStack, {AuthStackParams} from './AuthNavigation';
 import {TabContextProvider} from '../context/TabContext';
 import {Alert, Linking} from 'react-native';
@@ -7,15 +7,7 @@ import {verifyAdPurchaseSession} from '../lib/api/adPurchase.lib';
 import { PostHogProvider } from 'posthog-react-native'
 import {POSTHOG_API_KEY} from '@env';
 import {navigationRef} from '../util/RootNavigation';
-import {COLORS} from '../../assets/constants';
-
-const AKCRU_NAVIGATION_THEME = {
-    ...DefaultTheme,
-    colors: {
-        ...DefaultTheme.colors,
-        background: COLORS.AKCRUBACKGROUND,
-    },
-};
+import {NAVIGATION_THEME} from '../../assets/constants';
 
 export default function RootNavigator(params: any) {
 
@@ -63,7 +55,7 @@ export default function RootNavigator(params: any) {
         <TabContextProvider>
             <NavigationContainer
                 ref={navigationRef}
-                theme={AKCRU_NAVIGATION_THEME}
+                theme={NAVIGATION_THEME}
                 onStateChange={() => {
                     if (!__DEV__) {
                         return;

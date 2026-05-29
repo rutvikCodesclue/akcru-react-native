@@ -49,7 +49,7 @@ export default function ProfileMetricChip({
                         flexDirection: 'row',
                         alignItems: 'center',
                         borderRadius: 999,
-                        backgroundColor: '#000000',
+                        backgroundColor: COLORS.BLACK,
                         paddingHorizontal: 12,
                         paddingVertical: 6,
                     }}>
@@ -57,7 +57,7 @@ export default function ProfileMetricChip({
                         <Text
                             style={{
                                 fontSize: 18,
-                                textShadowColor: 'rgba(255,255,255,0.75)',
+                                textShadowColor: COLORS.OVERLAY_WHITE_75,
                                 textShadowOffset: {width: 0, height: 0},
                                 textShadowRadius: 6,
                             }}>

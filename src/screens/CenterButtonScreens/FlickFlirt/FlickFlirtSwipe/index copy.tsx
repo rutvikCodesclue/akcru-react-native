@@ -218,7 +218,7 @@ const FlickFlirtSwipeold = () => {
                 style={{width: SIZES.ScreenWidth, height: SIZES.ScreenHeight}}>
                 <SafeAreaView style={{flex: 1}}>
                     <LinearGradient
-                        colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                        colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                         // eslint-disable-next-line react-native/no-inline-styles
                         style={{
                             position: 'absolute',
@@ -245,7 +245,7 @@ const FlickFlirtSwipeold = () => {
                                     <View style={styles.card}>
                                         <ImageBackground source={{uri: movie.portraitURL}} style={styles.cardImage}>
                                             <LinearGradient
-                                                colors={[COLORS.AKCRUBACKGROUND, 'transparent', COLORS.AKCRUBACKGROUND]}
+                                                colors={[COLORS.AKCRUBACKGROUND, COLORS.TRANSPARENT, COLORS.AKCRUBACKGROUND]}
                                                 // eslint-disable-next-line react-native/no-inline-styles
                                                 style={{
                                                     position: 'absolute',
@@ -289,7 +289,7 @@ const FlickFlirtSwipeold = () => {
 
                                     setTimeout(() => setSwipeResult(null), 1200);
                                 }}
-                                backgroundColor="transparent"
+                                backgroundColor={COLORS.TRANSPARENT}
                                 stackSize={4}
                                 cardIndex={0}
                                 verticalSwipe={false}
@@ -304,7 +304,7 @@ const FlickFlirtSwipeold = () => {
                                         title: 'NOPE',
                                         style: {
                                             label: {
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: COLORS.TRANSPARENT,
                                                 borderColor: 'red',
                                                 color: 'red',
                                                 fontSize: 38,
@@ -325,7 +325,7 @@ const FlickFlirtSwipeold = () => {
                                         title: 'LIKE',
                                         style: {
                                             label: {
-                                                backgroundColor: 'transparent',
+                                                backgroundColor: COLORS.TRANSPARENT,
                                                 borderColor: '#00BFFF',
                                                 color: '#00BFFF',
                                                 fontSize: 38,

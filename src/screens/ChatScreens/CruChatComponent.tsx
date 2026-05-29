@@ -484,7 +484,7 @@ const CruChatComponent = ({route}: any) => {
                                     fontSize: 16,
                                     paddingVertical: 12,
                                     paddingHorizontal: 10,
-                                    backgroundColor: 'transparent',
+                                    backgroundColor: COLORS.TRANSPARENT,
                                 },
                             }}
                             alwaysShowSend
@@ -567,7 +567,7 @@ const CruChatComponent = ({route}: any) => {
                                                             height: 220,
                                                             borderRadius: 12,
                                                             marginTop: props.currentMessage?.text ? 8 : 0,
-                                                            backgroundColor: 'rgba(255,255,255,0.08)',
+                                                            backgroundColor: COLORS.OVERLAY_WHITE_08,
                                                         }}
                                                         resizeMode="cover"
                                                     />
@@ -575,7 +575,7 @@ const CruChatComponent = ({route}: any) => {
                                             ) : null}
                                             <Text
                                                 style={{
-                                                    color: 'rgba(255,255,255,0.72)',
+                                                    color: COLORS.OVERLAY_WHITE_72,
                                                     fontSize: 11,
                                                     marginTop: 2,
                                                     textAlign:
@@ -604,7 +604,7 @@ const CruChatComponent = ({route}: any) => {
                 <View
                     style={{
                         flex: 1,
-                        backgroundColor: 'rgba(0,0,0,0.9)',
+                        backgroundColor: COLORS.OVERLAY_BLACK_90,
                         alignItems: 'center',
                         justifyContent: 'center',
                         paddingHorizontal: 16,
@@ -627,9 +627,9 @@ const CruChatComponent = ({route}: any) => {
                             paddingHorizontal: 20,
                             paddingVertical: 10,
                             borderRadius: 22,
-                            backgroundColor: 'rgba(255,255,255,0.18)',
+                            backgroundColor: COLORS.OVERLAY_WHITE_18,
                             borderWidth: 1,
-                            borderColor: 'rgba(255,255,255,0.45)',
+                            borderColor: COLORS.OVERLAY_WHITE_45,
                         }}>
                         <Text style={{color: COLORS.WHITE, fontSize: 14, fontWeight: '600'}}>Close</Text>
                     </TouchableOpacity>

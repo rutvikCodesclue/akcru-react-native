@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     },
     modalOverlay: {
         flex: 1,
-        backgroundColor: 'rgba(0,0,0,0.5)',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -316,13 +316,13 @@ const styles = StyleSheet.create({
         position: 'absolute',
         top: 30,
         right: 20,
-        backgroundColor: '#ffffff',
+        backgroundColor: COLORS.WHITE,
         paddingVertical: 10,
         paddingHorizontal: 20,
         borderRadius: 20,
     },
     skipButtonText: {
-        color: '#000',
+        color: COLORS.BLACK,
         fontWeight: 'bold',
     },
 });
