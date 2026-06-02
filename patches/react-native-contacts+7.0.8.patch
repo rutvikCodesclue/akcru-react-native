@@ -1,125 +1,3 @@
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml b/node_modules/react-native-contacts/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-new file mode 100644
-index 0000000..3f5b08d
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/AndroidManifest.xml
-@@ -0,0 +1,6 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
-+
-+    <uses-sdk android:minSdkVersion="21" />
-+
-+</manifest>
-\ No newline at end of file
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json b/node_modules/react-native-contacts/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
-new file mode 100644
-index 0000000..91efb43
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/aapt_friendly_merged_manifests/debug/aapt/output-metadata.json
-@@ -0,0 +1,18 @@
-+{
-+  "version": 3,
-+  "artifactType": {
-+    "type": "AAPT_FRIENDLY_MERGED_MANIFESTS",
-+    "kind": "Directory"
-+  },
-+  "applicationId": "com.rt2zz.reactnativecontacts",
-+  "variantName": "debug",
-+  "elements": [
-+    {
-+      "type": "SINGLE",
-+      "filters": [],
-+      "attributes": [],
-+      "outputFile": "AndroidManifest.xml"
-+    }
-+  ],
-+  "elementType": "File"
-+}
-\ No newline at end of file
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/aar_metadata/debug/aar-metadata.properties b/node_modules/react-native-contacts/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
-new file mode 100644
-index 0000000..776557e
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/aar_metadata/debug/aar-metadata.properties
-@@ -0,0 +1,5 @@
-+aarFormatVersion=1.0
-+aarMetadataVersion=1.0
-+minCompileSdk=1
-+minCompileSdkExtension=0
-+minAndroidGradlePluginVersion=1.0.0
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties b/node_modules/react-native-contacts/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
-new file mode 100644
-index 0000000..c3fbf56
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/incremental/debug/packageDebugResources/compile-file-map.properties
-@@ -0,0 +1 @@
-+#Sat Jul 12 18:32:54 EDT 2025
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml b/node_modules/react-native-contacts/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
-new file mode 100644
-index 0000000..f1a768d
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/incremental/debug/packageDebugResources/merger.xml
-@@ -0,0 +1,2 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<merger version="3"><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="main" generated-set="main$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="debug" generated-set="debug$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\debug\res"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated$Generated" generated="true" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\build\generated\res\resValues\debug"/></dataSet><dataSet aapt-namespace="http://schemas.android.com/apk/res-auto" config="generated" generated-set="generated$Generated" ignore_pattern="!.svn:!.git:!.ds_store:!*.scc:.*:&lt;dir>_*:!CVS:!thumbs.db:!picasa.ini:!*~"><source path="D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\build\generated\res\resValues\debug"/></dataSet><mergedItems/></merger>
-\ No newline at end of file
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt b/node_modules/react-native-contacts/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
-new file mode 100644
-index 0000000..aafa14e
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/manifest_merge_blame_file/debug/manifest-merger-blame-debug-report.txt
-@@ -0,0 +1,7 @@
-+1<?xml version="1.0" encoding="utf-8"?>
-+2<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-+3    package="com.rt2zz.reactnativecontacts" >
-+4
-+5    <uses-sdk android:minSdkVersion="21" />
-+6
-+7</manifest>
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml b/node_modules/react-native-contacts/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-new file mode 100644
-index 0000000..3f5b08d
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/merged_manifest/debug/AndroidManifest.xml
-@@ -0,0 +1,6 @@
-+<?xml version="1.0" encoding="utf-8"?>
-+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
-+
-+    <uses-sdk android:minSdkVersion="21" />
-+
-+</manifest>
-\ No newline at end of file
-diff --git a/node_modules/react-native-contacts/android/build/intermediates/navigation_json/debug/navigation.json b/node_modules/react-native-contacts/android/build/intermediates/navigation_json/debug/navigation.json
-new file mode 100644
-index 0000000..0637a08
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/intermediates/navigation_json/debug/navigation.json
-@@ -0,0 +1 @@
-+[]
-\ No newline at end of file
-diff --git a/node_modules/react-native-contacts/android/build/outputs/logs/manifest-merger-debug-report.txt b/node_modules/react-native-contacts/android/build/outputs/logs/manifest-merger-debug-report.txt
-new file mode 100644
-index 0000000..f988d6a
---- /dev/null
-+++ b/node_modules/react-native-contacts/android/build/outputs/logs/manifest-merger-debug-report.txt
-@@ -0,0 +1,17 @@
-+-- Merging decision tree log ---
-+manifest
-+ADDED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml:2:1-5:12
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml:2:1-5:12
-+	package
-+		ADDED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml:4:3-42
-+		INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml
-+	xmlns:android
-+		ADDED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml:3:3-61
-+uses-sdk
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml reason: use-sdk injection requested
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml
-+INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml
-+	android:targetSdkVersion
-+		INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml
-+	android:minSdkVersion
-+		INJECTED from D:\AkcruClone\Akcru\frontendclone\node_modules\react-native-contacts\android\src\main\AndroidManifest.xml
 diff --git a/node_modules/react-native-contacts/android/src/main/AndroidManifest.xml b/node_modules/react-native-contacts/android/src/main/AndroidManifest.xml
 index 9a345fb..009d000 100644
 --- a/node_modules/react-native-contacts/android/src/main/AndroidManifest.xml
@@ -131,3 +9,80 @@ index 9a345fb..009d000 100644
 -  package="com.rt2zz.reactnativecontacts" >
 +  xmlns:android="http://schemas.android.com/apk/res/android" >
  </manifest>
+diff --git a/node_modules/react-native-contacts/ios/RCTContacts/RCTContacts.m b/node_modules/react-native-contacts/ios/RCTContacts/RCTContacts.m
+index a303aff..5de088d 100644
+--- a/node_modules/react-native-contacts/ios/RCTContacts/RCTContacts.m
++++ b/node_modules/react-native-contacts/ios/RCTContacts/RCTContacts.m
+@@ -1,7 +1,7 @@
+ #import <AddressBook/AddressBook.h>
+ #import <UIKit/UIKit.h>
+ #import "RCTContacts.h"
+-#import <AssetsLibrary/AssetsLibrary.h>
++#import <Photos/Photos.h>
+ #import <React/RCTLog.h>
+
+ @implementation RCTContacts {
+@@ -1158,40 +1158,33 @@ + (NSData*) imageData:(NSString*)sourceUri
+     }
+ }
+
+-enum { WDASSETURL_PENDINGREADS = 1, WDASSETURL_ALLFINISHED = 0};
+-
+-+ (NSData*) loadImageAsset:(NSURL*)assetURL {
+-    //thanks to http://www.codercowboy.com/code-synchronous-alassetlibrary-asset-existence-check/
+-
+-    __block NSData *data = nil;
+-    __block NSConditionLock * albumReadLock = [[NSConditionLock alloc] initWithCondition:WDASSETURL_PENDINGREADS];
+-    //this *MUST* execute on a background thread, ALAssetLibrary tries to use the main thread and will hang if you're on the main thread.
+-    dispatch_async( dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+-        ALAssetsLibrary * assetLibrary = [[ALAssetsLibrary alloc] init];
+-        [assetLibrary assetForURL:assetURL
+-                      resultBlock:^(ALAsset *asset) {
+-                          ALAssetRepresentation *rep = [asset defaultRepresentation];
+-
+-                          Byte *buffer = (Byte*)malloc(rep.size);
+-                          NSUInteger buffered = [rep getBytes:buffer fromOffset:0.0 length:rep.size error:nil];
+-                          data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
+-
+-                          [albumReadLock lock];
+-                          [albumReadLock unlockWithCondition:WDASSETURL_ALLFINISHED];
+-                      } failureBlock:^(NSError *error) {
+-                          RCTLog(@"asset error: %@", [error localizedDescription]);
+-
+-                          [albumReadLock lock];
+-                          [albumReadLock unlockWithCondition:WDASSETURL_ALLFINISHED];
+-                      }];
+++ (NSData *)loadImageAsset:(NSURL *)assetURL {
++    __block NSData *imageData = nil;
++    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
++
++    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
++        PHFetchResult *result = [PHAsset fetchAssetsWithALAssetURLs:@[assetURL] options:nil];
++        if (result.count > 0) {
++            PHAsset *asset = result.firstObject;
++            PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
++            options.synchronous = YES;
++
++            [[PHImageManager defaultManager] requestImageDataForAsset:asset
++                                                              options:options
++                                                        resultHandler:^(NSData * _Nullable data, NSString * _Nullable dataUTI, UIImageOrientation orientation, NSDictionary * _Nullable info) {
++                imageData = data;
++                dispatch_semaphore_signal(semaphore);
++            }];
++        } else {
++            dispatch_semaphore_signal(semaphore);
++        }
+     });
+
+-    [albumReadLock lockWhenCondition:WDASSETURL_ALLFINISHED];
+-    [albumReadLock unlock];
++    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+
+-    RCTLog(@"asset lookup finished: %@ %@", [assetURL absoluteString], (data ? @"exists" : @"does not exist"));
++    RCTLog(@"asset lookup finished: %@ %@", [assetURL absoluteString], (imageData ? @"exists" : @"does not exist"));
+
+-    return data;
++    return imageData;
+ }
+
+ RCT_EXPORT_METHOD(deleteContact:(NSDictionary *)contactData resolver:(RCTPromiseResolveBlock) resolve
