@@ -29,6 +29,8 @@ import AdminGrantADScreen from '../screens/adminScreens/grantAD';
 import AdminWalletSearch from '../screens/adminScreens/walletSearch';
 import UserMatchModesScreen from '../screens/userScreens/UserMatchModesScreen';
 import BestMatchScreen from '../screens/userScreens/BestMatchScreen';
+import PpvScreen from '../screens/userScreens/ppv_screen';
+import PpvMovieScreen from '../screens/userScreens/ppv_screen/PpvMovieScreen';
 import {IMovie} from '../../types';
 
 
@@ -77,6 +79,8 @@ export type UserProfileStackParams = {
     AdminWalletSearch: any;
     UserMatchModesScreen: any;
     BestMatchScreen: undefined;
+    PpvScreen: undefined;
+    PpvMovieScreen: undefined;
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -288,6 +292,22 @@ export function UserProfileStack() {
                 name="BestMatchScreen"
                 component={BestMatchScreen}
                 options={() => ({headerShown: false})}
+            />
+            <UserProfile.Screen
+                name="PpvScreen"
+                component={PpvScreen}
+                options={() => ({
+                    headerShown: false,
+                    cardStyle: {backgroundColor: COLORS.BLACK},
+                })}
+            />
+            <UserProfile.Screen
+                name="PpvMovieScreen"
+                component={PpvMovieScreen}
+                options={() => ({
+                    headerShown: false,
+                    cardStyle: {backgroundColor: COLORS.BLACK},
+                })}
             />
         </UserProfile.Navigator>
     );

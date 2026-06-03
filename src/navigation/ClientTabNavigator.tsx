@@ -165,6 +165,18 @@ function ClientTabBar(props: TabBarProps) {
     const active = state.routes[state.index];
     if (active?.name === 'UserProfileStack') {
         const nestedFocused = getFocusedRouteNameFromRoute(active);
+        if (
+            nestedFocused === 'WatchPartyPreview' ||
+            nestedFocused === 'StartWatchPartyView' ||
+            nestedFocused === 'VisionaryWatchParty' ||
+            nestedFocused === 'PpvScreen' ||
+            nestedFocused === 'PpvMovieScreen'
+        ) {
+            logTabBarTouch('ClientTabBar render null', {
+                reason: `UserProfileStack + ${nestedFocused}`,
+            });
+            return null;
+        }
         if (nestedFocused === 'ViewChat') {
             logTabBarTouch('ClientTabBar render null', {
                 reason: 'UserProfileStack + ViewChat',
@@ -896,7 +908,7 @@ const styles = StyleSheet.create({
     },
     actionSubtitle: {
         marginTop: 4,
-        color: 'rgba(255,255,255,0.75)',
+        color: COLORS.OVERLAY_WHITE_75,
         fontSize: 11,
         textAlign: 'center',
     },
@@ -915,7 +927,7 @@ const styles = StyleSheet.create({
     },
     latestNotificationBlockTitle: {
         flex: 1,
-        color: 'rgba(255,255,255,0.85)',
+        color: COLORS.OVERLAY_WHITE_85,
         fontSize: 13,
         fontWeight: '600',
     },
@@ -963,7 +975,7 @@ const styles = StyleSheet.create({
     },
     latestNotificationDate: {
         marginTop: 4,
-        color: 'rgba(255,255,255,0.55)',
+        color: COLORS.OVERLAY_WHITE_55,
         fontSize: 11,
     },
     redDot: {
