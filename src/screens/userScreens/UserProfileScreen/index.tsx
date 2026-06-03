@@ -709,6 +709,22 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                                 style={{ paddingHorizontal: 14, paddingVertical: 12 }}
                                 onPress={() => {
                                     setProfileMenuVisible(false);
+                                    navigation.navigate('PpvScreen');
+                                }}>
+                                <Text style={{ ...FONTS.Title2, color: COLORS.AKCRUBLUE }}>PPV Welcome</Text>
+                            </TouchableOpacity>
+                            <View
+                                style={{
+                                    height: StyleSheet.hairlineWidth,
+                                    backgroundColor: COLORS.LIGHTGREY,
+                                    marginHorizontal: 10,
+                                    opacity: 0.35,
+                                }}
+                            />
+                            <TouchableOpacity
+                                style={{ paddingHorizontal: 14, paddingVertical: 12 }}
+                                onPress={() => {
+                                    setProfileMenuVisible(false);
                                     if (user?.id) {
                                         navigation.navigate('ViewUserScreen', { userID: user.id, tabKey: 'second' });
                                     }
