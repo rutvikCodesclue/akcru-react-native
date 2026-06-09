@@ -1,1 +1,3 @@
 export const PPV_TOTAL_STEPS = 3;
+export const PPV_WATCH_COMPLETION_THRESHOLD = 0.8;
+export const PPV_AKCRU_FOLLOW_USER_ID = 'f35b2f80-9d35-47d5-9f80-48984308cb57';

@@ -119,6 +119,7 @@ export interface IMovie {
     buyable: boolean;
     rentalPrice?: string; // BigInt serialized as string
     buyPrice?: string; // BigInt serialized as string
+    isPurchaseAd?: boolean;
     rentCount: number;
     buyCount: number;
     mitAcceptCount?: number;
@@ -382,6 +383,7 @@ export interface IMovie {
     buyable: boolean;
     rentalPrice?: string; // BigInt serialized as string
     buyPrice?: string; // BigInt serialized as string
+    isPurchaseAd?: boolean;
     rentCount: number;
     buyCount: number;
 }
@@ -724,6 +726,7 @@ export interface ISeason {
     buyable: boolean;
     rentalPrice?: string; // BigInt serialized as string
     buyPrice?: string; // BigInt serialized as string
+    isPurchaseAd?: boolean;
     rentCount: number;
     buyCount: number;
 }

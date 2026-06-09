@@ -33,6 +33,8 @@ import UserMatchModesScreen from '../screens/userScreens/UserMatchModesScreen';
 import BestMatchScreen from '../screens/userScreens/BestMatchScreen';
 import PpvScreen from '../screens/userScreens/ppv_screen';
 import PpvMovieScreen from '../screens/userScreens/ppv_screen/PpvMovieScreen';
+import PpvPurchaseScreen from '../screens/userScreens/ppv_screen/PpvPurchaseScreen';
+import PpvThankYouScreen from '../screens/userScreens/ppv_screen/PpvThankYouScreen';
 import {IMovie} from '../../types';
 
 
@@ -84,7 +86,9 @@ export type UserProfileStackParams = {
     UserMatchModesScreen: any;
     BestMatchScreen: undefined;
     PpvScreen: undefined;
-    PpvMovieScreen: undefined;
+    PpvMovieScreen: {movie: IMovie; isPurchased?: boolean};
+    PpvPurchaseScreen: {movie: IMovie; screeningWindowLabel: string};
+    PpvThankYouScreen: {movie: IMovie};
 };
 
 const UserProfile = createStackNavigator<UserProfileStackParams>();
@@ -322,6 +326,22 @@ export function UserProfileStack() {
             <UserProfile.Screen
                 name="PpvMovieScreen"
                 component={PpvMovieScreen}
+                options={() => ({
+                    headerShown: false,
+                    cardStyle: {backgroundColor: COLORS.BLACK},
+                })}
+            />
+            <UserProfile.Screen
+                name="PpvPurchaseScreen"
+                component={PpvPurchaseScreen}
+                options={() => ({
+                    headerShown: false,
+                    cardStyle: {backgroundColor: COLORS.BLACK},
+                })}
+            />
+            <UserProfile.Screen
+                name="PpvThankYouScreen"
+                component={PpvThankYouScreen}
                 options={() => ({
                     headerShown: false,
                     cardStyle: {backgroundColor: COLORS.BLACK},

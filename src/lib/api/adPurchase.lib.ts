@@ -68,7 +68,18 @@ export async function purchaseAD(tier: string): Promise<string> {
 }
 
 
-export async function purchaseADInApp(tier: string): Promise<string> {
+export type AdPurchaseServerAck = {
+    success: boolean;
+    message?: string;
+    data?: unknown;
+};
+
+export type AdPackInAppPurchaseResult = {
+    transactionId: string;
+    serverAck: AdPurchaseServerAck;
+};
+
+export async function purchaseADInAppWithResult(tier: string): Promise<AdPackInAppPurchaseResult> {
     await useAuthStore.getState().hydrateAuth();
 
     const PRODUCT_MAP_IOS: Record<string, string> = {
@@ -89,32 +100,56 @@ export async function purchaseADInApp(tier: string): Promise<string> {
     };
 
     const productId = Platform.OS === 'ios' ? PRODUCT_MAP_IOS[tier] : PRODUCT_MAP_ANDROID[tier];
-    if (!productId) throw new Error('Unknown product for tier: ' + tier);
+    if (!productId) {
+        throw new Error('Unknown product for tier: ' + tier);
+    }
 
     try {
         const products = await Purchases.getProducts([productId], Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION);
-        await new Promise((r) => setTimeout(r, 500));
-        
+        await new Promise(r => setTimeout(r, 500));
 
         const purchaseResult = await Purchases.purchaseStoreProduct(products[0]);
 
-        const anyRes: any = purchaseResult as any;
-        const transactionId = anyRes?.productIdentifier || anyRes?.transactionId || anyRes?.customerInfo?.originalAppUserId || anyRes?.customerInfo?.entitlements
-            ? JSON.stringify(anyRes)
-            : new Date().toISOString();
+        const anyRes: unknown = purchaseResult;
+        const resRecord =
+            anyRes && typeof anyRes === 'object'
+                ? (anyRes as Record<string, unknown>)
+                : undefined;
+        const customerInfo =
+            resRecord?.customerInfo && typeof resRecord.customerInfo === 'object'
+                ? (resRecord.customerInfo as Record<string, unknown>)
+                : undefined;
 
-        const resp = await API.post('/v1/ad-purchase/revenuecat/ack', { tier, transactionId, platform: Platform.OS });
+        const transactionId =
+            (typeof resRecord?.productIdentifier === 'string' && resRecord.productIdentifier) ||
+            (typeof resRecord?.transactionId === 'string' && resRecord.transactionId) ||
+            (typeof customerInfo?.originalAppUserId === 'string' && customerInfo.originalAppUserId) ||
+            (customerInfo?.entitlements ? JSON.stringify(anyRes) : new Date().toISOString());
+
+        const resp = await API.post<AdPurchaseServerAck>('/v1/ad-purchase/revenuecat/ack', {
+            tier,
+            transactionId,
+            platform: Platform.OS,
+        });
 
         if (!resp.data || !resp.data.success) {
             console.error('Server ack failed', resp.data);
             throw new Error('Server failed to acknowledge purchase');
         }
 
-        return transactionId;
-    } catch (err: any) {
+        return {
+            transactionId,
+            serverAck: resp.data,
+        };
+    } catch (err: unknown) {
         console.error('In-app purchase failed:', JSON.stringify(err));
         throw err;
     }
+}
+
+export async function purchaseADInApp(tier: string): Promise<string> {
+    const result = await purchaseADInAppWithResult(tier);
+    return result.transactionId;
 }
 
 

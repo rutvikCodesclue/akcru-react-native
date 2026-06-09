@@ -175,7 +175,9 @@ function ClientTabBar(props: TabBarProps) {
             nestedFocused === 'StartWatchPartyView' ||
             nestedFocused === 'VisionaryWatchParty' ||
             nestedFocused === 'PpvScreen' ||
-            nestedFocused === 'PpvMovieScreen'
+            nestedFocused === 'PpvMovieScreen' ||
+            nestedFocused === 'PpvPurchaseScreen' ||
+            nestedFocused === 'PpvThankYouScreen'
         ) {
             logTabBarTouch('ClientTabBar render null', {
                 reason: `UserProfileStack + ${nestedFocused}`,

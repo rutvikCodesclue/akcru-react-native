@@ -17,7 +17,8 @@ import LinearGradient from 'react-native-linear-gradient';
 import {Icon} from '@rneui/base';
 import {COLORS, FONTS} from '../../../../assets/constants';
 import BackButton from '../../../components/General/backbutton';
-import {getAdPacks, purchaseAD, purchaseADInApp, AdPackInfo} from '../../../lib/api/adPurchase.lib';
+import {getAdPacks, AdPackInfo} from '../../../lib/api/adPurchase.lib';
+import {confirmAdPackPurchase, onPackPurchasePress as onPackPurchasePressShared} from '../../../lib/adPackPurchaseFlow';
 import {GoldenCoinCoins} from '../../../../assets/svg';
 import {NoBottomTabStackParams} from '../../../navigation/NoBottomTabStack';
 import TabContainer from '../../../components/TabContainer/TabContainer';
@@ -135,8 +136,10 @@ export default function PurchaseAdScreen() {
         passDays != null && passDays > 0 ? `${passDays} Day Pass` : 'your pass';
 
     const onPackPurchasePress = (tier: AdPackInfo) => {
-        setSelectedTier(tier);
-        setConfirmVis(true);
+        onPackPurchasePressShared(tier, {
+            selectTier: setSelectedTier,
+            showConfirm: () => setConfirmVis(true),
+        });
     };
 
     const confirmPurchase = async () => {
@@ -146,24 +149,30 @@ export default function PurchaseAdScreen() {
         }
 
         setPurchaseInProgress(true);
-        try {
-            if (Platform.OS === 'ios' || Platform.OS === 'android') {
-                Alert.alert('Purchase In Progress', 'Please follow the in-app purchase prompts.');
-                const txId = await purchaseADInApp(selectedTier.tier);
-                if (txId) {
-                    await hydrateUser();
-                    Alert.alert('Purchase Successful', 'Thank you for your purchase of AD!');
-                }
-            } else {
-                const checkoutUrl = await purchaseAD(selectedTier.tier);
-                navigation.navigate('StripeWebCheckout', {checkoutUrl});
-            }
-        } catch (err: any) {
-            console.error('Checkout session error:', err);
-            Alert.alert('Purchase Failed', 'Some issue occurred during purchase. Please try again later.');
-        } finally {
-            setPurchaseInProgress(false);
+        if (Platform.OS === 'ios' || Platform.OS === 'android') {
+            Alert.alert('Purchase In Progress', 'Please follow the in-app purchase prompts.');
         }
+
+        const response = await confirmAdPackPurchase(selectedTier, {
+            hydrateUser,
+            navigate: (screen, params) => navigation.navigate(screen as 'StripeWebCheckout', params),
+        });
+
+        console.log('[PurchaseAD] purchase response:', JSON.stringify(response, null, 2));
+
+        if (response.status === 'success') {
+            if (response.transactionId) {
+                Alert.alert('Purchase Successful', 'Thank you for your purchase of AD!');
+            }
+        } else {
+            console.error('Checkout session error:', response.rawError);
+            Alert.alert(
+                'Purchase Failed',
+                response.errorMessage ?? 'Some issue occurred during purchase. Please try again later.',
+            );
+        }
+
+        setPurchaseInProgress(false);
     };
 
     const onWhyPassPress = () => {
