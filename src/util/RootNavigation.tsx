@@ -6,7 +6,7 @@ import {
 } from '@react-navigation/native';
 import {AuthStackParams} from '../navigation/AuthNavigation';
 import type {CrummunitySendMITParams} from '../screens/crummunityScreens/CrummunitySendMITScreen';
-import type {IComment, IPost, IUserProfile} from '../../types';
+import type {IComment, IMovie, IPoll, IPollComment, IPost, IUserProfile} from '../../types';
 
 export const navigationRef = createNavigationContainerRef<AuthStackParams>();
 
@@ -28,6 +28,108 @@ export type NavigateToMITDateScheduleParams = {
     year?: number;
     userId?: string;
 };
+
+export type NavigateToTrailerPlayerParams = {
+    id: string;
+    trailerURL?: string;
+    landscapeURL?: string;
+    title?: string;
+    /** When true, play `movieURL` (full feature) instead of `trailerURL` after fetch. */
+    playFullMovie?: boolean;
+    /** PPV full-movie playback — used to show the post-watch thank-you screen on exit. */
+    fromPpvFlow?: boolean;
+};
+
+export type NavigateToPpvThankYouParams = {
+    movie: IMovie;
+};
+
+/**
+ * `TrailerPlayer` is registered on `NoBottomStack`, not on nested tab stacks such as `UserProfileStack`.
+ * Route through the root navigator from PPV and other deeply nested screens.
+ */
+export function navigateToTrailerPlayer(
+    params: NavigateToTrailerPlayerParams,
+    navigation?: NavigationProp<ParamListBase>,
+) {
+    const action = CommonActions.navigate({
+        name: 'NoBottomStack',
+        merge: true,
+        params: {
+            screen: 'TrailerPlayer',
+            params,
+        },
+    });
+
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(action);
+        return;
+    }
+
+    if (navigation) {
+        let nav: NavigationProp<ParamListBase> | undefined = navigation;
+        for (let i = 0; i < 12 && nav; i++) {
+            const state = nav.getState?.();
+            const routeNames = state?.routeNames as string[] | undefined;
+            if (routeNames?.includes('NoBottomStack')) {
+                (nav as {navigate: (name: string, params?: object) => void}).navigate('NoBottomStack', {
+                    screen: 'TrailerPlayer',
+                    params,
+                });
+                return;
+            }
+            nav = nav.getParent?.();
+        }
+    }
+
+    navigate('NoBottomStack', {
+        screen: 'TrailerPlayer',
+        params,
+    });
+}
+
+/**
+ * After a PPV screening, route back into the profile tab on the thank-you screen.
+ */
+export function navigateToPpvThankYouScreen(params: NavigateToPpvThankYouParams) {
+    const action = CommonActions.reset({
+        index: 0,
+        routes: [
+            {
+                name: 'ClientTabNavigator',
+                state: {
+                    routes: [
+                        {name: 'FlickFlirtScreen'},
+                        {name: 'CrummunityStack'},
+                        {name: 'AkcruButtonStack'},
+                        {name: 'MITChatStack'},
+                        {
+                            name: 'UserProfileStack',
+                            state: {
+                                index: 0,
+                                routes: [{name: 'PpvThankYouScreen', params}],
+                            },
+                        },
+                    ],
+                    index: 4,
+                },
+            },
+        ],
+    });
+
+    if (navigationRef.isReady()) {
+        navigationRef.dispatch(action);
+        return;
+    }
+
+    navigate('ClientTabNavigator', {
+        screen: 'UserProfileStack',
+        params: {
+            screen: 'PpvThankYouScreen',
+            params,
+        },
+    });
+}
 
 /**
  * `MITDateSchedule` is registered on `NoBottomStack`, not on `ClientStack` / `UserProfileStack`.

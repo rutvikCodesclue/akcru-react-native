@@ -1,0 +1,178 @@
+import {StyleSheet} from 'react-native';
+import {COLORS, FONTS} from '../../../../assets/constants';
+import {isTablet} from '../../../../assets/constants/theme';
+
+const contentHorizontal = 20;
+
+export default StyleSheet.create({
+    safeArea: {
+        flex: 1,
+        backgroundColor: COLORS.BLACK,
+    },
+    header: {
+        paddingHorizontal: contentHorizontal,
+        paddingTop: 4,
+        paddingBottom: 8,
+    },
+    headerRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'flex-start',
+    },
+    backButton: {
+        width: 40,
+        height: 40,
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+    },
+    headerCopy: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    headerSpacer: {
+        width: 40,
+    },
+    unlockTitle: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: isTablet() ? 22 : 18,
+        color: COLORS.WHITE,
+        letterSpacing: 1.6,
+        textTransform: 'uppercase',
+        textAlign: 'center',
+    },
+    unlockSubtitle: {
+        ...FONTS.paragraph2,
+        fontSize: isTablet() ? 12 : 11,
+        color: COLORS.OVERLAY_WHITE_70,
+        letterSpacing: 1.2,
+        textTransform: 'uppercase',
+        textAlign: 'center',
+        marginTop: 4,
+    },
+    screenBody: {
+        flex: 1,
+        minHeight: 0,
+    },
+    contentArea: {
+        flex: 1,
+        minHeight: 0,
+        paddingHorizontal: contentHorizontal,
+        paddingBottom: 8,
+    },
+    heroSection: {
+        flex: 1,
+        minHeight: 0,
+        width: '100%',
+        aspectRatio: 1,
+        alignSelf: 'center',
+        flexShrink: 1,
+        overflow: 'hidden',
+        backgroundColor: COLORS.BLACK,
+    },
+    heroImage: {
+        width: '100%',
+        height: '100%',
+        backgroundColor: COLORS.BLACK,
+    },
+    screeningBox: {
+        width: '100%',
+        marginTop: 12,
+        paddingHorizontal: 14,
+        paddingVertical: 14,
+        borderRadius: 8,
+        borderWidth: 1.5,
+        borderColor: COLORS.CATREDLGT,
+        backgroundColor: 'rgba(70,0,0,0.35)',
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 12,
+    },
+    screeningIconWrap: {
+        width: 36,
+        height: 36,
+        borderRadius: 8,
+        backgroundColor: 'rgba(173,7,7,0.25)',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 2,
+    },
+    screeningCopy: {
+        flex: 1,
+    },
+    screeningHeadingRow: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        alignItems: 'center',
+    },
+    screeningHeading: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: isTablet() ? 12 : 11,
+        color: COLORS.WHITE,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+    },
+    screeningHeadingAccent: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: isTablet() ? 12 : 11,
+        color: COLORS.CATREDLGT,
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+    },
+    screeningDates: {
+        ...FONTS.paragraph2,
+        fontSize: isTablet() ? 13 : 12,
+        color: COLORS.WHITE,
+        marginTop: 6,
+        lineHeight: isTablet() ? 20 : 18,
+    },
+    screeningHint: {
+        ...FONTS.paragraph2,
+        fontSize: isTablet() ? 12 : 11,
+        color: COLORS.OVERLAY_WHITE_55,
+        marginTop: 6,
+        lineHeight: isTablet() ? 18 : 16,
+    },
+    bottomFooter: {
+        flexShrink: 0,
+        paddingHorizontal: contentHorizontal,
+        paddingTop: 8,
+        paddingBottom: isTablet() ? 24 : 16,
+        backgroundColor: COLORS.BLACK,
+        alignItems: 'center',
+    },
+    priceAmount: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: isTablet() ? 28 : 24,
+        color: COLORS.WHITE,
+        textAlign: 'center',
+    },
+    applePayButton: {
+        width: '100%',
+        height: isTablet() ? 52 : 48,
+        borderRadius: 8,
+        backgroundColor: COLORS.WHITE,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        marginTop: 18,
+    },
+    applePayLabel: {
+        fontFamily: 'Montserrat-Bold',
+        fontSize: isTablet() ? 18 : 16,
+        color: COLORS.BLACK,
+    },
+    legalText: {
+        ...FONTS.paragraph2,
+        fontSize: isTablet() ? 11 : 10,
+        color: COLORS.OVERLAY_WHITE_55,
+        textAlign: 'center',
+        marginTop: 16,
+        lineHeight: isTablet() ? 18 : 16,
+        paddingHorizontal: 8,
+    },
+    legalLink: {
+        color: COLORS.CATREDLGT,
+    },
+});
