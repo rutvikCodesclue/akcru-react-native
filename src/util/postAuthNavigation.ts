@@ -35,6 +35,11 @@ export function getPostAuthNoBottomStackParams(entry: PostAuthEntry) {
     };
 }
 
+/** Route params for PpvScreen while the app is in the locked post-auth PPV flow. */
+export function getPpvScreenRouteParams(): {fromPostAuth: true} | undefined {
+    return isCurrentFlowPpv ? {fromPostAuth: true} : undefined;
+}
+
 /** Root reset state after sign-in. */
 export function getPostAuthResetState(entry: PostAuthEntry) {
     return {

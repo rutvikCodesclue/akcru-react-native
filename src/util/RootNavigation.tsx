@@ -5,6 +5,7 @@ import {
     ParamListBase,
 } from '@react-navigation/native';
 import {AuthStackParams} from '../navigation/AuthNavigation';
+import {getPpvScreenRouteParams} from './postAuthNavigation';
 import type {CrummunitySendMITParams} from '../screens/crummunityScreens/CrummunitySendMITScreen';
 import type {IComment, IMovie, IPoll, IPollComment, IPost, IUserProfile} from '../../types';
 
@@ -92,6 +93,11 @@ export function navigateToTrailerPlayer(
  * After a PPV screening, route back into the profile tab on the thank-you screen.
  */
 export function navigateToPpvThankYouScreen(params: NavigateToPpvThankYouParams) {
+    const ppvScreenParams = getPpvScreenRouteParams();
+    const ppvScreenRoute = ppvScreenParams
+        ? {name: 'PpvScreen' as const, params: ppvScreenParams}
+        : {name: 'PpvScreen' as const};
+
     const action = CommonActions.reset({
         index: 0,
         routes: [
@@ -106,8 +112,8 @@ export function navigateToPpvThankYouScreen(params: NavigateToPpvThankYouParams)
                         {
                             name: 'UserProfileStack',
                             state: {
-                                index: 0,
-                                routes: [{name: 'PpvThankYouScreen', params}],
+                                index: 1,
+                                routes: [ppvScreenRoute, {name: 'PpvThankYouScreen', params}],
                             },
                         },
                     ],
