@@ -30,7 +30,7 @@ import imageindex from '../../../../assets/images/imageindex';
 import {getAdPacks, AdPackInfo} from '../../../lib/api/adPurchase.lib';
 import {
     AdPackPurchaseResponse,
-    confirmAdPackPurchase,
+    confirmPpvMoviePurchase,
     findAdPackForRentPrice,
     formatUsdPrice,
     onPackPurchasePress,
@@ -173,7 +173,7 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
                 Alert.alert('Purchase In Progress', 'Please follow the in-app purchase prompts.');
             }
 
-            const response = await confirmAdPackPurchase(pack, {
+            const response = await confirmPpvMoviePurchase(pack, movie.id, {
                 hydrateUser,
                 navigate: (screen, params) => {
                     navigate('NoBottomStack', {screen, params});
@@ -190,9 +190,7 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
                 return;
             }
 
-            if (response.transactionId) {
-                startPpvMoviePlayback(movie, navigation);
-            }
+            startPpvMoviePlayback(movie, navigation);
         } finally {
             setPurchaseInProgress(false);
         }
@@ -247,21 +245,16 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
                 </View>
 
                 <View style={purchaseStyles.bottomFooter}>
-                    <Text style={purchaseStyles.priceAmount}>{priceDisplay}</Text>
-
                     <Pressable
                         style={[purchaseStyles.applePayButton, payDisabled && {opacity: 0.5}]}
                         accessibilityRole="button"
-                        accessibilityLabel="Pay with Apple Pay"
+                        accessibilityLabel={`Pay ${priceDisplay}`}
                         disabled={payDisabled}
                         onPress={handlePayPress}>
                         {purchaseInProgress ? (
                             <ActivityIndicator size="small" color={COLORS.BLACK} />
                         ) : (
-                            <>
-                                <Icon name="logo-apple" type="ionicon" size={22} color={COLORS.BLACK} />
-                                <Text style={purchaseStyles.applePayLabel}>Pay</Text>
-                            </>
+                            <Text style={purchaseStyles.applePayLabel}>Pay {priceDisplay}</Text>
                         )}
                     </Pressable>
 

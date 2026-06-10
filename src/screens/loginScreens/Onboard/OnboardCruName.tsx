@@ -23,6 +23,8 @@ import HexAvatar from '../../../components/HexAvatar';
 import {updateUserProfilePicture} from '../../../lib/api/user.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import {isTablet} from '../../../../assets/constants/theme';
+import {getPostAuthResetState} from '../../../util/postAuthNavigation';
+import {reset as resetNavigation} from '../../../util/RootNavigation';
 import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 5;
@@ -144,10 +146,7 @@ const OnboardCruName = () => {
     };
 
     const ConfirmChangeCruName = async () => {
-        navigation.navigate('NoBottomStack', {
-            screen: 'ClientTabNavigator',
-            params: {screen: 'FlickFlirtScreen'},
-        });
+        resetNavigation(getPostAuthResetState('signup'));
         ///remove cruName
 //         if (!isCruNameValid(cruName)) {
 //             Alert.alert('Invalid CRU Name', 'Please enter a valid CRU name.');

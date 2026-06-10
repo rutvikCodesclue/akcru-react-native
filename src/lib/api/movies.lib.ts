@@ -178,8 +178,30 @@ export const rentMovie = async (movieId: string): Promise<boolean> => {
     await useAuthStore.getState().hydrateAuth();
     try {
         const {data} = await API.post(`/v1/movies/${movieId}/purchase-movie`, {
-            purchaseType: 'RENT', // ← directly use the string
+            purchaseType: 'RENT',
         });
+        return data.success;
+    } catch {
+        return false;
+    }
+};
+
+export type PurchaseMovieViaRevenueCatPayload = {
+    purchaseType: 'RENT' | 'BUY';
+    transactionId: string;
+    paymentProvider: 'REVENUECAT';
+};
+
+export const purchaseMovieViaRevenueCat = async (
+    movieId: string,
+    payload: PurchaseMovieViaRevenueCatPayload,
+): Promise<boolean> => {
+    await useAuthStore.getState().hydrateAuth();
+    try {
+        const {data} = await API.post<{success: boolean}>(
+            `/v1/movies/${movieId}/purchase/revenuecat`,
+            payload,
+        );
         return data.success;
     } catch {
         return false;

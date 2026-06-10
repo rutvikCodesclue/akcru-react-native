@@ -25,6 +25,9 @@ import {AkcruLogo} from '../../../../assets/svg';
 import useAuthStore from '../../../stores/auth.store';
 import AkcruAppOpener from '../../../components/AkcruAppOpener';
 import {isTablet} from '../../../../assets/constants/theme';
+import {getPostAuthClientTabParams, getPostAuthResetState} from '../../../util/postAuthNavigation';
+import {reset as resetNavigation} from '../../../util/RootNavigation';
+import {isCurrentFlowPpv} from '../../../util/config';
 
 const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get('window');
 
@@ -177,7 +180,11 @@ return;
 
 }
 
-navigation.navigate('ClientTabNavigator', {screen: 'FlickFlirtScreen'});
+if (isCurrentFlowPpv) {
+    resetNavigation(getPostAuthResetState('returning'));
+} else {
+    navigation.navigate('ClientTabNavigator', getPostAuthClientTabParams('returning'));
+}
 return;
 
 }

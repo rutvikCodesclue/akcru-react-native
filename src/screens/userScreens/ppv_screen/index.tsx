@@ -9,16 +9,28 @@ import {
     NativeSyntheticEvent,
     NativeScrollEvent,
     ListRenderItem,
+    Pressable,
+    StyleSheet,
+    Modal,
+    BackHandler,
 } from 'react-native';
+import {Icon} from '@rneui/base';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackScreenProps} from '@react-navigation/stack';
 import LinearGradient from 'react-native-linear-gradient';
 import PremiereHeroImage from './PremiereHeroImage';
 import {IMovie} from '../../../../types';
 import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {findMovies, getPurchasedMovies} from '../../../lib/api/movies.lib';
+import useAuthStore from '../../../stores/auth.store';
+import ConfirmationModal from '../../../components/ConfirmationModal';
+import {reset as resetNavigation} from '../../../util/RootNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 import styles from './styles';
-import {COLORS, SIZES} from '../../../../assets/constants';
+import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
+import {isTablet} from '../../../../assets/constants/theme';
+import {isCurrentFlowPpv} from '../../../util/config';
+import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import PremiereTitle from './PremiereTitle';
 import {
     buildPurchasedMovieIdSet,
@@ -33,14 +45,19 @@ type Props = StackScreenProps<UserProfileStackParams, 'PpvScreen'>;
 
 const CONTINUE_GRADIENT = [COLORS.CATREDLGT, '#8B0505'];
 
-export default function PpvScreen({navigation}: Props) {
+export default function PpvScreen({navigation, route}: Props) {
     useHideBottomTabBarWhileFocused(navigation);
 
+    const isPpvFlowLocked = isCurrentFlowPpv && route.params?.fromPostAuth === true;
+    const logout = useAuthStore(state => state.logout);
     const listRef = useRef<FlatList<IMovie>>(null);
     const [rentableMovies, setRentableMovies] = useState<IMovie[]>([]);
     const [purchasedMovieIds, setPurchasedMovieIds] = useState<Set<string>>(() => new Set());
     const [activeIndex, setActiveIndex] = useState(0);
     const [isLoadingMovies, setIsLoadingMovies] = useState(true);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     useEffect(() => {
         const loadRentableMovies = async () => {
@@ -70,6 +87,15 @@ export default function PpvScreen({navigation}: Props) {
         loadRentableMovies();
     }, []);
 
+    useEffect(() => {
+        if (!isPpvFlowLocked) {
+            return;
+        }
+
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+        return () => subscription.remove();
+    }, [isPpvFlowLocked]);
+
     const selectedMovie = rentableMovies[activeIndex] ?? null;
 
     const handleContinue = () => {
@@ -83,9 +109,15 @@ export default function PpvScreen({navigation}: Props) {
     };
 
     const handleSkip = () => {
+        setMenuVisible(false);
         if (navigation.canGoBack()) {
             navigation.goBack();
         }
+    };
+
+    const handleLogout = async () => {
+        await AsyncStorage.removeItem('access_token');
+        await logout();
     };
 
     const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -116,23 +148,66 @@ export default function PpvScreen({navigation}: Props) {
     };
 
     const renderHeader = () => (
-        <View style={styles.headerOverlay} pointerEvents="box-none">
+        <View
+            style={[styles.headerOverlay, menuVisible && styles.headerOverlayRaised]}
+            pointerEvents="box-none">
             <View style={styles.headerRow}>
                 <Text style={styles.brandTitle}>AKCRU</Text>
                 <TouchableOpacity
-                    style={styles.skipButton}
-                    onPress={handleSkip}
+                    onPress={() => setMenuVisible(true)}
+                    hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
                     accessibilityRole="button"
-                    accessibilityLabel="Skip">
-                    <Text style={styles.skipLabel}>SKIP</Text>
+                    accessibilityLabel="Open menu"
+                    style={styles.menuButton}>
+                    <CustomIcon
+                        name="ellipsis-vertical"
+                        type="ionicon"
+                        color={COLORS.WHITE}
+                        baseSize={isTablet() ? 22 : 18}
+                    />
                 </TouchableOpacity>
             </View>
+            {menuVisible ? (
+                <View style={styles.menuPopup}>
+                    {!isPpvFlowLocked ? (
+                        <>
+                            <TouchableOpacity
+                                style={styles.menuItem}
+                                onPress={handleSkip}
+                                accessibilityRole="button"
+                                accessibilityLabel="Skip">
+                                <Text style={styles.skipLabel}>SKIP</Text>
+                            </TouchableOpacity>
+                            <View style={styles.menuSeparator} />
+                        </>
+                    ) : null}
+                    <TouchableOpacity
+                        style={styles.menuItem}
+                        onPress={() => {
+                            setMenuVisible(false);
+                            setShowSignOutConfirmation(true);
+                        }}
+                        accessibilityRole="button"
+                        accessibilityLabel="Sign out">
+                        <View style={styles.menuItemRow}>
+                            <Icon name="logout" type="material-community" color="#FF4D4F" size={20} />
+                            <Text style={styles.signOutLabel}>Sign Out</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
+            ) : null}
         </View>
     );
 
     return (
         <SafeAreaView style={styles.safeArea}>
             <View style={styles.screenBody}>
+                {menuVisible ? (
+                    <Pressable
+                        style={[StyleSheet.absoluteFillObject, styles.menuBackdrop]}
+                        onPress={() => setMenuVisible(false)}
+                    />
+                ) : null}
                 {isLoadingMovies ? (
                     <View style={styles.loadingContainer}>
                         <ActivityIndicator size="large" color={COLORS.CATREDLGT} />
@@ -200,6 +275,38 @@ export default function PpvScreen({navigation}: Props) {
 
                 {renderHeader()}
             </View>
+
+            <Modal animationType="fade" transparent visible={showSignOutConfirmation}>
+                <ConfirmationModal
+                    onPressYes={async () => {
+                        setShowSignOutConfirmation(false);
+                        setIsLoggingOut(true);
+                        try {
+                            await handleLogout();
+                            resetNavigation({
+                                index: 0,
+                                routes: [{name: 'Welcome', params: {fromLogout: true}}],
+                            });
+                        } catch (error) {
+                            console.error('[PpvScreen] Failed to sign out:', error);
+                        } finally {
+                            setIsLoggingOut(false);
+                        }
+                    }}
+                    onPressNo={() => setShowSignOutConfirmation(false)}
+                    variant="continueWatching"
+                    yesLabel="Sign Out"
+                    noLabel="Cancel"
+                    confirmationText="Are you sure you want to sign out?"
+                />
+            </Modal>
+
+            <Modal animationType="fade" transparent visible={isLoggingOut}>
+                <View style={styles.signOutLoaderOverlay}>
+                    <ActivityIndicator size="large" color={COLORS.AKCRUBLUE} />
+                    <Text style={styles.signOutLoaderText}>Signing out...</Text>
+                </View>
+            </Modal>
         </SafeAreaView>
     );
 }

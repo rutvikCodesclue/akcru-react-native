@@ -23,6 +23,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
 import {AppLoadingModal} from '../../../../components/Loading';
+import {getPostAuthClientTabParams, getPostAuthResetState} from '../../../../util/postAuthNavigation';
+import {isCurrentFlowPpv} from '../../../../util/config';
+import {reset as resetNavigation} from '../../../../util/RootNavigation';
 
 const FLICKFLIRT_TOP_GENRES_KEY = 'flickflirt_top_genres';
 
@@ -188,6 +191,11 @@ const FlickFlirtArchetypeResult = () => {
     });
 
     const goToUserMatchModesScreen = () => {
+        if (fromOnboardArchetypeStandalone && isCurrentFlowPpv) {
+            resetNavigation(getPostAuthResetState('signup'));
+            return;
+        }
+
         navigation.navigate('ClientTabNavigator', {
             screen: 'UserProfileStack',
             params: {screen: 'UserMatchModesScreen'},

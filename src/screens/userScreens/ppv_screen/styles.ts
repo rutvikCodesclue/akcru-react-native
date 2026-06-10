@@ -30,6 +30,13 @@ export default StyleSheet.create({
         right: 0,
         zIndex: 10,
     },
+    headerOverlayRaised: {
+        zIndex: 20,
+    },
+    menuBackdrop: {
+        zIndex: 15,
+        backgroundColor: COLORS.OVERLAY_BLACK_45,
+    },
     headerRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -44,9 +51,54 @@ export default StyleSheet.create({
         color: COLORS.WHITE,
         letterSpacing: 2,
     },
-    skipButton: {
+    menuButton: {
+        width: isTablet() ? 44 : 36,
+        alignItems: 'center',
+        justifyContent: 'center',
         paddingVertical: 6,
-        paddingHorizontal: 4,
+    },
+    menuPopup: {
+        position: 'absolute',
+        top: 52,
+        right: 12,
+        zIndex: 21,
+        elevation: 8,
+        backgroundColor: COLORS.BLACK,
+        borderRadius: 12,
+        paddingVertical: 6,
+        minWidth: 160,
+        borderWidth: 1,
+        borderColor: COLORS.LIGHTGREY,
+    },
+    menuItem: {
+        paddingHorizontal: 14,
+        paddingVertical: 12,
+    },
+    menuItemRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    menuSeparator: {
+        height: StyleSheet.hairlineWidth,
+        backgroundColor: COLORS.LIGHTGREY,
+        marginHorizontal: 10,
+        opacity: 0.35,
+    },
+    signOutLabel: {
+        ...FONTS.paragraph2,
+        marginLeft: 8,
+        color: '#FF4D4F',
+    },
+    signOutLoaderOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: COLORS.OVERLAY_BLACK_50,
+    },
+    signOutLoaderText: {
+        ...FONTS.Title3,
+        color: COLORS.AKCRUBLUE,
+        marginTop: 10,
     },
     skipLabel: {
         fontFamily: 'Montserrat-Bold',

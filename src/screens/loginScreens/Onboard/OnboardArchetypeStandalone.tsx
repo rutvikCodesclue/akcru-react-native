@@ -19,6 +19,9 @@ import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
 import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import PreferenceChip from '../../../components/PreferenceChip';
+import {isCurrentFlowPpv} from '../../../util/config';
+import {getPostAuthResetState} from '../../../util/postAuthNavigation';
+import {reset as resetNavigation} from '../../../util/RootNavigation';
 
 const OnboardArchetypeStandalone = () => {
 
@@ -91,6 +94,11 @@ const OnboardArchetypeStandalone = () => {
                     if (updatedUser) {
                         useAuthStore.setState({user: updatedUser});
                         setIsUpdatingArchetype(false);
+
+                        if (isCurrentFlowPpv) {
+                            resetNavigation(getPostAuthResetState('signup'));
+                            return;
+                        }
 
                         navigation.navigate('NoBottomStack', {
                             screen: 'FlickFlirtArchetypeResult',
