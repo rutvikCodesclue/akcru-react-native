@@ -18,7 +18,8 @@ import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
 import {getHelpVideoById} from '../../../lib/api/helpvideo.lib';
 import StepperDots from '../../../components/StepperDots';
 import {isTablet} from '../../../../assets/constants/theme';
-import { NoBottomTabStackParams } from '../../../navigation/NoBottomTabStack';
+import {getPostAuthResetState} from '../../../util/postAuthNavigation';
+import {reset as resetNavigation} from '../../../util/RootNavigation';
 import LinearGradient from 'react-native-linear-gradient';
 
 const buttonMargin = isTablet() ? '20%' : '15%';
@@ -97,10 +98,7 @@ const OnboardArchetype = () => {
                         setTimeout(() => {
                             setArchetypeModal(false);
                             // setTrinityModal(true);
-                            navigation.navigate('NoBottomStack', {
-                                screen: 'ClientTabNavigator',
-                                params: {screen: 'FlickFlirtScreen'},
-                            });
+                            resetNavigation(getPostAuthResetState('signup'));
                         }, 4000);
                     }
                 } catch (error) {

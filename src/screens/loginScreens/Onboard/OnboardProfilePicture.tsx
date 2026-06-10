@@ -20,6 +20,8 @@ import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import useAuthStore from '../../../stores/auth.store';
 import {archetypeMapping} from '../../../../assets/constants/archetypeMapping';
+import {getPostAuthResetState} from '../../../util/postAuthNavigation';
+import {reset as resetNavigation} from '../../../util/RootNavigation';
 
 const TOTAL_STEPS = 5;
 const CURRENT_STEP = 5;
@@ -37,10 +39,7 @@ const OnboardProfilePicture = () => {
     };
 
     const goToMainApp = () => {
-        navigation.navigate('NoBottomStack', {
-            screen: 'ClientTabNavigator',
-            params: {screen: 'FlickFlirtScreen'},
-        });
+        resetNavigation(getPostAuthResetState('signup'));
     };
 
     const PictureSet = () => {

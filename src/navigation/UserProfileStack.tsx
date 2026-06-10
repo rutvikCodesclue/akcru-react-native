@@ -14,6 +14,7 @@ import EditCru from '../screens/userScreens/EditCru';
 import FollowList from '../screens/userScreens/FollowList';
 import EditWatchList from '../screens/userScreens/EditWatchList';
 import {COLORS} from '../../assets/constants';
+import {isCurrentFlowPpv} from '../util/config';
 import UserNotifications from '../screens/userScreens/UserNotifications';
 import WatchPartyPreview from '../screens/userScreens/WatchPartyPreview';
 import StartWatchPartyView from '../screens/userScreens/StartWatchPartyView';
@@ -85,7 +86,7 @@ export type UserProfileStackParams = {
     AdminWalletSearch: any;
     UserMatchModesScreen: any;
     BestMatchScreen: undefined;
-    PpvScreen: undefined;
+    PpvScreen: {fromPostAuth?: boolean} | undefined;
     PpvMovieScreen: {movie: IMovie; isPurchased?: boolean};
     PpvPurchaseScreen: {movie: IMovie; screeningWindowLabel: string};
     PpvThankYouScreen: {movie: IMovie};
@@ -318,9 +319,10 @@ export function UserProfileStack() {
             <UserProfile.Screen
                 name="PpvScreen"
                 component={PpvScreen}
-                options={() => ({
+                options={({route}) => ({
                     headerShown: false,
                     cardStyle: {backgroundColor: COLORS.BLACK},
+                    gestureEnabled: !(isCurrentFlowPpv && route.params?.fromPostAuth === true),
                 })}
             />
             <UserProfile.Screen

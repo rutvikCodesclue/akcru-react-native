@@ -79,52 +79,73 @@ export type AdPackInAppPurchaseResult = {
     serverAck: AdPurchaseServerAck;
 };
 
-export async function purchaseADInAppWithResult(tier: string): Promise<AdPackInAppPurchaseResult> {
-    await useAuthStore.getState().hydrateAuth();
+const PRODUCT_MAP_IOS: Record<string, string> = {
+    MICRO: 'micro_pack',
+    STARTER: 'starter_pack',
+    BOOSTER: 'booster_pack',
+    ELITE: 'elite_pack',
+    WHALE: 'whale_pack',
+    ULTRA: 'ultra_pack',
+};
 
-    const PRODUCT_MAP_IOS: Record<string, string> = {
-        MICRO: 'micro_pack',
-        STARTER: 'starter_pack',
-        BOOSTER: 'booster_pack',
-        ELITE: 'elite_pack',
-        WHALE: 'whale_pack',
-        ULTRA: 'ultra_pack',
-    };
-    const PRODUCT_MAP_ANDROID: Record<string, string> = {
-        MICRO: '0001',
-        STARTER: '0002',
-        BOOSTER: '0003',
-        ELITE: '0004',
-        WHALE: '0005',
-        ULTRA: '0006',
-    };
+const PRODUCT_MAP_ANDROID: Record<string, string> = {
+    MICRO: '0001',
+    STARTER: '0002',
+    BOOSTER: '0003',
+    ELITE: '0004',
+    WHALE: '0005',
+    ULTRA: '0006',
+};
 
+function getProductIdForTier(tier: string): string {
     const productId = Platform.OS === 'ios' ? PRODUCT_MAP_IOS[tier] : PRODUCT_MAP_ANDROID[tier];
     if (!productId) {
         throw new Error('Unknown product for tier: ' + tier);
     }
+    return productId;
+}
+
+function extractTransactionId(purchaseResult: unknown): string {
+    const resRecord =
+        purchaseResult && typeof purchaseResult === 'object'
+            ? (purchaseResult as Record<string, unknown>)
+            : undefined;
+    const customerInfo =
+        resRecord?.customerInfo && typeof resRecord.customerInfo === 'object'
+            ? (resRecord.customerInfo as Record<string, unknown>)
+            : undefined;
+
+    return (
+        (typeof resRecord?.productIdentifier === 'string' && resRecord.productIdentifier) ||
+        (typeof resRecord?.transactionId === 'string' && resRecord.transactionId) ||
+        (typeof customerInfo?.originalAppUserId === 'string' && customerInfo.originalAppUserId) ||
+        (customerInfo?.entitlements ? JSON.stringify(purchaseResult) : new Date().toISOString())
+    );
+}
+
+/** Runs RevenueCat in-app purchase only — does not credit AD or register a movie rental. */
+export async function purchaseTierInApp(tier: string): Promise<{transactionId: string}> {
+    await useAuthStore.getState().hydrateAuth();
+
+    const productId = getProductIdForTier(tier);
 
     try {
         const products = await Purchases.getProducts([productId], Purchases.PRODUCT_CATEGORY.NON_SUBSCRIPTION);
         await new Promise(r => setTimeout(r, 500));
 
         const purchaseResult = await Purchases.purchaseStoreProduct(products[0]);
+        return {transactionId: extractTransactionId(purchaseResult)};
+    } catch (err: unknown) {
+        console.error('In-app purchase failed:', JSON.stringify(err));
+        throw err;
+    }
+}
 
-        const anyRes: unknown = purchaseResult;
-        const resRecord =
-            anyRes && typeof anyRes === 'object'
-                ? (anyRes as Record<string, unknown>)
-                : undefined;
-        const customerInfo =
-            resRecord?.customerInfo && typeof resRecord.customerInfo === 'object'
-                ? (resRecord.customerInfo as Record<string, unknown>)
-                : undefined;
+export async function purchaseADInAppWithResult(tier: string): Promise<AdPackInAppPurchaseResult> {
+    await useAuthStore.getState().hydrateAuth();
 
-        const transactionId =
-            (typeof resRecord?.productIdentifier === 'string' && resRecord.productIdentifier) ||
-            (typeof resRecord?.transactionId === 'string' && resRecord.transactionId) ||
-            (typeof customerInfo?.originalAppUserId === 'string' && customerInfo.originalAppUserId) ||
-            (customerInfo?.entitlements ? JSON.stringify(anyRes) : new Date().toISOString());
+    try {
+        const {transactionId} = await purchaseTierInApp(tier);
 
         const resp = await API.post<AdPurchaseServerAck>('/v1/ad-purchase/revenuecat/ack', {
             tier,

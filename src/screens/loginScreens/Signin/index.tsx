@@ -26,6 +26,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import useAuthStore from '../../../stores/auth.store';
 import LinearGradient from 'react-native-linear-gradient';
 import * as RootNavigation from '../../../util/RootNavigation';
+import {getPostAuthResetState} from '../../../util/postAuthNavigation';
 import {isTablet} from '../../../../assets/constants/theme';
 
 const iconSize = isTablet() ? 28 : 20;
@@ -101,18 +102,7 @@ const accessToken = loginResponse.session.access_token;
 
 await AsyncStorage.setItem('access_token',accessToken);
 
-RootNavigation.reset({
-index:0,
-routes:[
-{
-name:'NoBottomStack',
-params:{
-screen:'ClientTabNavigator',
-params:{screen:'CrummunityStack'}
-}
-}
-]
-});
+RootNavigation.reset(getPostAuthResetState('signin'));
 
 }catch(error){
 
