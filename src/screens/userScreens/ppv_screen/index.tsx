@@ -15,6 +15,7 @@ import {
     BackHandler,
 } from 'react-native';
 import {Icon} from '@rneui/base';
+import {Snackbar} from 'react-native-paper';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {StackScreenProps} from '@react-navigation/stack';
 import LinearGradient from 'react-native-linear-gradient';
@@ -25,11 +26,12 @@ import {findMovies, getPurchasedMovies} from '../../../lib/api/movies.lib';
 import useAuthStore from '../../../stores/auth.store';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import {reset as resetNavigation} from '../../../util/RootNavigation';
+import {getPostAuthResetState} from '../../../util/postAuthNavigation';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 import styles from './styles';
 import {COLORS, SIZES, FONTS} from '../../../../assets/constants';
 import {isTablet} from '../../../../assets/constants/theme';
-import {isCurrentFlowPpv} from '../../../util/config';
+import {isCurrentFlowPpv, setIsCurrentFlowPpv} from '../../../util/config';
 import CustomIcon from '../../../components/CustomIcon/CustomIcon';
 import PremiereTitle from './PremiereTitle';
 import {
@@ -44,13 +46,20 @@ import {
 type Props = StackScreenProps<UserProfileStackParams, 'PpvScreen'>;
 
 const CONTINUE_GRADIENT = [COLORS.CATREDLGT, '#8B0505'];
+const AKCRU_UNLOCK_TAP_COUNT = 12;
+const AKCRU_TAP_RESET_MS = 2000;
+const AKCRU_UNLOCK_NAVIGATE_DELAY_MS = 1200;
 
 export default function PpvScreen({navigation, route}: Props) {
     useHideBottomTabBarWhileFocused(navigation);
 
-    const isPpvFlowLocked = isCurrentFlowPpv && route.params?.fromPostAuth === true;
+    const [isPpvFlowEnabled, setIsPpvFlowEnabled] = useState(isCurrentFlowPpv);
+    const isPpvFlowLocked = isPpvFlowEnabled && route.params?.fromPostAuth === true;
     const logout = useAuthStore(state => state.logout);
     const listRef = useRef<FlatList<IMovie>>(null);
+    const akcruTapCountRef = useRef(0);
+    const akcruTapResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const navigateOutTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [rentableMovies, setRentableMovies] = useState<IMovie[]>([]);
     const [purchasedMovieIds, setPurchasedMovieIds] = useState<Set<string>>(() => new Set());
     const [activeIndex, setActiveIndex] = useState(0);
@@ -58,6 +67,7 @@ export default function PpvScreen({navigation, route}: Props) {
     const [menuVisible, setMenuVisible] = useState(false);
     const [showSignOutConfirmation, setShowSignOutConfirmation] = useState(false);
     const [isLoggingOut, setIsLoggingOut] = useState(false);
+    const [unlockSnackbarVisible, setUnlockSnackbarVisible] = useState(false);
 
     useEffect(() => {
         const loadRentableMovies = async () => {
@@ -88,13 +98,58 @@ export default function PpvScreen({navigation, route}: Props) {
     }, []);
 
     useEffect(() => {
+        return () => {
+            if (akcruTapResetTimeoutRef.current) {
+                clearTimeout(akcruTapResetTimeoutRef.current);
+            }
+            if (navigateOutTimeoutRef.current) {
+                clearTimeout(navigateOutTimeoutRef.current);
+            }
+        };
+    }, []);
+
+    const handleAkcruTap = () => {
+        if (akcruTapResetTimeoutRef.current) {
+            clearTimeout(akcruTapResetTimeoutRef.current);
+        }
+
+        akcruTapCountRef.current += 1;
+
+        if (akcruTapCountRef.current >= AKCRU_UNLOCK_TAP_COUNT) {
+            akcruTapCountRef.current = 0;
+            setIsCurrentFlowPpv(false);
+            setUnlockSnackbarVisible(true);
+            navigateOutTimeoutRef.current = setTimeout(() => {
+                resetNavigation(getPostAuthResetState('returning'));
+            }, AKCRU_UNLOCK_NAVIGATE_DELAY_MS);
+            return;
+        }
+
+        akcruTapResetTimeoutRef.current = setTimeout(() => {
+            akcruTapCountRef.current = 0;
+        }, AKCRU_TAP_RESET_MS);
+    };
+
+    useEffect(() => {
         if (!isPpvFlowLocked) {
             return;
         }
 
         const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
-        return () => subscription.remove();
-    }, [isPpvFlowLocked]);
+        const unsubscribe = navigation.addListener('beforeRemove', e => {
+            const actionType = e.data.action.type;
+            if (actionType === 'RESET' || actionType === 'REPLACE' || actionType === 'NAVIGATE') {
+                return;
+            }
+
+            e.preventDefault();
+        });
+
+        return () => {
+            subscription.remove();
+            unsubscribe();
+        };
+    }, [isPpvFlowLocked, navigation]);
 
     const selectedMovie = rentableMovies[activeIndex] ?? null;
 
@@ -152,7 +207,9 @@ export default function PpvScreen({navigation, route}: Props) {
             style={[styles.headerOverlay, menuVisible && styles.headerOverlayRaised]}
             pointerEvents="box-none">
             <View style={styles.headerRow}>
-                <Text style={styles.brandTitle}>AKCRU</Text>
+                <Pressable onPress={handleAkcruTap} hitSlop={{top: 8, bottom: 8, left: 8, right: 8}}>
+                    <Text style={styles.brandTitle}>AKCRU</Text>
+                </Pressable>
                 <TouchableOpacity
                     onPress={() => setMenuVisible(true)}
                     hitSlop={{top: 10, bottom: 10, left: 10, right: 10}}
@@ -307,6 +364,13 @@ export default function PpvScreen({navigation, route}: Props) {
                     <Text style={styles.signOutLoaderText}>Signing out...</Text>
                 </View>
             </Modal>
+
+            <Snackbar
+                visible={unlockSnackbarVisible}
+                onDismiss={() => setUnlockSnackbarVisible(false)}
+                duration={3000}>
+                PPV flow unlocked
+            </Snackbar>
         </SafeAreaView>
     );
 }

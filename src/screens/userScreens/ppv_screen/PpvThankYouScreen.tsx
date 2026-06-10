@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import {
     View,
     Text,
@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     SafeAreaView,
     ScrollView,
+    BackHandler,
 } from 'react-native';
 import {CommonActions} from '@react-navigation/native';
 import {StackScreenProps} from '@react-navigation/stack';
@@ -26,6 +27,7 @@ import {
     PpvCastMember,
     showPpvToast,
 } from './ppvHelpers';
+import {getPpvScreenRouteParams} from '../../../util/postAuthNavigation';
 
 type Props = StackScreenProps<UserProfileStackParams, 'PpvThankYouScreen'>;
 
@@ -134,13 +136,42 @@ export default function PpvThankYouScreen({navigation, route}: Props) {
     const actors = useMemo(() => getPpvThankYouActors(movie), [movie]);
 
     const handleBackToHome = useCallback(() => {
+        const ppvScreenParams = getPpvScreenRouteParams();
         navigation.dispatch(
             CommonActions.reset({
                 index: 0,
-                routes: [{name: 'PpvScreen'}],
+                routes: [
+                    {
+                        name: 'PpvScreen',
+                        ...(ppvScreenParams ? {params: ppvScreenParams} : {}),
+                    },
+                ],
             }),
         );
     }, [navigation]);
+
+    useEffect(() => {
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+            handleBackToHome();
+            return true;
+        });
+
+        return () => subscription.remove();
+    }, [handleBackToHome]);
+
+    useEffect(() => {
+        const unsubscribe = navigation.addListener('beforeRemove', e => {
+            const actionType = e.data.action.type;
+            if (actionType === 'RESET' || actionType === 'REPLACE' || actionType === 'NAVIGATE') {
+                return;
+            }
+
+            e.preventDefault();
+            handleBackToHome();
+        });
+
+        return unsubscribe;
+    }, [navigation, handleBackToHome]);
 
     const handleJoinAkru = useCallback(async () => {
         const result = await followPpvAkruUser();

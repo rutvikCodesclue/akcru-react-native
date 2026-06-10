@@ -14,8 +14,8 @@ import {finishUserWatching} from '../../../lib/api/user.lib';
 import useAuthStore from '../../../stores/auth.store';
 import Video from 'react-native-video';
 import {hideNavigationBar, showNavigationBar} from 'react-native-navigation-bar-color';
-import {setPpvThankYouPending} from '../../../lib/ppvPlaybackFlow';
 import {PPV_WATCH_COMPLETION_THRESHOLD} from '../../userScreens/ppv_screen/ppvConstants';
+import {navigateToPpvThankYouScreen} from '../../../util/RootNavigation';
 
 type TrailerPlayerNavigationProp = StackNavigationProp<NoBottomTabStackParams, 'TrailerPlayer'>;
 
@@ -162,7 +162,8 @@ export default function TrailerPlayer({navigation, route}: Props) {
         StatusBar.setHidden(false);
 
         if (shouldShowPpvThankYou()) {
-            setPpvThankYouPending(resolveThankYouMovie());
+            navigateToPpvThankYouScreen({movie: resolveThankYouMovie()});
+            return;
         }
 
         navigation.pop();

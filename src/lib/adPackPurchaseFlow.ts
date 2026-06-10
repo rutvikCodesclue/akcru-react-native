@@ -131,6 +131,8 @@ export async function confirmPpvMoviePurchase(
                     purchaseType: 'RENT',
                 });
 
+                // static transactionId
+                //const transactionId = 'rc_txn_123456987';
                 const transactionId = (await purchaseTierInApp(pack.tier)).transactionId;
                 const rented = await purchaseMovieViaRevenueCat(movieId, {
                     purchaseType: 'RENT',
