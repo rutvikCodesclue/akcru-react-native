@@ -20,6 +20,7 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {handleDelayedAppTrackingFlow, TrackingStatus} from './lib/appTrackingTransparency';
 import {isTablet} from './assets/constants/theme';
 import Purchases from 'react-native-purchases';
+import {syncRevenueCatAppUserId} from './src/lib/revenueCatPurchaseContext';
 
 LogBox.ignoreLogs(['Warning: ...']); // Ignore log notification by message
 LogBox.ignoreAllLogs();
@@ -79,6 +80,10 @@ function App(): JSX.Element {
     useEffect(() => {
         loadRewardInterval();
     }, [loadRewardInterval]);
+
+    useEffect(() => {
+        void syncRevenueCatAppUserId(userId);
+    }, [userId]);
 
     useEffect(() => {
         if (userId) {

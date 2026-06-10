@@ -7,7 +7,10 @@ import {
     purchaseTierInApp,
 } from './api/adPurchase.lib';
 import {purchaseMovieViaRevenueCat} from './api/movies.lib';
-import {isCurrentFlowPpv} from '../util/config';
+import {
+    clearPpvPurchaseAttributes,
+    setPpvPurchaseAttributes,
+} from './revenueCatPurchaseContext';
 
 /** Default PPV IAP price when no RevenueCat tier matches the movie rent price. */
 export const PPV_FALLBACK_USD_PRICE = 9.99;
@@ -122,29 +125,38 @@ export async function confirmPpvMoviePurchase(
 
     try {
         if (Platform.OS === 'ios' || Platform.OS === 'android') {
-            const transactionId =  (await purchaseTierInApp(pack.tier)).transactionId;
-            const rented = await purchaseMovieViaRevenueCat(movieId, {
-                purchaseType: 'RENT',
-                transactionId,
-                paymentProvider: 'REVENUECAT',
-            });
+            try {
+                await setPpvPurchaseAttributes({
+                    movieId,
+                    purchaseType: 'RENT',
+                });
 
-            if (!rented) {
+                const transactionId = (await purchaseTierInApp(pack.tier)).transactionId;
+                const rented = await purchaseMovieViaRevenueCat(movieId, {
+                    purchaseType: 'RENT',
+                    transactionId,
+                    paymentProvider: 'REVENUECAT',
+                });
+
+                if (!rented) {
+                    return {
+                        ...base,
+                        status: 'failed',
+                        transactionId,
+                        errorMessage:
+                            'Payment was received but rental could not be completed. Please contact support.',
+                    };
+                }
+
+                await options.hydrateUser();
                 return {
                     ...base,
-                    status: 'failed',
+                    status: 'success',
                     transactionId,
-                    errorMessage:
-                        'Payment was received but rental could not be completed. Please contact support.',
                 };
+            } finally {
+                await clearPpvPurchaseAttributes();
             }
-
-            await options.hydrateUser();
-            return {
-                ...base,
-                status: 'success',
-                transactionId,
-            };
         }
 
         const checkoutUrl = await purchaseAD(pack.tier);
