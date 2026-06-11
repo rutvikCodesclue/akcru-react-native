@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {View, Text, Image, ImageBackground, SafeAreaView, ScrollView, Animated, Easing} from 'react-native';
+import {View, Text, Image, ImageBackground, SafeAreaView, ScrollView, Animated, Easing, BackHandler} from 'react-native';
 import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,14 +16,13 @@ import {NoBottomTabStackParams} from '../../../../navigation/NoBottomTabStack';
 import imageindex from '../../../../../assets/images/imageindex';
 import onboardStyles from '../../../loginScreens/Onboard/styles';
 import Header from '../../../../components/header';
-import BackButton from '../../../../components/General/backbutton';
 import {updateUser} from '../../../../lib/api/user.lib';
 import useAuthStore from '../../../../stores/auth.store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AkcruButtons from '../../../../components/akcruButtons';
 import {useBackNavigatesToClientTab} from '../../../../hooks/useBackNavigatesToClientTab';
 import {AppLoadingModal} from '../../../../components/Loading';
-import {getPostAuthClientTabParams, getPostAuthResetState} from '../../../../util/postAuthNavigation';
+import {getPostAuthResetState} from '../../../../util/postAuthNavigation';
 import {isCurrentFlowPpv} from '../../../../util/config';
 import {reset as resetNavigation} from '../../../../util/RootNavigation';
 
@@ -37,9 +36,10 @@ type FlickFlirtArchetypeResultRouteProp = RouteProp<NoBottomTabStackParams, 'Fli
 
 const FlickFlirtArchetypeResult = () => {
     const navigation = useNavigation<FlickFlirtArchetypeResultNavProp>();
-    const goHome = useBackNavigatesToClientTab();
     const route = useRoute<FlickFlirtArchetypeResultRouteProp>();
     const {name, image, description, genres, fromOnboardArchetypeStandalone} = route.params ?? {};
+    const isPpvSignupFlow = fromOnboardArchetypeStandalone === true && isCurrentFlowPpv;
+    useBackNavigatesToClientTab({enabled: !isPpvSignupFlow});
     const [isSaving, setIsSaving] = useState(true);
     /** Remote archetype art must be ready before UI + reveal (no fixed delay). */
     const [isImageReady, setIsImageReady] = useState(!image);
@@ -155,6 +155,29 @@ const FlickFlirtArchetypeResult = () => {
             }),
         ]).start(() => setShowRevealFx(false));
     }, [showLoader, revealAnim]);
+
+    useEffect(() => {
+        if (!isPpvSignupFlow) {
+            return undefined;
+        }
+
+        navigation.setOptions({gestureEnabled: false});
+
+        const subscription = BackHandler.addEventListener('hardwareBackPress', () => true);
+        const unsubscribe = navigation.addListener('beforeRemove', e => {
+            const actionType = e.data.action.type;
+            if (actionType === 'RESET' || actionType === 'REPLACE' || actionType === 'NAVIGATE') {
+                return;
+            }
+
+            e.preventDefault();
+        });
+
+        return () => {
+            subscription.remove();
+            unsubscribe();
+        };
+    }, [isPpvSignupFlow, navigation]);
 
     const glowScale = glowAnim.interpolate({
         inputRange: [0, 1],

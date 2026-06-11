@@ -5,7 +5,7 @@ import {Icon} from '@rneui/base';
 import {COLORS, FONTS, SIZES} from '../../../../assets/constants';
 import {AUTH_TEXT_THEME} from '../../../../assets/constants/authTheme';
 import styles from './styles';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, CommonActions} from '@react-navigation/native';
 import {AkcruLogo} from '../../../../assets/svg';
 import imageindex from '../../../../assets/images/imageindex';
 import {AuthStackParams} from '../../../navigation/AuthNavigation';
@@ -23,8 +23,7 @@ import HexAvatar from '../../../components/HexAvatar';
 import {updateUserProfilePicture} from '../../../lib/api/user.lib';
 import {Image as CompressorImage} from 'react-native-compressor';
 import {isTablet} from '../../../../assets/constants/theme';
-import {getPostAuthResetState} from '../../../util/postAuthNavigation';
-import {reset as resetNavigation} from '../../../util/RootNavigation';
+import {isCurrentFlowPpv} from '../../../util/config';
 import LinearGradient from 'react-native-linear-gradient';
 
 const TOTAL_STEPS = 5;
@@ -59,16 +58,14 @@ const OnboardCruName = () => {
     const isCruNameValid = (value: string) => value.length > 2;
 
     const checkFormCompletion = () => {
-        if (cruName && isCruNameValid(cruName)) {
-            setIsFormComplete(true);
-        } else {
-            setIsFormComplete(false);
-        }
+        const hasProfilePicture = selectImage.trim().length > 0;
+        const hasValidCruName = Boolean(cruName) && isCruNameValid(cruName);
+        setIsFormComplete(hasProfilePicture || hasValidCruName);
     };
 
     useEffect(() => {
         checkFormCompletion();
-    }, [cruName]);
+    }, [cruName, selectImage]);
 
     const handleCruNameChange = (text: string) => {
         const trimmed = text.trim();
@@ -133,7 +130,6 @@ const OnboardCruName = () => {
 
                 if (updatedUserProfilePicture) {
                     setSelectImage(updatedUserProfilePicture.profilePicture || '');
-                     setIsFormComplete(true);
                 }
             }
         } catch (e: any) {
@@ -145,8 +141,22 @@ const OnboardCruName = () => {
         }
     };
 
+    const goToArchetypeStep = () => {
+        if (isCurrentFlowPpv) {
+            navigation.dispatch(
+                CommonActions.reset({
+                    index: 0,
+                    routes: [{name: 'OnboardArchetypeStandalone'}],
+                }),
+            );
+            return;
+        }
+
+        navigation.navigate('OnboardArchetypeStandalone');
+    };
+
     const ConfirmChangeCruName = async () => {
-        resetNavigation(getPostAuthResetState('signup'));
+        goToArchetypeStep();
         ///remove cruName
 //         if (!isCruNameValid(cruName)) {
 //             Alert.alert('Invalid CRU Name', 'Please enter a valid CRU name.');
