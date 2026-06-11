@@ -110,17 +110,51 @@ function extractTransactionId(purchaseResult: unknown): string {
         purchaseResult && typeof purchaseResult === 'object'
             ? (purchaseResult as Record<string, unknown>)
             : undefined;
+
+    const transaction =
+        resRecord?.transaction && typeof resRecord.transaction === 'object'
+            ? (resRecord.transaction as Record<string, unknown>)
+            : undefined;
+    const transactionIdentifier = transaction?.transactionIdentifier;
+    if (typeof transactionIdentifier === 'string' && transactionIdentifier.length > 0) {
+        return transactionIdentifier;
+    }
+
+    const topLevelTransactionId = resRecord?.transactionId;
+    if (typeof topLevelTransactionId === 'string' && topLevelTransactionId.length > 0) {
+        return topLevelTransactionId;
+    }
+
     const customerInfo =
         resRecord?.customerInfo && typeof resRecord.customerInfo === 'object'
             ? (resRecord.customerInfo as Record<string, unknown>)
             : undefined;
+    const productIdentifier =
+        typeof resRecord?.productIdentifier === 'string' ? resRecord.productIdentifier : undefined;
+    const nonSubscriptionTransactions = customerInfo?.nonSubscriptionTransactions;
+    if (Array.isArray(nonSubscriptionTransactions) && nonSubscriptionTransactions.length > 0) {
+        const latestMatchingTxn = [...nonSubscriptionTransactions]
+            .reverse()
+            .find(txn => {
+                if (!txn || typeof txn !== 'object') {
+                    return false;
+                }
+                const txnRecord = txn as Record<string, unknown>;
+                if (!productIdentifier) {
+                    return true;
+                }
+                return txnRecord.productIdentifier === productIdentifier;
+            });
 
-    return (
-        (typeof resRecord?.productIdentifier === 'string' && resRecord.productIdentifier) ||
-        (typeof resRecord?.transactionId === 'string' && resRecord.transactionId) ||
-        (typeof customerInfo?.originalAppUserId === 'string' && customerInfo.originalAppUserId) ||
-        (customerInfo?.entitlements ? JSON.stringify(purchaseResult) : new Date().toISOString())
-    );
+        if (latestMatchingTxn && typeof latestMatchingTxn === 'object') {
+            const fallbackTxnId = (latestMatchingTxn as Record<string, unknown>).transactionIdentifier;
+            if (typeof fallbackTxnId === 'string' && fallbackTxnId.length > 0) {
+                return fallbackTxnId;
+            }
+        }
+    }
+
+    throw new Error('Unable to extract store transaction ID from RevenueCat purchase result');
 }
 
 /** Runs RevenueCat in-app purchase only — does not credit AD or register a movie rental. */
