@@ -20,9 +20,6 @@ import {isTablet} from '../../../../assets/constants/theme';
 import LinearGradient from 'react-native-linear-gradient';
 import PreferenceChip from '../../../components/PreferenceChip';
 import {isCurrentFlowPpv} from '../../../util/config';
-import {getPostAuthResetState} from '../../../util/postAuthNavigation';
-import {reset as resetNavigation} from '../../../util/RootNavigation';
-
 const OnboardArchetypeStandalone = () => {
 
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParams>>();
@@ -95,20 +92,33 @@ const OnboardArchetypeStandalone = () => {
                         useAuthStore.setState({user: updatedUser});
                         setIsUpdatingArchetype(false);
 
+                        const resultParams = {
+                            name: selectedArchetype.name,
+                            image: selectedArchetype.image,
+                            description: selectedArchetype.description,
+                            genres: genreNames,
+                            fromOnboardArchetypeStandalone: true,
+                        };
+
                         if (isCurrentFlowPpv) {
-                            resetNavigation(getPostAuthResetState('signup'));
+                            navigation.reset({
+                                index: 0,
+                                routes: [
+                                    {
+                                        name: 'NoBottomStack',
+                                        params: {
+                                            screen: 'FlickFlirtArchetypeResult',
+                                            params: resultParams,
+                                        },
+                                    },
+                                ],
+                            });
                             return;
                         }
 
                         navigation.navigate('NoBottomStack', {
                             screen: 'FlickFlirtArchetypeResult',
-                            params: {
-                                name: selectedArchetype.name,
-                                image: selectedArchetype.image,
-                                description: selectedArchetype.description,
-                                genres: genreNames,
-                                fromOnboardArchetypeStandalone: true,
-                            },
+                            params: resultParams,
                         });
                     }
                 } catch (error) {

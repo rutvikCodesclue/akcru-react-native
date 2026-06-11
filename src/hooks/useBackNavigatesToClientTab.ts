@@ -7,7 +7,8 @@ import {NoBottomTabStackParams} from '../navigation/NoBottomTabStack';
 /**
  * Android hardware back, iOS swipe-back, and programmatic back: land on main tab stack (home).
  */
-export function useBackNavigatesToClientTab() {
+export function useBackNavigatesToClientTab(options?: {enabled?: boolean}) {
+    const enabled = options?.enabled ?? true;
     const navigation = useNavigation<StackNavigationProp<NoBottomTabStackParams>>();
 
     const goHome = useCallback(() => {
@@ -21,15 +22,23 @@ export function useBackNavigatesToClientTab() {
 
     useFocusEffect(
         useCallback(() => {
+            if (!enabled) {
+                return undefined;
+            }
+
             const sub = BackHandler.addEventListener('hardwareBackPress', () => {
                 goHome();
                 return true;
             });
             return () => sub.remove();
-        }, [goHome]),
+        }, [enabled, goHome]),
     );
 
     useEffect(() => {
+        if (!enabled) {
+            return undefined;
+        }
+
         const unsub = navigation.addListener('beforeRemove', e => {
             const type = e.data?.action?.type;
             /** Let normal navigations complete; only skip intercept for these. */
@@ -45,7 +54,7 @@ export function useBackNavigatesToClientTab() {
             goHome();
         });
         return unsub;
-    }, [navigation, goHome]);
+    }, [enabled, navigation, goHome]);
 
     return goHome;
 }
