@@ -705,14 +705,14 @@ export default function UserProfileScreen({ navigation, route }: Props) {
                                     opacity: 0.35,
                                 }}
                             />
-                           {/* <TouchableOpacity
+                            <TouchableOpacity
                                 style={{ paddingHorizontal: 14, paddingVertical: 12 }}
                                 onPress={() => {
                                     setProfileMenuVisible(false);
                                     navigation.navigate('PpvScreen');
                                 }}>
                                 <Text style={{ ...FONTS.Title2, color: COLORS.AKCRUBLUE }}>PPV Welcome</Text>
-                            </TouchableOpacity>*/}
+                            </TouchableOpacity>
                             <View
                                 style={{
                                     height: StyleSheet.hairlineWidth,
