@@ -31,14 +31,11 @@ import {getAdPacks, AdPackInfo} from '../../../lib/api/adPurchase.lib';
 import {
     AdPackPurchaseResponse,
     confirmPpvMoviePurchase,
-    findAdPackForRentPrice,
-    formatUsdPrice,
+    findAdPackForPpvPricing,
     onPackPurchasePress,
-    parseRentPriceAmount,
-    PPV_FALLBACK_USD_PRICE,
-    convertRentPriceToUsdDecimal,
 } from '../../../lib/adPackPurchaseFlow';
 import useAuthStore from '../../../stores/auth.store';
+import {usePpvPricing} from '../../../hooks/usePpvPricing';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import {COLORS} from '../../../../assets/constants';
 
@@ -54,6 +51,7 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
     useHideBottomTabBarWhileFocused(navigation);
 
     const hydrateUser = useAuthStore(s => s.hydrateUser);
+    const {isVip, priceLabel} = usePpvPricing();
 
     const {movie, screeningWindowLabel} = route.params;
 
@@ -91,13 +89,10 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
         setLoadingPack(true);
         getAdPacks()
             .then(packs => {
-                const matchedPack = findAdPackForRentPrice(
-                    packs,
-                    movie.rentalPrice ?? movie.price ?? null,
-                );
+                const matchedPack = findAdPackForPpvPricing(packs, isVip);
                 setPpvPack(matchedPack ?? null);
                 if (!matchedPack) {
-                    console.warn('[PpvPurchaseScreen] No RevenueCat pack available for rent price');
+                    console.warn('[PpvPurchaseScreen] No RevenueCat pack available for PPV pricing');
                 }
             })
             .catch(err => {
@@ -105,23 +100,14 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
                 Alert.alert('Error', 'Could not load purchase options. Please try again.');
             })
             .finally(() => setLoadingPack(false));
-    }, [movie.isPurchaseAd, movie.price, movie.rentalPrice]);
+    }, [isVip, movie.isPurchaseAd]);
 
-    const priceDisplay = useMemo(() => {
-        if (movie.isPurchaseAd) {
-            return getPpvPriceDisplay(movie);
-        }
-        if (ppvPack?.priceUSD != null && ppvPack.priceUSD > 0) {
-            return formatUsdPrice(ppvPack.priceUSD);
-        }
-        const rawAmount = parseRentPriceAmount(movie.rentalPrice ?? movie.price);
-        if (rawAmount > 0) {
-            return formatUsdPrice(convertRentPriceToUsdDecimal(rawAmount));
-        }
-        return formatUsdPrice(PPV_FALLBACK_USD_PRICE);
-    }, [movie, ppvPack]);
+    const priceDisplay = movie.isPurchaseAd ? getPpvPriceDisplay(movie) : priceLabel;
 
-    const rentConfirmationText = useMemo(() => formatPpvRentConfirmationText(movie), [movie]);
+    const rentConfirmationText = useMemo(
+        () => formatPpvRentConfirmationText(movie, isVip),
+        [isVip, movie],
+    );
 
     const handlePayPress = useCallback(() => {
         if (purchaseInProgress) {

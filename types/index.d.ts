@@ -56,6 +56,7 @@ interface IUserProfile {
     visionaryStatus: boolean;
     hasVideoPrivileges: boolean;
     isNewVisitFlick: boolean;
+    vipStatus?: boolean;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
@@ -321,6 +322,7 @@ export interface IUserProfile {
     pollCommentLikes: PollCommentLike[];
     pollLikes: PollLike[];
     isAdmin: boolean;
+    vipStatus?: boolean;
 }
 
 export interface IWatchlist {

@@ -22,15 +22,15 @@ import PremiereHeroImage from './PremiereHeroImage';
 import {
     buildPurchasedMovieIdSet,
     buildScreeningWindowLabel,
+    formatAccessButtonLabel,
     formatScreeningEventLabel,
     getDirectorName,
-    getPpvDefaultPriceLabel,
     getPpvMovieHeroUri,
-    getPpvPriceDisplay,
     getRentalDurationHrs,
     getStarringNames,
     isMoviePurchased,
 } from './ppvHelpers';
+import {usePpvPricing} from '../../../hooks/usePpvPricing';
 import PremiereTitle from './PremiereTitle';
 
 type Props = StackScreenProps<UserProfileStackParams, 'PpvMovieScreen'>;
@@ -39,6 +39,7 @@ export default function PpvMovieScreen({navigation, route}: Props) {
     useHideBottomTabBarWhileFocused(navigation);
 
     const movie = route.params.movie;
+    const {isVip} = usePpvPricing();
     const rentalDurationHrs = useMemo(() => getRentalDurationHrs(movie), [movie]);
     const [screeningWindowLabel, setScreeningWindowLabel] = useState(() =>
         buildScreeningWindowLabel(rentalDurationHrs),
@@ -73,17 +74,10 @@ export default function PpvMovieScreen({navigation, route}: Props) {
     const movieURL = movie.movieURL?.trim() ?? '';
     const directorName = useMemo(() => getDirectorName(movie), [movie]);
     const starringNames = useMemo(() => getStarringNames(movie), [movie]);
-    const accessButtonLabel = useMemo(() => {
-        const priceLabel = getPpvPriceDisplay(movie);
-        if (
-            priceLabel === getPpvDefaultPriceLabel(movie) &&
-            movie.price == null &&
-            movie.rentalPrice == null
-        ) {
-            return 'GET ACCESS';
-        }
-        return `GET ACCESS – ${priceLabel}`;
-    }, [movie]);
+    const accessButtonLabel = useMemo(
+        () => formatAccessButtonLabel(movie, isVip),
+        [isVip, movie],
+    );
 
     const metaText = useMemo(() => {
         const parts = [
