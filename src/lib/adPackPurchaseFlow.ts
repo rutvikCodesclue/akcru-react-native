@@ -12,8 +12,18 @@ import {
     setPpvPurchaseAttributes,
 } from './revenueCatPurchaseContext';
 
+/** Standard PPV IAP price for non-VIP users. */
+export const PPV_STANDARD_USD_PRICE = 9.99;
+
+/** VIP PPV IAP price when login `vipStatus` is true. */
+export const PPV_VIP_USD_PRICE = 4.99;
+
 /** Default PPV IAP price when no RevenueCat tier matches the movie rent price. */
-export const PPV_FALLBACK_USD_PRICE = 9.99;
+export const PPV_FALLBACK_USD_PRICE = PPV_STANDARD_USD_PRICE;
+
+export function getPpvUsdPriceForVipStatus(vipStatus: boolean | undefined): number {
+    return vipStatus === true ? PPV_VIP_USD_PRICE : PPV_STANDARD_USD_PRICE;
+}
 
 /** @deprecated Use findAdPackForRentPrice — kept for legacy references. */
 export const PPV_AD_PACK_TIER = 'BOOSTER';
@@ -54,6 +64,33 @@ export function findAdPackByTier(packs: AdPackInfo[], tier: string): AdPackInfo 
 
 export function findAdPackByUsdPrice(packs: AdPackInfo[], priceUSD: number): AdPackInfo | undefined {
     return packs.find(pack => pricesMatchUsd(pack.priceUSD, priceUSD));
+}
+
+/** Resolves the RevenueCat tier for PPV based on login `vipStatus`. */
+export function findAdPackForPpvPricing(
+    packs: AdPackInfo[],
+    vipStatus: boolean | undefined,
+): AdPackInfo | undefined {
+    if (!packs.length) {
+        return undefined;
+    }
+
+    const targetUsd = getPpvUsdPriceForVipStatus(vipStatus);
+    const matchedPack = findAdPackByUsdPrice(packs, targetUsd);
+    if (matchedPack) {
+        return matchedPack;
+    }
+
+    const fallbackPack = findAdPackByUsdPrice(packs, PPV_STANDARD_USD_PRICE);
+    if (fallbackPack) {
+        console.warn(
+            `[findAdPackForPpvPricing] No pack for $${targetUsd.toFixed(2)}, using $${PPV_STANDARD_USD_PRICE.toFixed(2)} fallback`,
+        );
+        return fallbackPack;
+    }
+
+    console.warn('[findAdPackForPpvPricing] No $9.99 pack found, using first available tier');
+    return packs[0];
 }
 
 /** Resolves the RevenueCat tier to purchase for a PPV movie rent price. */

@@ -62,12 +62,15 @@ const useAuthStore = create<IAuthStore>()(
 
                     const data = loginResponse.data as ILoginResponse;
                     const session = data.session;
-                    const user = data.user;
+                    const user = {
+                        ...data.user,
+                        vipStatus: data.vipStatus ?? data.user?.vipStatus,
+                    } as IUserProfile;
 
                     const hasOtherSessions = data.hasOtherSessions;
                     const otherSessionsCount = data.otherSessionsCount;
 
-                    set({session: data.session, user: data.user});
+                    set({session: data.session, user});
 
                     return {session, user, hasOtherSessions, otherSessionsCount};
                 } catch (error) {

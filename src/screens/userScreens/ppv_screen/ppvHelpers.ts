@@ -6,13 +6,12 @@ import {API} from '../../../clients/api.client';
 import {
     convertRentPriceToUsdDecimal,
     formatUsdPrice,
-    PPV_FALLBACK_USD_PRICE,
+    getPpvUsdPriceForVipStatus,
 } from '../../../lib/adPackPurchaseFlow';
 import {PPV_AKCRU_FOLLOW_USER_ID} from './ppvConstants';
 
 const SCREENING_DATE_FORMAT = 'MMMM D, YYYY h:mmA';
 const DEFAULT_RENTAL_DURATION_HRS = 48;
-const DEFAULT_USD_PRICE_LABEL = formatUsdPrice(PPV_FALLBACK_USD_PRICE);
 
 function isMoviePurchaseAd(movie: IMovie): boolean {
     return movie.isPurchaseAd === true;
@@ -25,8 +24,71 @@ function formatPpvPriceAmount(movie: IMovie, amount: number): string {
     return formatUsdPrice(convertRentPriceToUsdDecimal(amount));
 }
 
-export function getPpvDefaultPriceLabel(movie: IMovie): string {
-    return isMoviePurchaseAd(movie) ? '0 AD' : DEFAULT_USD_PRICE_LABEL;
+export function getPpvDefaultPriceLabel(movie: IMovie, vipStatus?: boolean): string {
+    if (isMoviePurchaseAd(movie)) {
+        return '0 AD';
+    }
+    return formatUsdPrice(getPpvUsdPriceForVipStatus(vipStatus));
+}
+
+export function getPpvPriceDisplay(movie: IMovie, vipStatus?: boolean): string {
+    if (isMoviePurchaseAd(movie)) {
+        const rentCost = movie.rentalPrice != null ? Number(movie.rentalPrice) : 0;
+        const price = movie.price ?? 0;
+
+        if (rentCost > 0) {
+            return formatPpvPriceAmount(movie, rentCost);
+        }
+
+        if (price > 0) {
+            return formatPpvPriceAmount(movie, price);
+        }
+
+        return getPpvDefaultPriceLabel(movie, vipStatus);
+    }
+
+    return formatUsdPrice(getPpvUsdPriceForVipStatus(vipStatus));
+}
+
+export function getPpvRentalPriceDisplay(movie: IMovie, vipStatus?: boolean): string {
+    if (isMoviePurchaseAd(movie)) {
+        const rentCost = movie.rentalPrice != null ? Number(movie.rentalPrice) : 0;
+        if (rentCost > 0) {
+            return formatPpvPriceAmount(movie, rentCost);
+        }
+    }
+
+    return getPpvPriceDisplay(movie, vipStatus);
+}
+
+export function formatPpvRentConfirmationText(movie: IMovie, vipStatus?: boolean): string {
+    const rentalDurationHrs = getRentalDurationHrs(movie);
+    const rentalPrice = getPpvRentalPriceDisplay(movie, vipStatus);
+    const hourLabel = rentalDurationHrs === 1 ? 'hour' : 'hours';
+    return `Are you sure you want to rent this movie for ${rentalDurationHrs} ${hourLabel} for ${rentalPrice}? (All sales are final - no refunds)`;
+}
+
+export function formatAccessLabel(movie: IMovie | null, vipStatus?: boolean): string {
+    if (!movie) {
+        return 'GET ACCESS';
+    }
+
+    const priceLabel = getPpvPriceDisplay(movie, vipStatus);
+
+    if (
+        movie.isPurchaseAd &&
+        priceLabel === getPpvDefaultPriceLabel(movie, vipStatus) &&
+        movie.price == null &&
+        movie.rentalPrice == null
+    ) {
+        return 'GET ACCESS';
+    }
+
+    return `GET ACCESS – ${priceLabel}`;
+}
+
+export function formatAccessButtonLabel(movie: IMovie | null, vipStatus?: boolean): string {
+    return formatAccessLabel(movie, vipStatus);
 }
 
 export function getRentalDurationHrs(movie: IMovie): number {
@@ -55,57 +117,6 @@ export function formatScreeningAccessHeading(rentalDurationHrs?: number | null):
     const durationHrs =
         rentalDurationHrs != null && rentalDurationHrs > 0 ? rentalDurationHrs : DEFAULT_RENTAL_DURATION_HRS;
     return `${durationHrs}-HOUR`;
-}
-
-export function getPpvPriceDisplay(movie: IMovie): string {
-    const rentCost = movie.rentalPrice != null ? Number(movie.rentalPrice) : 0;
-    const price = movie.price ?? 0;
-
-    if (rentCost > 0) {
-        return formatPpvPriceAmount(movie, rentCost);
-    }
-
-    if (price > 0) {
-        return formatPpvPriceAmount(movie, price);
-    }
-
-    return getPpvDefaultPriceLabel(movie);
-}
-
-export function getPpvRentalPriceDisplay(movie: IMovie): string {
-    const rentCost = movie.rentalPrice != null ? Number(movie.rentalPrice) : 0;
-    if (rentCost > 0) {
-        return formatPpvPriceAmount(movie, rentCost);
-    }
-    return getPpvPriceDisplay(movie);
-}
-
-export function formatPpvRentConfirmationText(movie: IMovie): string {
-    const rentalDurationHrs = getRentalDurationHrs(movie);
-    const rentalPrice = getPpvRentalPriceDisplay(movie);
-    const hourLabel = rentalDurationHrs === 1 ? 'hour' : 'hours';
-    return `Are you sure you want to rent this movie for ${rentalDurationHrs} ${hourLabel} for ${rentalPrice}? (All sales are final - no refunds)`;
-}
-
-export function formatAccessLabel(movie: IMovie | null): string {
-    if (!movie) {
-        return 'GET ACCESS';
-    }
-
-    const priceLabel = getPpvPriceDisplay(movie);
-    if (
-        priceLabel === getPpvDefaultPriceLabel(movie) &&
-        movie.price == null &&
-        movie.rentalPrice == null
-    ) {
-        return 'GET ACCESS';
-    }
-
-    return `GET ACCESS – ${priceLabel}`;
-}
-
-export function formatAccessButtonLabel(movie: IMovie | null): string {
-    return formatAccessLabel(movie);
 }
 
 export function getPremiereCreatorName(movie: IMovie): string {
