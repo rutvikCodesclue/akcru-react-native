@@ -39,7 +39,7 @@ export default function PpvMovieScreen({navigation, route}: Props) {
     useHideBottomTabBarWhileFocused(navigation);
 
     const movie = route.params.movie;
-    const {isVip} = usePpvPricing();
+    const {hasDiscount} = usePpvPricing(movie);
     const rentalDurationHrs = useMemo(() => getRentalDurationHrs(movie), [movie]);
     const [screeningWindowLabel, setScreeningWindowLabel] = useState(() =>
         buildScreeningWindowLabel(rentalDurationHrs),
@@ -75,8 +75,8 @@ export default function PpvMovieScreen({navigation, route}: Props) {
     const directorName = useMemo(() => getDirectorName(movie), [movie]);
     const starringNames = useMemo(() => getStarringNames(movie), [movie]);
     const accessButtonLabel = useMemo(
-        () => formatAccessButtonLabel(movie, isVip),
-        [isVip, movie],
+        () => formatAccessButtonLabel(movie, hasDiscount),
+        [hasDiscount, movie],
     );
 
     const metaText = useMemo(() => {

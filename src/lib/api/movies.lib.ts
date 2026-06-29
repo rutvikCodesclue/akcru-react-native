@@ -228,6 +228,13 @@ export interface IContentPurchaseStatus {
     };
 }
 
+export type IPurchasedMoviesResponse = {
+    success: boolean;
+    movies: IMovie[];
+    movieSlug?: string | null;
+    movieSlugs?: string[] | null;
+};
+
 /** Get whether the current user has an unexpired rental or a buy on this movie */
 export const getMoviePurchaseStatus = async (movieId: string): Promise<IContentPurchaseStatus> => {
     await useAuthStore.getState().hydrateAuth();
@@ -237,6 +244,11 @@ export const getMoviePurchaseStatus = async (movieId: string): Promise<IContentP
 
 export const getPurchasedMovies = async (): Promise<IMovie[]> => {
     await useAuthStore.getState().hydrateAuth();
-    const {data} = await API.get<{success: boolean; movies: IMovie[]}>('/v1/movies/purchased');
-    return data.success ? data.movies : [];
+    const {data} = await API.get<IPurchasedMoviesResponse>('/v1/movies/purchased');
+    if (!data.success) {
+        return [];
+    }
+
+    useAuthStore.getState().syncMovieSlugs(data.movieSlug, data.movieSlugs);
+    return data.movies;
 };

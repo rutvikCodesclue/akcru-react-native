@@ -10,16 +10,22 @@ import {getMe} from '../lib/api/user.lib';
 import {AxiosResponse} from 'axios';
 import messaging from '@react-native-firebase/messaging';
 import {getUserWallet} from '../lib/api/wallet.lib';
+import {resolveAuthMovieSlugState, resolveUserMovieSlugs} from '../lib/userProfile';
 
 interface IAuthStore {
     session: Session | null;
     user: IUserProfile | null;
+    movieSlug: string | null;
+    movieSlugs: string[];
     walletBalance: string | null;
     _hasHydrated: boolean;
     getWalletBalance: () => string | null;
     setWalletBalance: (balance: string | null) => void;
     getUser: () => IUserProfile | null;
     getSession: () => Session | null;
+    getMovieSlug: () => string | null;
+    getMovieSlugs: () => string[];
+    syncMovieSlugs: (movieSlug?: string | null, movieSlugs?: string[] | null) => void;
     loginWithEmail: (email: string, password: string) => Promise<{session: Session | null; user: IUserProfile | null; hasOtherSessions?: boolean; otherSessionsCount?: number}>;
     checkSessions: (email: string, password: string) => Promise<any>;
     signUpWithEmail: (email: string, password: string) => Promise<{response: AxiosResponse; user: IUserProfile | null}>;
@@ -35,6 +41,8 @@ const useAuthStore = create<IAuthStore>()(
         (set, get) => ({
             session: null,
             user: null,
+            movieSlug: null,
+            movieSlugs: [],
             walletBalance: null,
             _hasHydrated: false,
             getWalletBalance: () => get().walletBalance,
@@ -62,15 +70,27 @@ const useAuthStore = create<IAuthStore>()(
 
                     const data = loginResponse.data as ILoginResponse;
                     const session = data.session;
+                    const resolvedMovieSlug = data.movieSlug ?? data.user?.movieSlug ?? null;
+                    const resolvedMovieSlugs = resolveUserMovieSlugs(
+                        data.movieSlugs ?? data.user?.movieSlugs,
+                        resolvedMovieSlug,
+                    );
                     const user = {
                         ...data.user,
                         vipStatus: data.vipStatus ?? data.user?.vipStatus,
+                        movieSlug: resolvedMovieSlug,
+                        movieSlugs: resolvedMovieSlugs,
                     } as IUserProfile;
 
                     const hasOtherSessions = data.hasOtherSessions;
                     const otherSessionsCount = data.otherSessionsCount;
 
-                    set({session: data.session, user});
+                    set({
+                        session: data.session,
+                        user,
+                        movieSlug: resolvedMovieSlug,
+                        movieSlugs: resolvedMovieSlugs,
+                    });
 
                     return {session, user, hasOtherSessions, otherSessionsCount};
                 } catch (error) {
@@ -165,7 +185,7 @@ const useAuthStore = create<IAuthStore>()(
                     await AsyncStorage.removeItem('access_token');
 
                     await AsyncStorage.removeItem('deviceToken');
-                    set({session: null, user: null});
+                    set({session: null, user: null, movieSlug: null, movieSlugs: []});
 
                     messaging().onMessage(() => null);
                     messaging().onNotificationOpenedApp(() => null);
@@ -193,6 +213,72 @@ const useAuthStore = create<IAuthStore>()(
                     console.error('Error fetching session:', error);
                     return null;
                 }
+            },
+            getMovieSlug: (): string | null => {
+                try {
+                    const storedSlug = get().movieSlug;
+                    if (storedSlug?.trim()) {
+                        return storedSlug.trim();
+                    }
+                    return get().user?.movieSlug?.trim() ?? null;
+                } catch (error) {
+                    console.error('Error fetching movie slug:', error);
+                    return null;
+                }
+            },
+            getMovieSlugs: (): string[] => {
+                try {
+                    const storedSlugs = get().movieSlugs;
+                    if (storedSlugs.length > 0) {
+                        return storedSlugs;
+                    }
+                    return resolveUserMovieSlugs(get().user?.movieSlugs, get().getMovieSlug());
+                } catch (error) {
+                    console.error('Error fetching movie slugs:', error);
+                    return [];
+                }
+            },
+            syncMovieSlugs: (movieSlug?: string | null, movieSlugs?: string[] | null) => {
+                const currentUser = get().user;
+
+                if (movieSlug == null && movieSlugs == null) {
+                    return;
+                }
+
+                if (Array.isArray(movieSlugs) && movieSlugs.length === 0) {
+                    set({
+                        movieSlug: null,
+                        movieSlugs: [],
+                        user: currentUser
+                            ? {
+                                  ...currentUser,
+                                  movieSlug: null,
+                                  movieSlugs: [],
+                              }
+                            : currentUser,
+                    });
+                    return;
+                }
+
+                const {movieSlug: resolvedMovieSlug, movieSlugs: resolvedMovieSlugs} =
+                    resolveAuthMovieSlugState(
+                        movieSlug,
+                        movieSlugs,
+                        get().getMovieSlug(),
+                        get().getMovieSlugs(),
+                    );
+
+                set({
+                    movieSlug: resolvedMovieSlug,
+                    movieSlugs: resolvedMovieSlugs,
+                    user: currentUser
+                        ? {
+                              ...currentUser,
+                              movieSlug: resolvedMovieSlug,
+                              movieSlugs: resolvedMovieSlugs,
+                          }
+                        : currentUser,
+                });
             },
             hydrateAuth: async () => {
                 try {
@@ -235,7 +321,24 @@ const useAuthStore = create<IAuthStore>()(
                         return;
                     }
 
-                    set({user: userResponse});
+                    const currentMovieSlug = get().getMovieSlug();
+                    const currentMovieSlugs = get().getMovieSlugs();
+                    const resolvedMovieSlug = userResponse.movieSlug?.trim() || currentMovieSlug;
+                    const resolvedMovieSlugs = resolveUserMovieSlugs(
+                        userResponse.movieSlugs ?? currentMovieSlugs,
+                        resolvedMovieSlug,
+                    );
+                    const user = {
+                        ...userResponse,
+                        movieSlug: resolvedMovieSlug,
+                        movieSlugs: resolvedMovieSlugs,
+                    };
+
+                    set({
+                        user,
+                        movieSlug: resolvedMovieSlug,
+                        movieSlugs: resolvedMovieSlugs,
+                    });
                     // fetch wallet balance
                     const balance = await getUserWallet();
                     set({walletBalance: balance ?? null});

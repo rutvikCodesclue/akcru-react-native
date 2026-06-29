@@ -4,9 +4,19 @@ import useAuthStore from '../../stores/auth.store';
 import {MITInvitePolicy} from '../../util/mitInvitePolicy';
 export const getMe = async (): Promise<IUserProfile | undefined> => {
     try {
-        const {data} = await API.get('/v1/auth/me');
+        const {data} = await API.get<IAuthMeResponse>('/v1/auth/me');
+        const user = data.user as IUserProfile | undefined;
 
-        return data.user;
+        if (!user) {
+            return undefined;
+        }
+
+        return {
+            ...user,
+            vipStatus: data.vipStatus ?? user.vipStatus,
+            movieSlug: data.movieSlug ?? user.movieSlug,
+            movieSlugs: data.movieSlugs ?? user.movieSlugs,
+        };
     } catch (error: any) {
         console.error(error);
         return undefined;

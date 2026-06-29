@@ -57,6 +57,8 @@ interface IUserProfile {
     hasVideoPrivileges: boolean;
     isNewVisitFlick: boolean;
     vipStatus?: boolean;
+    movieSlug?: string | null;
+    movieSlugs?: string[] | null;
 }
 
 export type IGender = 'MALE' | 'FEMALE' | 'NONBINARY';
@@ -86,6 +88,7 @@ export interface IFlirtPreference {
 export interface IMovie {
     id: string;
     title: string;
+    slug?: string;
     description: string;
     genres: string[];
     duration: number;
@@ -315,6 +318,8 @@ export interface IUserProfile {
     pollLikes: PollLike[];
     isAdmin: boolean;
     vipStatus?: boolean;
+    movieSlug?: string | null;
+    movieSlugs?: string[] | null;
 }
 
 export interface IWatchlist {
@@ -349,6 +354,7 @@ export interface IWallet {
 export interface IMovie {
     id: string;
     title: string;
+    slug?: string;
     description: string;
     genres: string[];
     duration: number;

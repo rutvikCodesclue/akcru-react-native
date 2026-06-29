@@ -17,7 +17,7 @@ import {UserProfileStackParams} from '../../../navigation/UserProfileStack';
 import {useHideBottomTabBarWhileFocused} from '../../ChatScreens/useHideBottomTabBarWhileFocused';
 import {navigate} from '../../../util/RootNavigation';
 import {startPpvMoviePlayback} from '../../../lib/ppvPlaybackFlow';
-import {rentMovie} from '../../../lib/api/movies.lib';
+import {getPurchasedMovies, rentMovie} from '../../../lib/api/movies.lib';
 import purchaseStyles from './ppvPurchaseStyles';
 import {
     formatPpvRentConfirmationText,
@@ -36,6 +36,7 @@ import {
 } from '../../../lib/adPackPurchaseFlow';
 import useAuthStore from '../../../stores/auth.store';
 import {usePpvPricing} from '../../../hooks/usePpvPricing';
+import {hasPpvSlugDiscount} from '../../../lib/userProfile';
 import ConfirmationModal from '../../../components/ConfirmationModal';
 import {COLORS} from '../../../../assets/constants';
 
@@ -51,9 +52,8 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
     useHideBottomTabBarWhileFocused(navigation);
 
     const hydrateUser = useAuthStore(s => s.hydrateUser);
-    const {isVip, priceLabel} = usePpvPricing();
-
     const {movie, screeningWindowLabel} = route.params;
+    const {hasDiscount, priceLabel} = usePpvPricing(movie);
 
     const [ppvPack, setPpvPack] = useState<AdPackInfo | null>(null);
     const [selectedPack, setSelectedPack] = useState<AdPackInfo | null>(null);
@@ -86,27 +86,57 @@ export default function PpvPurchaseScreen({navigation, route}: Props) {
             return;
         }
 
+        let cancelled = false;
         setLoadingPack(true);
-        getAdPacks()
-            .then(packs => {
-                const matchedPack = findAdPackForPpvPricing(packs, isVip);
+
+        getPurchasedMovies()
+            .catch(error => {
+                console.error('[PpvPurchaseScreen] Failed to sync VIP movie slugs:', error);
+                return [];
+            })
+            .then(() => {
+                if (cancelled) {
+                    return undefined;
+                }
+
+                const authMovieSlugs = useAuthStore.getState().getMovieSlugs();
+                const discount = hasPpvSlugDiscount(authMovieSlugs, movie);
+                return getAdPacks().then(packs => findAdPackForPpvPricing(packs, discount));
+            })
+            .then(matchedPack => {
+                if (cancelled) {
+                    return;
+                }
+
                 setPpvPack(matchedPack ?? null);
                 if (!matchedPack) {
                     console.warn('[PpvPurchaseScreen] No RevenueCat pack available for PPV pricing');
                 }
             })
             .catch(err => {
+                if (cancelled) {
+                    return;
+                }
+
                 console.error('[PpvPurchaseScreen] Failed to load AD packs:', err);
                 Alert.alert('Error', 'Could not load purchase options. Please try again.');
             })
-            .finally(() => setLoadingPack(false));
-    }, [isVip, movie.isPurchaseAd]);
+            .finally(() => {
+                if (!cancelled) {
+                    setLoadingPack(false);
+                }
+            });
 
-    const priceDisplay = movie.isPurchaseAd ? getPpvPriceDisplay(movie) : priceLabel;
+        return () => {
+            cancelled = true;
+        };
+    }, [hasDiscount, movie]);
+
+    const priceDisplay = movie.isPurchaseAd ? getPpvPriceDisplay(movie, hasDiscount) : priceLabel;
 
     const rentConfirmationText = useMemo(
-        () => formatPpvRentConfirmationText(movie, isVip),
-        [isVip, movie],
+        () => formatPpvRentConfirmationText(movie, hasDiscount),
+        [hasDiscount, movie],
     );
 
     const handlePayPress = useCallback(() => {

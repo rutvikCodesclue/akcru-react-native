@@ -15,14 +15,18 @@ import {
 /** Standard PPV IAP price for non-VIP users. */
 export const PPV_STANDARD_USD_PRICE = 9.99;
 
-/** VIP PPV IAP price when login `vipStatus` is true. */
+/** VIP PPV IAP price when login movie slug matches the movie slug. */
 export const PPV_VIP_USD_PRICE = 4.99;
 
 /** Default PPV IAP price when no RevenueCat tier matches the movie rent price. */
 export const PPV_FALLBACK_USD_PRICE = PPV_STANDARD_USD_PRICE;
 
 export function getPpvUsdPriceForVipStatus(vipStatus: boolean | undefined): number {
-    return vipStatus === true ? PPV_VIP_USD_PRICE : PPV_STANDARD_USD_PRICE;
+    return getPpvUsdPriceForDiscount(vipStatus === true);
+}
+
+export function getPpvUsdPriceForDiscount(hasDiscount: boolean | undefined): number {
+    return hasDiscount === true ? PPV_VIP_USD_PRICE : PPV_STANDARD_USD_PRICE;
 }
 
 /** @deprecated Use findAdPackForRentPrice — kept for legacy references. */
@@ -66,16 +70,16 @@ export function findAdPackByUsdPrice(packs: AdPackInfo[], priceUSD: number): AdP
     return packs.find(pack => pricesMatchUsd(pack.priceUSD, priceUSD));
 }
 
-/** Resolves the RevenueCat tier for PPV based on login `vipStatus`. */
+/** Resolves the RevenueCat tier for PPV based on slug-matched discount pricing. */
 export function findAdPackForPpvPricing(
     packs: AdPackInfo[],
-    vipStatus: boolean | undefined,
+    hasDiscount: boolean | undefined,
 ): AdPackInfo | undefined {
     if (!packs.length) {
         return undefined;
     }
 
-    const targetUsd = getPpvUsdPriceForVipStatus(vipStatus);
+    const targetUsd = getPpvUsdPriceForDiscount(hasDiscount);
     const matchedPack = findAdPackByUsdPrice(packs, targetUsd);
     if (matchedPack) {
         return matchedPack;

@@ -6,7 +6,7 @@ import {API} from '../../../clients/api.client';
 import {
     convertRentPriceToUsdDecimal,
     formatUsdPrice,
-    getPpvUsdPriceForVipStatus,
+    getPpvUsdPriceForDiscount,
 } from '../../../lib/adPackPurchaseFlow';
 import {PPV_AKCRU_FOLLOW_USER_ID} from './ppvConstants';
 
@@ -24,14 +24,14 @@ function formatPpvPriceAmount(movie: IMovie, amount: number): string {
     return formatUsdPrice(convertRentPriceToUsdDecimal(amount));
 }
 
-export function getPpvDefaultPriceLabel(movie: IMovie, vipStatus?: boolean): string {
+export function getPpvDefaultPriceLabel(movie: IMovie, hasDiscount?: boolean): string {
     if (isMoviePurchaseAd(movie)) {
         return '0 AD';
     }
-    return formatUsdPrice(getPpvUsdPriceForVipStatus(vipStatus));
+    return formatUsdPrice(getPpvUsdPriceForDiscount(hasDiscount));
 }
 
-export function getPpvPriceDisplay(movie: IMovie, vipStatus?: boolean): string {
+export function getPpvPriceDisplay(movie: IMovie, hasDiscount?: boolean): string {
     if (isMoviePurchaseAd(movie)) {
         const rentCost = movie.rentalPrice != null ? Number(movie.rentalPrice) : 0;
         const price = movie.price ?? 0;
@@ -44,13 +44,13 @@ export function getPpvPriceDisplay(movie: IMovie, vipStatus?: boolean): string {
             return formatPpvPriceAmount(movie, price);
         }
 
-        return getPpvDefaultPriceLabel(movie, vipStatus);
+        return getPpvDefaultPriceLabel(movie, hasDiscount);
     }
 
-    return formatUsdPrice(getPpvUsdPriceForVipStatus(vipStatus));
+    return formatUsdPrice(getPpvUsdPriceForDiscount(hasDiscount));
 }
 
-export function getPpvRentalPriceDisplay(movie: IMovie, vipStatus?: boolean): string {
+export function getPpvRentalPriceDisplay(movie: IMovie, hasDiscount?: boolean): string {
     if (isMoviePurchaseAd(movie)) {
         const rentCost = movie.rentalPrice != null ? Number(movie.rentalPrice) : 0;
         if (rentCost > 0) {
@@ -58,26 +58,26 @@ export function getPpvRentalPriceDisplay(movie: IMovie, vipStatus?: boolean): st
         }
     }
 
-    return getPpvPriceDisplay(movie, vipStatus);
+    return getPpvPriceDisplay(movie, hasDiscount);
 }
 
-export function formatPpvRentConfirmationText(movie: IMovie, vipStatus?: boolean): string {
+export function formatPpvRentConfirmationText(movie: IMovie, hasDiscount?: boolean): string {
     const rentalDurationHrs = getRentalDurationHrs(movie);
-    const rentalPrice = getPpvRentalPriceDisplay(movie, vipStatus);
+    const rentalPrice = getPpvRentalPriceDisplay(movie, hasDiscount);
     const hourLabel = rentalDurationHrs === 1 ? 'hour' : 'hours';
     return `Are you sure you want to rent this movie for ${rentalDurationHrs} ${hourLabel} for ${rentalPrice}? (All sales are final - no refunds)`;
 }
 
-export function formatAccessLabel(movie: IMovie | null, vipStatus?: boolean): string {
+export function formatAccessLabel(movie: IMovie | null, hasDiscount?: boolean): string {
     if (!movie) {
         return 'GET ACCESS';
     }
 
-    const priceLabel = getPpvPriceDisplay(movie, vipStatus);
+    const priceLabel = getPpvPriceDisplay(movie, hasDiscount);
 
     if (
         movie.isPurchaseAd &&
-        priceLabel === getPpvDefaultPriceLabel(movie, vipStatus) &&
+        priceLabel === getPpvDefaultPriceLabel(movie, hasDiscount) &&
         movie.price == null &&
         movie.rentalPrice == null
     ) {
@@ -87,8 +87,8 @@ export function formatAccessLabel(movie: IMovie | null, vipStatus?: boolean): st
     return `GET ACCESS – ${priceLabel}`;
 }
 
-export function formatAccessButtonLabel(movie: IMovie | null, vipStatus?: boolean): string {
-    return formatAccessLabel(movie, vipStatus);
+export function formatAccessButtonLabel(movie: IMovie | null, hasDiscount?: boolean): string {
+    return formatAccessLabel(movie, hasDiscount);
 }
 
 export function getRentalDurationHrs(movie: IMovie): number {
